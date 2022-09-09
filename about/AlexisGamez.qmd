@@ -1,0 +1,39 @@
+---
+title: "Alexis Gamez"
+image: images/AlexisGamez.jpeg
+about:
+  template: solana
+  image-width: 15em
+  image-shape: round
+  image: images/AlexisGamez.jpeg
+  links:
+    - icon: github
+      text: Github
+      href: https://github.com/Leshi-bot
+---
+
+## Education/Work Background
+
+I graduated from the Worcester Polytechnic Institute with an undergraduates degree in Mechanical Engineering back in 2018. In the fall of 2021, I decided to pursue a certification in Computer Aided Design from MassBay Community College, wrapping it up at the end of the 2022 spring semester. That spring semester, I also decided to finally pursue a masters in Data Analytics and Computational Social Science, something I had been thinking about for quite some time.
+
+Post undergraduate degree, I worked as a Processing Supply Chain Leader at a PepsiCo plant in Randolph, MA for a year before moving on to my current workplace, the Beth Israel Deaconess Medical Center in Boston, MA. Since starting at BIDMC, my role has been primarily that of Office Engineer working for their Facilities department. However, toward the beginning of the pandemic, I was shifted to a new role, N95 Mask Sterilization & Distribution Lead, in the Operations department to fill a workforce need within the organization. That position is what sparked my interests in data analytics and I hope to pursue a DA career within the healthcare/related industry come graduation.
+
+## R experience
+
+Moderate experience from DACSS601, felt confident toward the end of the class and was happy with my results.
+
+## Research interests
+
+Healthcare related items! Whether it be Healthcare discrepancies such as the uneven distribution of resources across different populations or product/equipment R&D through the use of patient data. 
+
+## Hometown
+
+Allston, MA
+
+## Hobbies
+
+Music, stenciling/painting, video games, reading, camping, home improvement, DnD...
+
+## Fun fact
+
+I've visited 11 countries!
