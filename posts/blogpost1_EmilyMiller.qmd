@@ -1,0 +1,36 @@
+---
+title: "Research Question: Text and Gene Expression"
+format:
+  html:
+    theme: minty
+---
+
+0. **What is your topic of interest?**
+
+I'm currently working in a lab looking at the evolution of the brain through gene expression. Gene expression relies on the assumption that certain cells use certain genes more. We can look at how often genes are used by counting RNA or generally called "RNA sequencing" (or RNAseq). By noticing trends in gene expression across species, we're able to draw conclusions about what makes humans similar to and distinct from other primates.
+
+I'm interested in looking at gene expression interpretation through the lens of text-mining. Each time we sequence RNA, we have counts matrices of thousands of genes per sample. 
+
+2. **Find two academic articles that address topics of your interest and utilize quantitative and/or computational analysis of text. Read them. You can focus on the following points: What are research questions? What data are used? How are the data collected? Hypotheses? What methods are used? What are the findings of the study? What's your take on it?**
+
+Both of these papers used LDA to look at gene families, and the way that they applied these algorithms to each of their respective sequencing technologies is interesting.
+
+Bravo et al 2019 used single-cell sequencing, where thousands of cells have their gene expression measured individually. The paper aimed to cluster cells together based on where they were in their cell cycle. The paper uses LDA topic clustering algorithms to identify groups of genes co-expressed and then see the contribution of each gene group to the overall gene-expression profile of each cell. The groups of genes were used to identify transcription factors, which mediate these groups of genes. The paper released an R package based on its methods. I think that this is a fascinating way to reduce the conventionality of such a large dataset and is very intuitive. 
+
+Lou et al 2020 used a different sort of sequencing technology which relies on similar analyses. They also used LDA topic clustering algorithms to find groups of genes (they call "topics") then see the overall importance of the group by its importance in each sample. The clusters of genes were then associated with the survival of cancer. I appreciated their thorough description of their math and the applications of these gene groups.
+
+3. **Based on this brief navigation, discuss your own research questions and potential data sources.**
+I would like to look at topic modeling of single cell sequencing of the brain. These data are available on the Gene Expression Omnibus (GEO) website hosted by the NIH. I would like to explore how using unsupervised clustering through topic modeling compares to current methods of identifying trends within data (in fancy science terms, I'd like to compare this to a regular edgeR output). I'd also like to explore different ways to visualize this data.
+
+
+4. **At this phase you might have more questions than answers. Document all those questions.** 
+- How do we normalize for different sizes of documents (ex comparing 2,000 genes to 1,000,000)?
+- I'm thinking of having each "document" be a sequenced sample. Is this an appropriate assumption? What assumptions do topic model clustering make that translate to library normalization in RNAseq?
+- What are ways that topics are visualized? How are the compatible or incompatible with the current gold standard of gene expression analysis and visualization?
+
+
+**References**
+Bravo González-Blas, C., Minnoye, L., Papasokrati, D., Aibar, S., Hulselmans, G., Christiaens, V., Davie, K., Wouters, J., & Aerts, S. (2019). cisTopic: cis-regulatory topic modeling on single-cell ATAC-seq data. Nature methods, 16(5), 397–400. https://doi.org/10.1038/s41592-019-0367-1 https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6517279/
+
+Lou, S., Li, T., Kong, X., Zhang, J., Liu, J., Lee, D., & Gerstein, M. (2020). TopicNet: a framework for measuring transcriptional regulatory network change. Bioinformatics (Oxford, England), 36(Suppl_1), i474–i481. https://doi.org/10.1093/bioinformatics/btaa403 https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7355251/
+
