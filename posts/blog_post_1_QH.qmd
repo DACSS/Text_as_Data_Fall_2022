@@ -1,0 +1,48 @@
+---
+title: "Blog Post 1"
+author: "Quinn He"
+desription: "Research Idea"
+date: "09/26/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - hw1
+---
+
+```{r}
+#| label: setup
+#| warning: false
+
+library(tidyverse)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Research Topic
+
+### Option 1
+
+I am still not fully committed to this research topic, but, for now, this is the one I would like to settle on. I plan to look at news article headlines and maybe first paragraphs to track if newspaper's language has become more inflammatory over time and in related to what. Basically I would look at how newspapers frame certain topics like climate change, candidate races, and other political topics and categorize them by political leaning and outlet.
+
+For example, how does Fox News frame Ron DeSantis's recent move to send immigrants to Martha's Vineyard and how does NPR frame it?
+
+### Option 2
+
+Another option would be to scale down option 1 and look at issues on the local newspaper level and compare a red state with a blue state (Massachusetts compared to Florida).
+
+I would have to check the UMass database for articles (Alexis Nexus)
+
+## Possible Setbacks
+
+-   Only able to get data from one news source
+-   There will be potential limitations with my coding abilities to access certain data I will need.
+
+## Other Possibilites
+
+What other research topics could blossom out of my initial thoughts?
+
+What kind of language have newspapers used to portray climate change? the raid on Mar a Lago? Etc.
