@@ -1,0 +1,330 @@
+---
+title: "Blog Post two"
+author: "Molly Hackbarth"
+desription: "Focusing on downloading data"
+date: "10/01/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - blog posts
+  - hw2
+---
+
+```{r}
+#| label: setup
+#| warning: false
+
+library(tidyverse)
+library(cld3)
+library(dplyr)
+library(textclean)
+library(stringi)
+library(stringr)
+library(here)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Understanding APIs and R packages
+
+In order to understand how to download twitter and reddit I looked more into APIs. I've heard reddit is a bit frustrating, I decided to try twitter first. This included me downloading the R package "rtweet". Once I was able to use their API to create a project, I went ahead and tried to download multiple tweets.
+
+## Frustrations with APIs and R
+
+Unfortunately "rtweet" had a very similar issue to the package "RedditextractorR", both had a limit that made it difficult to work with. "rtweet" only allowed you to search from the last 6-9 days of tweets. This makes it hard to gather a lot of data over time. "RedditextractorR" only allowed you have comments from 7 posts at a time. It seems that using R for both types of packages proved to be very difficult.
+
+I also tried to use the package "twitteR" however it would not load properly for me. It kept giving me errors. Even with the properly set up Twitter API I was unable to have it connect to the account. This took over ***eight hours*** to try to get to work (including looking at multiple pages that suggested adding more packages to make both "twitteR" and "rtweet" to work) before I decide to give up on trying to using all of the packages.
+
+## Looking for a New Option
+
+I ended up deciding to look into other ways I could download tweets and Reddit posts. While most websites offered the same API options as mentioned before, a few of them recommended using Python instead.
+
+After awhile I ended up deciding to download Python and Visual Studio Code to run Python. I had little hope and had some frustrations with downloading the "pip" package but was able to download it.
+
+## Downloading Tweets and Reddit Posts through Python
+
+After finding a YouTube video I was able to use the python package "[snscrape](https://github.com/mehranshakarami/AI_Spectrum/blob/main/2022/snscrape/tweets.py)" that someone had created for python (you can watch the explanation of how it works [here](https://www.youtube.com/watch?v=jtIMnmbnOFo)!) in order to allow downloading tweets without having to us an API. This was extremely helpful as the whole time to download all of the tweets I was interested in (both #loveisblindjapan and "love is blind japan") were downloaded within a few minutes.
+
+For the Reddit posts I used a [website](https://medium.com/swlh/how-to-scrape-large-amounts-of-reddit-data-using-pushshift-1d33bde9286) that explained to me how to download all the comments that were on the subreddit r/loveisblindjapan. This also only took a few minutes.
+
+Between Reddit and Twitter I was able to download over 20k comments from users who watched the TV show.
+
+## Editing the Data in Google Sheets
+
+Since I did this through python I ended up saving the data into a csv file. This allowed me to check out the data in better detail in Google Sheets. I did a few things in Google Sheets since it was easier:
+
+-   Combined the two twitter csv files (One for #loveisblindjapan and another for the phrase "love is blind japan") and removed any duplicates between them with the "remove duplicate" function.
+
+-   I noticed the reddit csv file had time categorized as "utc" which stands for coordinate universal time. This gave me numbers such as "1643382213" which is fairly unreadable to me. Thus I used this formula to fix it: =X2/86400+DATE(1970,1,1)+time(5,30,0). This allowed me to have 1/28/2022 20:33:33 which is easier to understand. However to match the twitter csv file (done in year/month/day (YMD)) I used removed the time from the end and formatted it using Google Sheet's "custom date and time" format to end up with 2022-01-28.
+
+-   Since the twitter csv file had YMD and then time I split the column so it only had YMD.
+
+-   I ended up merging the files together (This included a count of comments from people, the username of the person, and the actually tweet or post). I made an extra column that would say if it was from Twitter or Reddit.
+
+## Data Quality
+
+While almost all Reddit posts were made in English, I noticed there were quite a few tweets that were partially or completely in a different language. This has lead to me debating on if I should just remove the non English tweets entirely or leave them in.
+
+I also noticed there were more tweets that had spelling errors than on Reddit posts. This is likely due to being unable to edit tweets, however this may cause a problem. Additionally tweets were more likely to use slang than Reddit.
+
+From a quick glance I also noticed that tweets were often writing about how the show made them feel rather than about the contestants on the show. This may lead me to change my research question or decide to use only Reddit posts. Reddit posts seemed to focus on the contestants more often.
+
+For the Reddit posts I also noticed that unfortunately the data does not seem to tell me how to now if people are replying to another comment on the post. Some of the posts will start with "I know what you mean!" This could lead to less examples of contestants names being shown, which could make my research question difficult.
+
+## Updated Research Question
+
+**Previously my research question was:** Do Reddit and Twitter differentiate on their views of contestants and their relationships in *Love is Blind Japan*?
+
+**My current research question I'm leaning towards is:** How do Reddit and Twitter users feel about the show *Love is Blind Japan*?
+
+**Why I'm considering the change:** It seems that although the contestants are important, if I want to focus on purely how viewers felt about the contestants I would need to only use Reddit posts. Additionally I will be analyzing the positive and negative sentiments of Reddit and Twitter together.
+
+## Bringing in the Data
+
+In order to check the data I've added my csv file to my repository. I will first check that it was added correctly.
+
+I use the "here" package because it allows you to bypass the issue of setwd(), allowing you to change your working directory file. **A relative path to the project root directory will always be created using here().**
+
+```{r Enter the Data}
+#corpus <- read.csv(here("posts","loveisblind_socialmedia.csv"))
+corpus <- read.csv(here("posts", "loveisblind_socialmedia.csv"))
+head(corpus)
+```
+
+Here we can see the data loaded in correctly and all three of the columns I wanted!
+
+## Attempting to Clean the Data (a bit)
+
+While the data is in the correct columns, I would still like to try a bit of cleaning to see if we can remove some items. The first thing I will do is remove non english from all of my posts. This is due to me being unable to analyze other languages correctly.
+
+### Remove Languages
+
+The first thing I thought of was removing Japanese as the show was in Japan, so I found this [answer](https://stackoverflow.com/questions/60181121/how-do-i-remove-japanese-characters).
+
+```{r remove japanese}
+str_rm_jap = function(x) {
+  #we replace japanese blocks with nothing, and clean any double whitespace from this
+  #reference at http://www.rikai.com/library/kanjitables/kanji_codes.unicode.shtml
+  x %>% 
+    #japanese style punctuation
+    str_replace_all("[\u3000-\u303F]", "") %>% 
+    #katakana
+    str_replace_all("[\u30A0-\u30FF]", "") %>% 
+    #hiragana
+    str_replace_all("[\u3040-\u309F]", "") %>% 
+    #kanji
+    str_replace_all("[\u4E00-\u9FAF]", "") %>% 
+    #remove excess whitespace
+    str_replace_all("  +", " ") %>% 
+    str_trim()
+}
+
+corpus_posts <- corpus$text %>% str_rm_jap
+
+```
+
+However I realized there were many more languages. This made it a bit more difficult. So I decided to keep looking and found this [answer](https://stackoverflow.com/questions/49338549/remove-languages-other-than-english-from-corpus-or-data-frame-in-r).
+
+```{r remove more languages}
+library("cld3")
+corpus2 <- subset(corpus, detect_language(corpus$text) == "en")
+```
+
+This seemed to work well! It may not be the perfect solution but it seems to have removed any tweets or posts that were not in English.
+
+### Check Package TextClean
+
+The next package I'll use for that is "textclean".
+
+I'll first check any posts or tweets (henceforth known as posts) using the check_text() function.
+
+This takes quite awhile (I didn't actually time it but I had enough time to watch a ton of Youtube clips!)
+
+```{r}
+
+check_text(corpus2$text)
+
+```
+
+We're able to see here there's multiple issues with the text that I pulled. What I like about this package is it also gives options to fix these items too. The first thing I'll try is to replace internet slang function.
+
+```{r replace internet slang}
+
+corpus_posts <- replace_internet_slang(corpus2$text)
+
+head(corpus_posts, 20)
+```
+
+This has worked well. It has changed slang words like "ppl" to "people"! This makes me quite happy.
+
+I'll go ahead and do "replace_date", "replace_kern" (to adjust spacing that was done manually such as writing "A M A Z I N G" as "AMAZING"), "replace_curly_quotes", "replace_word_elongation" (If someone writes "woooah" it'll change it to "woah") and "replace_contraction".
+
+```{r continue to replace}
+corpus_posts <- replace_date(corpus_posts) %>% 
+  replace_contraction(corpus_posts) %>% 
+  replace_kern(corpus_posts) %>% 
+  replace_curly_quote(corpus_posts) %>% 
+  replace_word_elongation(corpus_posts) %>% 
+  replace_white(corpus_posts)
+```
+
+### Removing Emojis
+
+I also want to remove emojis. To do this I found in the DACSS slack channel someone who was looking for similar information and was given an answer! Below you will see the emojis removed
+
+```{r remove emojis}
+only_ascii_regexp <- '[^\u0001-\u007F]+|<U\\+\\w+>'
+corpus_posts <- corpus_posts %>% 
+  str_replace_all(regex(only_ascii_regexp), "") 
+
+head(corpus_posts, 20)
+```
+
+### Remove HTML links
+
+There are a few html links that I believe mostly lead to Youtube clips of the shows or gifs. I would like to remove those as they don't add to my analysis. I followed [this](https://stackoverflow.com/questions/25352448/remove-urls-from-string) answer.
+
+```{r remove links}
+corpus_posts <- gsub(" ?(f|ht)(tp)(s?)(://)(.*)[.|/](.*)", "", corpus_posts)
+
+```
+
+### Another Look at Check_Text
+
+```{r check text again}
+
+check_text(corpus_posts)
+
+```
+
+Here we can see there's still a lot of problems. I'll attempt to fix some of them that I notice right away that seem easy.
+
+### A Bit More Cleaning
+
+Here I'm cleaning some issues that don't seem to work through the "textclean" replace packages.
+
+```{r cleaning text more}
+
+corpus_posts <- mgsub(corpus_posts, c("it's", "i'm", "i've", "she's", "he's", "don't", "isn't", "didn't", "they'll", "can't", "they're", "you're", "EP02Iv'e"), c("it is", "i am", "i have", "she is", "he is", "does not", "is not", "did not", "they will", "cannot", "they are", "you are", "it is", "i have"))
+
+corpus_posts <- mgsub(corpus_posts, c("1/11/22", "23"), c("january eleventh two thousand twenty two", "twenty three"))
+
+corpus_posts <- corpus_posts %>% textshape::split_sentence(corpus_posts, text.var = TRUE)
+
+head(corpus_posts, 10) 
+
+```
+
+### Testing Reverting to Data Frame
+
+This a test area to see if this will allow me to put my data back from values to data.
+
+```{r testing to make a data frame}
+library(corpus)
+library(textshape)
+library(cleanNLP)
+library(NLP)
+corpus_postse <- as_corpus_text(corpus_posts)
+
+corpus_postse <- tidy_list(corpus_posts)
+corpus_postse <- Token_Tokenizer(corpus_postse) # become tokens
+```
+
+It worked somewhat! It isn't a true data table but it is back under the data category.
+
+## General Notes and Future Thoughts
+
+-   The columns I had originally in the table, date and if the post was a tweet or Reddit post are missing. This isn't a problem currently, but if I would like those back I'll have to join the edited post to the table.
+
+    -   Another option is to just upload two separate csv files with one containing tweets and another containing posts.
+
+-   The textclean package has been super useful! It's helped to make a lot of the cleaning fairly easily. However it has left /n around for a few items. I'm unsure why, (as I believe it happened removing other languages) so I'll have to remove it later.
+
+    -   Although it has been very helpful it seems to be unable to clean up everything. That's alright but a bit confusing as to why.
+
+-   I noticed that some posts are now "NA" I'd like to remove those from my database by the next blog post.
+
+-   I would also like to change all text to lower case.
+
+-   I may want to use the "tm" package to clean up my data even more. Currently I feel like a lot of the harder things have been taken out.
+
+-   I'm a bit confused on the creating the corpus as token with the "textshape" package. It seems to work but I'm unsure of how it's working.
+
+## Looking Ahead at Tutorial 5
+
+After taking a brief look at tutorial 5 there does seem to be some very useful tips in there. Here is currently what I have. I may be able to combine some of what I was looking at and what lesson 5 has together!
+
+```{r looking ahead}
+library(devtools)
+library(tidytext)
+library(plyr)
+library(tidyverse)
+library(quanteda)
+library(quanteda)
+
+corpustest <- corpus(corpus$text)
+corpussummary <- summary(corpustest) 
+
+corpussummary$show <- "Love is Blind Japan"
+corpussummary$count <- as.numeric(str_extract(corpussummary, "[0-9]+"))
+
+corpus_tokens <- tokens(corpustest, 
+    remove_punct = T,
+    remove_numbers = T)
+
+corpus_tokens <- tokens_tolower(corpus_tokens)
+
+corpus_tokens <- tokens_select(corpus_tokens, pattern = stopwords("en"), selection = "remove")
+
+corpus_tokens_stem <- tokens_wordstem(corpus_tokens)
+
+print(corpus_tokens)
+```
+
+## Full Code
+
+```{r full current code}
+library(tidyverse)
+library(cld3)
+library(dplyr)
+library(textclean)
+library(stringi)
+library(stringr)
+library(textshape)
+library(here)
+
+corpus <- read.csv(here("posts","loveisblind_socialmedia.csv"))
+head(corpus)
+
+corpus2 <- subset(corpus, detect_language(corpus$text) == "en")
+
+corpus_posts <- replace_internet_slang(corpus2$text)
+
+corpus_posts <- replace_date(corpus_posts) %>% 
+  replace_contraction(corpus_posts) %>% 
+  replace_kern(corpus_posts) %>% 
+  replace_curly_quote(corpus_posts) %>% 
+  replace_word_elongation(corpus_posts) %>% 
+  replace_white(corpus_posts) %>% 
+  replace_html(corpus_posts) %>% 
+  textshape::split_sentence(corpus_posts)
+
+only_ascii_regexp <- '[^\u0001-\u007F]+|<U\\+\\w+>'
+corpus_posts <- corpus_posts %>% 
+  str_replace_all(regex(only_ascii_regexp), "") 
+
+corpus_posts <- gsub(" ?(f|ht)(tp)(s?)(://)(.*)[.|/](.*)", "", corpus_posts)
+corpus_posts <- mgsub(corpus_posts, c("it's", "i'm", "i've", "she's", "he's", "don't", "isn't", "didn't", "they'll", "can't", "they're", "you're", "EP02Iv'e"), c("it is", "i am", "i have", "she is", "he is", "does not", "is not", "did not", "they will", "cannot", "they are", "you are", "it is", "i have"))
+
+corpus_posts <- mgsub(corpus_posts, c("1/11/22", "23"), c("january eleventh two thousand twenty two", "twenty three"))
+
+
+corpus_postse <- corpus_postse %>% textshape::split_sentence(corpus_postse) 
+
+head(corpus_posts, 10) 
+
+```
