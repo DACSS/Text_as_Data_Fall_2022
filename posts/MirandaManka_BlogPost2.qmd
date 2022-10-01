@@ -1,0 +1,147 @@
+---
+title: "Blog Post 2"
+author: "Miranda Manka"
+desription: "Getting data"
+date: "10/01/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - blog posts
+---
+
+```{r}
+#| label: setup
+#| warning: false
+#| message: false
+
+library(tidyverse)
+library(polite)
+library(rvest)
+library(readr)
+library(quanteda)
+library(wordcloud)
+library(tm)
+library(SnowballC)
+library(RColorBrewer)
+
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+Between the first blog post and this second blog post, I decided to change my topic. I am now looking at article posts on a site called arlnow (local news/articles for Arlington, VA). I want to look at posts about covid and compare both the language used (for example the change in word usage over time from coronavirus to covid) and the content of the posts that mention covid (for example are schools mentioned more, or restaurants, etc). I also want to look at the sentiment of the posts and what is changing over time. This may still change as the methods I learn in the class progress if I want to change direction or to something more specific.
+
+For this I webscraped the arlnow site. I got articles that date from now back to mid-March 2020 by searching on the site for "covid". I may do this for more terms in the future depending on my analysis needs/research question progression. This gave me 550 articles and I have the title, author, time/date, and text from the posts. Figuring out this code chunk took way longer than I expected but I haven't done much with web scraping before so figuring out how to get exactly what I wanted from the site using the css selectors was difficult and time consuming but I got it.
+
+```{r eval = FALSE}
+bow("https://www.arlnow.com/")
+
+df = data.frame(matrix(ncol = 4, nrow = 0))
+
+for (i in 1:50){
+  Sys.sleep(2)
+  full_url = paste("https://www.arlnow.com/page/", i, "/?s=covid", sep = "")
+  tryCatch({website = read_html(full_url)}, error = function(e) {break})
+  value1 = html_elements(website, ".c-card--post")
+  
+  for (posty in value1) {
+    post_and_header = html_elements(posty, "article")
+    header = html_elements(post_and_header, "header")
+    post_content = html_elements(post_and_header, ".c-post__content")
+    title_and_author = html_elements(header, "a")
+    header_text = html_text(title_and_author[1])
+    author_text = html_text(title_and_author[2])
+    time_tag = html_attr(html_elements(header, "time"), "datetime")
+    raw_text = html_text(html_elements(post_content, "p"))
+    raw_text = toString(raw_text)
+    df[nrow(df)+1, ] = c(header_text, author_text, time_tag, raw_text)
+  }
+}
+
+colnames(df) = c("header_text", "author_text", "time_tag", "raw_text")
+
+write.csv(df, "./arlnow_covid_posts.csv", row.names = TRUE)
+```
+
+Here I am just reading in the data from the csv I created and dropping the extra column that was created in the write.csv and renaming a column.
+
+```{r}
+arlnow_covid = read_csv("arlnow_covid_posts.csv", col_names = TRUE, show_col_types = FALSE)
+arlnow_covid = subset(arlnow_covid, select = -c(1))
+arlnow_covid = rename(arlnow_covid, text_field = raw_text)
+```
+
+I wasn't sure exactly what to do yet so I started with making a corpus and looking at the summary and tokens. Then I looked a little into to appearance of some words like "school", "vaccine", and "restaurant" because I thought those might be interesting to examine later.
+
+```{r}
+arlnow_covid_corpus = corpus(arlnow_covid, docid_field = "doc_id", text_field = "text_field")
+arlnow_covid_corpus
+arlnow_covid_summary = summary(arlnow_covid_corpus, n = Inf)
+arlnow_covid_summary
+arlnow_covid_summary$Tokens
+arlnow_covid_corpus_tokens = tokens(arlnow_covid_corpus, remove_punct = T)
+arlnow_covid_corpus_tokens
+
+kwic_school = kwic(arlnow_covid_corpus_tokens, 
+      pattern = c("school", "schools"))
+kwic_school
+# 821 rows
+
+kwic_vaccine = kwic(arlnow_covid_corpus_tokens, 
+      pattern = c("vaccine", "vaccines", "vaccination", "vaccinations"))
+kwic_vaccine
+# 481 rows
+
+kwic_restaurant = kwic(arlnow_covid_corpus_tokens, 
+      pattern = c("restaurant", "restaurants"))
+kwic_restaurant
+# 211 rows
+```
+
+Finally, I wanted to make a word cloud as a basic way to visualize what words are appearing a lot. I tried following an online tutorial but that one wasn't working so I did another (but kept the code commented out in case I can figure it out later). I thought this ended up being really cool! 
+
+```{r}
+# From http://www.sthda.com/english/wiki/text-mining-and-word-cloud-fundamentals-in-r-5-simple-steps-you-should-know
+
+docs <- Corpus(VectorSource(arlnow_covid$text_field))
+
+# Convert the text to lower case
+docs <- tm_map(docs, content_transformer(tolower))
+# Remove numbers
+docs <- tm_map(docs, removeNumbers)
+# Remove english common stopwords
+docs <- tm_map(docs, removeWords, stopwords("english"))
+# Remove punctuations
+docs <- tm_map(docs, removePunctuation)
+# Eliminate extra white spaces
+docs <- tm_map(docs, stripWhitespace)
+# Remove words
+docs <- tm_map(docs, removeWords, c("arlington", "county", "virginia", "’s", "—", '“', '”'))
+# Text stemming
+# docs <- tm_map(docs, stemDocument)
+
+dtm <- TermDocumentMatrix(docs)
+m <- as.matrix(dtm)
+v <- sort(rowSums(m),decreasing=TRUE)
+d <- data.frame(word = names(v),freq=v)
+
+wordcloud(words = d$word, freq = d$freq, min.freq = 1,
+          max.words=100, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2"))
+
+
+# From https://towardsdatascience.com/create-a-word-cloud-with-r-bde3e7422e8a
+# This was not working, I was getting the error "Error in UseMethod("TermDocumentMatrix", x) : no applicable method for 'TermDocumentMatrix' applied to an object of class "c('corpus', 'character')"", and I could not quite figure out how to resolve it
+# arlnow_covid_text = arlnow_covid$text_field
+# arlnow_covid_corpus_text = corpus(arlnow_covid_text)
+# dtm <- TermDocumentMatrix(arlnow_covid_corpus_text)
+# matrix <- as.matrix(dtm) 
+# words <- sort(rowSums(matrix),decreasing=TRUE) 
+# df <- data.frame(word = names(words),freq=words)
+# wordcloud(words = df$word, freq = df$freq, min.freq = 1, max.words=100, random.order=FALSE, rot.per=0.35)
+```
+
+Overall, I have my data (but can easily get more if needed) and some research ideas that I am really looking forward to exploring more as we learn more methods in class! The webscraping was difficult and time consuming and I was running into some errors with the word cloud, and I think I may need some time with figuring out corpus/token/etc, but I was happy to get my data and start to look at it and analyze a little bit of it.
+
