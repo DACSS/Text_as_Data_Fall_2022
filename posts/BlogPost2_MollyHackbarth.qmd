@@ -91,7 +91,7 @@ I use the "here" package because it allows you to bypass the issue of setwd(), a
 
 ```{r Enter the Data}
 #corpus <- read.csv(here("posts","loveisblind_socialmedia.csv"))
-corpus <- read.csv(here("posts", "loveisblind_socialmedia.csv"))
+corpus <- read.csv(here("posts", "_data", "loveisblind_socialmedia.csv"))
 head(corpus)
 ```
 
