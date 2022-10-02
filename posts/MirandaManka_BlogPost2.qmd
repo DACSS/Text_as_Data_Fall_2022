@@ -68,7 +68,7 @@ write.csv(df, "./arlnow_covid_posts.csv", row.names = TRUE)
 Here I am just reading in the data from the csv I created and dropping the extra column that was created in the write.csv and renaming a column.
 
 ```{r}
-arlnow_covid = read_csv("arlnow_covid_posts.csv", col_names = TRUE, show_col_types = FALSE)
+arlnow_covid = read_csv("_data/arlnow_covid_posts.csv", col_names = TRUE, show_col_types = FALSE)
 arlnow_covid = subset(arlnow_covid, select = -c(1))
 arlnow_covid = rename(arlnow_covid, text_field = raw_text)
 ```
