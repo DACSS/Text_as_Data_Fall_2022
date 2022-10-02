@@ -1,0 +1,68 @@
+---
+title: "Blog Post 1_Kaushika Potluri"
+editor: visual
+---
+
+# Introduction
+
+Globally, the corona virus disease 2019 (COVID-19) pandemic has had an impact on the daily lives of people. People all across the world use social media networks to express their opinions and general thoughts about the pandemic that has affected their daily life, both generally and during lock down phases. Big data is useful for computer scientists and researchers to assess how people feel about current events, particularly those connected to the pandemic. Analysis of these feelings will therefore result in fascinating findings. One of the most popular social media platforms, Twitter, had a sharp rise in tweets on the corona virus in a short amount of time, including both positive and negative comments as well as neutral ones. Due to the variety of tweets, the researchers turn to sentiment analysis to examine the various feelings that the public has concerning COVID-19. On social media networking sites like Twitter, and Reddit. People have shared their opinions on the safety and efficacy of immunizations. The suggested method uses a variety of feature sets and classifiers to examine the feelings of the gathered tweets for sentiment analysis. Early COVID-19 emotion recognition from gathered tweets enables improved pandemic comprehension and management. Positive, negative, and neutral sentiment categories are used to group tweets.
+
+Tweet responses are widely used for public sentiment analysis to investigate social-psychological trends. Their results suggest that popular users\' impact on social media is consistent with their fame in the real world.
+
+# Literature Review
+
+### A critical analysis of COVID-19 research literature: Text mining approach
+
+by BS Anderson
+
+Studies of tweet responses have drawn a lot of interest because they capture how people utilize social media to share information. The significance of tweet replies rises in light of the several instances in which Twitter is said to perform better than traditional media. The three different ways to respond to a Tweet are reply, like, and retweet. The response is a reader's straightforward response to the initial tweet. The reader is given the opportunity to reply to the initial tweet. The reader can indicate their approval of the tweet by selecting Like. Retweet enables the reader to launch a new debate subject sparked by the original tweet, with the reader's followers as the intended audience.
+
+#### Research Questions
+
+Literature\'s categorization for sentiment analysis and infectious disease.
+
+Different applications for mitigating infectious diseases by sentiment analysis.
+
+#### Data Used
+
+They downloaded all references from the NIH COVID-19 Portfolio, an expert-curated source for publications and preprints for COVID-19 or the novel corona virus SARS-CoV-2.
+
+#### Methods Used
+
+This study comprised two parts. In the first part, they identified a resource for COVID-19 literature and developed our initial corpus for curation and term extraction. In the second part, they utilized several dimension reduction techniques including topic modeling and multiple correspondence analysis to reveal some distinct patterns in the text data and the associations among these patterns.
+
+#### REFERENCES
+
+1\. Organization WH . 2020. Coronavirus disease (COVID-19) pandemic; pp. 6--25. \[[Google Scholar](https://scholar.google.com/scholar?q=Organization+WH+Coronavirus+disease+(COVID-19)+pandemic+2020+6+25+)\]
+
+2\. Health NIo . 2020, May 13. Open-access data and computational resources to address COVID-19. \[[Google Scholar](https://scholar.google.com/scholar?q=Health+NIo+Open-access+data+and+computational+resources+to+address+COVID-19+2020,+May+13+)\]
+
+### Sentiment Analysis of COVID-19 Tweets
+
+This article by David Alberto Laines Vazquez and Carlos Alonzo L ́opez Casta ̃neda analyze tweets pertaining to COVID-19 with the help of natural language processing and neural network techniques. This study aims to do a sentiment analysis of the overall discussion with regard to COVID-19 using public opinions available in Twitter. In this work, they use a LSTM (Long Short-Term Memory) network to perform the sentiment analysis task in a data set of tweets related to COVID-19.
+
+#### Research Questions
+
+Understanding the function of opinion mining and sentiment analysis in Covid-19 and other infectious diseases.
+
+#### Data Used
+
+The data set(from Kaggle) used for the training and testing process of the text classification model is proposed, in which it was used a multi-label convolutional neural networktext classifier is trained, using SpaCy\'s new TextCategorizercomponent. A random subset of the data set is used.
+
+#### Methods used :
+
+Natural Language Processing techniques such as Bag of Words. They use a LSTM network to perform the sentiment analysis task in a data set of tweets related to COVID-19.\
+
+#### REFERENCES
+
+\[1\] Dickinson, B., & Hu, W. (2015). Sentiment analysis of investor opinionson Twitter. Social Networking, 4(03), 62.
+
+\[2\] Hussein, D. M. E. D. M. (2018). A survey on sentiment analysis chal-lenges. Journal of King Saud University-Engineering Sciences, 30(4),330-338.
+
+\[3\] Medhat, W., Hassan, A., & Korashy, H. (2014). Sentiment analysisalgorithms and applications: A survey. Ain Shams engineering journal,5(4), 1093-1113
+
+# My Current Research Idea
+
+In my current project I wish to perform Sentiment Analysis on tweets related to the Covid-19 Vaccine. In the first part I wish to collect tweets related to the Covid-19 vaccine (Web scraping) and prepare the data.
+
+In the next part I wish to conduct a social network analysis and visualize the underlying emotions (sentiments) of the tweets.
