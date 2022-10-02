@@ -1,0 +1,1200 @@
+---
+title: "Blog Post 2"
+author: "Ethan Campbell"
+desription: "Research into English Premier League and how language changes depending on the season"
+date: "09/14/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - Blog Post 2
+  - Ethan Campbell
+  - Premier League
+---
+
+```{r}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+---
+title: "Web Scraping"
+format:
+  html:
+    theme: default
+---
+
+# Loading Packages
+
+```{r}
+library(rvest)
+library(tidyverse)
+library(polite)
+library(stringr)
+library(quanteda)
+```
+
+# Data Sources
+
+There are 6 teams included in this study 2 from the top of the table 2 from the middle and 2 from the bottom. They are already in that order from top to bottom. Data needed to be web scraped from a page called match report. This page was located on each teams official website and this page included information about the match, statistics, and quotes from both the players and the managers.
+
+[Arsenal Data](https://www.arsenal.com/news?field_article_arsenal_team_value=men&revision_information=&page=1)
+
+[Manchester City Data](https://www.mancity.com/news/mens)
+
+[Newcastle United Data](https://www.nufc.co.uk/matches/first-team/#results)
+
+[Everton Data](https://www.evertonfc.com/results)
+
+[Leicester Data](https://www.lcfc.com/matches/reports)
+
+[West Ham United Data](https://www.whufc.com/fixture/list/713)
+
+# Web Scraping/Tidying data
+
+Here is the beginning of the web scraping process. I was unable to find a way to make the web scraper search for one object then proceed to the next page where you could then scrape whats inside. For the time being I decided to manually web scrape the information. The tidying process is the real issue as there are many unwanted variables inside. For example there are a lot of /n's.
+
+## Arsenal
+
+This data was scraped from the official Arsenal page. This scraping pulled in all the matches that have been played this season thus far and will continue to grow as the season progresses. Within this scraped data there was a lot that needed to get removed which included things like /n, \n, random number strings, and long sentences talking about buying Arsenal pictures. After using stringr to clean up the data we unlisted it and started moving towards a corpus. There is still some tidying that needs to be done to remove some -'s and to make some spaces at certain portion of the document. After cleaning this data was put into a character vector and then put into a corpus which can be found at the bottom of this code. I added in the name of the team and the match number to the table and after that we can start looking at what the data means. So far 7 matches have been played and the word count was kept fairly consistent until match 5
+
+```{r}
+
+# Arsenal Match week 1 against Crystal Palace
+
+Arsenal_URL_1 <- "https://www.arsenal.com/fixture/arsenal/2022-Aug-05/crystal-palace-0-2-arsenal-match-report"
+
+Arsenal_URL_1 <- read_html(Arsenal_URL_1)
+
+week_1_select <- (".article-body")
+
+Arsenal_week_one <- Arsenal_URL_1 %>% 
+  html_node(css = week_1_select) %>%
+  html_text2()
+
+
+Arsenal_week_one <- str_replace_all(Arsenal_week_one, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_replace_all("[1234567890] of 42To buy official Arsenal pictures visit Arsenal Pics", "#") %>%
+  str_remove("Play videoWatch Arsenal video online05:24Highlights | Crystal Palace 0-2 Arsenal - bitesize") %>%
+  str_remove("111111111122222222223333333333444") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+
+# Arsenal Match week 2 against Leicester
+
+Arsenal_URL_2 <- "https://www.arsenal.com/fixture/arsenal/2022-Aug-13/arsenal-4-2-leicester-city-match-report"
+
+Arsenal_URL_2 <- read_html(Arsenal_URL_2)
+
+week_2_select <- (".article-body")
+
+Arsenal_week_two <- Arsenal_URL_2 %>% 
+  html_node(css = week_2_select) %>%
+  html_text2()
+
+
+Arsenal_week_two <- str_replace_all(Arsenal_week_two, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_replace_all("[1234567890] of 36To buy official Arsenal pictures visit Arsenal Pics", "#") %>%
+  str_remove("Play videoWatch Arsenal video online04:53Highlights | Arsenal 4-2 Leicester City - bitesize") %>%
+  str_remove("111111111122222222223333333") %>%
+  str_remove("Play videoWatch Arsenal video online02:31") %>%
+  str_remove("Play videoWatch Arsenal video online02:27") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+# Arsenal Match week 3 against Bournemouth
+
+Arsenal_URL_3 <- "https://www.arsenal.com/premier-league-match-report-bournemouth-odegaard-saliba-jesus"
+
+Arsenal_URL_3 <- read_html(Arsenal_URL_3)
+
+week_3_select <- (".article-body")
+
+Arsenal_week_three <- Arsenal_URL_3 %>% 
+  html_node(css = week_3_select) %>%
+  html_text2()
+
+
+Arsenal_week_three <- str_replace_all(Arsenal_week_three, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_replace_all("[1234567890] of 29To buy official Arsenal pictures visit Arsenal Pics", "#") %>%
+  str_remove("Play videoWatch Arsenal video online05:17Highlights | Bournemouth 0-3 Arsenal - bitesize") %>%
+  str_remove("11111111112222222222") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+
+# Arsenal Match week 4 against Fulham
+
+Arsenal_URL_4 <- "https://www.arsenal.com/premier-league-match-report-fulham-odegaard-gabriel"
+
+Arsenal_URL_4 <- read_html(Arsenal_URL_4)
+
+week_4_select <- (".article-body")
+
+Arsenal_week_four <- Arsenal_URL_4 %>% 
+  html_node(css = week_4_select) %>%
+  html_text2()
+
+
+Arsenal_week_four <- str_replace_all(Arsenal_week_four, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_replace_all("[1234567890] of 45To buy official Arsenal pictures visit Arsenal Pics", "#") %>%
+  str_remove("Play videoWatch Arsenal video online01:59Highlights: Arsenal 2-1 Fulhambitesize") %>%
+  str_remove("111111111122222222223333333333444444") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+
+# Arsenal Match week 5 against Aston villa
+
+Arsenal_URL_5 <- "https://www.arsenal.com/match-report-aston-villa-premier-league-martinelli-jesus"
+
+Arsenal_URL_5 <- read_html(Arsenal_URL_5)
+
+week_5_select <- (".article-body")
+
+Arsenal_week_five <- Arsenal_URL_5 %>% 
+  html_node(css = week_5_select) %>%
+  html_text2()
+
+Arsenal_week_five <- str_replace_all(Arsenal_week_five, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_replace_all("[1234567890] of 38To buy official Arsenal pictures visit Arsenal Pics", "#") %>%
+  str_remove("Play videoWatch Arsenal video online02:00Highlights | Brentford 0-3 Arsenal - bitesize") %>%
+  str_remove("11111111112222222222333333333") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+# Arsenal Match week 6 against Manchester united 
+
+Arsenal_URL_6 <- "https://www.arsenal.com/fixture/arsenal/2022-Sep-04/manchester-united-3-1-arsenal-match-report"
+
+Arsena_URL_6 <- read_html(Arsenal_URL_6)
+
+week_6_select <- (".article-body")
+
+Arsenal_week_six <- Arsenal_URL_6 %>% 
+  read_html() %>%
+  html_node(css = week_6_select) %>%
+  html_text2()
+
+Arsenal_week_six <- str_replace_all(Arsenal_week_six, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_replace_all("[1234567890] of 38To buy official Arsenal pictures visit Arsenal Pics", "#") %>%
+  str_remove("Play videoWatch Arsenal video online01:59Highlights: Manchester United 3-1 Arsenalbitesize") %>%
+  str_remove("11111111112222222222333333333") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+
+
+#Arsenal Match week 7 Against Brentford
+
+Arsenal_URL_7 <- "https://www.arsenal.com/premier-league-match-report-brentford-saliba-jesus-vieira"
+
+Arsenal_URL_7 <- read_html(Arsenal_URL_7)
+
+week_7_select <- (".article-body")
+
+Arsenal_week_seven <- Arsenal_URL_7 %>%
+  html_node(css = week_7_select) %>%
+  html_text2()
+
+
+# remove the \n\n, /n, the buy arsenal pictures 1-32(Tidying- the current problem is I can't get rid of the buy arsenal part)
+
+Arsenal_week_seven <- str_replace_all(Arsenal_week_seven, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_replace_all("[1234567890] of 32To buy official Arsenal pictures visit Arsenal Pics", "#") %>%
+  str_remove("Play videoWatch Arsenal video online02:00Highlights | Brentford 0-3 Arsenal - bitesize") %>%
+  str_remove("11111111112222222222333") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+# Once everything is completed it is a character
+class(week_7_select)
+
+Arsenal <- c(Arsenal_week_one, Arsenal_week_two, Arsenal_week_three, Arsenal_week_four, Arsenal_week_five, Arsenal_week_six, Arsenal_week_seven)
+
+nchar(Arsenal)
+Arsenal_corpus <- corpus(Arsenal)
+
+Arsenal_corpus_summary <- summary(Arsenal_corpus)
+
+Arsenal_corpus_summary$Team <- "Arsenal"
+Arsenal_corpus_summary
+
+# create a Match number
+Arsenal_corpus_summary$Match <- as.numeric(str_extract(Arsenal_corpus_summary$Text, "[0-9]+"))
+Arsenal_corpus_summary
+
+
+```
+
+## Manchester City
+
+Manchester Cty followed a very similar path as Arsenal as this one also required a lot cleaning with stringr however, it had a few unique moments. For example, I had to clean () which were all over the place in the original data. Other than this portion the cleaning process was the same and this will also needs some additional cleaning. I was able to move this into the corpus as well and we noticed that it had more sentences than Arsenal. However, this could be do to the spacing problem that I mentioned above more studying will need to be done after that change has been made. This team also had a more consistent amount of words and unique words.
+
+```{r}
+# Manchester City First match against West Ham
+
+Mancity_URL_1 <- "https://www.mancity.com/news/mens/west-ham-v-manchester-city-premier-league-match-report-63795480"
+
+Mancity_URL_1 <- read_html(Mancity_URL_1)
+
+Mancity_week_1 <- (".article-body__article-text")
+
+Mancity_week_1 <- Mancity_URL_1 %>% 
+  html_node(css = Mancity_week_1) %>%
+  html_text2()
+
+Mancity_week_1 <- str_replace_all(Mancity_week_1, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+# Manchester City second match against Bournemouth
+
+Mancity_URL_2 <- "https://www.mancity.com/news/mens/man-city-bournemouth-premier-league-match-report-63795987"
+
+Mancity_URL_2 <- read_html(Mancity_URL_2)
+
+Mancity_week_2 <- (".article-body__article-text")
+
+Mancity_week_2 <- Mancity_URL_2 %>% 
+  html_node(css = Mancity_week_2) %>%
+  html_text2()
+
+
+Mancity_week_2 <- str_replace_all(Mancity_week_2, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+# Manchester City third match against Newcastle United
+
+Mancity_URL_3 <- "https://www.mancity.com/news/mens/newcastle-v-manchester-city-match-report-63796690"
+
+Mancity_URL_3 <- read_html(Mancity_URL_3)
+
+Mancity_week_3 <- (".article-body__article-text")
+
+Mancity_week_3 <- Mancity_URL_3 %>% 
+  html_node(css = Mancity_week_3) %>%
+  html_text2()
+
+Mancity_week_3 <- str_replace_all(Mancity_week_3, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+# Manchester City fourth match against Crystal Palace
+
+Mancity_URL_4 <- "https://www.mancity.com/news/mens/man-city-crystal-palace-match-report-63797204"
+
+Mancity_URL_4 <- read_html(Mancity_URL_4)
+
+Mancity_week_4 <- (".article-body__article-text")
+
+Mancity_week_4 <- Mancity_URL_4 %>% 
+  html_node(css = Mancity_week_4) %>%
+  html_text2()
+
+Mancity_week_4 <- str_replace_all(Mancity_week_4, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+# Manchester City fifth match against Nottm Forest
+
+Mancity_URL_5 <- "https://www.mancity.com/news/mens/manchester-city-v-nottingham-forest-match-report-31-august-63797573"
+
+Mancity_URL_5 <- read_html(Mancity_URL_5)
+
+Mancity_week_5 <- (".article-body__article-text")
+
+Mancity_week_5 <- Mancity_URL_5 %>% 
+  html_node(css = Mancity_week_5) %>%
+  html_text2()
+
+Mancity_week_5 <- str_replace_all(Mancity_week_5, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+# Manchester City six match against Aston Villa
+
+Mancity_URL_6 <- "https://www.mancity.com/news/mens/aston-villa-manchester-city-premier-league-match-report-63797816"
+
+Mancity_URL_6 <- read_html(Mancity_URL_6)
+
+Mancity_week_6 <- (".article-body__article-text")
+
+Mancity_week_6 <- Mancity_URL_6 %>% 
+  html_node(css = Mancity_week_6) %>%
+  html_text2()
+
+Mancity_week_6 <- str_replace_all(Mancity_week_6, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+# Manchester city did not play week 7 due to queens death
+
+# Manchester City eighth match against Aston Villa
+
+Mancity_URL_7 <- "https://www.mancity.com/news/mens/wolves-manchester-city-away-premier-league-2022-match-report-63799002"
+
+Mancity_URL_7 <- read_html(Mancity_URL_7)
+
+Mancity_week_7 <- (".article-body__article-text")
+
+Mancity_week_7 <- Mancity_URL_7 %>% 
+  html_node(css = Mancity_week_7) %>%
+  html_text2()
+
+Mancity_week_7 <- str_replace_all(Mancity_week_7, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+ManCity <- c(Mancity_week_1, Mancity_week_2, Mancity_week_3, Mancity_week_4, Mancity_week_5, Mancity_week_6, Mancity_week_7)
+
+Mancity_corpus <- corpus(ManCity)
+
+Mancity_corpus_summary <- summary(Mancity_corpus)
+
+# Creating a Team Name 
+Mancity_corpus_summary$Team <- "Manchester City"
+
+# create a Match number
+Mancity_corpus_summary$Match <- as.numeric(str_extract(Mancity_corpus_summary$Text, "[0-9]+"))
+Mancity_corpus_summary
+```
+
+## Newcastle united
+
+This is the start of the middle table teams which I am exciting to see how they differ the two top tier teams. This data was scraped from the Newcastle official website and the cleaning process was pretty straight forward on this one as there was nothing unique that needed to be changed. One noticeable difference between this team and the top teams is the amount of words used in match reports as this one is about half of the first two teams. This might be unique to just this team or maybe the lower in the league the team is the less they will write about their performance?
+
+```{r}
+# New Castle United first match against nottingham forest
+# 1 rule for 1 bots crawl delay 5 seconds, scrapable
+
+bow("https://www.nufc.co.uk/matches/first-team/2022-23/newcastle-united-v-nottingham-forest/")
+
+Newc_URL_1 <- "https://www.nufc.co.uk/matches/first-team/2022-23/newcastle-united-v-nottingham-forest/"
+
+Newc_URL_1 <- read_html(Newc_URL_1)
+
+NewC_week_1 <- (".article__body")
+
+NewC_week_1 <- Newc_URL_1 %>% 
+  html_node(css = NewC_week_1) %>%
+  html_text2()
+
+NewC_week_1 <- str_replace_all(NewC_week_1, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+# New castle match week 2 against Brighton
+Newc_URL_2 <- "https://www.nufc.co.uk/matches/first-team/2022-23/brighton-and-hove-albion-v-newcastle-united/"
+
+Newc_URL_2 <- read_html(Newc_URL_2)
+
+NewC_week_2 <- (".article__body")
+
+NewC_week_2 <- Newc_URL_2 %>% 
+  html_node(css = NewC_week_2) %>%
+  html_text2()
+
+NewC_week_2 <- str_replace_all(NewC_week_2, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+# New castle match week 3 against Man City
+Newc_URL_3 <- "https://www.nufc.co.uk/matches/first-team/2022-23/newcastle-united-v-manchester-city/"
+
+Newc_URL_3 <- read_html(Newc_URL_3)
+
+NewC_week_3 <- (".article__body")
+
+NewC_week_3 <- Newc_URL_3 %>% 
+  html_node(css = NewC_week_3) %>%
+  html_text2()
+
+NewC_week_3 <- str_replace_all(NewC_week_3, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+
+# New castle match week 4 against Wolves
+Newc_URL_4 <- "https://www.nufc.co.uk/matches/first-team/2022-23/wolverhampton-wanderers-v-newcastle-united/"
+
+Newc_URL_4 <- read_html(Newc_URL_4)
+
+NewC_week_4 <- (".article__body")
+
+NewC_week_4 <- Newc_URL_4 %>% 
+  html_node(css = NewC_week_4) %>%
+  html_text2()
+
+NewC_week_4 <- str_replace_all(NewC_week_4, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+# New castle match week 5 against Liverpool
+Newc_URL_5 <- "https://www.nufc.co.uk/matches/first-team/2022-23/liverpool-v-newcastle-united/"
+
+Newc_URL_5 <- read_html(Newc_URL_5)
+
+NewC_week_5 <- (".article__body")
+
+NewC_week_5 <- Newc_URL_5 %>% 
+  html_node(css = NewC_week_5) %>%
+  html_text2()
+
+NewC_week_5 <- str_replace_all(NewC_week_5, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+# New castle match week 6 against Crystal Palace
+Newc_URL_6 <- "https://www.nufc.co.uk/matches/first-team/2022-23/newcastle-united-v-crystal-palace/"
+
+Newc_URL_6 <- read_html(Newc_URL_6)
+
+NewC_week_6 <- (".article__body")
+
+NewC_week_6 <- Newc_URL_6 %>% 
+  html_node(css = NewC_week_6) %>%
+  html_text2()
+
+NewC_week_6 <- str_replace_all(NewC_week_6, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+# New castle match week 7 against Bournemouth
+Newc_URL_7 <- "https://www.nufc.co.uk/matches/first-team/2022-23/newcastle-united-v-bournemouth/"
+
+Newc_URL_7 <- read_html(Newc_URL_7)
+
+NewC_week_7 <- (".article__body")
+
+NewC_week_7 <- Newc_URL_7 %>% 
+  html_node(css = NewC_week_7) %>%
+  html_text2()
+
+NewC_week_7 <- str_replace_all(NewC_week_7, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+NewCastle <- c(NewC_week_1, NewC_week_2, NewC_week_3, NewC_week_4, NewC_week_5, NewC_week_6, NewC_week_7)
+
+Newcastle_corpus <- corpus(NewCastle)
+
+Newcastle_corpus_summary <- summary(Newcastle_corpus)
+
+# Creating a team name
+Newcastle_corpus_summary$Team <- "New Castle"
+
+# create a Match number
+Newcastle_corpus_summary$Match <- as.numeric(str_extract(Newcastle_corpus_summary$Text, "[0-9]+"))
+Newcastle_corpus_summary
+```
+
+## Everton
+
+Was going to use Aston Villa originally however, the web scrapping was not returning the correct information so we switched to Everton which is running much more smoothly. This is the second team on the list of middle-tier teams and their cleaning process was about the same as the last team however, Aston Villa's website was really hard to scrape from. Looking at the corpus information for Everton we notice an increase in words compared to the last team however, there is one match that is significantly higher than the rest. This is match 2 which was against Aston Villa and I am currently unsure why there is such a difference between these amounts.
+
+```{r}
+
+# Everton vs Chelsea
+# 1 rule for 1 bots crawl delay 5 seconds, scrapable
+
+bow("https://www.evertonfc.com/match/74913/everton-chelsea#report")
+
+everton_URL_1 <- "https://www.evertonfc.com/match/74913/everton-chelsea#report"
+
+everton_URL_1 <- read_html(everton_URL_1)
+
+everton_week_1 <- (".article__body.mc-report__body.js-article-body")
+
+everton_week_1 <- everton_URL_1 %>% 
+  html_node(css = everton_week_1) %>%
+  html_text2()
+
+everton_week_1 <- str_replace_all(everton_week_1, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+# Everton vs Aston Villa
+
+everton_URL_2 <- "https://www.evertonfc.com/match/74922/aston-villa-everton#report"
+
+everton_URL_2 <- read_html(everton_URL_2)
+
+everton_week_2 <- (".article__body.mc-report__body.js-article-body")
+
+everton_week_2 <- everton_URL_2 %>% 
+  html_node(css = everton_week_2) %>%
+  html_text2()
+
+everton_week_2 <- str_replace_all(everton_week_2, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+# Everton vs Nottingham forest
+
+everton_URL_3 <- "https://www.evertonfc.com/match/74933/everton-nottm-forest#report"
+
+everton_URL_3 <- read_html(everton_URL_3)
+
+everton_week_3 <- (".article__body.mc-report__body.js-article-body")
+
+everton_week_3 <- everton_URL_3 %>% 
+  html_node(css = everton_week_3) %>%
+  html_text2()
+
+everton_week_3 <- str_replace_all(everton_week_3, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+# Everton vs Brentford
+
+everton_URL_4 <- "https://www.evertonfc.com/match/74943/brentford-everton#report"
+
+everton_URL_4 <- read_html(everton_URL_4)
+
+everton_week_4 <- (".article__body.mc-report__body.js-article-body")
+
+everton_week_4 <- everton_URL_4 %>% 
+  html_node(css = everton_week_4) %>%
+  html_text2()
+
+everton_week_4 <- str_replace_all(everton_week_4, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+# Everton vs Leeds
+
+everton_URL_5 <- "https://www.evertonfc.com/match/74955/leeds-everton#report"
+
+everton_URL_5 <- read_html(everton_URL_5)
+
+everton_week_5 <- (".article__body.mc-report__body.js-article-body")
+
+everton_week_5 <- everton_URL_5 %>% 
+  html_node(css = everton_week_5) %>%
+  html_text2()
+
+everton_week_5 <- str_replace_all(everton_week_5, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+# Everton vs Liverpool
+
+everton_URL_6 <- "https://www.evertonfc.com/match/74965/everton-liverpool#report"
+
+everton_URL_6 <- read_html(everton_URL_6)
+
+everton_week_6 <- (".article__body.mc-report__body.js-article-body")
+
+everton_week_6 <- everton_URL_6 %>% 
+  html_node(css = everton_week_6) %>%
+  html_text2()
+
+everton_week_6 <- str_replace_all(everton_week_6, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+# Everton vs West Ham
+
+everton_URL_7 <- "https://www.evertonfc.com/match/74985/everton-west-ham#report"
+
+everton_URL_7 <- read_html(everton_URL_7)
+
+everton_week_7 <- (".article__body.mc-report__body.js-article-body")
+
+everton_week_7 <- everton_URL_7 %>% 
+  html_node(css = everton_week_7) %>%
+  html_text2()
+
+everton_week_7 <- str_replace_all(everton_week_7, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+Everton <- c(everton_week_1, everton_week_2, everton_week_3, everton_week_4, everton_week_5, everton_week_6, everton_week_7)
+
+Everton_corpus <- corpus(Everton)
+
+Everton_corpus_summary <- summary(Everton_corpus)
+
+# Creating a team name
+Everton_corpus_summary$Team <- "Everton"
+
+# create a match indicator
+Everton_corpus_summary$Match <- as.numeric(str_extract(Everton_corpus_summary$Text, "[0-9]+"))
+Everton_corpus_summary
+
+```
+
+## Leicester
+
+This is the start of the bottom tier teams and we start to get a look into teams that are in the relegation zone which means that if they do not start improving their performance they will get moved down to the second league. I am expecting some urgency from this team and I am expecting that each match means a lot more to a team like this where one win can seperate you from staying or getting kicked out of the league. The cleaning process went smoothly with this team but there is deffiently still some work that needs to be done before the real analysis. We noticed that there words used was higher than the two middle teams on average and they had a pretty consistent range.
+
+```{r}
+
+# Leicester against Brentford
+# 1 bot 1 rule scrapable 5 second crawl
+bow("https://www.lcfc.com/news/2729025/city-held-by-bees-in-premier-league-opener/featured")
+
+leicester_URL_1 <- "https://www.lcfc.com/news/2729025/city-held-by-bees-in-premier-league-opener/featured"
+
+leicester_URL_1 <- read_html(leicester_URL_1)
+
+leicester_week_1 <- (".col-12")
+
+leicester_week_1 <- leicester_URL_1 %>% 
+  html_node(css = leicester_week_1) %>%
+  html_text2()
+
+leicester_week_1 <- str_replace_all(leicester_week_1, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+# Leicester against Arsenal
+
+leicester_URL_2 <- "https://www.lcfc.com/news/2739798/foxes-fall-to-defeat-at-arsenal/featured"
+
+leicester_URL_2 <- read_html(leicester_URL_2)
+
+leicester_week_2 <- (".col-12")
+
+leicester_week_2 <- leicester_URL_2 %>% 
+  html_node(css = leicester_week_2) %>%
+  html_text2()
+
+leicester_week_2 <- str_replace_all(leicester_week_2, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+# Leicester against SouthHamptom
+
+leicester_URL_3 <- "https://www.lcfc.com/news/2751347/saints-take-the-points-on-filbert-way/featured"
+
+leicester_URL_3 <- read_html(leicester_URL_3)
+
+leicester_week_3 <- (".col-12")
+
+leicester_week_3 <- leicester_URL_3 %>% 
+  html_node(css = leicester_week_3) %>%
+  html_text2()
+
+leicester_week_3 <- str_replace_all(leicester_week_3, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+# Leicester against Manchester City
+
+leicester_URL_4 <- "https://www.lcfc.com/news/2762326/city-defeated-as-10man-chelsea-win-at-stamford-bridge/featured"
+
+leicester_URL_4 <- read_html(leicester_URL_4)
+
+leicester_week_4 <- (".col-12")
+
+leicester_week_4 <- leicester_URL_4 %>% 
+  html_node(css = leicester_week_4) %>%
+  html_text2()
+
+leicester_week_4 <- str_replace_all(leicester_week_4, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+
+# Leicester against Manchester United
+
+leicester_URL_5 <- "https://www.lcfc.com/news/2774578/man-utd-defeat-for-leicester-on-matchday-five/featured"
+
+leicester_URL_5 <- read_html(leicester_URL_5)
+
+leicester_week_5 <- (".col-12")
+
+leicester_week_5 <- leicester_URL_5 %>% 
+  html_node(css = leicester_week_5) %>%
+  html_text2()
+
+leicester_week_5 <- str_replace_all(leicester_week_5, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+# Leicester against Brightton
+
+leicester_URL_6 <- "https://www.lcfc.com/news/2779658/city-beaten-away-to-brighton/featured"
+
+leicester_URL_6 <- read_html(leicester_URL_6)
+
+leicester_week_6 <- (".col-12")
+
+leicester_week_6 <- leicester_URL_6 %>% 
+  html_node(css = leicester_week_6) %>%
+  html_text2()
+
+leicester_week_6 <- str_replace_all(leicester_week_6, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+# Leicester against Hotspurs
+
+leicester_URL_7 <- "https://www.lcfc.com/news/2793845/leicester-lose-to-spurs-in-london/featured"
+
+leicester_URL_7 <- read_html(leicester_URL_7)
+
+leicester_week_7 <- (".col-12")
+
+leicester_week_7 <- leicester_URL_7 %>% 
+  html_node(css = leicester_week_7) %>%
+  html_text2()
+
+leicester_week_7 <- str_replace_all(leicester_week_7, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+Leicester <- c(leicester_week_1, leicester_week_2, leicester_week_3, leicester_week_4, leicester_week_5, leicester_week_6, leicester_week_7)
+
+Leicester_corpus <- corpus(Leicester)
+
+Leicester_corpus_summary <- summary(Leicester_corpus)
+
+# Creating a team name
+Leicester_corpus_summary$Team <- "Leicester"
+
+# create a match indicator
+Leicester_corpus_summary$Match <- as.numeric(str_extract(Leicester_corpus_summary$Text, "[0-9]+"))
+Leicester_corpus_summary
+```
+
+## West Ham United
+
+West Ham was fairly straight forward and I was able to clean this one pretty well. There is still some spacing work that needs to be done but that will come at a later stage. When looking at their information we noticed that they use some of the least amount of words when talking about the matches. They also use some of the least unique words so I am interested to break this one down and see if they are mostly talking about certain players performances.
+
+```{r}
+# West Ham vs Manchester City
+
+Westham_URL_1 <- "https://www.whufc.com/fixture/view/6472"
+
+Westham_URL_1 <- read_html(Westham_URL_1)
+
+Westham_week_1 <- (".m-article__columns")
+
+Westham_week_1 <- Westham_URL_1 %>% 
+  html_node(css = Westham_week_1) %>%
+  html_text2()
+
+Westham_week_1 <- str_replace_all(Westham_week_1, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+# West Ham vs Nottingham Forest
+
+Westham_URL_2 <- "https://www.whufc.com/fixture/view/6464"
+
+Westham_URL_2 <- read_html(Westham_URL_2)
+
+Westham_week_2 <- (".m-article__columns")
+
+Westham_week_2 <- Westham_URL_2 %>% 
+  html_node(css = Westham_week_2) %>%
+  html_text2()
+
+Westham_week_2 <- str_replace_all(Westham_week_2, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+# West Ham vs Brighton
+
+Westham_URL_3 <- "https://www.whufc.com/fixture/view/6452"
+
+Westham_URL_3 <- read_html(Westham_URL_3)
+
+Westham_week_3 <- (".m-article__columns")
+
+Westham_week_3 <- Westham_URL_3 %>% 
+  html_node(css = Westham_week_3) %>%
+  html_text2()
+
+Westham_week_3 <- str_replace_all(Westham_week_3, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+# West Ham vs Aston Villa
+
+Westham_URL_4 <- "https://www.whufc.com/fixture/view/6450"
+
+Westham_URL_4 <- read_html(Westham_URL_4)
+
+Westham_week_4 <- (".m-article__columns")
+
+Westham_week_4 <- Westham_URL_4 %>% 
+  html_node(css = Westham_week_4) %>%
+  html_text2()
+
+Westham_week_4 <- str_replace_all(Westham_week_4, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+# West Ham vs Tottenham Hotspurs
+
+Westham_URL_5 <- "https://www.whufc.com/fixture/view/6436"
+
+Westham_URL_5 <- read_html(Westham_URL_5)
+
+Westham_week_5 <- (".m-article__columns")
+
+Westham_week_5 <- Westham_URL_5 %>% 
+  html_node(css = Westham_week_5) %>%
+  html_text2()
+
+Westham_week_5 <- str_replace_all(Westham_week_5, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+# West Ham vs Chelsea
+
+Westham_URL_6 <- "https://www.whufc.com/fixture/view/6428"
+
+Westham_URL_6 <- read_html(Westham_URL_6)
+
+Westham_week_6 <- (".m-article__columns")
+
+Westham_week_6 <- Westham_URL_6 %>% 
+  html_node(css = Westham_week_6) %>%
+  html_text2()
+
+Westham_week_6 <- str_replace_all(Westham_week_6, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+# West Ham vs Everton
+
+Westham_URL_7 <- "https://www.whufc.com/fixture/view/6407"
+
+Westham_URL_7 <- read_html(Westham_URL_7)
+
+Westham_week_7 <- (".m-article__columns")
+
+Westham_week_7 <- Westham_URL_7 %>% 
+  html_node(css = Westham_week_7) %>%
+  html_text2()
+
+Westham_week_7 <- str_replace_all(Westham_week_7, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+
+Westham <- c(Westham_week_1, Westham_week_2, Westham_week_3, Westham_week_4, Westham_week_5, Westham_week_6, Westham_week_7)
+
+Westham_corpus <- corpus(Westham)
+
+Westham_corpus_summary <- summary(Westham_corpus)
+
+# Creating a team name
+Westham_corpus_summary$Team <- "WestHam"
+
+
+# create a match indicator
+Westham_corpus_summary$Match <- as.numeric(str_extract(Westham_corpus_summary$Text, "[0-9]+"))
+Westham_corpus_summary
+```
+
+## Exploratory Analysis
+
+ 
+
+## Bibliography
+
+-   City, M. (2022). NEWS. Retrieved from Mancity: https://www.mancity.com/news/mens
+
+-   Club, L. F. (2022). First Team. Retrieved from Leicester Football Club: https://www.lcfc.com/matches/reports
+
+-   Club, T. A. (2022). NEWS. Retrieved from Arsenal: https://www.arsenal.com/news?field_article_arsenal_team_value=men&revision_information=&page=1
+
+-   Everton. (2022). Results. Retrieved from Everton: https://www.evertonfc.com/results
+
+-   United, N. (2022). Our Results. Retrieved from Newcastle United: https://www.nufc.co.uk/matches/first-team/#results
+
+-   United, W. H. (2022). Fixtures. Retrieved from West Ham United: https://www.whufc.com/fixture/list/713
