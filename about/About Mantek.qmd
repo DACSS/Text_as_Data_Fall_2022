@@ -1,0 +1,33 @@
+---
+title: "Mantek Bhatia"
+image: images/Untitled.png
+about:
+  template: solana
+  image-width: 15em
+  image-shape: round
+  image: images/Untitled.png
+  links:
+    - icon: github
+      text: Github
+      href: https://github.com/mantekb
+---
+
+
+## Education/Work Background
+PhD student in the Information Systems program at Isenberg School of Management
+University of Massachusetts, Amherst. 
+
+
+## R experience
+
+
+## Research interests
+
+
+## Hometown
+
+
+## Hobbies
+
+
+## Fun fact
