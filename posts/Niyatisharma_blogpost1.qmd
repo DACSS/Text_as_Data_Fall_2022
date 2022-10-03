@@ -1,0 +1,23 @@
+---
+title: "Blog Post 1"
+author: "Niyati Sharma"
+desription: "Analyzing Customer Reviews for improvement of Uber experience"
+date: "09/02/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - blogpost1
+  - Niyati Sharma
+---
+
+## ** What are research questions?**
+
+Nowadays, most organizations and businesses develop online services, which add value to their business and even increase their customer base. Surveys and reviews have changed the dynamics of digital marketing. The feedback platform gave the power to customers to post, share, and review content. Customers can directly interact with other customers and companies. In this research, we will analyze huge user-generated content which can be used by organizations for their customer engagement strategies. The purpose of this study is to derive insights using app reviews and social media reviews to understand how businesses use feedback for customer engagement strategies. The kind of issues users face and what they say in their reviews/feedback provide a lot of information about the product experience, any technical or operational gaps, and even their general sentiment towards the product/company. The analysis will help in identifying the gaps in the priorities of the stakeholders. With the right customer engagement strategies, companies can make benefit.
+
+## **How are the data collected?**
+
+Collect the data from In-app surfaces across different apps (Eater app, Rider app etc.), across mobile and web, and other external sources such as mobile app store reviews, social media channels etc. where customers reach out for support/feedback. Ex. The collection of tweets from Twitter was done using R programming and using TwitteR package. \
