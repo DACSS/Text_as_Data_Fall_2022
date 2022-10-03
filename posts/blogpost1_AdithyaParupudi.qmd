@@ -1,0 +1,55 @@
+---
+title: "Blog Post 1"
+author: "Adithya Parupudi"
+desription: "Literature Review and Ideation"
+date: "09/19/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - blogpost1
+  - AdithyaParupudi
+---
+
+# Articles Referred
+
+### Article 1 : Twitter Sentiment Analysis on Indian Government Project using R
+
+The main motive behind this research paper is to use the power of social media to observe, examine and analyze the opinion regarding recent Indian government project as the opinion of people plays a vital role in formulating the government policies. By getting into the deeper insights on social media, one can easily analyze the behavior of people regarding various issues and policies, which was otherwise impossible using traditional sources. The case study was done on Statue of Unity. Analysis was done on one of the famous social networking sites i.e. Twitter, using R programming language. Twitter API was used to collect the primary data. Tweets were analyzed by using opinion lexicon and Emotion lexicon-based approaches. Opinion Lexicon based approach categorized the sentiment of tweets in three categories, while Emotion Lexicon based approach refined them into eight more categories. The research work done in this paper will help government to understand the emotions of people regarding their policies and will also enrich people to help them understand majority vote of people.
+
+### Article 2 : Sentiment Analysis on Indian Government Schemes Using Twitter data
+
+Abstract--- People use social media for entertainment, fetching information, news, business, communication and many more. Few of such social media applications are Facebook, Twitter, WhatsApp, Snapchat and so on. Twitter is one among the micro blogging websites. We are using Twitter mainly because it has gained a lot of media attention. The text written is referred to as tweets, where a common man can tweet or can write their hearts out. We would be fetching the direct responses from the public and hence the data is more real-time. First step is to fetch the tweets on a particular scheme using python language code followed by the cleaning process then comes the creation of bag of words. Later these bags of words are given as an input to the algorithms. Finally, after training the algorithms, we will be getting the sentiment of the public on that scheme.
+
+# Research Questions
+
+After going through the research articles, I realised all the papers so far are either about citizens response to various covid measures taken by the govt or attitude towards an e-govt. There is no such research paper so far which captured the citizens' sentiment to Indian government as a whole.
+
+1.  From newspaper articles and twitter, I want to capture Indians response to changing government policies over the past 50 years ( which I feel is a lot). Maybe I will narrow it down to few Indian prime ministers who are well-known ( Narendra Modi, Lal Bahadur Shastri, Indira Gandhi, Rajiv Gandhi, Atal Bihari Vajpayee, Atal Bihari Vajpayee, P. V. Narasimha Rao) and compare their reforms to indian sentiment.
+2.  Also want to see the change in Indian demographics - poverty level, Male & Female Birth Ratio etc
+3.  Major changes brought forth during a prime minister's term and how people reacted to it. Was it politically motivated? Or did it serve a larger purpose?
+
+## Data Sources
+
+Major data-sources will be twitter and news paper articles. As a starting point, I'd like to pull all the tweets of popular hashtags which will tell me people's sentiment towards a situation. And also use news paper articles, say The Hindu, and download articles as per the journalist names (who are known to write such articles) or some major events in Indian government history.
+
+# Doubts
+
+1.  Not sure if i can get access to very old twitter data. I want to see twitter data from last 10 yrs.
+2.  It will be a challenge traversing through the news articles to findout people sentiment being reported effectively.
+3.  Twitter and Newspapers are very subjective information sources. There are many instances where people have made unfair use of these platforms to get their voice heard or to support an unjust movement. It will be a challenge to figure out reliable sources of information. I want to know who are the "neutral" twitter users and journalists who can give me a balanced review.
+4.  Some really good journals do not have access through UMASS Libraries
+
+# References
+
+1.  Sentiment analysis and classification of Indian farmers' protest using twitter data
+
+    https://www-sciencedirect-com.silk.library.umass.edu/science/article/pii/S2667096821000124?via%3Dihub
+
+2\. Twitter Sentiment Analysis on Indian Government Project using R.
+
+https://d1wqtxts1xzle7.cloudfront.net/61585865/paper_sentiment20191222-58074-1tchba0-with-cover-page-v2.pdf?Expires=1664119135&Signature=LfEgBgCjXnWyZuenspRctZorHaIAU1UcN1d1AqHMXZMQC2ETVtUKY\~ZrSqbJzOl3wpNcOOfFQQsFAQBfqrJmAxUPJqPaT8Asic2i5PSqBQlwImaHX5Qus7kNExGMVJzl4ldmBbwHQIFR19f8YAFNa2dyFcQ8oSTTKCX56JtsINEe2GpN0\~Zcc79HNy5iDOmQjZDjlKZQXzY11No2YWkTXMCkcZPwIbuAEr14MOIBa\~IBqQ\~MbZUbOkN08U8p\~8xLREFRgIPoiWvrpY56GvPKYfeKHxm1sxyrsyFc2bzH60i7XZ8iNyrvIbLajyzou\~LP5ETb\~W9l9DlHjiWgqO97aw\_\_&Key-Pair-Id=APKAJLOHF5GGSLRBV4ZA
+
