@@ -1,0 +1,117 @@
+---
+title: "Blog Post 2"
+author: "Claire Battaglia"
+desription: "Blog Post 2"
+date: "10/02/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - Claire Battaglia
+  - text-as-data
+  - blog post 2
+  - open-text survey response
+---
+
+```{r}
+#| label: setup
+#| warning: false
+
+library(readxl)
+library(tidyverse)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## The Data
+
+The dataset that I'll be working with is from the Missoula City-County's inaugural Community Food Assessment, completed in 2021. In particular, the responses to one (or more) of the open-ended questions:
+
+1. What changes would you like to see for Missoula’s food system?
+2. In your opinion, what strengths and assets exist in Missoula's food system (i.e. in what ways is the food system doing well)?
+3. In your opinion, what gaps or unmet needs exist in Missoula's food system (i.e. in what ways could the food system do better)?
+
+Question One and Question Three are distinct questions but that distinction might not have been clear to respondents so I'm not sure yet whether it makes sense to analyze both questions or just one of the two.
+
+We received 389 responses in 2021 but are working to implement random sampling for our next wave and anticipate a larger, valid sample moving forward. Working with this smaller sample will thus be good practice for me but it's important to note that, given the sampling method (a mix between convenience and snowball sampling), I will ultimately not be drawing any inferences about the Missoula community as a whole from it.
+
+## Research Question and Analysis
+
+While I am still researching methods of analysis I am currently leaning towards Structural Topic Modeling (STM). I am ultimately interested in understanding the prevalence and content of topics (for each of the above survey questions) by certain categories: age, household size, household income level, and geographic area, etc. STM will enable me to do this. As described by Roberts et al., it will allow me to *discover* the topics within the responses as opposed to assume them based upon my own theoretical expectations.^[Roberts, Margaret E.; Stewart, Brandon M.; Tingley, Dustin; Lucas, Christopher; Leder-Luis, Jetson; Gadarian, Shana Kushner; Albertson, Bethany; Rand, David G. (2014). Structural Topic Models for Open-Ended Survey Responses. American Journal of Political Science, 58(4), 1064–1082.doi:10.1111/ajps.12103]
+
+*Prevalence* refers to how frequently a topic is discussed and *content* refers to the language used to discuss it.
+
+STM will allow me to analyze whether different groups discuss certain topics more frequently than other groups but also what language they use to discuss them. This is important. Looking at prevalence alone may reveal that all income levels discuss farmers markets with the same frequency but looking at content as well could reveal that one income level uses words/phrases like "fun" or "meet friends" to talk about them while another group uses "expensive" or "far away." These are clearly getting at very different lived experiences of farmers markets.
+
+## Getting Started
+
+```{r read data}
+# check wd
+getwd()
+
+# read data
+CFA_raw <- read_excel("FPAB Community Food Assessment Survey Data.xlsx", sheet = "Raw")
+
+# preview
+head(CFA_raw)
+```
+
+There is some initial cleaning I can do right now.
+
+```{r tidy dataset}
+# rename columns
+CFA_tidy <- CFA_raw %>%
+  rename("id" = "Respondent ID",
+         "zip" = "Zip Code",
+         "age" = "Age",
+         "income" = "Annual Household Income",
+         "size" = "Number of Individuals in Your Household",
+         "change" = "What changes would you like to see for Missoula’s food system?",
+         "strengths" = "In your opinion, what strengths and assets exist in Missoula's food system (i.e. in what ways is the food system doing well)?")
+
+# create subset
+CFA_tidy <- CFA_tidy %>%
+  subset(select = c("id", "zip", "age", "income", "size", "change", "strengths"))
+
+# preview
+head(CFA_tidy)
+```
+
+```{r change class}
+# change class
+CFA_tidy$id <- as.character(CFA_tidy$id)
+CFA_tidy$zip <- as.character(CFA_tidy$zip)
+CFA_tidy$age <- as.numeric(CFA_tidy$age)
+CFA_tidy$size <- as.numeric(CFA_tidy$size)
+
+# TODO decide what to do with income categories
+# CFA_tidy$size <- as.numeric(CFA_tidy$size)
+
+# preview
+head(CFA_tidy)
+
+# TODO get mean age and size of household
+# mean(CFA_tidy$age, na.rm = TRUE)
+# mean(CFA_tidy$size, na.rm = TRUE)
+```
+
+Next I'll calculate some summary statistics.
+
+For **age** I'll be interested in mean, median, mode and range.
+For **household size** I'll be interested in mean, median, mode and range.
+I'll want the mode **income level**.
+I'll also want all of those statistics broken out for each zip code.
+
+## Thinking Ahead to Next Steps
+
+Next I'll spend some time with the [`stm`](https://cran.r-project.org/web/packages/stm/vignettes/stmVignette.pdf) package and go through the methodology outlined in "Structural Topic Models for Open-Ended Survey Responses" in more detail. I definitely need to wrap my head around constructing the actual model(s) and there are some statistical concepts that have surfaced that I'm not familiar with (e.g. shrinkage priors, regularization, etc.)
+
+I've also started thinking about what I would like to be able to visualize and came across these posts about visualizing text data in both R and Python:
+
+* R - [TextPlot: R Library for Visualizing Text Data](https://towardsdatascience.com/textplot-r-library-for-visualizing-text-data-a8f1740a032d)
+* Python - [Advanced Visualisations for Text Data Analysis](https://towardsdatascience.com/advanced-visualisations-for-text-data-analysis-fc8add8796e2)
+
+Neither are specific to STM but may give me a sense of what is possible, packages to use, etc. The STM package documentation also includes some ideas for visualization STM models.
