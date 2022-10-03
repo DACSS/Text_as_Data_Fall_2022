@@ -1,6 +1,6 @@
 ---
-title: "Fake Challenge 1"
-author: "Your Name"
+title: "testing Challenge 1"
+author: "DACSS TEch team"
 desription: "Something to describe what I did"
 date: "08/02/2022"
 format:
