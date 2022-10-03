@@ -1,0 +1,100 @@
+---
+title: "Blog Post 2"
+author: "Kaushika"
+desription: "Sentimental Analysis on Covid 19 Vaccine"
+date: "10/02/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - blog Post 2
+  - Kaushika 
+---
+
+### Data sources used:
+
+In this project, I am going to predict the Sentiments of COVID-19 Vaccination tweets. The data sources I have used collecting tweets on the topic "Covid 19 Vaccination" (web scraping) and prepare the data. The data gathered from is Twitter and I'm going to use R environment to implement this project. During the pandemic, lots of studies carried out analysis using Twitter data.
+
+I have currently scraped the data from Twitter however I have only got tweets from the last 7 days since twitter only allows me to do so. However I will keep collecting data or try getting access to Twitter API for Academic Research which will allow me to get tweets from any timeline. So that would better help me visualize my data without any bias.
+
+To connect to the twitter API I have used two libraries twitteR and rtweet.
+
+```{r}
+library(twitteR) #R package which provides access to the Twitter API
+library(tm) #Text mining in R
+library(lubridate) #Lubridate is an R package that makes it easier to work with dates and times.
+library(wordcloud) #Visualize differences and similarity between documents
+library(wordcloud2)
+library(ggplot2) #For creating Graphics 
+library(reshape2) # Transform data between wide and long formats.
+library(dplyr) #Provides a grammar of data manipulation
+library(tidyverse) #Helps to transform and tidy data
+library(tidytext) #Applies the principles of the tidyverse to analyzing text.
+library(tidyr) #Helps to get tidy data
+library(gridExtra) #Arrange multiple grid-based plots on a page, and draw tables
+library(grid) #Produce graphical output
+library(rtweet) #Collecting Twitter Data
+```
+
+In order to gain access to Twitter data, I will have to apply for a developer account. I will need first to establish a secure connection to the Twitter API; for the connection, I need to provide a consumer API key and a consumer API secret. I can obtain these two by creating a developer profile with Twitter.
+
+```{r}
+# twitter keys and tokens
+api_key <- "cHsX0LBreWzbkShT6BugSaKu4"
+api_secret <- "CjzTxvRQkoKasibIZge92oqlwLTjWAWqLSKnH6NTZEg7xuURpQ"
+access_token <- "1574938226623651842-pzGlR6Tr5lH3OkSeFsBERQkqTqxv2E"
+access_token_secret <- "cpVs1xq4NibJ2usnYUCaxcpRI9kfDSSA92tXCCZKd8NJQ"
+
+# create token for rtweet
+token <- create_token(
+  app = "25576157",
+  api_key,
+  api_secret,
+  access_token,
+  access_token_secret,
+  set_renv = TRUE)
+```
+
+To start, we need to establish the connection.
+
+```{r}
+setup_twitter_oauth(api_key, api_secret, access_token, access_token_secret) #Authorising the connection
+
+```
+
+I will then use a basic function called searchTwitter to find tweets using multiple criterias.
+
+For example, I have used the searchTwitter criteria to find 10000 tweets on the topic Covid-19 vaccine to best evaluate tweets related to that. I have also limited our scope in English and can give a time restriction. I converted the returned tweets into a data frame using function twListToDF. Moreover, I noticed that all of the example tweets have RT at the beginning. This implies those results are actually retweets and I filtered out those retweets using function -filter:retweets.
+
+```{r}
+tweets_covid = searchTwitter("covid+19+vaccine -filter:retweets", n = 10000, lang = "en")
+tweets.df = twListToDF(tweets_covid)
+write.csv(tweets.df, file = "covid197tweets.csv", row.names = FALSE)
+
+```
+
+We can write our data frame into a csv file and observe that the text feature is complete.
+
+### Build Corpus
+
+A corpus, or an aggregate of text documents or tweets, is the primary document management structure in the R package "tm" (text mining).
+
+## Data Pre-Processing
+### Cleaning the Data
+Cleaning the data include removing stopwords, numbers, punctuation, and other elements. Stopwords are words that have no sentimental meaning, such as conjunctions, pronouns, negations, etc. Common yet meaningless words like "covid," "vaccination," "corona," etc. are also omitted in this context.
+The preprocessing of the text data is an essential step as it makes the raw text ready for mining. 
+
+## Social Network Analysis
+
+### Analysis of the Most Frequent Words - Word Cloud
+
+A collection of words presented in various sizes is called a wordcloud. The bigger and bolder the word appears, the more frequently a term is used in tweets.
+
+### Research Question
+I specifically focused on tweets about COVID-19 vaccines.  I wish to perform Sentiment Analysis on tweets related to the Covid-19 Vaccine. In the first part I wish to collect tweets related to the Covid-19 vaccine (Web scraping) and prepare the data.
+In the next part I wish to conduct a social network analysis and visualize the underlying emotions (sentiments) of the tweets.
+
+
