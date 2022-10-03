@@ -1,0 +1,105 @@
+---
+title: "Blog Post 2: Data"
+author: "Andrea Mah"
+desription: "Initial data exploration"
+date: "10/02/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - hw1
+  - challenge1
+  - my name
+  - dataset
+  - ggplot2
+---
+
+```{r}
+#| label: setup
+#| warning: false
+
+library(tidyverse)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+For my project, I plan to analyze statements given during UN conferences COP1 - COP15 which occured between 1995 and 2021.
+
+I was provided with these statements during conference opening, closing, and high-level segment sessions through a request to the UNFCCC archivists. 
+
+These statements were provided as pdfs, separated by year and forum (opening, closing, high-level). 
+
+I was able to read all files in at once using the following code: 
+```{r}
+library(tidytext)
+library(plyr)
+library(tidyverse)
+library(quanteda)
+library(pdftools)
+library(cleanNLP)
+
+#creating list of names of files to read in
+#file_list <- list.files(pattern="*.pdf")
+
+#all_files <- lapply(file_list, function(file){
+#  text <- pdf_text(file)
+ # text <- str_c(text, collapse = " ")
+  #data.frame(file = file,text = text)
+#})
+
+#bind
+#result <- do.call("rbind", all_files)
+
+#for the sake of the blog though, the wd can't be changed, so I load my existing data file
+load("~/Work/Current Projects/TaD/Text_as_Data_Fall_2022/result.RData")
+
+
+
+```
+
+
+This resulted in the expected number of documents (1808) being created as a dataframe where one column was the name of the file, and the other column included the text of the pdf.
+
+I got errors when trying to annotate. So, at first, I explored frequency of statements which mentioned my terms of interest:
+
+```{r}
+#Making a corpus version to look at summary
+result_corpus <- corpus(result)
+sc <- summary(result_corpus)
+head(sc)
+
+#how many tokens?
+
+
+rc_tokens <- tokens(result_corpus, remove_punct = T)
+sum(max(ntoken(rc_tokens)))
+
+#How many rows contain "resilient" and derivatives?
+length(str_which(result$text, " [Rr]esilien.* ")) #72
+
+#How many statements includeadaptation or mitigation (and related words)
+length(str_which(result$text, " [Aa]dapt.* " )) #939
+length(str_which(result$text, " [Mm]itigat.* ")) #638
+#
+#how many speeches have words about hope, (excluding hopeless)
+length(str_which(result$text, " [Hh]opes?|[Hh]opeful.*|[Hh]oping ")) 
+
+
+```
+One issue I have is that I currently have no meta-data associated with the documents. The questions I really want to ask need more information than I've been able to include at this point. My dataframe has 2 columns, one which is the file name and a second which includes the text of that file. The file names do follow some conventions, they include which COP conference the speech was at as well as the country or speaker. I am thinking about how I could use the filename to extract that information, although it isn't always located in the same position in the filename, e.g. "High Level Segment Statement COP12 Netherlands 20061115.pdf" vs. "Opening Statement COP10 UNFCCC Executive Secretary 20041206.pdf My main research questions are about change over time, so the one way I could think to do this is to create a separate corpus for each conference that I could add a "year" variable to, and then to combine those corpora. I don't think it would be that much work to do, given that there are only 15 conferences, but I am wondering if there might be a better way...
+
+Another question I had was whether there are best practices or standards for making sure the data imports correctly when dealing with a large amount of data. My data seems to have been imported ok but there were some source files which were scanned, the pdfs were formatted very differently from each other, and the quality was not the best, so I'm not sure right now what the best way is to check the accuracy of pdf_text(), without looking at every single file, or if there's a minimum amount I should check (10%? 25%?) to see if they imported correctly?
+
+
+
+
+
+
+
+
+
+
+
+
