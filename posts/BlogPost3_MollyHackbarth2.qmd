@@ -1,6 +1,18 @@
-------------------------------------------------------------------------
-
-title: "Blog Post Three" author: "Molly Hackbarth" desription: "Focusing on downloading data" date: "10/15/2022" format: html: toc: true code-fold: true code-copy: true code-tools: true categories: - blog posts - hw3 ---
+---
+title: "Blog Post Three"
+author: "Molly Hackbarth"
+desription: "Working with the data"
+date: "10/15/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - blog posts
+  - hw3
+---
 
 ```{r}
 #| label: setup
