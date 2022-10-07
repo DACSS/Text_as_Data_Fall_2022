@@ -169,18 +169,6 @@ df <- data.frame(word = names(words),freq=words)
 
 ```
 
-```{r}
-# quanteda comes with a corpus of presidential inaugural speeches
-# this first line subsets that corpus to speeches later than 1953
-dfm_inaug <- corpus_subset(reddit_corpus_tokens) %>%
-    # notice we are using the piping operator again.
-    # this time, we pipe the corpus to DFM, which creates a document-feature matrix
-    # in creating it, we remove stop words ("a", "it", "they") and punctuation
-    dfm(remove = stopwords('english'), remove_punct = TRUE) %>%
-    # then we trim words that appear fewer than 10 times
-    dfm_trim(min_termfreq = 10, verbose = FALSE)
-```
-
 While this works for creating tokens, unfortunately it has removed the date column. While this is fine to gather an overall sentiment, it would be nice to keep the other column there.
 
 Additionally trying to create a dtm from this doesn't seem to work.
@@ -203,7 +191,7 @@ only_ascii_regexp <- '[^\u0001-\u007F]+|<U\\+\\w+>'
 test$text <- test$text %>% 
  str_replace_all(regex(only_ascii_regexp), "") 
 
-test <- Corpus(VectorSource(reddit))
+test <- Corpus(VectorSource(test))
 
 test <- test %>%
   tm_map(removeNumbers) %>%
@@ -276,7 +264,7 @@ I realized my current removing non English is not working completely. Thus I'm t
 
 I also realized I was using tm_map to remove numbers which may have caused an issue.
 
-```{r}
+```{r reddit}
 test2 <- corpus(reddit)
 test2 <- subset(test2, detect_language(test2) == "en") 
 
@@ -286,9 +274,9 @@ test2 <- stringi::stri_trans_general(test2, "latin-ascii")
 #remove htmls
 test2 <- gsub(" ?(f|ht)(tp)(s?)(://)(.*)[.|/](.*)", "", test2)
 
-test2 <- Corpus(VectorSource(reddit))
+test2 <- Corpus(VectorSource(reddit_tm))
 
-test2 <- subset(test2, detect_language(test3) == "en") 
+test2 <- subset(test2, detect_language(test2) == "en") 
 
 test2 <- stringi::stri_trans_general(test2, "latin-ascii")
 
@@ -438,7 +426,7 @@ textplot_wordcloud(twittertest1, max_words=100, color="blue")
 
 ```
 
-## Code For New Word Clouds
+# Code For New Word Clouds
 
 ### Lemmetize
 
@@ -451,32 +439,8 @@ only_ascii_regexp <- '[^\u0001-\u03FF]+|<U\\+\\w+>'
 reddit_corpus <- reddit$text %>%
   str_replace_all(regex(only_ascii_regexp), "") 
 
-#remove emojis
-only_ascii_regexp <- '[^\u0001-\u007F]+|<U\\+\\w+>'
-twitter_corpus <- twitter_corpus %>% 
- str_replace_all(regex(only_ascii_regexp), "") 
-
-#remove htmls
-twitter_corpus <- gsub(" ?(f|ht)(tp)(s?)(://)(.*)[.|/](.*)", "", twitter_corpus)
-twitter_corpus <- twitter_corpus[!is.na(twitter_corpus)]
-
-library(quanteda.textplots)
-
-twitter_corpus_edit <- twitter_corpus %>% dfm(remove = stopwords('english'), remove_punct = TRUE) %>% dfm_trim(min_termfreq = 10, verbose = FALSE)
-textplot_wordcloud(twitter_corpus_edit, max_words=20, color="blue")
-
-```
-
-```{r reddit}
-reddit_corpus <- corpus(reddit, docid_field = "doc_id", text_field = "text")
-redditsummary <- summary(reddit_corpus)
-
 #remove non english languages 
 reddit_corpus <- stringi::stri_trans_general(reddit_corpus, "latin-ascii")
-
-
-#remove htmls
-reddit_corpus <- gsub(" ?(f|ht)(tp)(s?)(://)(.*)[.|/](.*)", "", reddit_corpus)
 
 #remove emojis
 only_ascii_regexp <- '[^\u0001-\u007F]+|<U\\+\\w+>'
@@ -487,8 +451,26 @@ reddit_corpus <- reddit_corpus %>%
 reddit_corpus <- gsub(" ?(f|ht)(tp)(s?)(://)(.*)[.|/](.*)", "", reddit_corpus)
 reddit_corpus <- reddit_corpus[!is.na(reddit_corpus)]
 
-reddit_corpus_edit <- reddit_corpus %>% dfm(remove = stopwords('english'), remove_punct = TRUE) %>% dfm_trim(min_termfreq = 10, verbose = FALSE)
+reddit_corpus_tokens <- tokens(reddit_corpus, 
+    remove_punct = T,
+    remove_numbers = T)
+
+reddit_corpus_tokens <- tokens_tolower(reddit_corpus_tokens)
+
+reddit_corpus_tokens <- tokens_select(reddit_corpus_tokens, pattern = stopwords("en"), selection = "remove")
+
+reddit_lemmitized <- tokens_replace(reddit_corpus_tokens, 
+                             pattern = lexicon::hash_lemmas$token, 
+                             replacement = lexicon::hash_lemmas$lemma)
+
+library(quanteda.textplots)
+
+reddit_corpus_edit <- reddit_lemmitized %>% 
+  dfm(remove = stopwords('english'), remove_punct = TRUE) %>% 
+  dfm_trim(min_termfreq = 50, verbose = FALSE)
+
 textplot_wordcloud(reddit_corpus_edit, max_words=100, color="red")
+
 ```
 
 ```{r twitter lem}
@@ -508,7 +490,7 @@ twitter_corpus <- stringi::stri_trans_general(twitter_corpus, "latin-ascii")
 #remove htmls
 twitter_corpus <- gsub(" ?(f|ht)(tp)(s?)(://)(.*)[.|/](.*)", "", twitter_corpus)
 
-twitter_corpus <- twittertest[!is.na(twitter_corpus)]
+twitter_corpus <- twitter_corpus[!is.na(twitter_corpus)]
 
 twitter_corpus_tokens <- tokens(twitter_corpus, 
     remove_punct = T,
@@ -524,13 +506,23 @@ twitter_lemmitized <- tokens_replace(twitter_corpus_tokens,
 
 library(quanteda.textplots)
 
-twittertest1 <- twittertest %>% 
+twitter_corpus_edit <- twitter_lemmitized %>% 
   dfm(remove = stopwords('english'), remove_punct = TRUE) %>% 
-  dfm_trim(min_termfreq = 10, verbose = FALSE)
+  dfm_trim(min_termfreq = 50, verbose = FALSE)
 
-textplot_wordcloud(twittertest1, max_words=100, color="blue")
+textplot_wordcloud(twitter_corpus_edit, max_words=100, color="blue")
 
 ```
+
+Some interesting facts for Lemmetize plot
+
+-   #loveisblindjapan is one of the largest along with blind, love and japan for twitter. This is unsurprising as that's the name of the show.
+
+-   Reddit used the word like and think a lot. However interestingly japanese is talked about more than the word Japan.
+
+-   The names of the actual contestants are not mentioned as much as I would think. They're still mentioned often but are not major words in the word cloud.
+
+-   Japanese characters and possibly emojis both made there way into the word cloud. I'm unsure why.
 
 ### TM Package
 
@@ -542,17 +534,20 @@ only_ascii_regexp <- '[^\u0001-\u03FF]+|<U\\+\\w+>'
 reddit_tm <- reddit$text %>%
   str_replace_all(regex(only_ascii_regexp), "") 
 
+#remove non english languages 
+reddit_tm <- stringi::stri_trans_general(reddit_tm, "latin-ascii")
+
 #remove htmls
 reddit_tm <- gsub(" ?(f|ht)(tp)(s?)(://)(.*)[.|/](.*)", "", reddit_tm)
 
-reddit_tm <- Corpus(VectorSource(reddit))
+reddit_tm <- Corpus(VectorSource(reddit_tm))
 
 #change non letters to spaces
 toSpace <- content_transformer(function (x , pattern ) gsub(pattern, " ", x))
 
 reddit_tm <- reddit_tm %>%
   tm_map(removePunctuation) %>%
-  tm_map(stripWhitespace) %>% # remove stop words
+  tm_map(stripWhitespace) %>% # remove multiple white space
   tm_map(toSpace, "/") %>% 
   tm_map(toSpace, "@") %>% 
   tm_map(toSpace, "\\|") %>% 
@@ -562,10 +557,10 @@ reddit_tm <- reddit_tm %>%
 reddit_dtm <- TermDocumentMatrix(reddit_tm) 
 reddit_matrix <- as.matrix(reddit_dtm) 
 reddit_words <- sort(rowSums(reddit_matrix),decreasing=TRUE) 
-reddit_df <- data.frame(word = names(reddit_words),freq=words)
+reddit_df <- data.frame(word = names(words),freq=words)
 
 set.seed(1234) # for reproducibility 
-wordcloud(words = reddit_df$word, freq = df$freq, min.freq = 50,           max.words=100, random.order=FALSE, rot.per=0.35,            colors=brewer.pal(8, "Dark2"))
+wordcloud(words = reddit_df$word, freq = reddit_df$freq, min.freq = 50,           max.words=100, random.order=FALSE, rot.per=0.35,            colors=brewer.pal(8, "Dark2"))
 
 ```
 
@@ -577,36 +572,62 @@ only_ascii_regexp <- '[^\u0001-\u03FF]+|<U\\+\\w+>'
 twitter_tm <- twitter$text %>%
   str_replace_all(regex(only_ascii_regexp), "") 
 
+#remove non english languages 
+twitter_tm <- stringi::stri_trans_general(twitter_tm, "latin-ascii")
+
 #remove htmls
 twitter_tm <- gsub(" ?(f|ht)(tp)(s?)(://)(.*)[.|/](.*)", "", twitter_tm)
 
-twitter_tm <- Corpus(VectorSource(twitter))
+twitter_tm <- Corpus(VectorSource(twitter_tm))
 
 #change non letters to spaces
 toSpace <- content_transformer(function (x , pattern ) gsub(pattern, " ", x))
 
 twitter_tm <- twitter_tm %>%
   tm_map(removePunctuation) %>%
-  tm_map(stripWhitespace) %>% # remove stop words
+  tm_map(stripWhitespace) %>% # remove multiple white space
   tm_map(toSpace, "/") %>% 
   tm_map(toSpace, "@") %>% 
-  tm_map(toSpace, "\\|") %>% 
+  tm_map(toSpace, "\\|") %>%
   tm_map(content_transformer(tolower)) %>% 
   tm_map(removeWords, stopwords("english")) # remove stop words
 
 twitter_dtm <- TermDocumentMatrix(twitter_tm) 
 twitter_matrix <- as.matrix(twitter_dtm) 
 twitter_words <- sort(rowSums(twitter_matrix),decreasing=TRUE) 
-twitter_df <- data.frame(word = names(twitter_words),freq=words)
+twitter_df <- data.frame(word = names(words),freq=words)
 
-set.seed(1234) # for reproducibility 
-wordcloud(words = twitter_df$word, freq = df$freq, min.freq = 50,           max.words=100, random.order=FALSE, rot.per=0.35,            colors=brewer.pal(8, "Dark2"))
+set.seed(12345) # for reproducibility 
+wordcloud(words = twitter_df$word, freq = twitter_df$freq, min.freq = 50,           max.words=100, random.order=FALSE, rot.per=0.35,            colors=brewer.pal(8, "Dark2"))
 ```
+
+Some interesting facts for TM:
+
+-   I thought that the 's was part of some sort of stop word. However it seems that it isn't for either. My guess is it may follow names of people in the show.
+-   Even with another version of removing emojis and non English there still seems to be some in the data, however not very much.
+-   Like and think were both very popular words for Twitter and Reddit.
+-   Not all the contestants were posted about the same amount.
+-   Despite the show being about marriage, the words married, marry, or marriage weren't the top words for either Twitter or Reddit.
+
+Overall between the two types of word clouds, I much prefer the TM version. This is because it's easier to read and understand.
+
+However I am surprised by the fact that they're so different. The only difference in code is really the "toSpace" which removes just a couple of extra things.
 
 ## Emoji Thoughts
 
 Using the function that I found from the DACSS slack channel I found that it also has a nice side affect of removing non English as well.
 
-Additionally I've noticed that there's has been few emojis that have made it into the word cloud. I also feel as most of the articles I have found about emojis have all admitted that it's hard to find accurate sentiment analysis and would require changing and decoding emojis.
+Additionally I've noticed that there's has been few emojis that have made it into the word cloud. I also don't feel confident in decoding emojis and being able to do a sentiment analysis.
 
 **Thus for this project I will not keep emojis.**
+
+## Change Research Questions
+
+**Changed research question:** How do Reddit and Twitter users posts and tweets in English feel about the show *Love is Blind Japan*?
+
+```{r}
+
+ttwitter <- twitter
+ttwitter$text <- iconv(twitter$text, from = "latin1", to = "ascii", sub = "byte")
+
+```
