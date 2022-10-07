@@ -83,7 +83,8 @@ twitter1 <- twitter1 %>% select(!c(X, User))
 twitter2 <- twitter2 %>% select(!c(X, User))
 
 twitter <- merge(twitter1, twitter2, by=c('Tweet','Tweet', 'Date', 'Date'),all=T, ignore_case =T)
-#write.csv(twitter, here::here("posts", "_data", "twitter.csv") , all(T) )
+write.csv(twitter, here::here("posts", "_data", "twitter.csv") , all(T) )
+
 names(twitter) <- tolower(names(twitter))
 twitter <- twitter %>% 
   rename_at('tweet', ~ 'text', 
