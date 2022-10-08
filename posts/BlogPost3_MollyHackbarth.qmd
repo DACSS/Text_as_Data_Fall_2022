@@ -89,13 +89,20 @@ names(twitter) <- tolower(names(twitter))
 twitter <- twitter %>% 
   rename_at('tweet', ~ 'text', 
             'Date' ~ 'date')
-twitter$date <- strftime(twitter$date, format="%Y-%m-%d")
+twitter$date <- as.Date(strftime(twitter$date, format="%Y-%m-%d"))
 
 # remove duplicate tweets
 twitter <- twitter %>% distinct(text, date, .keep_all = TRUE)
 
 #check for duplicate tweets
 twitter %in% unique(twitter[ duplicated(twitter)]) 
+```
+
+```{r combine twitter and reddit}
+
+allsocialmedia <- merge(twitter, reddit, by=c('text','text', 'date', 'date'),all=T, ignore_case =T)
+write.csv(twitter, here::here("posts", "_data", "loveisblind_socialmedia.csv") , all(T) )
+
 ```
 
 ## Using HunSpell
@@ -588,7 +595,7 @@ twitter_tm <- twitter_tm %>%
   tm_map(stripWhitespace) %>% # remove multiple white space
   tm_map(toSpace, "/") %>% 
   tm_map(toSpace, "@") %>% 
-  tm_map(toSpace, "\\|") %>%
+  #tm_map(toSpace, "\\|") %>%
   tm_map(content_transformer(tolower)) %>% 
   tm_map(removeWords, stopwords("english")) # remove stop words
 
