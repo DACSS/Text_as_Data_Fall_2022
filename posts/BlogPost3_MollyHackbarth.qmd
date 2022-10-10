@@ -595,7 +595,7 @@ twitter_tm <- twitter_tm %>%
   tm_map(stripWhitespace) %>% # remove multiple white space
   tm_map(toSpace, "/") %>% 
   tm_map(toSpace, "@") %>% 
-  #tm_map(toSpace, "\\|") %>%
+  tm_map(toSpace, "\\|") %>%
   tm_map(content_transformer(tolower)) %>% 
   tm_map(removeWords, stopwords("english")) # remove stop words
 
