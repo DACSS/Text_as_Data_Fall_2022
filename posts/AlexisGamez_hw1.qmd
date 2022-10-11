@@ -1,0 +1,171 @@
+---
+title: "Blog Post #1: Developing Reasearch Ideas & Questions"
+author: "Alexis Gamez"
+desription: "Studying Text-as-Data as it relates to climate change polarization"
+date: "09/18/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - blogpost1
+  - Alexis Gamez
+  - research
+  - academic articles
+---
+
+```{r}
+#| label: setup
+#| warning: false
+
+library(tidyverse)
+library(palmerpenguins)
+library(knitr)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+Serving as an exploratory assignment, our class' first blog post tasked each student with picking a field of study he/she was interested in and searching for uses of text as data, within existing research, as it applied to that field. From there we were to select two academic articles that address our topic of interest. Said articles must also demonstrate the practice(s) of quantitative and/or computational analysis of text.
+
+Once selected, we were to utilize those articles as a means of identifying our own research questions and how we might go about conducting our own study related to the field. The following probing questions were provided to jump start our thought process; What data are used? How are the data collected? Hypotheses? What methods are used? What are the findings of the study? What's your take on it?
+
+The goal of navigating these questions was to provide us with enough substance to begin discussing our own potential research questions and data sources. By the end, like expected, I still had plenty of questions. However, I felt much more confident that I was heading in the right direction than I did prior to the assignment.   
+
+# Part 1: Finding Two Academic Articles
+
+When it came to identifying an area of interest, I was relatively certain that I wanted to dive into the industry of environmental activism. However, starting my research, I didn't know what I was looking for exactly. I knew that I wanted to study and research something that would contribute toward combating/mitigating climate change, but I didn't have the smallest idea as to how the analysis of text as data could do that.
+
+With that said, a simple search using key words such as "climate change, text mining and text as data" presented a plethora of already existing data. I was pleasantly surprised! After reading through a few articles, I settled on the two below. Both investigate efforts dedicated toward combating climate change awareness with intentions of polarizing the issue and making it as divisive an issue as possible. Both analyze text as data through computational means and I find the associated topics fascinating. 
+
+## Articles
+
+1. Corporate Funding and Ideological Polarization about Climate Change, Farrell, 23 Nov, 2015
+https://www.pnas.org/doi/full/10.1073/pnas.1509433112
++ Uses a combination of social network analysis and a form of large-scale computational text analysis known as Latent Dirichlet Allocation (LDA) topic modelling.
+
+2. Text-Mining the Signals of Climate Change Doubt, Boussalis, Coan, 30 Dec, 2016
+https://doi-org.silk.library.umass.edu/10.1016/j.gloenvcha.2015.12.001
++ Uses unsupervised computational analysis to explore the presence of meaningful clusters of terms that appear across documents in the collected corpus.
+
+# Part 2: Understanding the Articles
+
+In this section, I will be highlighting particular details provided within each of my chosen articles. Said details are as follows; What are the research questions? What data are used? How are the data collected? Hypotheses? What methods are used? What are the findings of the study? What's your take on it?
+
+## Article 1: Corporate Funding and Ideological Polarization about Climate Change
+
+* What is/are the research question(s)?
+
+The research question asked in this article is; How are polarization efforts influenced by a patterned network of political and financial actors?
+
+* What data are used? How are the data collected? 
+
+The data includes all individual and group actors in the climate change counter-movement (164 organizations) and all the written and verbal texts produced by that network between 1993–2013 (40,785 texts, more than 39 million words).
+
+Contrarian organizations were identified through peer-reviewed research as those clearly producing and promoting incredulity concerning scientific consensus on climate change. This network includes 4,556 individuals with ties to 164 organizations. This population was established primarily from a published census of organizations and, funding, and supplemented with lists from reputable nonprofit organizations. Further data included a dataset of every text about climate change produced by every organization between 1993 and 2013. This corpus was, "constructed with the assistance of automated Python scraping scripts, which gathered, cleaned, digitized, and prepared for analysis the entirety of current and archival press releases, website articles, policy statements, conference transcripts, published papers, and blog articles." PDFs were converted to plain text using optical character recognition.
+
+* Hypotheses? What methods are used? 
+
+The hypothesis presented in this article presents the idea that the surge of ideological polarization around environmental issues over the last 20 years can be significantly attributed to larger organizational and financial involvement.
+
+The study uses a combination of social network analysis and large-scale computational text analysis, specifically Latent Dirichlet Allocation (LDA) topic modeling. As stated in the article, "topic modeling is a computer-assisted content analysis procedure whereby a set of texts are coded into substantively meaningful themes called 'topics'.” The topics aren't fed to the machine prior to the analysis, but rely on algorithms to identify hidden patterns within the corpus. This article also uses an approach to topic modeling called Structural Topic Modeling (STM), that allows for the discovery of topics and their prevalence based on metadata such as the year written or important organizational attributes like corporate funding.
+
+* What are the findings of the study? What's your take on it?
+
+Two main findings are brought up immediately in the article. The first is that organizations with corporate funding were more likely to have written and disseminated texts meant to polarize the climate change issue. The second is that corporate funding influences the actual thematic content of the same polarization efforts and the discursive prevalence of that content over time.
+
+In my personal opinion, I do not find this far fetched. In today's day and age, it isn't difficult to find supporting documentation and data. As discussed earlier in the text, since the emergence of climate change as a more and more prevalent subject of discussion, much of the coverage concerning mitigation efforts has fallen onto individual/personal action and intervention. What hasn't been discussed enough is the impact that large corporations have on climate change (I might even argue that large corporations have the highest impact on the issue) and I think this article does a great job of bringing to light the manipulative power that these organizations have when it comes to implanting polarizing information to fit their agendas.
+
+## Article 2: Text-Mining the Signals of Climate Change Doubt
+
+* What is/are the research question(s)?
+
+1. How has Conservative Think Tank (CTT) skeptical discourse evolved in the last 15 years (1998-2013)?
+
+2. How much influence do CTTs truly have when attempting to generate climate change skepticism?
+
+* What data are used? How are the data collected? 
+
+The authors retrieved climate change related information from the websites of 19 well-known North American conservative think tanks and organizations. Their choice of organizations were heavily influenced by the study conducted in 2000 by McCright and Dunlap. They also selected the most heavily funded organizations included in Brulle's 2014 research list. In total, they were able to retrieve more than 16,000 documents produced between 1998 to 2013.
+
+For each organization, they visited all pages that included the terms “climate change” or “global warming” and pulled any relevant text along with key meta data. Many pages also included links to PDF documents. Those PDFs were also retrieved, passed through an optical character recognition (OCR) algorithm to extract the text, and added to the final corpus from the HTML code. Audiovisual materials were a minority within the collection of documents and thus excluded in the analysis process.
+
+* Hypotheses? What methods are used? 
+
+The hypothesis presented in this article suggests that understanding the nature and prevalence of CTT misinformation is both theoretically and practically significant. The argument being, if we can mitigate their attempts at misinformation/polarization, the acceptance of the anthropogenic causes of climate change will be the largest contributor to climate agreement and could possibly open up the opportunity for policy action.
+
+Identical to the previous article, Boussalis & Coan adopted an unsupervised approach to the research, searching for the presence of relevant clusters of terms that might appear across the documents included in the corpus. Like the previous article once again, they utilized the Latent Dirichlet Allocation (LDA) model.
+
+* What are the findings of the study? What's your take on it?
++ The following four items were taken directly from this article as having been the primary conclusions through this research's analysis:
+
+1. The overall level of CTT information has grown rapidly over the past decade and a half, reaching a peak during late 2009–early 2010.
+
+2. Topics questioning the integrity of individual scientists and scientific bodies appear closer (semantically) to politics than science, suggesting that claims often considered the hallmark of scientific scepticism are rooted in politics.
+
+3. The era of climate science denial is not over. While the aggregate results demonstrate that both policy and science discussions remain stable throughout the period of study, a detailed analysis of a critical CTT and a focus on climate change-specific themes reveal the increased importance of both science and scientific integrity discussions over the sample period.
+
+4. CTTs tend to react to the external environment—i.e., they counter claims—and thus studies focusing on narrow intervals of time (or a single organization) are likely sensitive to these contextual factors.
+
+Before addressing the findings from this article, I find it necessary to mention I personally believe that the research conducted to this day concerning climate change/global warming is irrefutable. There is a significant amount of evidence pointing to the degree of which humans have influenced the planet's climate and condition. With that stated, again I am not surprised by what's been presented in this article. Technology has and will continue to evolve, and as it does, industry and economy will need to as well. It is human nature to do that which is necessary to survive and thrive. While this issue is far from primitive, I do not doubt that there are those in power that keep to their own personal interests above all else.
+
+# Part 3: Potential Questions & Sources
+
+In this section, I'd like to mention my own potential research questions and data sources.
+
+## Research Questions
+
+* Which politicians have contributed the most toward counter climate change efforts/climate change skepticism?
+* Which organizations/groups have contributed the most toward counter climate change efforts/climate change skepticism?
+* Has social media discourse concerning climate change related topics expanded in the last 10 years?
+
+## Potential Sources
+
+Union of Concerned Scientists (2006) Smoke, Mirrors and Hot Air. How ExxonMobil Uses Big Tobacco’s Tactics to Manufacture Uncertainty on Climate Science (Union Concerned Sci, Cambridge, MA).
+
+Union of Concerned Scientists Global Warming Skeptic Organizations (Union Concerned Sci, Cambridge, MA, 2013).
+
+BK Richter, K Samphantharak, JF Timmons, Lobbying and taxes. Am J Pol Sci 53, 893–909 (2009).
+
+ET Walker, Privatizing participation: Civic change and the organizational dynamics of grassroots lobbying firms. Am Sociol Rev 74, 83–105 (2009).
+
+RJ Brulle, Institutionalizing delay: Foundation funding and the creation of U.S. climate change counter-movement organizations. Clim Change 122, 681–694 (2013).
+
+R Brulle, R Antonio, The unbearable lightness of politics: Climate change denial and political polarization. Sociol Q 52, 195–202 (2011).
+
+S Coll, Private Empire: ExxonMobil and American Power (Penguin Group US, New York). (2012).
+
+N Oreskes, EM Conway Merchants of Doubt (Bloomsbury, London, 2010).
+
+Rhetoric and frame analysis of ExxonMobil's climate change communications (One Earth). (2021).
+
+A. Sharman, Mapping the climate sceptical blogosphere. Global Environ. Change, 26 (2014), pp. 159-170
+
+L. Scruggs, S. Benegal, Declining public concern about climate change: can we blame the great recession Glob. Environ. Change (2012)
+
+H. Schmid-Petri, S. Adam, I. Schmucki, T. Häussler, A changing climate of skepticism: The factors shaping climate change coverage in the us press. Publ. Understanding Sci. (Bristol, England) (2015)
+
+D.A. Scheufele, D. Tewksbury, Framing, agenda setting, and priming: the evolution of three media effects models. J. Commun., 57 (1) (2007), pp. 9-20
+
+S. O’Neill, M. Boykoff, The role of new media in engaging the public with climate change. Engaging the public with climate change: behaviour change and communication. (2011), pp. 233-251
+
+M. Laver, K. Benoit, J. Garry, Extracting policy positions from political text using words as data. Am. Polit. Sci. Rev., 97 (3) (2003), pp. 311-331
+
+R. Holliman, Advocacy in the tail: exploring the implications of climate gate for science journalism and public debate in the digital age Journalism, 12 (7) (2011), pp. 832-846
+
+A.J. Hoffman, Talking past each other? Cultural framing of skeptical and convinced logics in the climate change debate. Organ. Environ., 24 (1) (2011), pp. 3-33
+
+R.J. Brulle, J. Carmichael, J.C. Jenkins, Shifting public opinion on climate change: an empirical assessment of factors influencing concern over climate change in the US, 2002–2010 Clim. Change, 114 (2) (2012), pp. 169-188
+
+# Part 4: Remaining Questions
+
+As one can imagine, to go from reading such intellectually fascinating articles to attempting to manifest my own topics for research was daunting. While I'm still unsure of how I'm going to be retrieving my data for analysis, I do believe that the questions I am asking are pertinent in today's world. Some remaining questions I have are:
+
+1. How will I go about gathering the required social media data?
+2. Is there a way to combine the 3 research questions I've presented?
+3. How will I measure influence and impact?
+4. Do I have the computing capabilities to accurately measure such an issue?
+5. How can I exemplify validity, both internal and external, in my research to the highest degree I can?
