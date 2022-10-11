@@ -1,6 +1,6 @@
 ---
-title: "Blog Post #1: Developing Reasearch Ideas & Questions"
-author: "Alexis Gamez"
+title: "Blog Post Template"
+author: "Your Name"
 desription: "Something to describe what I did"
 date: "08/02/2022"
 format:
