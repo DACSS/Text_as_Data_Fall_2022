@@ -1,0 +1,96 @@
+---
+title: "Blog Post 2"
+author: "Nayan Jani"
+description: "Getting my data"
+date: "10/12/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - Blog
+  - Stigma
+  - Sports
+  - Nayan
+---
+
+```{r}
+#| label: setup
+#| warning: false
+
+library(tidyverse)
+library(rtweet)
+library(quanteda)
+
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Literature Review
+
+The first article I looked at talked about racial bias in Officials from the Italian Serie A. The goal of this study was to see if the trained Officials are subject to bias against Black and dark-skinned players and penalize them more than other players. The data contains information for each player in the Serie A from the 2009/10 season to the 2020/21 season. The study used three versions of the Football Manager videogame (Football Manager, 2011, 2018, 2021) to collect data
+on player skin tones, This skin tone variable is a continuous variable that ranges from 1, lightest skin tone, to 20, darkest skin tone. For red and yellow cards, the study used data from Footystats (2021) and data for fouls were available from WhoScored (2021) and from FBREF (2021). The main hypothesis of the study is that bias against darker-skinned players has likely resulted in unfair patterns of refereeing, including the distribution of a greater number of foul calls, yellow cards, and ejections (red cards). The methods usedin this study were OLS and Poisson Regression. The study found that skin tone does affect referee decisions, especially with respect to fouls committed and yellow cards, and more weakly with respect to red cards. Overall, I found this study interesting because it is looking into racial bias that actually effects the game. This shows that the racial stigmas are still a problem in sports and are effecting the integrity of the game.
+
+The Second article I read discussed racial bias in National Football League officiating. The goal of this study was to examine potential racial bias regarding holding penalties in the National Football League (NFL). The conatains info from the 2013 to 2014 through 2015 to 2016 NFL seasons that includes the races of officials and players involved in holding penalties. The two types of analysis are used to determine racial bias, player-level analysis and a game-level analysis. The outcome of the player analysis is a dichotomous variable where it indicates a any combination of a white/black official calls a penalty on a white/black player. The dependent variable in the game-level analysis is the percentage of holding penalties called on Black players per game. The player-level analysis uses multinomial linear regression and the game-level analysis uses linear regression. The results showed no evidence of racial bias in the calling of holding penalties by White officials and Black players were more likely to have holding penalties called on them earlier in the game by all officials. Overall I found this article intersting because there is a lot of grey areas when calling a holding call and it is cool to see if racial bias has any effect on this type of call. If the study was able to determine a stronger relationship between racial bias and holding calls, it could lead to a more fair game and can remove a lot of bad calls.
+
+
+## My Project Idea
+
+The topic I want to look into is Sports Fans. I want to find out what groups of sports fans are more socially correct than others. What I mean by socially correct is that these groups of fans do not have any prejudice or enforce stigmas towards other groups of people. The groups of fans I would like to analyze are Soccer, NFL, NBA and UFC fans. To analyze this groups of fans, I will look into their textual responses of certain topics. For soccer fans I will look at their discussion about including LGBTQ in this years world cup in Qatar. For UFC I will look into the responses of fans to including certain fighters in their Hispanic heritage montage. For NFL. I will look at the responses of fans to the Deshaun Watson vs Calvin Ridley punishments. For NBA, I will look at the fans responses to the Ime Udoka vs Robert Sarver punishments. The data I will use will come from Youtube API. Most of the these fan discussions come from comments on Youtube and I believe analyzing the language they use will determine if certain groups of fans can be more socially correct. 
+
+
+
+```{r}
+
+df_q<- read_csv("comments_q.csv")
+
+df_q<- df_q %>% 
+  rename(text = "I’ll try to get the next video essay out in less than a month lol")
+
+
+corpus_q <- corpus(df_q)
+
+corpusQ_sum <- summary(corpus_q)
+corpusQ_sum
+
+
+df_nba <- read_csv("comments_nba.csv")
+
+df_nba<- df_nba %>%
+  rename(text = "Thoughts on Malika and Stephen A having a disagreement?")
+
+
+corpus_nba <- corpus(df_nba)
+
+corpusNBA_sum <- summary(corpus_nba)
+corpusNBA_sum
+
+
+df_nfl <- read_csv("comments_nfl.csv")
+
+df_nfl<- df_nfl %>%
+  rename(text = "What crime did he commit?")
+
+
+corpus_nfl <- corpus(df_nfl)
+
+corpusNFL_sum <- summary(corpus_nfl)
+corpusNFL_sum
+
+
+```
+```{r}
+corpus_nba_tokens <- tokens(corpus_nba)
+
+corpus_nba_tokens <-  tokens(corpus_nba, 
+    remove_punct = T,
+    remove_numbers = T,
+    remove_symbols =T)
+
+print(corpus_nba_tokens)
+
+
+```
+
