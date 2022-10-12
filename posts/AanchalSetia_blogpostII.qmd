@@ -1,0 +1,210 @@
+---
+title: "Social Media Activists"
+author: "Aanchal Setia"
+desription: "Initial Data Cleaning"
+date: "10/11/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - blog post II
+  
+---
+
+```{r}
+#| label: setup
+#| warning: false
+
+library(tidyverse)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+#Calling Necessary Libraries
+```{R}
+library(httr)
+library(stringr)
+library(rtweet)
+library(twitteR)
+library(purrr)
+library(tidytext)
+library(dplyr)
+library(tidyr)
+library(lubridate)
+library(scales)
+library(broom)
+library(ggplot2)
+library(quanteda)
+library(quanteda.textplots)
+textplot_wordcloud()
+```
+#Getting Twitter Access
+```{r}
+consumerkey = ""
+consumersecret = ""
+accesstoken = ""
+accesssecret = ""
+
+options(httr_oauth_cache = T)
+setup_twitter_oauth(consumer_key = consumerkey, consumer_secret = consumersecret,
+                    access_token = accesstoken, access_secret = accesssecret)
+```
+#Set up default authentication for rtweet package
+```{R}
+auth_setup_default()
+```
+#Scraping Tweets from BLack Lives Matter's National Page
+```{r}
+BLMnational <- searchTwitter("Blklivesmatter", n = 6142) #for hashtags
+BLMnational <- get_timeline(user = "Blklivesmatter", n = 6000) #for users
+```
+
+```{R}
+Tweets <- BLMnational$full_text
+Tweets <- as.data.frame(Tweets)
+```
+#Removing Hyperlinks, @ mentions or punctuations
+
+```{r}
+Tweets <-  gsub("https\\S*", "", Tweets)
+Tweets <-  gsub("@\\S*", "", Tweets) 
+Tweets  <-  gsub("amp", "", Tweets) 
+Tweets  <-  gsub("[\r\n]", "", Tweets)
+Tweets  <-  gsub("[[:punct:]]", "", Tweets)
+```
+#Creating wordcloud
+
+```{R}
+Tweets_wordcloud <- tokens(Tweets, remove_punct = TRUE) %>% 
+  tokens_select(pattern=stopwords("en"), selection="remove") %>% dfm()
+textplot_wordcloud(Tweets_wordcloud)
+
+Tweets <- as.data.frame(Tweets)
+
+```
+##Sentiment Analysis
+
+```{R}
+library(syuzhet)
+# Converting tweets to ASCII to trackle strange characters
+tweets <- iconv(Tweets, from="UTF-8", to="ASCII", sub="")
+# removing retweets, in case needed 
+tweets <-gsub("(RT|via)((?:\\b\\w*@\\w+)+)","",tweets)
+# removing mentions, in case needed
+tweets <-gsub("@\\w+","",tweets)
+ew_sentiment<-get_nrc_sentiment((tweets))
+sentimentscores<-data.frame(colSums(ew_sentiment[,]))
+names(sentimentscores) <- "Score"
+sentimentscores <- cbind("sentiment"=rownames(sentimentscores),sentimentscores)
+rownames(sentimentscores) <- NULL
+m <- ggplot(data=sentimentscores,aes(x=sentiment,y=Score))+
+  geom_bar(aes(fill=sentiment),stat = "identity")+
+  theme(legend.position="none")+
+  xlab("Sentiments")+ylab("Scores")+
+  ggtitle("Total sentiment based on scores")+
+  theme_minimal()
+m
+```
+#For NYC account
+
+
+```{R}
+BLMNYC <- get_timeline(user = "@BLMNYC", n = 6000) #for users
+
+NYCTweets <- BLMNYC$full_text
+NYCTweets <- as.data.frame(NYCTweets)
+
+#Removing Hyperlinks, @ mentions or punctuations
+
+NYCTweets <-  gsub("https\\S*", "", NYCTweets)
+NYCTweets <-  gsub("@\\S*", "", NYCTweets) 
+NYCTweets  <-  gsub("amp", "", NYCTweets) 
+NYCTweets  <-  gsub("[\r\n]", "", NYCTweets)
+NYCTweets  <-  gsub("[[:punct:]]", "", NYCTweets)
+
+#Creating wordcloud
+
+NYCTweets_wordcloud <- tokens(NYCTweets, remove_punct = TRUE) %>% 
+  tokens_select(pattern=stopwords("en"), selection="remove") %>% dfm()
+textplot_wordcloud(NYCTweets_wordcloud)
+
+Tweets <- as.data.frame(Tweets)
+
+
+##Sentiment Analysis
+library(syuzhet)
+# Converting tweets to ASCII to trackle strange characters
+NYCtweets <- iconv(NYCTweets, from="UTF-8", to="ASCII", sub="")
+# removing retweets, in case needed 
+NYCtweets <-gsub("(RT|via)((?:\\b\\w*@\\w+)+)","",NYCtweets)
+# removing mentions, in case needed
+NYCtweets <-gsub("@\\w+","",NYCtweets)
+NYC_ew_sentiment<-get_nrc_sentiment((NYCtweets))
+NYC_sentimentscores<-data.frame(colSums(NYC_ew_sentiment[,]))
+names(NYC_sentimentscores) <- "NYC_Score"
+NYC_sentimentscores <- cbind("sentiment"=rownames(NYC_sentimentscores),NYC_sentimentscores)
+rownames(NYC_sentimentscores) <- NULL
+n <- ggplot(data=NYC_sentimentscores,aes(x=sentiment,y=NYC_Score))+
+  geom_bar(aes(fill=sentiment),stat = "identity")+
+  theme(legend.position="none")+
+  xlab("Sentiments")+ylab("Scores")+
+  ggtitle("Total sentiment based on scores")+
+  theme_minimal()
+n
+
+```
+#For LA account
+
+```{R}
+
+BLMLA <- get_timeline(user = "@BLMLA", n = 6000) #for users
+
+LATweets <- BLMLA$full_text
+LATweets <- as.data.frame(LATweets)
+
+#Removing Hyperlinks, @ mentions or punctuations
+
+LATweets <-  gsub("https\\S*", "", LATweets)
+LATweets <-  gsub("@\\S*", "", LATweets) 
+LATweets  <-  gsub("amp", "", LATweets) 
+LATweets  <-  gsub("[\r\n]", "", LATweets)
+LATweets  <-  gsub("[[:punct:]]", "", LATweets)
+
+#Creating wordcloud
+
+LATweets_wordcloud <- tokens(LATweets, remove_punct = TRUE) %>% 
+  tokens_select(pattern=stopwords("en"), selection="remove") %>% dfm()
+textplot_wordcloud(LATweets_wordcloud)
+
+Tweets <- as.data.frame(Tweets)
+
+
+##Sentiment Analysis
+library(syuzhet)
+# Converting tweets to ASCII to trackle strange characters
+LAtweets <- iconv(LATweets, from="UTF-8", to="ASCII", sub="")
+# removing retweets, in case needed 
+LAtweets <-gsub("(RT|via)((?:\\b\\w*@\\w+)+)","",LAtweets)
+# removing mentions, in case needed
+LAtweets <-gsub("@\\w+","",LAtweets)
+LA_ew_sentiment<-get_nrc_sentiment((LAtweets))
+LA_sentimentscores<-data.frame(colSums(LA_ew_sentiment[,]))
+names(LA_sentimentscores) <- "LA_Score"
+LA_sentimentscores <- cbind("sentiment"=rownames(LA_sentimentscores),LA_sentimentscores)
+rownames(LA_sentimentscores) <- NULL
+o <- ggplot(data=LA_sentimentscores,aes(x=sentiment,y=LA_Score))+
+  geom_bar(aes(fill=sentiment),stat = "identity")+
+  theme(legend.position="none")+
+  xlab("Sentiments")+ylab("Scores")+
+  ggtitle("Total sentiment based on scores")+
+  theme_minimal()
+o
+```
+![](/Users/aanchalsetia/Desktop/LA.png)
+![](/Users/aanchalsetia/Desktop/NYC.png)
+![](/Users/aanchalsetia/Desktop/Total.png)
+
