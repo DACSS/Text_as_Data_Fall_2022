@@ -44,7 +44,7 @@ The topic I want to look into is Sports Fans. I want to find out what groups of 
 
 ```{r}
 
-df_q<- read_csv("comments_q.csv")
+df_q<- read_csv("_data/comments_q.csv")
 
 df_q<- df_q %>% 
   rename(text = "I’ll try to get the next video essay out in less than a month lol")
@@ -56,7 +56,7 @@ corpusQ_sum <- summary(corpus_q)
 corpusQ_sum
 
 
-df_nba <- read_csv("comments_nba.csv")
+df_nba <- read_csv("_data/comments_nba.csv")
 
 df_nba<- df_nba %>%
   rename(text = "Thoughts on Malika and Stephen A having a disagreement?")
@@ -68,7 +68,7 @@ corpusNBA_sum <- summary(corpus_nba)
 corpusNBA_sum
 
 
-df_nfl <- read_csv("comments_nfl.csv")
+df_nfl <- read_csv("_data/comments_nfl.csv")
 
 df_nfl<- df_nfl %>%
   rename(text = "What crime did he commit?")
