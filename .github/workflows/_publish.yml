@@ -30,17 +30,78 @@ jobs:
       - uses: r-lib/actions/setup-r@v2
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          #cache-version: 2
           packages: |
             any::jsonlite
             any::rmarkdown
             any::tidyverse
             any::readxl
-            any::polite
+            any::summarytools
+            any::psych
+            any::tufte
+            any::lubridate
+            any::httr
+            any::rtweet
+            any::twitteR
+            any::purr
+            any::tidytext
+            any::scales
+            any::broom
+            any::ggplot2
             any::quanteda
+            any::quanteda.textplots
+            any::tm
+            any::wordcloud
+            any::wordcloud2
+            any::reshape2
+            any::gridextra
+            any::grid
+            any::plyr
+            any::pdftools
+            any::cleanNLP
+            any::SnowballC
+            any::RColorBrewer
+            any::rvest
+            any::polite
+            any::caret
+            any::cld3
+            any::corpus
+            any::e1071
+            any::forcats
+            any::ggraph
+            any::gutenbergr
+            any::harrypotter
+            any::here
+            any::hunspell
+            any::igraph
+            any::janesaustenr
+            any::keras
+            any::LDAvis
+            any::magrittr
+            any::mallet
+            any::Matrix
+            any::NLP
+            any::openNLP
+            any::quanteda.textmodels
+            any::quanteda.textstats
+            any::randomForest
+            any::reticulate
+            any::readr
+            any::RedditExtractoR
+            any::RSelenium
+            any::spacyr
+            any::stm
+            any::stringi
+            any::stringr
+            any::tensorflow
+            any::text2vec
+            any::textclean
+            any::textshape
+            any::topicmodels
+            any::widyr
+          cache-version: 1
           #extra-packages: any::rcmdcheck
-         # needs: check
-     # - uses: r-lib/actions/check-r-package@v2
+          #needs: check
+      #- uses: r-lib/actions/check-r-package@v2
 
       - name: Render and Publish
         uses: quarto-dev/quarto-actions/publish@v2
