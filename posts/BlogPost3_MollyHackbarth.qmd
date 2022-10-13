@@ -12,6 +12,7 @@ format:
 categories:
   - blog posts
   - hw3
+  - molly hackbarth
 ---
 
 ```{r}
@@ -36,6 +37,7 @@ library(hunspell)
 library(wordcloud)
 library(RColorBrewer)
 library(tm)
+library(emojifont)
 
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -727,13 +729,184 @@ test_edit <- tests_lemmitized %>%
 textplot_wordcloud(test_edit, max_words=300, color="blue")
 ```
 
+# Updated Word Cloud Code
+
+```{r reddit word cloud}
+reddit_corpus <- subset(reddit, detect_language(reddit) == "en")
+reddit_corpus <- reddit_corpus[!is.na(reddit_corpus)]
+reddit_corpus <- corpus(reddit)
+redditsummary <- summary(reddit_corpus)
+
+reddit_corpus_tokens <- tokens(reddit_corpus, 
+    remove_punct = T,
+    remove_numbers = T, 
+    remove_symbols = T,
+    remove_url = T)
+
+reddit_corpus_tokens <- tokens_tolower(reddit_corpus_tokens)
+
+reddit_corpus_tokens <- tokens_select(reddit_corpus_tokens, pattern = stopwords("en"), selection = "remove")
+
+reddit_lemmitized <- tokens_replace(reddit_corpus_tokens, 
+                             pattern = lexicon::hash_lemmas$token, 
+                             replacement = lexicon::hash_lemmas$lemma)
+
+library(quanteda.textplots)
+
+reddit_corpus_dfm <- reddit_lemmitized %>% 
+  dfm() %>% 
+  dfm_remove(stopwords('english')) %>% 
+  dfm_trim(min_termfreq = 30, verbose = FALSE)
+
+textplot_wordcloud(reddit_corpus_dfm, max_words=200, color="red")
+
+```
+
+```{r twitter word cloud}
+twitter_corpus <- subset(twitter, detect_language(twitter) == "en")
+twitter_corpus <- twitter_corpus[!is.na(twitter_corpus)]
+twitter_corpus <- corpus(twitter_corpus)
+twittersummary <- summary(twitter_corpus)
+
+twitter_corpus_tokens <- tokens(twitter_corpus, 
+    remove_punct = T,
+    remove_numbers = T,
+    remove_symbols = T,
+    remove_url = T)
+
+twitter_corpus_tokens <- tokens_tolower(twitter_corpus_tokens)
+
+twitter_corpus_tokens <- tokens_select(twitter_corpus_tokens, pattern = stopwords("en"), selection = "remove")
+
+twitter_lemmitized <- tokens_replace(twitter_corpus_tokens, 
+                             pattern = lexicon::hash_lemmas$token, 
+                             replacement = lexicon::hash_lemmas$lemma)
+
+library(quanteda.textplots)
+
+twitter_corpus_dfm <- twitter_lemmitized %>% 
+  dfm() %>% 
+  dfm_remove(stopwords('english')) %>% 
+  dfm_trim(min_termfreq = 30, verbose = FALSE)
+
+textplot_wordcloud(twitter_corpus_dfm, max_words=200, color="blue")
+
+```
+
+```{r both social medias word cloud}
+social_corpus <- subset(allsocialmedia, detect_language(allsocialmedia) == "en")
+social_corpus <- corpus(social_corpus)
+socialsummary <- summary(social_corpus)
+
+social_corpus <- social_corpus[!is.na(social_corpus)]
+
+social_corpus_tokens <- tokens(social_corpus, 
+    remove_punct = T,
+    remove_numbers = T,
+    remove_symbols = T,
+    remove_url = T)
+
+social_corpus_tokens <- tokens_tolower(social_corpus_tokens)
+
+social_corpus_tokens <- tokens_select(social_corpus_tokens, pattern = stopwords("en"), selection = "remove")
+
+social_lemmitized <- tokens_replace(social_corpus_tokens, 
+                             pattern = lexicon::hash_lemmas$token, 
+                             replacement = lexicon::hash_lemmas$lemma)
+
+library(quanteda.textplots)
+
+social_corpus_dfm <- social_lemmitized %>% 
+  dfm() %>% 
+  dfm_remove(stopwords('english')) %>% 
+  dfm_trim(min_termfreq = 30, verbose = FALSE)
+
+textplot_wordcloud(social_corpus_dfm, max_words=200, color="orange")
+
+```
+
+# Looking at the Data Closer
+
+Below you will see some quick looks at data.
+
+```{r top features}
+
+topfeatures(social_corpus_dfm, 10)
+topfeatures(twitter_corpus_dfm, 10)
+topfeatures(reddit_corpus_dfm, 10)
+```
+
+Here we can see that overall the top ten words:
+
+| All Social Media  | Twitter           | Reddit |
+|-------------------|-------------------|--------|
+| love              | love              | like   |
+| japan             | blind             | think  |
+| like              | japan             | say    |
+| blind             | #loveisblindjapan | just   |
+| think             | watch             | good   |
+| just              | like              | get    |
+| #loveisblindjapan | good              | show   |
+| good              | just              | really |
+| say               | get               | see    |
+| get               | show              | feel   |
+
+: ~Love\ is\ Blind\ Japan\ Top\ Features~
+
+Here we can see a few things:
+
+-   While "love", "blind", and "japan" are the top features in Twitter, this is most likely due to the show's name. When comparing this to both the category social media that combine them and Reddit, like made it much higher.
+
+-   All three column's top ten words have multiple words that are focusing on how people are watching the show feel.
+
+-   From this brief look it seems there's a positive thought on show as "good" were both in the top ten for Twitter and Reddit.
+
+## Trying a Co-occurrence Matrix
+
+I will give a test try to having a max term frequency for Twitter, as Twitter's top four words have to do with the shows name.
+
+```{r cooccurrence}
+
+# let's create a nicer dfm by limiting to words that appear frequently and are in more than 30% of chapters
+smaller_dfm <- dfm_trim(twitter_corpus_dfm, max_termfreq = 3400, min_termfreq = 30)
+smaller_dfm <- dfm_trim(smaller_dfm, max_docfreq = .3, docfreq_type = "prop")
+
+textplot_wordcloud(smaller_dfm, min_count = 100,
+                   random_order = FALSE)
+
+# create fcm from dfm
+smaller_fcm <- fcm(smaller_dfm)
+
+# check the dimensions (i.e., the number of rows and the number of columnns)
+# of the matrix we created
+dim(smaller_fcm)
+
+myFeatures <- names(topfeatures(smaller_fcm, 30))
+
+# retain only those top features as part of our matrix
+even_smaller_fcm <- fcm_select(smaller_fcm, pattern = myFeatures, selection = "keep")
+
+# check dimensions
+dim(even_smaller_fcm)
+
+# compute size weight for vertices in network
+size <- log(colSums(even_smaller_fcm))
+
+# create plot
+textplot_network(even_smaller_fcm, vertex_size = size / max(size) * 3)
+```
+
 # Final Thoughts (TLDR)
 
-Here are a few final thoughts I had:
+## Here are a few final thoughts I had:
 
 -   I did end up looking at Youtube to see if there were clips of this show online that were from Netflix. There unfortunately only seemed to be a trailer for the show. Clips of this season were fairly rare there.
 
 -   After debating for awhile I decided to use the subset language option to remove all other languages for Twitter (Reddit did not have this problem most likely due to the main user base being English speaking Americans). Although this did cut my database down significantly I believe this was the best option as it removes any other language that I'm currently unable to analyze properly.
+
+    -   Conversely Reddit had very few other languages. However to keep the data similar I used subset for Reddit too.
+
+        -   This was also done so if I would like to use both the separate data and the data combined it is the same.
 
 -   I decided to use the quanteda.textplots for the word cloud instead of the TM package. This is due to the TM package having issues when I try to reload the word clouds.
 
@@ -743,6 +916,17 @@ Here are a few final thoughts I had:
 
 -   For my tokens I have added remove_symbols and remove_url for both Reddit and Twitter to help out with people spamming urls to shows or gifs, and the "\@" sign.
 
+-   When I checked the top features it was interesting to see what words were used the most. While none of it was surprising, it did help me to understand the words a bit more.
+
+-   I believe a co-occurance matrix may be useful for Twitter as it allows me to remove the name of the show and the hashtag better.
+
+## Here are some Questions and Frustrations I still have
+
+-   I'm still unsure how to keep **both the date and the text** as separate columns using the corpus() function from quanteda. I can keep it in the summary, but I'm not sure if I can use the dates outside of that.
+
+    -   The summary also only goes to 100, I'm not sure how I can make it show me all of the data either.
+    -   When I tried having a maximum frequency for Twitter's word cloud it did bring out the dates in the word cloud but I'm not sure if that solves my problem either.
+
 -   I am unsure if looking at all the data together or separately is currently the best. I have a word cloud using all the social media data below. This would change my research question.
 
     -   **Current Research Question:** How do Reddit and Twitter users feel about the show *Love is Blind Japan*?
@@ -751,20 +935,17 @@ Here are a few final thoughts I had:
 
         -   This is the question I had previously.
 
-            # 
+## Future Work
 
-## Change Research Questions
+Here are a few things I'd like to do in blog post 4:
 
-**Changed research question:** How do Reddit and Twitter users posts and tweets in English feel about the show *Love is Blind Japan*?
+-   **Try to group by date.** With the date column seemingly working now I'd like to see if grouping by date would work.
 
-```{r}
+-   **Try to use the textplot_network on reddit as well as the combined data set.** Although I'm not sure if I will I think it could produce some interesting results.
 
-ttwitter <- twitter
-ttwitter$text <- iconv(twitter$text, from = "latin1", to = "ascii", sub = "byte")
+-   **Try to find a way to remove the dates from the word clouds.**
 
-```
-
-### 
+-   **Try to decide on how I want to use co-occurrence.**
 
 # Final Code
 
@@ -814,21 +995,10 @@ allsocialmedia <- merge(twitter, reddit, by=c('text','text', 'date', 'date'),all
 ```
 
 ```{r reddit word cloud}
+reddit_corpus <- subset(reddit, detect_language(reddit) == "en")
+reddit_corpus <- reddit_corpus[!is.na(reddit_corpus)]
 reddit_corpus <- corpus(reddit)
 redditsummary <- summary(reddit_corpus)
-
-only_ascii_regexp <- '[^\u0001-\u03FF]+|<U\\+\\w+>'
-
-reddit_corpus <- reddit$text %>%
-  str_replace_all(regex(only_ascii_regexp), "") 
-
-#remove non english languages 
-reddit_corpus <- stringi::stri_trans_general(reddit_corpus, "latin-ascii")
-
-#remove emojis
-only_ascii_regexp <- '[^\u0001-\u007F]+|<U\\+\\w+>'
-reddit_corpus <- reddit_corpus %>% 
- str_replace_all(regex(only_ascii_regexp), "") 
 
 reddit_corpus_tokens <- tokens(reddit_corpus, 
     remove_punct = T,
@@ -846,20 +1016,20 @@ reddit_lemmitized <- tokens_replace(reddit_corpus_tokens,
 
 library(quanteda.textplots)
 
-reddit_corpus_edit <- reddit_lemmitized %>% 
-  dfm(remove = stopwords('english'), remove_punct = TRUE) %>% 
+reddit_corpus_dfm <- reddit_lemmitized %>% 
+  dfm() %>% 
+  dfm_remove(stopwords('english')) %>% 
   dfm_trim(min_termfreq = 30, verbose = FALSE)
 
-textplot_wordcloud(reddit_corpus_edit, max_words=200, color="red")
+textplot_wordcloud(reddit_corpus_dfm, max_words=200, color="red")
 ```
 
 ```{r twitter word cloud}
 
 twitter_corpus <- subset(twitter, detect_language(twitter) == "en")
+twitter_corpus <- twitter_corpus[!is.na(twitter_corpus)]
 twitter_corpus <- corpus(twitter_corpus)
 twittersummary <- summary(twitter_corpus)
-
-twitter_corpus <- twitter_corpus[!is.na(twitter_corpus)]
 
 twitter_corpus_tokens <- tokens(twitter_corpus, 
     remove_punct = T,
@@ -877,11 +1047,12 @@ twitter_lemmitized <- tokens_replace(twitter_corpus_tokens,
 
 library(quanteda.textplots)
 
-twitter_corpus_edit <- twitter_lemmitized %>% 
-  dfm(remove = stopwords('english'), remove_punct = TRUE) %>% 
+twitter_corpus_dfm <- twitter_lemmitized %>% 
+  dfm() %>% 
+  dfm_remove(stopwords('english')) %>% 
   dfm_trim(min_termfreq = 30, verbose = FALSE)
 
-textplot_wordcloud(twitter_corpus_edit, max_words=200, color="blue")
+textplot_wordcloud(twitter_corpus_dfm, max_words=200, color="blue")
 ```
 
 ```{r full social media word cloud}
@@ -908,9 +1079,47 @@ social_lemmitized <- tokens_replace(social_corpus_tokens,
 
 library(quanteda.textplots)
 
-social_corpus_edit <- social_lemmitized %>% 
-  dfm(remove = stopwords('english'), remove_punct = TRUE) %>% 
+social_corpus_dfm <- social_lemmitized %>% 
+  dfm() %>% 
+  dfm_remove(stopwords('english')) %>% 
   dfm_trim(min_termfreq = 30, verbose = FALSE)
 
-textplot_wordcloud(social_corpus_edit, max_words=200, color="green")
+textplot_wordcloud(social_corpus_dfm, max_words=200, color="orange")
+```
+
+```{r top features}
+topfeatures(social_corpus_dfm, 10)
+topfeatures(twitter_corpus_dfm, 10)
+topfeatures(reddit_corpus_dfm, 10)
+```
+
+```{r cooccurrence}
+
+# let's create a nicer dfm by limiting to words that appear frequently and are in more than 30% of chapters
+smaller_dfm <- dfm_trim(twitter_corpus_dfm, max_termfreq = 3400, min_termfreq = 30)
+smaller_dfm <- dfm_trim(smaller_dfm, max_docfreq = .3, docfreq_type = "prop")
+
+textplot_wordcloud(smaller_dfm, min_count = 100,
+                   random_order = FALSE)
+
+# create fcm from dfm
+smaller_fcm <- fcm(smaller_dfm)
+
+# check the dimensions (i.e., the number of rows and the number of columnns)
+# of the matrix we created
+dim(smaller_fcm)
+
+myFeatures <- names(topfeatures(smaller_fcm, 30))
+
+# retain only those top features as part of our matrix
+even_smaller_fcm <- fcm_select(smaller_fcm, pattern = myFeatures, selection = "keep")
+
+# check dimensions
+dim(even_smaller_fcm)
+
+# compute size weight for vertices in network
+size <- log(colSums(even_smaller_fcm))
+
+# create plot
+textplot_network(even_smaller_fcm, vertex_size = size / max(size) * 3)
 ```
