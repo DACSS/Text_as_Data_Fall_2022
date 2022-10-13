@@ -67,7 +67,6 @@ jobs:
             any::e1071
             any::forcats
             any::ggraph
-            any::gutenbergr
             any::harrypotter
             any::here
             any::hunspell
