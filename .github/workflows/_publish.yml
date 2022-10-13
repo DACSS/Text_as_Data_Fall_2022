@@ -42,7 +42,7 @@ jobs:
             any::httr
             any::rtweet
             any::twitteR
-            any::purr
+            any::purrr
             any::tidytext
             any::scales
             any::broom
