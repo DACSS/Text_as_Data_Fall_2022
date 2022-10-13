@@ -53,7 +53,7 @@ jobs:
             any::wordcloud
             any::wordcloud2
             any::reshape2
-            any::gridextra
+            any::gridExtra
             any::grid
             any::plyr
             any::pdftools
