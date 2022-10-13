@@ -71,7 +71,6 @@ jobs:
             any::here
             any::hunspell
             any::igraph
-            any::janesaustenr
             any::keras
             any::LDAvis
             any::magrittr
