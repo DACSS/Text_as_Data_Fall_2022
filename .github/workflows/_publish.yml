@@ -54,7 +54,6 @@ jobs:
             any::wordcloud2
             any::reshape2
             any::gridExtra
-            any::grid
             any::plyr
             any::pdftools
             any::cleanNLP
