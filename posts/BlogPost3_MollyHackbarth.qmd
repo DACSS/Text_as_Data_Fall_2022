@@ -42,8 +42,6 @@ library(emojifont)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Please reach out to Sathvik Thogaru over slack/email whenever you are using a new R package.This has to be done so that the blog post doesn't have any code error
-
 # Research Question
 
 **My current research question:** How do Reddit and Twitter users feel about the show *Love is Blind Japan*?
@@ -435,6 +433,8 @@ textplot_wordcloud(twittertest1, max_words=100, color="blue")
 
 ```
 
+[**A quick note: For some reason the TM package and word clouds were a bit finicky. It sometimes seemed to work and sometimes did not.**]{.underline}
+
 # Code For New Word Clouds
 
 ### Lemmetize
@@ -527,7 +527,7 @@ Some interesting facts for Lemmetize plot
 
 -   #loveisblindjapan is one of the largest along with blind, love and japan for twitter. This is unsurprising as that's the name of the show.
 
--   Reddit used the word like and think a lot. However interestingly japanese is talked about more than the word Japan.
+-   Reddit used the word like and think a lot. However interestingly Japanese is mentioned more than the word Japan.
 
 -   The names of the actual contestants are not mentioned as much as I would think. They're still mentioned often but are not major words in the word cloud.
 
@@ -851,7 +851,7 @@ Here we can see that overall the top ten words:
 | say               | get               | see    |
 | get               | show              | feel   |
 
-: ~Love\ is\ Blind\ Japan\ Top\ Features~
+: ~Love is Blind Japan Top Features~
 
 Here we can see a few things:
 
@@ -898,7 +898,7 @@ textplot_network(even_smaller_fcm, vertex_size = size / max(size) * 3)
 
 # Final Thoughts (TLDR)
 
-## Here are a few final thoughts I had:
+## Final thoughts
 
 -   I did end up looking at Youtube to see if there were clips of this show online that were from Netflix. There unfortunately only seemed to be a trailer for the show. Clips of this season were fairly rare there.
 
@@ -920,7 +920,7 @@ textplot_network(even_smaller_fcm, vertex_size = size / max(size) * 3)
 
 -   I believe a co-occurance matrix may be useful for Twitter as it allows me to remove the name of the show and the hashtag better.
 
-## Here are some Questions and Frustrations I still have
+## Questions and frustrations I still have
 
 -   I'm still unsure how to keep **both the date and the text** as separate columns using the corpus() function from quanteda. I can keep it in the summary, but I'm not sure if I can use the dates outside of that.
 
@@ -943,9 +943,9 @@ Here are a few things I'd like to do in blog post 4:
 
 -   **Try to use the textplot_network on reddit as well as the combined data set.** Although I'm not sure if I will I think it could produce some interesting results.
 
--   **Try to find a way to remove the dates from the word clouds.**
+-   **Try to find a way to remove the dates from the word clouds.** My current thought is to just make a separate r chunk that only has twitter\$text to remove the dates.
 
--   **Try to decide on how I want to use co-occurrence.**
+-   **Try to decide on how or if I want to use co-occurrence.**
 
 # Final Code
 
@@ -1046,7 +1046,6 @@ twitter_lemmitized <- tokens_replace(twitter_corpus_tokens,
                              replacement = lexicon::hash_lemmas$lemma)
 
 library(quanteda.textplots)
-
 twitter_corpus_dfm <- twitter_lemmitized %>% 
   dfm() %>% 
   dfm_remove(stopwords('english')) %>% 
