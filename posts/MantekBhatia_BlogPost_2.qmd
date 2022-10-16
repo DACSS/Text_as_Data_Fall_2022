@@ -1,0 +1,40 @@
+---
+title: "Blog Post 2"
+author: "Mantek Singh Bhatia"
+desription: "First Blog Post - Literature Review"
+date: "10/14/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - Blog Post 2
+  - Mantek Singh Bhatia
+  - Self-Identity
+  - Online Gaming
+  - Avatars
+  - Characterization
+---
+
+## Research Objective
+
+My research objective for this project is to understand how people characterize their avatars in games.  
+
+:::{.callout-important}
+Here I use the term Research Objective because I do not have a specific Research Question in mind right now. This project is merely exploratory for me. It may develop closer to the end of the project.
+:::
+
+
+Creating avatars in games gives people the freedom to be creative and cultivate an alternate identity. Now, this identity can be their "ideal self" or something that they just create for fun. To understand this process of creating identities I want to first examine the avatars people have already made. For this context I am thinking of scouring Reddit to find threads that talk about people describing the avatars/characters they have created while playing "Dungeons and Dragons". 
+
+&nbsp;  
+&nbsp;  
+&nbsp;  
+
+## Data Collection  
+
+As of right now I am exploring Reddit to find threads on which D&D players describe their characters to be able to extract insights from those threads about the characterization process. The basic idea is to explore how the players describe their avatars.  
+
+An example thread [Reddit D&D Thread](https://www.reddit.com/r/DnD/comments/b1pk5c/tell_me_about_your_characters/)

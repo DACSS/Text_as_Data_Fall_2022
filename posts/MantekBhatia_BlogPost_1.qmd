@@ -1,0 +1,117 @@
+---
+title: "Blog Post 1"
+author: "Mantek Singh Bhatia"
+desription: "First Blog Post - Literature Review"
+date: "10/14/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - Blog Post 1
+  - Mantek Singh Bhatia
+  - Self-Identity
+  - Online Gaming
+  - Avatars
+  - Characterization
+---
+
+## Research Objective
+
+My research objective for this project is to understand how people characterize their avatars in games.  
+
+:::{.callout-important}
+Here I use the term Research Objective because I do not have a specific Research Question in mind right now. This project is merely exploratory for me. It may develop closer to the end of the project.
+:::
+
+
+Creating avatars in games gives people the freedom to be creative and cultivate an alternate identity. Now, this identity can be their "ideal self" or something that they just create for fun. To understand this process of creating identities I want to first examine the avatars people have already made. For this context I am thinking of scouring Reddit to find threads that talk about people describing the avatars/characters they have created while playing "Dungeons and Dragons". 
+
+:::{.callout-note}
+## Dungeons and Dragons
+
+Dungeons & Dragons is a structured, yet open-ended role-playing game.  Typically, one player takes on the role of Dungeon Master (DM) while the others each control a single character, representing an individual in a fictional setting. When working together as a group, the player characters (PCs) are often described as a "party" of adventurers, with each member often having their own area of specialty which contributes to the success of the whole. During the course of play, each player directs the actions of their character and their interactions with other characters in the game. This activity is performed through the verbal impersonation of the characters by the players, while employing a variety of social and other useful cognitive skills, such as logic, basic mathematics and imagination. A game often continues over a series of meetings to complete a single adventure, and longer into a series of related gaming adventures, called a "campaign"
+:::
+
+:::{.callout-note}
+## Characterization of Avatars
+Before the game begins, each player creates their player character and records the details on a character sheet. First, a player determines their character's ability scores, which consist of Strength, Constitution, Dexterity, Intelligence, Wisdom, and Charisma. Each edition of the game has offered differing methods of determining these scores. The player then chooses a race (species) such as human or elf, a character class (occupation) such as fighter or wizard, an alignment (a moral and ethical outlook), and other features to round out the character's abilities and backstory, which have varied in nature through differing editions.
+:::
+
+This is what a typical character sheet looks like.  
+
+![](C:/Amherst Year 2/2022 Fall/DACSS 697D - Text as Data/GIT Stuff/Text_as_Data_Fall_2022/posts/1.png)  
+
+&nbsp;  
+&nbsp;  
+&nbsp;  
+
+## Literature Review  
+
+**Kim, Hee-Woong and Chan, Hock Chuan, "Why People Pay for Digital Items? Presentation Desire of Online Identity" (2007). PACIS 2007 Proceedings. 7.**  
+
+**Why People Pay for Digital Items? Presentation Desire of Online Identity**  
+
+The authors wanted to study why people on digital platforms, i.e., virtual communities and online games purchase digital items, like avatars, clothes and accessories for their avatar, etc. From a self-presentation lens, using social identity theory, they examine what makes people spend money on digital items to self-present themselves on a digital platform. Self-presentation is motivated by the avoidance of censure and the seeking of positive evaluation or relationships with others. People self-present themselves differently based on whether they are representing their personal identity or their social identity. In the case of presenting their personal identity, people will self-present their own attributes, skills, and beliefs, which influence their behaviors too. In the case of presenting their social identity, people tend to adapt their behavior to the expectations of the group. Group members are motivated to self-present themselves as a prototype of the social identity fostered by the group they belong to. These self-presentations are affected by the degree of involvement of the individual with the group and the group norms.  
+
+They also introduced a concept of online identity, which is different than the people’s personal or social identity. The anonymity and flexibility provided by the internet gives a lot of freedom to the individual for identity exploration. An identity established online is not necessarily tied to the identity of same person established offline. In establishing their online identities, people would want to present a desired impression and image to others online in the form of textual communication and symbolic communication.  
+
+They used cross sectional survey method to collect data from users of an online community that actively purchase digital items to present their online avatars. They found that people are more likely to purchase digital items to self-present their identity in the online context because they provide the users with the advantage of presenting diverse impressions and online images of themselves, from the symbolic communication perspective. Another interesting finding from their study was that people’s presentation desire of their online identity is influenced by the self-concept derived from both their personal and social identities.  
+
+&nbsp;  
+&nbsp;  
+&nbsp;  
+
+**Gong, Xiang; Cheung, Christy M. K.; Zhang, Kem Z. K.; Chen, Chongyang; and Lee, Matthew K. O. (2021) "A Dual-Identity Perspective of Obsessive Online Social Gaming," Journal of the Association for Information Systems, 22(5), 1245-1284.**  
+
+**A Dual-Identity Perspective of Obsessive Online Social Gaming**  
+
+The authors wanted to understand obsessive technology use in the context of online social gaming. They state that in an online gaming context, gamers engage in two types of groups. First is called the guilds. Guilds are formal social game groups in which a group of users are linked and have specified names and norms. Guild members usually play together with common goals, such as completing collective missions and enjoying team achievements. Second are friends. Friends are informal social game groups without specific names and norms. Users can request to add other users to their friends list, which enables social interaction through a chat function. They contextualized two types of identities based on these two social features, the IT identity, which is a material-based identity, and social identity, which is the human-based identity. Material-based identity is when users self-identify with material objects, such as avatars, robots, and technologies. As a typical form of material-based identity in the IS discipline, IT identity refers to the extent to which users view the use of a technology as integral to their sense of self. Human-based identity focuses on how one’s identity arises from membership in human groups. As a typical form of human-based identity in the IS discipline, social identity refers to the extent to which users identify with their small friendship group in online communities. In their study the authors examined how these contextual identities shape obsessive online social gaming.  
+
+They found that (1) embeddedness, self-efficacy, and instant gratification are important determinants of IT identity, whereas group homogeneity, group familiarity, and intragroup communication are key predictors of social identity, (2) IT identity not only significantly and positively influences the four obsessive online social gaming archetypes but also fully mediates the effects of social identity on obsessive online social gaming, (3) Users’ identification with social game groups does not foster obsessive online social gaming without the formation of an IT identity toward online social games.  
+
+&nbsp;  
+&nbsp;  
+&nbsp;  
+
+**Baldwin, Kai (2018) "Virtual Avatars: Trans Experiences of Ideal Selves Through Gaming," Markets, Globalization & Development Review: Vol. 3: No. 3, Article 4. DOI: 10.23860/MGDR-2018-03-03-04**  
+
+**Virtual Avatars: Trans Experiences of Ideal Selves Through Gaming**  
+
+Games provide a way of escaping to a virtual world that provide people a way to relieve stress, escape unpleasant realities, or simply have fun. However, for some people, gaming becomes much more than that. One of the main characteristics of most games is the creation of an avatar – a digital representation of the gamer’s body in the virtual world. Avatars are often extremely customizable, including things such as the shape of the nose or the size of the feet in addition to the more obvious things like gender and height. This customization allows players to construct a virtual body completely independent from the limitations imposed by physical existence. Consequently, the virtual world itself becomes a site for identity construction, where users are free to experiment with and perform idealized or alternative selves.  
+
+In their paper, the author interviews multiple trans people regarding their fluid identity and examines whether a virtual gaming environment and avatar creation features of these games provide these gamers with an opportunity of creating their ideal self-identity. They found that, “trans gamers can clearly be seen using video game avatars to escape or transcend physical limitations.” (p. 20)  
+
+&nbsp;  
+&nbsp;  
+&nbsp;  
+
+**Miller, P. L. (2016). Avatars of Oneself. Sophia and Philosophia, 1(1), 1.**  
+
+**Avatars of Oneself**  
+
+Why—from the infinite variety of avatars available in many of the online games—do gamers create the avatars that they do, manipulating them some ways rather than others? It’s a world of appearances, so perhaps the answer is obvious: the fulfillment of wishes and fantasies. But all these appearances must to some extent reflect their real-world identities where the wishes and fantasies were conceived, otherwise their fulfillment would be hollow. “For virtual reality to be interesting it has to emulate the real,” says one of the players Turkle interviewed, “but you have to be able to do something in the virtual that you couldn’t do in the real.”  
+
+Online games intensify the effects of traditional role-playing in two crucial ways: first, an infinite range of avatars and actions fosters more anonymity and freedom; second, these games can be played continuously for years, giving them a legitimate claim to be alternate worlds. Sometimes second lives, sometimes third or fourth.  
+
+&nbsp;  
+&nbsp;  
+&nbsp;  
+
+**Monem, R. (2015). Metacognition and Self-Scaffolding in MMORPGs: Case Study of an Adolescent Male Gamer. The Qualitative Report, 20(4), 454-465.**  
+
+**Metacognition and Self-Scaffolding in MMORPGs: Case Study of an Adolescent Male Gamer**  
+
+Virtual environments allow individuals to experiment with their identities without the limitations dictated by the real world. Individuals gain independence and assurance over themselves, their role in each situation, and their communication abilities. Formation of a virtual identity provides an individual with the opportunity to project self-selected attributes onto his or her virtual self. Disembodied virtual identity refers to an identity that is independent of the actual self. A disembodied virtual identity is not tied to any particular time and place. It is a dynamic identity that can transform shape, fly, or possess supernatural traits. In reference to virtual identity in MMORPGs, the word “avatar” is used to describe the disembodied representation of the user. The use of disembodied virtual identities allows learners to transcend boundaries of their physicality and physical world. The availability of graphics design programs and web-based tutorials provide individuals with infinite possibilities to create ideal avatars of themselves. Individuals can let go of the imperfections, either accidental or congenital, that delineate their real-life presence. The anonymity of MMORPGs allows users to explore their identity without the fear of real-world repercussions. MMORPGs diminish users’ physical, social, and cognitive limitations and promoted their sense of self and willingness to learn.  
+
+&nbsp;  
+&nbsp;  
+&nbsp;  
+
+## Questions and Concerns  
+
+As of right now I have not found any article that employs Text Analysis or Text-as-Data methodology to examine characterization in games. Most used methodology is semi-structured interviews with gamers.  
+
+
