@@ -3,3 +3,8 @@ bs4
 praw
 requests
 spacy
+pandas
+re
+numpy
+collections
+matplotlib
