@@ -2,5 +2,4 @@ lyricsgenius
 bs4
 praw
 requests
-pickle
 spacy
