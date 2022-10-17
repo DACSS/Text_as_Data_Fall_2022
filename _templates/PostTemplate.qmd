@@ -1,7 +1,7 @@
 ---
-title: "Blog Post Template"
-author: "Your Name"
-desription: "Something to describe what I did"
+title: ""
+author: ""
+desription: ""
 date: "08/02/2022"
 format:
   html:
@@ -10,23 +10,27 @@ format:
     code-copy: true
     code-tools: true
 categories:
-  - hw1
-  - challenge1
-  - my name
-  - dataset
-  - ggplot2
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
 ---
 
 ```{r}
 #| label: setup
 #| warning: false
 
+library(readxl)
+library(plyr)
 library(tidyverse)
+library(tidytext)
+library(quanteda)
 
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Instructions
 
 This document provides yaml header inforamtion you will need to replicate each week to submit your homework or other blog posts. Please observe the following conventions:
 

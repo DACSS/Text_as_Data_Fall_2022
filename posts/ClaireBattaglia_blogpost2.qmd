@@ -93,6 +93,8 @@ CFA_tidy$size <- as.numeric(CFA_tidy$size)
 # preview
 head(CFA_tidy)
 
+save(CFA_tidy, file = "CFA_tidy.RData")
+
 # TODO get mean age and size of household
 # mean(CFA_tidy$age, na.rm = TRUE)
 # mean(CFA_tidy$size, na.rm = TRUE)
