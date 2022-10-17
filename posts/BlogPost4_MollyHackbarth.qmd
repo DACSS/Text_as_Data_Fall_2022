@@ -1,0 +1,376 @@
+---
+title: "Blog Post Four"
+author: "Molly Hackbarth"
+description: "Working with the data"
+date: "10/29/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - blog posts
+  - hw4
+  - molly hackbarth
+---
+
+```{r}
+#| label: setup
+#| warning: false
+
+library(tidyverse)
+library(cld3)
+library(plyr)
+library(dplyr)
+library(stringi)
+library(stringr)
+library(here)
+library(devtools)
+library(tidytext)
+library(quanteda)
+library(quanteda.textstats)
+library(quanteda.textmodels)
+library(quanteda.textplots)
+library(wordcloud)
+library(tm)
+library(emojifont)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Research Question
+
+**My current research question:** How do Reddit and Twitter users feel about the show *Love is Blind Japan*?
+
+# Reading in the Data
+
+```{r reading data}
+#write csv has been commented out due to it continously trying to save an "updated version" in Git. 
+
+reddit_data <- read.csv(here::here("posts", "_data", "loveisblindjapan.csv"))
+
+twitter1 <- read.csv(here::here("posts", "_data", "tweets.csv"))
+
+twitter2 <- read.csv(here::here("posts", "_data", "tweets#.csv"))
+
+reddit <- subset(reddit_data, select = c("body", "created_utc")) 
+
+reddit$created_utc <- as.Date.POSIXct(reddit$created_utc)
+
+reddit <- reddit %>% 
+  select(text = body, 
+            date = created_utc)
+# remove deleted or removed comments by moderators of the subreddit (ones that only contain [deleted] or [removed])
+reddit <- reddit %>% 
+  filter(!text == '[deleted]') %>% 
+  filter(!text == '[removed]')
+
+#remove counting column
+twitter1 <- twitter1 %>% select(!c(X, User))
+twitter2 <- twitter2 %>% select(!c(X, User))
+
+twitter <- merge(twitter1, twitter2, by=c('Tweet','Tweet', 'Date', 'Date'),all=T, ignore_case =T)
+#write.csv(twitter, here::here("posts", "_data", "twitter.csv") , all(T) )
+
+names(twitter) <- tolower(names(twitter))
+twitter <- twitter %>% 
+  rename_at('tweet', ~ 'text', 
+            'Date' ~ 'date')
+twitter$date <- as.Date(strftime(twitter$date, format="%Y-%m-%d"))
+
+# remove duplicate tweets
+twitter <- twitter %>% distinct(text, date, .keep_all = TRUE)
+
+#check for duplicate tweets
+twitter %in% unique(twitter[ duplicated(twitter)]) 
+
+allsocialmedia <- merge(twitter, reddit, by=c('text','text', 'date', 'date'),all=T, ignore_case =T)
+#write.csv(twitter, here::here("posts", "_data", "loveisblind_socialmedia.csv") , all(T) )
+```
+
+# Creating a Separate Word Cloud for Twitter
+
+In order to remove the dates from Twitter I decided to run the same formula only on the Twitter text column.
+
+```{r twitter text word cloud}
+twitter_text <- twitter$text
+twitter_text_corpus <- subset(twitter_text, detect_language(twitter) == "en")
+twitter_text_corpus <- twitter_text_corpus[!is.na(twitter_text_corpus)]
+twitter_text_corpus <- corpus(twitter_text_corpus)
+twittertextsummary <- summary(twitter_text_corpus)
+
+twitter_text_corpus_tokens <- tokens(twitter_text_corpus, 
+    remove_punct = T,
+    remove_numbers = T,
+    remove_symbols = T,
+    remove_url = T) %>% 
+  tokens_tolower() %>% 
+  tokens_select(pattern = stopwords("en"), selection = "remove")
+
+twitter_text_lemmitized <- tokens_replace(twitter_text_corpus_tokens, 
+                             pattern = lexicon::hash_lemmas$token, 
+                             replacement = lexicon::hash_lemmas$lemma)
+
+library(quanteda.textplots)
+twitter_corpus_text_dfm <- twitter_text_lemmitized %>% 
+  dfm() %>% 
+  dfm_remove(stopwords('english')) %>% 
+  dfm_trim(min_termfreq = 30, verbose = FALSE)
+
+textplot_wordcloud(twitter_corpus_text_dfm, max_words=200, color="blue")
+
+```
+
+## Removing The Show's Name
+
+Although the data is a lot cleaner now I do wonder if removing the key words "love", "blind", "japan" and "#loveisblindjapan" will give a better picture of how posters are feeling. I will go ahead and remove the phrases.
+
+```{r removing the shows title}
+
+twitter_text <- twitter$text
+
+twitter_text_corpus <- subset(twitter_text, detect_language(twitter) == "en")
+twitter_text_corpus <- twitter_text_corpus[!is.na(twitter_text_corpus)]
+twitter_text_corpus <- corpus(twitter_text_corpus)
+twittertextsummary <- summary(twitter_text_corpus)
+
+mystopwords <- c("love is blind japan", "#loveisbindjapan", "#LoveIsBlindJapan","Love Is Blind Japan","Love is Blind Japan", "Love Is Blind: Japan", "#loveisblind", "ラブイズブラインドjapan", "#ラブイズブラインドjapan", "loveisblind", "#loveisblind2", "blind:japan")
+
+twitter_text_corpus_tokens <- tokens(twitter_text_corpus, 
+    remove_punct = T,
+    remove_numbers = T,
+    remove_symbols = T,
+    remove_url = T) %>% 
+  tokens_tolower() %>% 
+  tokens_remove(pattern = phrase(mystopwords), valuetype = 'fixed') %>% 
+  tokens_select(pattern = stopwords("en"), selection = "remove")
+
+twitter_text_lemmitized <- tokens_replace(twitter_text_corpus_tokens, 
+                             pattern = lexicon::hash_lemmas$token, 
+                             replacement = lexicon::hash_lemmas$lemma)
+
+library(quanteda.textplots)
+twitter_corpus_text_dfm <- twitter_text_lemmitized %>% 
+  dfm() %>% 
+  dfm_remove(stopwords('english')) %>% 
+  dfm_trim(min_termfreq = 30, verbose = FALSE)
+
+textplot_wordcloud(twitter_corpus_text_dfm, max_words=200, color="blue")
+
+```
+
+Here is we can see a more accurate idea of how people are tweeting about the show. Even with the show's title being remove love is still a large part of tweets.
+
+I also noticed that "blind" was used often. Looking at the tweets it seems unlikely that the word blind was used in any other way than to mention the show. Thus I'd like to remove the word blind as well since it seems unlikely to be useful to sentiment analysis.
+
+I will also remove the word "show" as show seemingly is only talking about the series rather than any emotions.
+
+```{r removing the words blind and show}
+twitter_text <- twitter$text
+
+twitter_text_corpus <- subset(twitter_text, detect_language(twitter) == "en")
+twitter_text_corpus <- twitter_text_corpus[!is.na(twitter_text_corpus)]
+twitter_text_corpus <- corpus(twitter_text_corpus)
+twittertextsummary <- summary(twitter_text_corpus)
+
+mystopwords <- c("love is blind japan", "#loveisbindjapan", "#LoveIsBlindJapan","Love Is Blind Japan","Love is Blind Japan", "Love Is Blind: Japan", "#loveisblind", "ラブイズブラインドjapan", "#ラブイズブラインドjapan", "loveisblind", "#loveisblind2", "blind:japan", "blind", "show")
+
+twitter_text_corpus_tokens <- tokens(twitter_text_corpus, 
+    remove_punct = T,
+    remove_numbers = T,
+    remove_symbols = T,
+    remove_url = T) %>% 
+  tokens_tolower() %>% 
+  tokens_remove(pattern = phrase(mystopwords), valuetype = 'fixed') %>% 
+  tokens_select(pattern = stopwords("en"), selection = "remove")
+
+twitter_text_lemmitized <- tokens_replace(twitter_text_corpus_tokens, 
+                             pattern = lexicon::hash_lemmas$token, 
+                             replacement = lexicon::hash_lemmas$lemma)
+
+library(quanteda.textplots)
+twitter_corpus_text_dfm <- twitter_text_lemmitized %>% 
+  dfm() %>% 
+  dfm_remove(stopwords('english')) %>% 
+  dfm_trim(min_termfreq = 30, verbose = FALSE)
+
+textplot_wordcloud(twitter_corpus_text_dfm, max_words=200, color="blue")
+
+```
+
+# Final Thoughts (TLDR)
+
+## Final thoughts
+
+-   I did end up looking at Youtube to see if there were clips of this show online that were from Netflix. There unfortunately only seemed to be a trailer for the show. Clips of this season were fairly rare there.
+
+-   After debating for awhile I decided to use the subset language option to remove all other languages for Twitter (Reddit did not have this problem most likely due to the main user base being English speaking Americans). Although this did cut my database down significantly I believe this was the best option as it removes any other language that I'm currently unable to analyze properly.
+
+    -   Conversely Reddit had very few other languages. However to keep the data similar I used subset for Reddit too.
+
+        -   This was also done so if I would like to use both the separate data and the data combined it is the same.
+
+-   I decided to use the quanteda.textplots for the word cloud instead of the TM package. This is due to the TM package having issues when I try to reload the word clouds.
+
+-   I have decided to lemmitize my tokens as it works to create a more accurate picture of words that were important to both Twitter and Reddit posters.
+
+-   I have removed emojis due to the issues of most of the emoji packages I have found not working. Additionally I'm not confident that I could accurately use them for a sentiment analysis, or that there are that many in the first place.
+
+-   For my tokens I have added remove_symbols and remove_url for both Reddit and Twitter to help out with people spamming urls to shows or gifs, and the "\@" sign.
+
+-   When I checked the top features it was interesting to see what words were used the most. While none of it was surprising, it did help me to understand the words a bit more.
+
+-   I believe a co-occurance matrix may be useful for Twitter as it allows me to remove the name of the show and the hashtag better.
+
+## Questions and frustrations I still have
+
+-   I'm still unsure how to keep **both the date and the text** as separate columns using the corpus() function from quanteda. I can keep it in the summary, but I'm not sure if I can use the dates outside of that.
+
+    -   The summary also only goes to 100, I'm not sure how I can make it show me all of the data either.
+    -   When I tried having a maximum frequency for Twitter's word cloud it did bring out the dates in the word cloud but I'm not sure if that solves my problem either.
+
+-   I am unsure if looking at all the data together or separately is currently the best. I have a word cloud using all the social media data below. This would change my research question.
+
+    -   **Current Research Question:** How do Reddit and Twitter users feel about the show *Love is Blind Japan*?
+
+    -   **Possibly Research Question:** How do Reddit and Twitter users sentiment differentiate about the show *Love is Blind Japan*?
+
+        -   This is the question I had previously.
+
+## Future Work
+
+Here are a few things I'd like to do in blog post 4:
+
+-   **Try to group by date.** With the date column seemingly working now I'd like to see if grouping by date would work.
+
+-   **Try to use the textplot_network on reddit as well as the combined data set.** Although I'm not sure if I will I think it could produce some interesting results.
+
+-   **Try to find a way to remove the dates from the word clouds.** My current thought is to just make a separate r chunk that only has twitter\$text to remove the dates.
+
+-   **Try to decide on how or if I want to use co-occurrence.**
+
+# Final Code
+
+```{r reddit word cloud}
+reddit_corpus <- subset(reddit, detect_language(reddit) == "en")
+reddit_corpus <- reddit_corpus[!is.na(reddit_corpus)]
+reddit_corpus <- corpus(reddit)
+redditsummary <- summary(reddit_corpus)
+
+reddit_corpus_tokens <- tokens(reddit_corpus, 
+    remove_punct = T,
+    remove_numbers = T, 
+    remove_symbols = T,
+    remove_url = T) %>% 
+  tokens_tolower() %>% 
+  tokens_select(pattern = stopwords("en"), selection = "remove")
+
+reddit_lemmitized <- tokens_replace(reddit_corpus_tokens, 
+                             pattern = lexicon::hash_lemmas$token, 
+                             replacement = lexicon::hash_lemmas$lemma)
+
+library(quanteda.textplots)
+
+reddit_corpus_dfm <- reddit_lemmitized %>% 
+  dfm() %>% 
+  dfm_remove(stopwords('english')) %>% 
+  dfm_trim(min_termfreq = 30, verbose = FALSE)
+
+textplot_wordcloud(reddit_corpus_dfm, max_words=200, color="red")
+```
+
+```{r twitter word cloud}
+
+twitter_corpus <- subset(twitter, detect_language(twitter) == "en")
+twitter_corpus <- twitter_corpus[!is.na(twitter_corpus)]
+twitter_corpus <- corpus(twitter_corpus)
+twittersummary <- summary(twitter_corpus)
+
+twitter_corpus_tokens <- tokens(twitter_corpus, 
+    remove_punct = T,
+    remove_numbers = T,
+    remove_symbols = T,
+    remove_url = T) %>% 
+  tokens_tolower() %>% 
+  tokens_select(pattern = stopwords("en"), selection = "remove")
+
+twitter_lemmitized <- tokens_replace(twitter_corpus_tokens, 
+                             pattern = lexicon::hash_lemmas$token, 
+                             replacement = lexicon::hash_lemmas$lemma)
+
+library(quanteda.textplots)
+twitter_corpus_dfm <- twitter_lemmitized %>% 
+  dfm() %>% 
+  dfm_remove(stopwords('english')) %>% 
+  dfm_trim(min_termfreq = 30, verbose = FALSE)
+
+textplot_wordcloud(twitter_corpus_dfm, max_words=200, color="blue")
+```
+
+```{r full social media word cloud}
+
+social_corpus <- subset(allsocialmedia, detect_language(allsocialmedia) == "en")
+social_corpus <- corpus(social_corpus)
+socialsummary <- summary(social_corpus)
+
+social_corpus <- social_corpus[!is.na(social_corpus)]
+
+social_corpus_tokens <- tokens(social_corpus, 
+    remove_punct = T,
+    remove_numbers = T,
+    remove_symbols = T,
+    remove_url = T) %>% 
+  tokens_tolower() %>% 
+  tokens_select(pattern = stopwords("en"), selection = "remove")
+
+social_lemmitized <- tokens_replace(social_corpus_tokens, 
+                             pattern = lexicon::hash_lemmas$token, 
+                             replacement = lexicon::hash_lemmas$lemma)
+
+library(quanteda.textplots)
+
+social_corpus_dfm <- social_lemmitized %>% 
+  dfm() %>% 
+  dfm_remove(stopwords('english')) %>% 
+  dfm_trim(min_termfreq = 30, verbose = FALSE)
+
+textplot_wordcloud(social_corpus_dfm, max_words=200, color="orange")
+```
+
+```{r top features}
+topfeatures(social_corpus_dfm, 10)
+topfeatures(twitter_corpus_dfm, 10)
+topfeatures(reddit_corpus_dfm, 10)
+```
+
+```{r cooccurrence}
+
+# let's create a nicer dfm by limiting to words that appear frequently and are in more than 30% of chapters
+smaller_dfm <- dfm_trim(twitter_corpus_dfm, max_termfreq = 3400, min_termfreq = 30)
+smaller_dfm <- dfm_trim(smaller_dfm, max_docfreq = .3, docfreq_type = "prop")
+
+textplot_wordcloud(smaller_dfm, min_count = 100,
+                   random_order = FALSE)
+
+# create fcm from dfm
+smaller_fcm <- fcm(smaller_dfm)
+
+# check the dimensions (i.e., the number of rows and the number of columnns)
+# of the matrix we created
+dim(smaller_fcm)
+
+myFeatures <- names(topfeatures(smaller_fcm, 30))
+
+# retain only those top features as part of our matrix
+even_smaller_fcm <- fcm_select(smaller_fcm, pattern = myFeatures, selection = "keep")
+
+# check dimensions
+dim(even_smaller_fcm)
+
+# compute size weight for vertices in network
+size <- log(colSums(even_smaller_fcm))
+
+# create plot
+textplot_network(even_smaller_fcm, vertex_size = size / max(size) * 3)
+```
