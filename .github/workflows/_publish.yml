@@ -95,6 +95,10 @@ jobs:
             any::textshape
             any::topicmodels
             any::widyr
+            any::readtext
+            any::devtools
+            any::DT
+            any::R.utils
           cache-version: 1
           #extra-packages: any::rcmdcheck
           #needs: check
