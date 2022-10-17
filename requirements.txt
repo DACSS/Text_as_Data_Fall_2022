@@ -1,0 +1,7 @@
+lyricsgenius
+json
+bs4
+praw
+requests
+pickle
+spacy
