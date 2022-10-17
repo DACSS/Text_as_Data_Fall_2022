@@ -4,7 +4,6 @@ praw
 requests
 spacy
 pandas
-re
 numpy
 collections
 matplotlib
