@@ -5,5 +5,4 @@ requests
 spacy
 pandas
 numpy
-collections
 matplotlib
