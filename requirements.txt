@@ -1,0 +1,5 @@
+lyricsgenius
+bs4
+praw
+requests
+spacy
