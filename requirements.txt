@@ -6,3 +6,4 @@ spacy
 pandas
 numpy
 matplotlib
+lxml
