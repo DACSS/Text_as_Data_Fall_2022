@@ -118,7 +118,6 @@ IRA_df$created_at <- with_tz(IRA_df$created_at,"America/New_York")
 IRA_df$created_date <- as.Date(IRA_df$created_at)
 ```
 
-
 new df
 
 ```{r}
