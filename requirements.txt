@@ -1,5 +1,3 @@
-# https://docs.python.org/3/py-modindex.html#cap-m
-
 lyricsgenius
 bs4
 praw
