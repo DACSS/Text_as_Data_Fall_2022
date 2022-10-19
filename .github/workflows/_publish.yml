@@ -100,7 +100,6 @@ jobs:
             any::DT
             any::R.utils
             any::emojifont
-            any::preText
           cache-version: 1
           #extra-packages: any::rcmdcheck
           #needs: check
