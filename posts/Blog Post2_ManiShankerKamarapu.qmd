@@ -1,0 +1,89 @@
+---
+title: "Blog Post 2"
+author: "Mani Shanker Kamarapu"
+desription: "Acquiring data"
+date: "10/2/2022"
+format:
+  html:
+    df-print: paged
+    css: styles.css
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - Post2
+  - ManiShankerKamarapu
+  - Symptoms and Disease diagnosis
+---
+
+::: callout-tip
+## New Research Questions
+
+1.  To find the most common symptoms that can effect the function in the body.
+2.  To diagnosis the disease through analysis of the symptoms.
+:::
+
+## Data sources
+
+I am web-scrapping the data using *rvest* package from *https://webmd.com* and concentarting mainly on the top common and important diseases.
+
+## Loading the libraries
+
+```{r}
+library(polite)
+library(rvest)
+library(tidyverse)
+library(stringr)
+library(splitstackshape)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Scraping the sample data
+
+```{r}
+url <- "https://www.webmd.com/heart-disease/guide/heart-disease-symptoms"
+bow(url)
+```
+
+```{r}
+name <- url %>%
+  read_html() %>%
+  html_nodes("h2") %>%
+  html_text2()
+name <- tibble(name)
+name
+```
+
+```{r}
+symptoms <- url %>%
+  read_html() %>%
+  html_nodes("section~ section+ section ul , p+ ul") %>%
+  html_text2()
+symptoms <- str_replace_all(symptoms, "\n", ";")
+symptoms[5] <- paste(symptoms[5], symptoms[6])
+symptoms <- tibble(symptoms)
+symptoms <- symptoms[-6,]
+symptoms
+```
+
+```{r}
+diagnosis <- tibble(name, symptoms)
+diagnosis
+```
+
+```{r}
+diagnosis <- cSplit(diagnosis, "symptoms", ";", direction = "long")
+diagnosis
+```
+
+```{r}
+diagnosis <- diagnosis %>%
+  mutate("Type of disease" = "Heart disease")
+diagnosis
+```
+
+## Further study
+
+I have scrapped and collect the data for one type of disease and planning to do the same for the top common diseases and analysis the symptoms and do the models based on the symptoms.
