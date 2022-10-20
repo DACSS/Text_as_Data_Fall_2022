@@ -35,6 +35,13 @@ library(quanteda.textplots)
 library(wordcloud)
 library(tm)
 library(emojifont)
+#new packages
+library(devtools)
+#devtools::install_github("kbenoit/quanteda.dictionaries") 
+library(quanteda.dictionaries)
+#devtools::install_github("quanteda/quanteda.sentiment")
+library(quanteda.sentiment)
+
 
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -199,7 +206,316 @@ textplot_wordcloud(twitter_corpus_text_dfm, max_words=200, color="blue")
 
 ```
 
-# Final Thoughts (TLDR)
+# Reddit and Updated Social Media word cloud
+
+```{r reddit word cloud same}
+
+reddit_corpus <- subset(reddit, detect_language(reddit) == "en")
+reddit_corpus <- reddit_corpus[!is.na(reddit_corpus)]
+reddit_corpus <- corpus(reddit)
+redditsummary <- summary(reddit_corpus)
+
+reddit_corpus_tokens <- tokens(reddit_corpus, 
+    remove_punct = T,
+    remove_numbers = T, 
+    remove_symbols = T,
+    remove_url = T) %>% 
+  tokens_tolower() %>% 
+  tokens_select(pattern = stopwords("en"), selection = "remove")
+
+reddit_lemmitized <- tokens_replace(reddit_corpus_tokens, 
+                             pattern = lexicon::hash_lemmas$token, 
+                             replacement = lexicon::hash_lemmas$lemma)
+
+library(quanteda.textplots)
+
+reddit_corpus_dfm <- reddit_lemmitized %>% 
+  dfm() %>% 
+  dfm_remove(stopwords('english')) %>% 
+  dfm_trim(min_termfreq = 30, verbose = FALSE)
+
+textplot_wordcloud(reddit_corpus_dfm, max_words=200, color="red")
+
+```
+
+```{r social updated word cloud}
+
+social_corpus <- subset(allsocialmedia, detect_language(allsocialmedia) == "en")
+social_corpus <- corpus(social_corpus)
+socialsummary <- summary(social_corpus)
+
+social_corpus <- social_corpus[!is.na(social_corpus)]
+
+
+mystopwords <- c("love is blind japan", "#loveisbindjapan", "#LoveIsBlindJapan","Love Is Blind Japan","Love is Blind Japan", "Love Is Blind: Japan", "#loveisblind", "ラブイズブラインドjapan", "#ラブイズブラインドjapan", "loveisblind", "#loveisblind2", "blind:japan")
+
+social_corpus_tokens <- tokens(social_corpus, 
+    remove_punct = T,
+    remove_numbers = T,
+    remove_symbols = T,
+    remove_url = T) %>% 
+  tokens_tolower() %>% 
+  tokens_remove(pattern = phrase(mystopwords), valuetype = 'fixed') %>% 
+  tokens_select(pattern = stopwords("en"), selection = "remove")
+
+social_lemmitized <- tokens_replace(social_corpus_tokens, 
+                             pattern = lexicon::hash_lemmas$token, 
+                             replacement = lexicon::hash_lemmas$lemma)
+
+library(quanteda.textplots)
+
+social_corpus_dfm <- social_lemmitized %>% 
+  dfm() %>% 
+  dfm_remove(stopwords('english')) %>% 
+  dfm_trim(min_termfreq = 30, verbose = FALSE)
+
+textplot_wordcloud(social_corpus_dfm, max_words=200, color="orange")
+```
+
+# Dictionary Approach with Twitter
+
+I will now try the dictionary approach using reddit, twitter, and the data combined (allsocialmedia).
+
+```{r review sentiment twitter}
+twitterDfm_nrc <- dfm(tokens(twitter_text_lemmitized,
+                              remove_punct = TRUE),
+                       tolower = TRUE) %>%
+                    dfm_lookup(data_dictionary_NRC)
+
+dim(twitterDfm_nrc)
+twitterDfm_nrc
+
+tdf_nrc <- convert(twitterDfm_nrc, to = "data.frame")
+tdf_nrc$polarity <- (tdf_nrc$positive - tdf_nrc$negative)/(tdf_nrc$positive + tdf_nrc$negative)
+tdf_nrc$polarity[which((tdf_nrc$positive + tdf_nrc$negative) == 0)] <- 0
+
+ggplot(tdf_nrc) + 
+  geom_histogram(aes(x=polarity)) + 
+  theme_bw()
+
+```
+
+Here we can see that for twitter most people were more positive about the show! That does correlate from what I often saw from skimming the tweets.
+
+Still we should double check to make sure that these actually do skew positively.
+
+```{r comparing dictionaries twitter}
+
+# convert corpus to DFM using the LSD2015 dictionary
+twitterDfm_lsd2015 <- dfm(tokens(twitter_text_lemmitized, remove_punct = TRUE),
+                              tolower = TRUE) %>%
+                          dfm_lookup(data_dictionary_LSD2015)
+
+# convert corpus to DFM using the General Inquirer dictionary
+twitterDfm_geninq <- dfm(tokens(twitter_text_lemmitized, remove_punct = TRUE),
+                             tolower = TRUE) %>%
+                    dfm_lookup(data_dictionary_geninqposneg)
+
+# create polarity measure for LSD2015
+tdf_lsd2015 <- convert(twitterDfm_lsd2015, to = "data.frame")
+tdf_lsd2015$polarity <- (tdf_lsd2015$positive - tdf_lsd2015$negative)/(tdf_lsd2015$positive + tdf_lsd2015$negative)
+tdf_lsd2015$polarity[which((tdf_lsd2015$positive + tdf_lsd2015$negative) == 0)] <- 0
+
+# look at first few rows
+head(df_lsd2015)
+
+# create polarity measure for GenInq
+tdf_geninq <- convert(twitterDfm_geninq, to = "data.frame")
+tdf_geninq$polarity <- (tdf_geninq$positive - tdf_geninq$negative)/(tdf_geninq$positive + tdf_geninq$negative)
+tdf_geninq$polarity[which((tdf_geninq$positive + tdf_geninq$negative) == 0)] <- 0
+
+# look at first few rows
+head(tdf_geninq)
+
+# create unique names for each dataframe
+colnames(tdf_nrc) <- paste("nrc", colnames(tdf_nrc), sep = "_")
+colnames(tdf_lsd2015) <- paste("lsd2015", colnames(tdf_lsd2015), sep = "_")
+colnames(tdf_geninq) <- paste("geninq", colnames(tdf_geninq), sep = "_")
+
+# now let's compare our estimates
+tsent_df <- merge(tdf_nrc, tdf_lsd2015, by.x = "nrc_doc_id", by.y = "lsd2015_doc_id")
+tsent_df <- merge(tsent_df, tdf_geninq, by.x = "nrc_doc_id", by.y = "geninq_doc_id")
+
+head(tsent_df)
+
+cor(tsent_df$nrc_polarity, tsent_df$lsd2015_polarity)
+
+cor(tsent_df$nrc_polarity, tsent_df$geninq_polarity)
+
+cor(tsent_df$lsd2015_polarity, tsent_df$geninq_polarity)
+
+# Plot these out. You can update this to check the look of other combinations
+ggplot(tsent_df, mapping = aes(x=nrc_polarity, y=lsd2015_polarity)) + 
+  geom_point(alpha = 0.1) +
+  geom_smooth() +
+  geom_abline(intercept=0,slope=1, color = "red") +
+  theme_bw()
+```
+
+Interestingly it seems there is a good amount of correlation between the two. Although not as strong as the tutorial it does seem that the dictionary is fairly accuarte. Let's test this for both reddit and allsocialmedia.
+
+```{r reddit dictionary}
+
+redditDfm_nrc <- dfm(tokens(reddit_lemmitized,
+                              remove_punct = TRUE),
+                       tolower = TRUE) %>%
+                    dfm_lookup(data_dictionary_NRC)
+
+dim(redditDfm_nrc)
+redditDfm_nrc
+
+rdf_nrc <- convert(redditDfm_nrc, to = "data.frame")
+rdf_nrc$polarity <- (rdf_nrc$positive - rdf_nrc$negative)/(rdf_nrc$positive + rdf_nrc$negative)
+rdf_nrc$polarity[which((rdf_nrc$positive + rdf_nrc$negative) == 0)] <- 0
+
+ggplot(rdf_nrc) + 
+  geom_histogram(aes(x=polarity)) + 
+  theme_bw()
+
+```
+
+```{r reddit sentiment}
+
+rdf_nrc <- convert(redditDfm_nrc, to = "data.frame")
+rdf_nrc$polarity <- (rdf_nrc$positive - rdf_nrc$negative)/(rdf_nrc$positive + rdf_nrc$negative)
+rdf_nrc$polarity[which((rdf_nrc$positive + rdf_nrc$negative) == 0)] <- 0
+
+ggplot(rdf_nrc) + 
+  geom_histogram(aes(x=polarity)) + 
+  theme_bw()
+
+
+# convert corpus to DFM using the LSD2015 dictionary
+redditDfm_lsd2015 <- dfm(tokens(reddit_lemmitized, remove_punct = TRUE),
+                              tolower = TRUE) %>%
+                          dfm_lookup(data_dictionary_LSD2015)
+
+# convert corpus to DFM using the General Inquirer dictionary
+redditDfm_geninq <- dfm(tokens(reddit_lemmitized, remove_punct = TRUE),
+                             tolower = TRUE) %>%
+                    dfm_lookup(data_dictionary_geninqposneg)
+
+# create polarity measure for LSD2015
+rdf_lsd2015 <- convert(redditDfm_lsd2015, to = "data.frame")
+rdf_lsd2015$polarity <- (rdf_lsd2015$positive - rdf_lsd2015$negative)/(rdf_lsd2015$positive + rdf_lsd2015$negative)
+rdf_lsd2015$polarity[which((rdf_lsd2015$positive + rdf_lsd2015$negative) == 0)] <- 0
+
+# look at first few rows
+head(rdf_lsd2015)
+
+# create polarity measure for GenInq
+rdf_geninq <- convert(redditDfm_geninq, to = "data.frame")
+rdf_geninq$polarity <- (rdf_geninq$positive - rdf_geninq$negative)/(rdf_geninq$positive + rdf_geninq$negative)
+rdf_geninq$polarity[which((rdf_geninq$positive + rdf_geninq$negative) == 0)] <- 0
+
+# look at first few rows
+head(rdf_geninq)
+
+# create unique names for each dataframe
+colnames(rdf_nrc) <- paste("nrc", colnames(rdf_nrc), sep = "_")
+colnames(rdf_lsd2015) <- paste("lsd2015", colnames(rdf_lsd2015), sep = "_")
+colnames(rdf_geninq) <- paste("geninq", colnames(rdf_geninq), sep = "_")
+
+# now let's compare our estimates
+rsent_df <- merge(rdf_nrc, rdf_lsd2015, by.x = "nrc_doc_id", by.y = "lsd2015_doc_id")
+rsent_df <- merge(rsent_df, rdf_geninq, by.x = "nrc_doc_id", by.y = "geninq_doc_id")
+
+head(rsent_df)
+
+cor(rsent_df$nrc_polarity, rsent_df$lsd2015_polarity)
+
+cor(rsent_df$nrc_polarity, rsent_df$geninq_polarity)
+
+cor(rsent_df$lsd2015_polarity, rsent_df$geninq_polarity)
+
+# Plot these out. You can update this to check the look of other combinations
+ggplot(rsent_df, mapping = aes(x=nrc_polarity, y=lsd2015_polarity)) + 
+  geom_point(alpha = 0.1) +
+  geom_smooth() +
+  geom_abline(intercept=0,slope=1, color = "red") +
+  theme_bw()
+
+```
+
+```{r social media dictionary}
+
+socialDfm_nrc <- dfm(tokens(social_lemmitized,
+                              remove_punct = TRUE),
+                       tolower = TRUE) %>%
+                    dfm_lookup(data_dictionary_NRC)
+
+dim(socialDfm_nrc)
+socialDfm_nrc
+
+df_nrc <- convert(socialDfm_nrc, to = "data.frame")
+df_nrc$polarity <- (df_nrc$positive - df_nrc$negative)/(df_nrc$positive + df_nrc$negative)
+df_nrc$polarity[which((df_nrc$positive + df_nrc$negative) == 0)] <- 0
+
+ggplot(df_nrc) + 
+  geom_histogram(aes(x=polarity)) + 
+  theme_bw()
+
+```
+
+```{r all social media sentiment}
+
+# convert corpus to DFM using the LSD2015 dictionary
+socialDfm_lsd2015 <- dfm(tokens(social_lemmitized, remove_punct = TRUE),
+                              tolower = TRUE) %>%
+                          dfm_lookup(data_dictionary_LSD2015)
+
+# convert corpus to DFM using the General Inquirer dictionary
+socialDfm_geninq <- dfm(tokens(social_lemmitized, remove_punct = TRUE),
+                             tolower = TRUE) %>%
+                    dfm_lookup(data_dictionary_geninqposneg)
+
+# create polarity measure for LSD2015
+df_lsd2015 <- convert(socialDfm_lsd2015, to = "data.frame")
+df_lsd2015$polarity <- (df_lsd2015$positive - df_lsd2015$negative)/(df_lsd2015$positive + df_lsd2015$negative)
+df_lsd2015$polarity[which((df_lsd2015$positive + df_lsd2015$negative) == 0)] <- 0
+
+# look at first few rows
+head(df_lsd2015)
+
+# create polarity measure for GenInq
+df_geninq <- convert(socialDfm_geninq, to = "data.frame")
+df_geninq$polarity <- (df_geninq$positive - df_geninq$negative)/(df_geninq$positive + df_geninq$negative)
+df_geninq$polarity[which((df_geninq$positive + df_geninq$negative) == 0)] <- 0
+
+# look at first few rows
+head(df_geninq)
+
+# create unique names for each dataframe
+colnames(df_nrc) <- paste("nrc", colnames(df_nrc), sep = "_")
+colnames(df_lsd2015) <- paste("lsd2015", colnames(df_lsd2015), sep = "_")
+colnames(df_geninq) <- paste("geninq", colnames(df_geninq), sep = "_")
+
+# now let's compare our estimates
+sent_df <- merge(df_nrc, df_lsd2015, by.x = "nrc_doc_id", by.y = "lsd2015_doc_id")
+sent_df <- merge(sent_df, df_geninq, by.x = "nrc_doc_id", by.y = "geninq_doc_id")
+
+head(sent_df)
+
+cor(sent_df$nrc_polarity, sent_df$lsd2015_polarity)
+
+cor(sent_df$nrc_polarity, sent_df$geninq_polarity)
+
+cor(sent_df$lsd2015_polarity, sent_df$geninq_polarity)
+
+# Plot these out. You can update this to check the look of other combinations
+ggplot(sent_df, mapping = aes(x=nrc_polarity, y=lsd2015_polarity)) + 
+  geom_point(alpha = 0.1) +
+  geom_smooth() +
+  geom_abline(intercept=0,slope=1, color = "red") +
+  theme_bw()
+
+```
+
+Interestingly compared to Twitter, Reddit and "allsocialmedia" were a fair amount lower in correlation. Although it was still a fairly high correlation this may because of the different types of words used by Reddit.
+
+However when you compare the graphs all three are nearly identical in nature.
+
+# Final Thoughts (TLDR) Currently Last Week
 
 ## Final thoughts
 
@@ -316,12 +632,16 @@ socialsummary <- summary(social_corpus)
 
 social_corpus <- social_corpus[!is.na(social_corpus)]
 
+
+mystopwords <- c("love is blind japan", "#loveisbindjapan", "#LoveIsBlindJapan","Love Is Blind Japan","Love is Blind Japan", "Love Is Blind: Japan", "#loveisblind", "ラブイズブラインドjapan", "#ラブイズブラインドjapan", "loveisblind", "#loveisblind2", "blind:japan")
+
 social_corpus_tokens <- tokens(social_corpus, 
     remove_punct = T,
     remove_numbers = T,
     remove_symbols = T,
     remove_url = T) %>% 
   tokens_tolower() %>% 
+  tokens_remove(pattern = phrase(mystopwords), valuetype = 'fixed') %>% 
   tokens_select(pattern = stopwords("en"), selection = "remove")
 
 social_lemmitized <- tokens_replace(social_corpus_tokens, 
