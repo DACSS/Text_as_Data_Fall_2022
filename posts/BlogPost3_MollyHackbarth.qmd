@@ -12,7 +12,7 @@ format:
 categories:
   - blog posts
   - hw3
-  - molly hackbarth
+  - Molly Hackbarth
 ---
 
 ```{r}
@@ -168,7 +168,7 @@ reddit_lemmitized <- tokens_replace(reddit_corpus_tokens,
 
 ### Trying to create a DTM
 
-```{r creating a dtm}
+```{r creating a dtm 1}
 dtm <- TermDocumentMatrix(reddit_lemmitized) 
 matrix <- as.matrix(dtm) 
 words <- sort(rowSums(matrix),decreasing=TRUE) 
@@ -731,7 +731,7 @@ textplot_wordcloud(test_edit, max_words=300, color="blue")
 
 # Updated Word Cloud Code
 
-```{r reddit word cloud}
+```{r reddit word cloud 2}
 reddit_corpus <- subset(reddit, detect_language(reddit) == "en")
 reddit_corpus <- reddit_corpus[!is.na(reddit_corpus)]
 reddit_corpus <- corpus(reddit)
@@ -1024,7 +1024,7 @@ reddit_corpus_dfm <- reddit_lemmitized %>%
 textplot_wordcloud(reddit_corpus_dfm, max_words=200, color="red")
 ```
 
-```{r twitter word cloud}
+```{r twitter word cloud 2}
 
 twitter_corpus <- subset(twitter, detect_language(twitter) == "en")
 twitter_corpus <- twitter_corpus[!is.na(twitter_corpus)]
@@ -1086,13 +1086,13 @@ social_corpus_dfm <- social_lemmitized %>%
 textplot_wordcloud(social_corpus_dfm, max_words=200, color="orange")
 ```
 
-```{r top features}
+```{r top features 2}
 topfeatures(social_corpus_dfm, 10)
 topfeatures(twitter_corpus_dfm, 10)
 topfeatures(reddit_corpus_dfm, 10)
 ```
 
-```{r cooccurrence}
+```{r cooccurrence 2}
 
 # let's create a nicer dfm by limiting to words that appear frequently and are in more than 30% of chapters
 smaller_dfm <- dfm_trim(twitter_corpus_dfm, max_termfreq = 3400, min_termfreq = 30)

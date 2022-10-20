@@ -12,7 +12,7 @@ format:
 categories:
   - blog posts
   - hw4
-  - molly hackbarth
+  - Molly Hackbarth
 ---
 
 ```{r}
@@ -21,10 +21,7 @@ categories:
 
 library(tidyverse)
 library(cld3)
-library(plyr)
 library(dplyr)
-library(stringi)
-library(stringr)
 library(here)
 library(devtools)
 library(tidytext)
@@ -32,9 +29,11 @@ library(quanteda)
 library(quanteda.textstats)
 library(quanteda.textmodels)
 library(quanteda.textplots)
-library(wordcloud)
-library(tm)
-library(emojifont)
+#new packages
+#devtools::install_github("kbenoit/quanteda.dictionaries") 
+library(quanteda.dictionaries)
+#devtools::install_github("quanteda/quanteda.sentiment")
+library(quanteda.sentiment)
 
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -166,13 +165,16 @@ I also noticed that "blind" was used often. Looking at the tweets it seems unlik
 
 I will also remove the word "show" as show seemingly is only talking about the series rather than any emotions.
 
-```{r removing the words blind and show}
-twitter_text <- twitter$text
+I have also found a different way to remove dates and have done so below.
 
-twitter_text_corpus <- subset(twitter_text, detect_language(twitter) == "en")
-twitter_text_corpus <- twitter_text_corpus[!is.na(twitter_text_corpus)]
+```{r removing the words blind and show}
+
+twitter_text_corpus <- subset(twitter, detect_language(twitter) == "en")
 twitter_text_corpus <- corpus(twitter_text_corpus)
+twitter_text_corpus <- twitter_text_corpus[!is.na(twitter_text_corpus)]
 twittertextsummary <- summary(twitter_text_corpus)
+
+twitter_text_corpus <- trimws(gsub("[[:digit:]]{1,4}-[[:digit:]]{1,4}-[[:digit:]]{1,4}", "", twitter_text_corpus))
 
 mystopwords <- c("love is blind japan", "#loveisbindjapan", "#LoveIsBlindJapan","Love Is Blind Japan","Love is Blind Japan", "Love Is Blind: Japan", "#loveisblind", "ラブイズブラインドjapan", "#ラブイズブラインドjapan", "loveisblind", "#loveisblind2", "blind:japan", "blind", "show")
 
@@ -184,6 +186,7 @@ twitter_text_corpus_tokens <- tokens(twitter_text_corpus,
   tokens_tolower() %>% 
   tokens_remove(pattern = phrase(mystopwords), valuetype = 'fixed') %>% 
   tokens_select(pattern = stopwords("en"), selection = "remove")
+
 
 twitter_text_lemmitized <- tokens_replace(twitter_text_corpus_tokens, 
                              pattern = lexicon::hash_lemmas$token, 
@@ -199,64 +202,446 @@ textplot_wordcloud(twitter_corpus_text_dfm, max_words=200, color="blue")
 
 ```
 
+I have found out why the dates column has become messy. This is because originally I had put the corpus() function after the \[!is.na()\]. However when put first it still shows the date column in the summary.
+
+# Reddit and Updated Social Media word cloud
+
+```{r reddit word cloud same}
+
+reddit_corpus <- subset(reddit, detect_language(reddit) == "en")
+reddit_corpus <- corpus(reddit_corpus)
+reddit_corpus <- reddit_corpus[!is.na(reddit_corpus)]
+redditsummary <- summary(reddit_corpus)
+
+reddit_corpus <- trimws(gsub("[[:digit:]]{1,4}-[[:digit:]]{1,4}-[[:digit:]]{1,4}", "", reddit_corpus))
+
+reddit_corpus_tokens <- tokens(reddit_corpus, 
+    remove_punct = T,
+    remove_numbers = T, 
+    remove_symbols = T,
+    remove_url = T) %>% 
+  tokens_tolower() %>% 
+  tokens_select(pattern = stopwords("en"), selection = "remove")
+
+reddit_lemmitized <- tokens_replace(reddit_corpus_tokens, 
+                             pattern = lexicon::hash_lemmas$token, 
+                             replacement = lexicon::hash_lemmas$lemma)
+
+library(quanteda.textplots)
+
+reddit_corpus_dfm <- reddit_lemmitized %>% 
+  dfm() %>% 
+  dfm_remove(stopwords('english')) %>% 
+  dfm_trim(min_termfreq = 30, verbose = FALSE)
+
+textplot_wordcloud(reddit_corpus_dfm, max_words=200, color="red")
+
+```
+
+```{r social updated word cloud}
+
+social_corpus <- subset(allsocialmedia, detect_language(allsocialmedia) == "en")
+social_corpus <- corpus(social_corpus)
+socialsummary <- summary(social_corpus)
+
+social_corpus <- social_corpus[!is.na(social_corpus)]
+
+
+mystopwords <- c("love is blind japan", "#loveisbindjapan", "#LoveIsBlindJapan","Love Is Blind Japan","Love is Blind Japan", "Love Is Blind: Japan", "#loveisblind", "ラブイズブラインドjapan", "#ラブイズブラインドjapan", "loveisblind", "#loveisblind2", "blind:japan", "blind", "show")
+
+social_corpus_tokens <- tokens(social_corpus, 
+    remove_punct = T,
+    remove_numbers = T,
+    remove_symbols = T,
+    remove_url = T) %>% 
+  tokens_tolower() %>% 
+  tokens_remove(pattern = phrase(mystopwords), valuetype = 'fixed') %>% 
+  tokens_select(pattern = stopwords("en"), selection = "remove")
+
+social_lemmitized <- tokens_replace(social_corpus_tokens, 
+                             pattern = lexicon::hash_lemmas$token, 
+                             replacement = lexicon::hash_lemmas$lemma)
+
+library(quanteda.textplots)
+
+social_corpus_dfm <- social_lemmitized %>% 
+  dfm() %>% 
+  dfm_remove(stopwords('english')) %>% 
+  dfm_trim(min_termfreq = 30, verbose = FALSE)
+
+textplot_wordcloud(social_corpus_dfm, max_words=200, color="orange")
+```
+
+# Text Plot for Reddit
+
+I mentioned previously I would like to test a textplot for Reddit. Below you will see my test.
+
+```{r text plot reddit}
+# let's create a nicer dfm by limiting to words that appear frequently and are in more than 30% of chapters
+rsmaller_dfm <- dfm_trim(reddit_corpus_dfm, max_termfreq = 3400, min_termfreq = 10)
+rsmaller_dfm <- dfm_trim(rsmaller_dfm, max_docfreq = .3, docfreq_type = "prop")
+
+textplot_wordcloud(rsmaller_dfm, min_count = 100,
+                   random_order = FALSE)
+
+# create fcm from dfm
+rsmaller_fcm <- fcm(rsmaller_dfm)
+
+# check the dimensions (i.e., the number of rows and the number of columnns)
+# of the matrix we created
+dim(rsmaller_fcm)
+
+rmyFeatures <- names(topfeatures(rsmaller_fcm, 30))
+
+# retain only those top features as part of our matrix
+reven_smaller_fcm <- fcm_select(rsmaller_fcm, pattern = rmyFeatures, selection = "keep")
+
+# check dimensions
+dim(reven_smaller_fcm)
+
+# compute size weight for vertices in network
+rsize <- log(colSums(reven_smaller_fcm))
+
+# create plot
+textplot_network(reven_smaller_fcm, vertex_size = rsize / max(rsize) * 3)
+```
+
+It's interesting to see that the contestants names seem to be much more connected. Overall Reddit's text plot feels a lot more interconnected than Twitter's.
+
+I will also test this for the combined data set.
+
+# All Social Media Tex Plot
+
+```{r text plot socials}
+
+# let's create a nicer dfm by limiting to words that appear frequently and are in more than 30% of chapters
+ssmaller_dfm <- dfm_trim(social_corpus_dfm, max_termfreq = 3400, min_termfreq = 10)
+ssmaller_dfm <- dfm_trim(ssmaller_dfm, max_docfreq = .3, docfreq_type = "prop")
+
+textplot_wordcloud(ssmaller_dfm, min_count = 100,
+                   random_order = FALSE)
+
+# create fcm from dfm
+ssmaller_fcm <- fcm(ssmaller_dfm)
+
+# check the dimensions (i.e., the number of rows and the number of columnns)
+# of the matrix we created
+dim(ssmaller_fcm)
+
+smyFeatures <- names(topfeatures(ssmaller_fcm, 30))
+
+# retain only those top features as part of our matrix
+seven_smaller_fcm <- fcm_select(ssmaller_fcm, pattern = smyFeatures, selection = "keep")
+
+# check dimensions
+dim(seven_smaller_fcm)
+
+# compute size weight for vertices in network
+ssize <- log(colSums(seven_smaller_fcm))
+
+# create plot
+textplot_network(seven_smaller_fcm, vertex_size = ssize / max(ssize) * 3)
+
+```
+
+Interestingly the text plot has a similarity more to Reddit than to Twitter. Perhaps this is because Reddit has more tokens as there is not a character limit.
+
+# Dictionary Approach with Twitter
+
+I will now try the dictionary approach using reddit, twitter, and the data combined (allsocialmedia).
+
+```{r review sentiment twitter}
+twitterDfm_nrc <- dfm(tokens(twitter_text_lemmitized,
+                              remove_punct = TRUE),
+                       tolower = TRUE) %>%
+                    dfm_lookup(data_dictionary_NRC)
+
+dim(twitterDfm_nrc)
+twitterDfm_nrc
+
+tdf_nrc <- convert(twitterDfm_nrc, to = "data.frame")
+tdf_nrc$polarity <- (tdf_nrc$positive - tdf_nrc$negative)/(tdf_nrc$positive + tdf_nrc$negative)
+tdf_nrc$polarity[which((tdf_nrc$positive + tdf_nrc$negative) == 0)] <- 0
+
+ggplot(tdf_nrc) + 
+  geom_histogram(aes(x=polarity)) + 
+  theme_bw()
+
+```
+
+Here we can see that for twitter most people were more positive about the show! That does correlate from what I often saw from skimming the tweets.
+
+Still we should double check to make sure that these actually do skew positively.
+
+```{r comparing dictionaries twitter}
+
+# convert corpus to DFM using the LSD2015 dictionary
+twitterDfm_lsd2015 <- dfm(tokens(twitter_text_lemmitized, remove_punct = TRUE),
+                              tolower = TRUE) %>%
+                          dfm_lookup(data_dictionary_LSD2015)
+
+# convert corpus to DFM using the General Inquirer dictionary
+twitterDfm_geninq <- dfm(tokens(twitter_text_lemmitized, remove_punct = TRUE),
+                             tolower = TRUE) %>%
+                    dfm_lookup(data_dictionary_geninqposneg)
+
+# create polarity measure for LSD2015
+tdf_lsd2015 <- convert(twitterDfm_lsd2015, to = "data.frame")
+tdf_lsd2015$polarity <- (tdf_lsd2015$positive - tdf_lsd2015$negative)/(tdf_lsd2015$positive + tdf_lsd2015$negative)
+tdf_lsd2015$polarity[which((tdf_lsd2015$positive + tdf_lsd2015$negative) == 0)] <- 0
+
+# look at first few rows
+head(tdf_lsd2015)
+
+# create polarity measure for GenInq
+tdf_geninq <- convert(twitterDfm_geninq, to = "data.frame")
+tdf_geninq$polarity <- (tdf_geninq$positive - tdf_geninq$negative)/(tdf_geninq$positive + tdf_geninq$negative)
+tdf_geninq$polarity[which((tdf_geninq$positive + tdf_geninq$negative) == 0)] <- 0
+
+# look at first few rows
+head(tdf_geninq)
+
+# create unique names for each dataframe
+colnames(tdf_nrc) <- paste("nrc", colnames(tdf_nrc), sep = "_")
+colnames(tdf_lsd2015) <- paste("lsd2015", colnames(tdf_lsd2015), sep = "_")
+colnames(tdf_geninq) <- paste("geninq", colnames(tdf_geninq), sep = "_")
+
+# now let's compare our estimates
+tsent_df <- merge(tdf_nrc, tdf_lsd2015, by.x = "nrc_doc_id", by.y = "lsd2015_doc_id")
+tsent_df <- merge(tsent_df, tdf_geninq, by.x = "nrc_doc_id", by.y = "geninq_doc_id")
+
+head(tsent_df)
+
+cor(tsent_df$nrc_polarity, tsent_df$lsd2015_polarity)
+
+cor(tsent_df$nrc_polarity, tsent_df$geninq_polarity)
+
+cor(tsent_df$lsd2015_polarity, tsent_df$geninq_polarity)
+
+# Plot these out. You can update this to check the look of other combinations
+ggplot(tsent_df, mapping = aes(x=nrc_polarity, y=lsd2015_polarity)) + 
+  geom_point(alpha = 0.1) +
+  geom_smooth() +
+  geom_abline(intercept=0,slope=1, color = "red") +
+  theme_bw()
+```
+
+Interestingly it seems there is a good amount of correlation between the two. Although not as strong as the tutorial it does seem that the dictionary is fairly accurate. Let's test this for both reddit and allsocialmedia.
+
+# Dictionary Approach with Reddit
+
+```{r reddit dictionary}
+
+redditDfm_nrc <- dfm(tokens(reddit_lemmitized,
+                              remove_punct = TRUE),
+                       tolower = TRUE) %>%
+                    dfm_lookup(data_dictionary_NRC)
+
+dim(redditDfm_nrc)
+redditDfm_nrc
+
+rdf_nrc <- convert(redditDfm_nrc, to = "data.frame")
+rdf_nrc$polarity <- (rdf_nrc$positive - rdf_nrc$negative)/(rdf_nrc$positive + rdf_nrc$negative)
+rdf_nrc$polarity[which((rdf_nrc$positive + rdf_nrc$negative) == 0)] <- 0
+
+ggplot(rdf_nrc) + 
+  geom_histogram(aes(x=polarity)) + 
+  theme_bw()
+
+```
+
+```{r reddit sentiment}
+
+rdf_nrc <- convert(redditDfm_nrc, to = "data.frame")
+rdf_nrc$polarity <- (rdf_nrc$positive - rdf_nrc$negative)/(rdf_nrc$positive + rdf_nrc$negative)
+rdf_nrc$polarity[which((rdf_nrc$positive + rdf_nrc$negative) == 0)] <- 0
+
+ggplot(rdf_nrc) + 
+  geom_histogram(aes(x=polarity)) + 
+  theme_bw()
+
+
+# convert corpus to DFM using the LSD2015 dictionary
+redditDfm_lsd2015 <- dfm(tokens(reddit_lemmitized, remove_punct = TRUE),
+                              tolower = TRUE) %>%
+                          dfm_lookup(data_dictionary_LSD2015)
+
+# convert corpus to DFM using the General Inquirer dictionary
+redditDfm_geninq <- dfm(tokens(reddit_lemmitized, remove_punct = TRUE),
+                             tolower = TRUE) %>%
+                    dfm_lookup(data_dictionary_geninqposneg)
+
+# create polarity measure for LSD2015
+rdf_lsd2015 <- convert(redditDfm_lsd2015, to = "data.frame")
+rdf_lsd2015$polarity <- (rdf_lsd2015$positive - rdf_lsd2015$negative)/(rdf_lsd2015$positive + rdf_lsd2015$negative)
+rdf_lsd2015$polarity[which((rdf_lsd2015$positive + rdf_lsd2015$negative) == 0)] <- 0
+
+# look at first few rows
+head(rdf_lsd2015)
+
+# create polarity measure for GenInq
+rdf_geninq <- convert(redditDfm_geninq, to = "data.frame")
+rdf_geninq$polarity <- (rdf_geninq$positive - rdf_geninq$negative)/(rdf_geninq$positive + rdf_geninq$negative)
+rdf_geninq$polarity[which((rdf_geninq$positive + rdf_geninq$negative) == 0)] <- 0
+
+# look at first few rows
+head(rdf_geninq)
+
+# create unique names for each dataframe
+colnames(rdf_nrc) <- paste("nrc", colnames(rdf_nrc), sep = "_")
+colnames(rdf_lsd2015) <- paste("lsd2015", colnames(rdf_lsd2015), sep = "_")
+colnames(rdf_geninq) <- paste("geninq", colnames(rdf_geninq), sep = "_")
+
+# now let's compare our estimates
+rsent_df <- merge(rdf_nrc, rdf_lsd2015, by.x = "nrc_doc_id", by.y = "lsd2015_doc_id")
+rsent_df <- merge(rsent_df, rdf_geninq, by.x = "nrc_doc_id", by.y = "geninq_doc_id")
+
+head(rsent_df)
+
+cor(rsent_df$nrc_polarity, rsent_df$lsd2015_polarity)
+
+cor(rsent_df$nrc_polarity, rsent_df$geninq_polarity)
+
+cor(rsent_df$lsd2015_polarity, rsent_df$geninq_polarity)
+
+# Plot these out. You can update this to check the look of other combinations
+ggplot(rsent_df, mapping = aes(x=nrc_polarity, y=lsd2015_polarity)) + 
+  geom_point(alpha = 0.1) +
+  geom_smooth() +
+  geom_abline(intercept=0,slope=1, color = "red") +
+  theme_bw()
+
+```
+
+# Dictionary Approach with All Social Media
+
+```{r social media dictionary}
+
+socialDfm_nrc <- dfm(tokens(social_lemmitized,
+                              remove_punct = TRUE),
+                       tolower = TRUE) %>%
+                    dfm_lookup(data_dictionary_NRC)
+
+dim(socialDfm_nrc)
+socialDfm_nrc
+
+df_nrc <- convert(socialDfm_nrc, to = "data.frame")
+df_nrc$polarity <- (df_nrc$positive - df_nrc$negative)/(df_nrc$positive + df_nrc$negative)
+df_nrc$polarity[which((df_nrc$positive + df_nrc$negative) == 0)] <- 0
+
+ggplot(df_nrc) + 
+  geom_histogram(aes(x=polarity)) + 
+  theme_bw()
+
+```
+
+```{r all social media sentiment}
+
+# convert corpus to DFM using the LSD2015 dictionary
+socialDfm_lsd2015 <- dfm(tokens(social_lemmitized, remove_punct = TRUE),
+                              tolower = TRUE) %>%
+                          dfm_lookup(data_dictionary_LSD2015)
+
+# convert corpus to DFM using the General Inquirer dictionary
+socialDfm_geninq <- dfm(tokens(social_lemmitized, remove_punct = TRUE),
+                             tolower = TRUE) %>%
+                    dfm_lookup(data_dictionary_geninqposneg)
+
+# create polarity measure for LSD2015
+df_lsd2015 <- convert(socialDfm_lsd2015, to = "data.frame")
+df_lsd2015$polarity <- (df_lsd2015$positive - df_lsd2015$negative)/(df_lsd2015$positive + df_lsd2015$negative)
+df_lsd2015$polarity[which((df_lsd2015$positive + df_lsd2015$negative) == 0)] <- 0
+
+# look at first few rows
+head(df_lsd2015)
+
+# create polarity measure for GenInq
+df_geninq <- convert(socialDfm_geninq, to = "data.frame")
+df_geninq$polarity <- (df_geninq$positive - df_geninq$negative)/(df_geninq$positive + df_geninq$negative)
+df_geninq$polarity[which((df_geninq$positive + df_geninq$negative) == 0)] <- 0
+
+# look at first few rows
+head(df_geninq)
+
+# create unique names for each dataframe
+colnames(df_nrc) <- paste("nrc", colnames(df_nrc), sep = "_")
+colnames(df_lsd2015) <- paste("lsd2015", colnames(df_lsd2015), sep = "_")
+colnames(df_geninq) <- paste("geninq", colnames(df_geninq), sep = "_")
+
+# now let's compare our estimates
+sent_df <- merge(df_nrc, df_lsd2015, by.x = "nrc_doc_id", by.y = "lsd2015_doc_id")
+sent_df <- merge(sent_df, df_geninq, by.x = "nrc_doc_id", by.y = "geninq_doc_id")
+
+head(sent_df)
+
+cor(sent_df$nrc_polarity, sent_df$lsd2015_polarity)
+
+cor(sent_df$nrc_polarity, sent_df$geninq_polarity)
+
+cor(sent_df$lsd2015_polarity, sent_df$geninq_polarity)
+
+# Plot these out. You can update this to check the look of other combinations
+ggplot(sent_df, mapping = aes(x=nrc_polarity, y=lsd2015_polarity)) + 
+  geom_point(alpha = 0.1) +
+  geom_smooth() +
+  geom_abline(intercept=0,slope=1, color = "red") +
+  theme_bw()
+
+```
+
+# Choosing a Dictionary
+
+Interestingly compared to Twitter, Reddit and "allsocialmedia" were a fair amount lower in correlation. Although it was still a fairly high correlation this may because of the different types of words used by Reddit.
+
+However when you compare the graphs all three are nearly identical in nature.
+
+I think I will use the NRC dictionary. I have chosen this one because I believe it's the strongest dictionary for my set of data because it explores through multiple categories of emotions. While both other dictionaries are good, NRC is a much larger dictionary. If you are interested I have found some more information on the dictionaries [here](https://journodev.tech/blog-12-main-dictionaries-for-sentiment-analysis/)!
+
+# Choosing a Research Question
+
+After looking through all of the data using the dictionary method I have decided to go back to this research question: How do Reddit and Twitter users sentiment differentiate about the show *Love is Blind Japan*?
+
+I have decided to do this because I believe there's more information that could be compared. Additionally while it is useful to know an overall sentiment for social media, I think that since each user base may be different we could see more interesting results when it is not mixed together.
+
 # Final Thoughts (TLDR)
 
 ## Final thoughts
 
--   I did end up looking at Youtube to see if there were clips of this show online that were from Netflix. There unfortunately only seemed to be a trailer for the show. Clips of this season were fairly rare there.
+-   I have found a way to keep the date column in the summary but remove it from the actual tokens afterwards.
 
--   After debating for awhile I decided to use the subset language option to remove all other languages for Twitter (Reddit did not have this problem most likely due to the main user base being English speaking Americans). Although this did cut my database down significantly I believe this was the best option as it removes any other language that I'm currently unable to analyze properly.
+-   I have made a list of stop words that are related to the title of the show from Twitter.
 
-    -   Conversely Reddit had very few other languages. However to keep the data similar I used subset for Reddit too.
+    -   I have also included the removal of the word "show" as for tweets it only referenced show as a TV series. However for Reddit I have not removed the word show as Redditors seemed to use the word show outside of of meaning a TV show.
 
-        -   This was also done so if I would like to use both the separate data and the data combined it is the same.
+    -   Reddit also did not have the same issues with the title of the show due to all of the posts in the sub reddit being related to Love is Blind Japan.
 
--   I decided to use the quanteda.textplots for the word cloud instead of the TM package. This is due to the TM package having issues when I try to reload the word clouds.
+-   I have decided to use the NRC dictionary.
 
--   I have decided to lemmitize my tokens as it works to create a more accurate picture of words that were important to both Twitter and Reddit posters.
+-   I have changed my question: How do Reddit and Twitter users sentiment differentiate about the show *Love is Blind Japan*?
 
--   I have removed emojis due to the issues of most of the emoji packages I have found not working. Additionally I'm not confident that I could accurately use them for a sentiment analysis, or that there are that many in the first place.
+    -   This means I will no longer use the combined data set.
 
--   For my tokens I have added remove_symbols and remove_url for both Reddit and Twitter to help out with people spamming urls to shows or gifs, and the "\@" sign.
-
--   When I checked the top features it was interesting to see what words were used the most. While none of it was surprising, it did help me to understand the words a bit more.
-
--   I believe a co-occurance matrix may be useful for Twitter as it allows me to remove the name of the show and the hashtag better.
-
-## Questions and frustrations I still have
-
--   I'm still unsure how to keep **both the date and the text** as separate columns using the corpus() function from quanteda. I can keep it in the summary, but I'm not sure if I can use the dates outside of that.
-
-    -   The summary also only goes to 100, I'm not sure how I can make it show me all of the data either.
-    -   When I tried having a maximum frequency for Twitter's word cloud it did bring out the dates in the word cloud but I'm not sure if that solves my problem either.
-
--   I am unsure if looking at all the data together or separately is currently the best. I have a word cloud using all the social media data below. This would change my research question.
-
-    -   **Current Research Question:** How do Reddit and Twitter users feel about the show *Love is Blind Japan*?
-
-    -   **Possibly Research Question:** How do Reddit and Twitter users sentiment differentiate about the show *Love is Blind Japan*?
-
-        -   This is the question I had previously.
+-   I am unsure how I will use co-occurrence.
 
 ## Future Work
 
-Here are a few things I'd like to do in blog post 4:
+Here are a few things I'd like to do in blog post 5:
 
--   **Try to group by date.** With the date column seemingly working now I'd like to see if grouping by date would work.
+-   I would like to look at co-occurrence more closely and decide if the code I have now is the one I would like to use for the final project. I currently have chosen it based off prior issues (such as having the show's name showing up).
 
--   **Try to use the textplot_network on reddit as well as the combined data set.** Although I'm not sure if I will I think it could produce some interesting results.
+    -   This may include using a maxium document frequency and a minimum word frequency.
 
--   **Try to find a way to remove the dates from the word clouds.** My current thought is to just make a separate r chunk that only has twitter\$text to remove the dates.
+-   I would like to see if I can create an emotional rating comparison using the dictionary method. This would include using the NRC for twitter and reddit to compare the average emotional response.
 
--   **Try to decide on how or if I want to use co-occurrence.**
-
-# Final Code
+# Final Code Moving Forward
 
 ```{r reddit word cloud}
 reddit_corpus <- subset(reddit, detect_language(reddit) == "en")
+reddit_corpus <- corpus(reddit_corpus)
 reddit_corpus <- reddit_corpus[!is.na(reddit_corpus)]
-reddit_corpus <- corpus(reddit)
 redditsummary <- summary(reddit_corpus)
+
+reddit_corpus <- trimws(gsub("[[:digit:]]{1,4}-[[:digit:]]{1,4}-[[:digit:]]{1,4}", "", reddit_corpus))
 
 reddit_corpus_tokens <- tokens(reddit_corpus, 
     remove_punct = T,
@@ -283,9 +668,12 @@ textplot_wordcloud(reddit_corpus_dfm, max_words=200, color="red")
 ```{r twitter word cloud}
 
 twitter_corpus <- subset(twitter, detect_language(twitter) == "en")
-twitter_corpus <- twitter_corpus[!is.na(twitter_corpus)]
 twitter_corpus <- corpus(twitter_corpus)
+twitter_corpus <- twitter_corpus[!is.na(twitter_corpus)]
 twittersummary <- summary(twitter_corpus)
+twitter_corpus <- trimws(gsub("[[:digit:]]{1,4}-[[:digit:]]{1,4}-[[:digit:]]{1,4}", "", twitter_corpus))
+
+mystopwords <- c("love is blind japan", "#loveisbindjapan", "#LoveIsBlindJapan","Love Is Blind Japan","Love is Blind Japan", "Love Is Blind: Japan", "#loveisblind", "ラブイズブラインドjapan", "#ラブイズブラインドjapan", "loveisblind", "#loveisblind2", "blind:japan", "blind", "show")
 
 twitter_corpus_tokens <- tokens(twitter_corpus, 
     remove_punct = T,
@@ -293,6 +681,7 @@ twitter_corpus_tokens <- tokens(twitter_corpus,
     remove_symbols = T,
     remove_url = T) %>% 
   tokens_tolower() %>% 
+  tokens_remove(pattern = phrase(mystopwords), valuetype = 'fixed') %>% 
   tokens_select(pattern = stopwords("en"), selection = "remove")
 
 twitter_lemmitized <- tokens_replace(twitter_corpus_tokens, 
@@ -308,46 +697,10 @@ twitter_corpus_dfm <- twitter_lemmitized %>%
 textplot_wordcloud(twitter_corpus_dfm, max_words=200, color="blue")
 ```
 
-```{r full social media word cloud}
-
-social_corpus <- subset(allsocialmedia, detect_language(allsocialmedia) == "en")
-social_corpus <- corpus(social_corpus)
-socialsummary <- summary(social_corpus)
-
-social_corpus <- social_corpus[!is.na(social_corpus)]
-
-social_corpus_tokens <- tokens(social_corpus, 
-    remove_punct = T,
-    remove_numbers = T,
-    remove_symbols = T,
-    remove_url = T) %>% 
-  tokens_tolower() %>% 
-  tokens_select(pattern = stopwords("en"), selection = "remove")
-
-social_lemmitized <- tokens_replace(social_corpus_tokens, 
-                             pattern = lexicon::hash_lemmas$token, 
-                             replacement = lexicon::hash_lemmas$lemma)
-
-library(quanteda.textplots)
-
-social_corpus_dfm <- social_lemmitized %>% 
-  dfm() %>% 
-  dfm_remove(stopwords('english')) %>% 
-  dfm_trim(min_termfreq = 30, verbose = FALSE)
-
-textplot_wordcloud(social_corpus_dfm, max_words=200, color="orange")
-```
-
-```{r top features}
-topfeatures(social_corpus_dfm, 10)
-topfeatures(twitter_corpus_dfm, 10)
-topfeatures(reddit_corpus_dfm, 10)
-```
-
-```{r cooccurrence}
+```{r twitter cooccurrence}
 
 # let's create a nicer dfm by limiting to words that appear frequently and are in more than 30% of chapters
-smaller_dfm <- dfm_trim(twitter_corpus_dfm, max_termfreq = 3400, min_termfreq = 30)
+smaller_dfm <- dfm_trim(twitter_corpus_text_dfm, max_termfreq = 3400, min_termfreq = 10)
 smaller_dfm <- dfm_trim(smaller_dfm, max_docfreq = .3, docfreq_type = "prop")
 
 textplot_wordcloud(smaller_dfm, min_count = 100,
@@ -373,4 +726,74 @@ size <- log(colSums(even_smaller_fcm))
 
 # create plot
 textplot_network(even_smaller_fcm, vertex_size = size / max(size) * 3)
+```
+
+```{r reddit cooccurrence}
+
+# let's create a nicer dfm by limiting to words that appear frequently and are in more than 30% of chapters
+rsmaller_dfm <- dfm_trim(reddit_corpus_dfm, max_termfreq = 3400, min_termfreq = 10)
+rsmaller_dfm <- dfm_trim(rsmaller_dfm, max_docfreq = .3, docfreq_type = "prop")
+
+textplot_wordcloud(rsmaller_dfm, min_count = 100,
+                   random_order = FALSE)
+
+# create fcm from dfm
+rsmaller_fcm <- fcm(rsmaller_dfm)
+
+# check the dimensions (i.e., the number of rows and the number of columnns)
+# of the matrix we created
+dim(rsmaller_fcm)
+
+rmyFeatures <- names(topfeatures(rsmaller_fcm, 30))
+
+# retain only those top features as part of our matrix
+reven_smaller_fcm <- fcm_select(rsmaller_fcm, pattern = rmyFeatures, selection = "keep")
+
+# check dimensions
+dim(reven_smaller_fcm)
+
+# compute size weight for vertices in network
+rsize <- log(colSums(reven_smaller_fcm))
+
+# create plot
+textplot_network(reven_smaller_fcm, vertex_size = rsize / max(rsize) * 3)
+```
+
+```{r reddit dfm dictionary}
+
+redditDfm_nrc <- dfm(tokens(reddit_lemmitized,
+                              remove_punct = TRUE),
+                       tolower = TRUE) %>%
+                    dfm_lookup(data_dictionary_NRC)
+
+dim(redditDfm_nrc)
+redditDfm_nrc
+
+rdf_nrc <- convert(redditDfm_nrc, to = "data.frame")
+rdf_nrc$polarity <- (rdf_nrc$positive - rdf_nrc$negative)/(rdf_nrc$positive + rdf_nrc$negative)
+rdf_nrc$polarity[which((rdf_nrc$positive + rdf_nrc$negative) == 0)] <- 0
+
+ggplot(rdf_nrc) + 
+  geom_histogram(aes(x=polarity)) + 
+  theme_bw()
+
+```
+
+```{r twitter dfm dictionary}
+twitterDfm_nrc <- dfm(tokens(twitter_lemmitized,
+                              remove_punct = TRUE),
+                       tolower = TRUE) %>%
+                    dfm_lookup(data_dictionary_NRC)
+
+dim(twitterDfm_nrc)
+twitterDfm_nrc
+
+tdf_nrc <- convert(twitterDfm_nrc, to = "data.frame")
+tdf_nrc$polarity <- (tdf_nrc$positive - tdf_nrc$negative)/(tdf_nrc$positive + tdf_nrc$negative)
+tdf_nrc$polarity[which((tdf_nrc$positive + tdf_nrc$negative) == 0)] <- 0
+
+ggplot(tdf_nrc) + 
+  geom_histogram(aes(x=polarity)) + 
+  theme_bw()
+
 ```
