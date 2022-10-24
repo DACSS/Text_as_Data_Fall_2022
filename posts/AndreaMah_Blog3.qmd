@@ -1,0 +1,203 @@
+---
+title: "Blog Post 3: Pre-processing"
+author: "Andrea Mah"
+desription: "Initial data exploration"
+date: "10/24/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - Blog Post 3
+  - Andrea Mah
+---
+
+```{r}
+#| label: setup
+#| warning: false
+
+library(tidyverse)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+For my project, I plan to analyze speeches given by world leaders at the UN Climate conferences. My goal for the past week was to get my data into good shape. Previously, I was able to import all the pdfs into R. However, I did not have metadata associated with those documents, many speeches were not in english, and the data needed to be cleaned.
+
+
+My first step was to detect the language of the speeches and to subset my corpus to only include english texts. Fortunately, there were multiple packages which I could use to detect language. Ultimately I chose "cld2" which was reported to have high accuracy. After importing the files, I used the detect_language() command to create a vector representing the language of each document. Then I subsetted the data and saved a new file with only the english texts.
+
+
+```{r}
+library(cleanNLP)
+library(tidytext)
+library(plyr)
+library(tidyverse)
+library(quanteda)
+library(pdftools)
+library(quanteda.textmodels)
+library(quanteda.textplots)
+library(quanteda.textstats)
+
+#creating list of names of files to read in
+file_list <- list.files(pattern="*.pdf")
+#
+all_files <- lapply(file_list, function(file){
+  txt <- pdf_text(file)
+  txt <- str_c(txt, collapse = " ")
+  data.frame(File = file,text = txt)
+})
+#
+#bind
+result <- do.call("rbind", all_files)
+
+#checking import worked
+View(result)
+
+#detecting language? 
+require(cld2)
+
+t_start = proc.time()
+cld2_vec = cld2::detect_language(text = result$text, plain_text = TRUE, lang_code = TRUE)
+
+#bind result with data
+result$language <- cld2_vec
+
+#create subset data with only english language speeches
+en.result <-result[which(result$language == "en"),]
+#Save as dataframe
+save(en.result, file = "speeches.RData")
+
+```
+
+
+My next step was to get some metadata ('docvars') that I could use with my documents. The filenames in the downloaded speeches contained a lot of useful information. They had which conference the speech was from, the date the speech was delivered, and the speaker (in most cases, a country). I couldn't find anything in R to help me use the filename to extract that information (although I'm sure something exists.) What I ended up doing was exporting the list of file names from my english speeches dataframe, importing that into excel, and using a series of "TEXTBEFORE" and "TEXTAFTER" functions to isolate the information I wanted. I manually added in the year of each speech, which was easy to do after sorting the files in alphabetical order. I saved this 'metadata' as a csv. 
+
+After importing the csv into R, I used left_join to merge the speeches with the metadata by file name. Now when I made the speech dataframe into a corpus I was able to see my metadata. 
+
+```{r}
+
+#remove the "language" column
+en.result <- en.result[,c(1,2)]
+
+#isolate only the filename column to export
+en.result.names <- en.result[,1]
+#Here I exported a csv
+write.csv(en.result.names, "en.result.csv")
+
+#using excel "=textbefore()" and "=textafter()" commands, I was able to isolate
+#Year and Speaker(country) using the file names. I saved this as a csv to import as my corpus metadata.
+
+#importing metadata file
+metadata <- read.csv("metadata_docs.csv", header = T)
+
+#renaming column to match
+metadata$File <- metadata$filename
+
+#joining my speeches with my metadata
+speech.meta <- left_join(metadata, en.result, by = "File", all.x = T)
+
+#saving this dataframe...
+save(file =  "speech.meta.RData", speech.meta)
+
+```
+
+Next, I needed to clean up the text and do some pre-processing. I didn't have much success using built in commands to remove numbers or other things, but a different approach using gsub() seemed to work. I'm sure the code I'm using could be simplified a lot. But at least this ended up with the result I wanted. After getting rid of things that I didn't want, I created a dfm, where I also removed stopwords and only included features which appeared a minimum of 10 times.
+
+```{r}
+#Cleaning up the speeches
+load("speech.meta.RData")
+text <- speech.meta$text
+text <- gsub("$", " ", text)
+text <- gsub("~", " ", text)
+text <- gsub("1st", " ", text)
+text <- gsub("2nd", " ", text)
+text <- gsub("3rd", " ", text)
+text <- gsub("4th", " ", text)
+text <- gsub("5th", " ", text)
+text <- gsub("6th", " ", text)
+text <- gsub("7th", " ", text)
+text <- gsub("8th", " ", text)
+text <- gsub("9th", " ", text)
+text <- gsub("0th", " ", text)
+text <- gsub("1", " ", text)
+text <- gsub("2", " ", text)
+text <- gsub("3", " ", text)
+text <- gsub("4", " ", text)
+text <- gsub("5", " ", text)
+text <- gsub("6", " ", text)
+text <- gsub("7", " ", text)
+text <- gsub("8", " ", text)
+text <- gsub("9", " ", text)
+text <- gsub("0", " ", text)
+text <- gsub("%", " ", text)
+text <- gsub("#", " ", text)
+text <-gsub(" th ", " ", text)
+text <-gsub(" t ", " ", text)
+text <-gsub(" l ", " ", text)
+text <-gsub(" d ", text)
+speech.meta$text <- text
+speech.meta$text_field <- speech.meta$text
+speech.meta$docid_field <- speech.meta$File
+
+#Make this into a corpus
+speech_corpus <- corpus(speech.meta)
+
+speech_tokens <- tokens(speech_corpus, remove_punc = T)
+
+#Create a DFM without punctuation or stopwords
+dfm_speech <- dfm(speech_tokens)
+
+dfm_speech <- dfm_remove(dfm_speech, stopwords("english")) %>%
+  dfm_trim(min_termfreq = 10, verbose = F)
+
+```
+
+Next I was excited to just explore the dfm. I looked at
+```{r}
+#get some information about the dfm
+ndoc(dfm_speech)
+head(featnames(dfm_speech), 25)
+
+#See what's common
+topfeatures(dfm_speech, 50)
+
+#see what's common within each year
+topfeatures(dfm_speech, 5, groups = year)
+
+#make a wordcloud 
+set.seed(2222)
+textplot_wordcloud(dfm_speech, min_count = 50, random_order = F)
+```
+
+
+Finally, since I now had some metadata, I wanted to see if I could actually use it. I found some code online which was showing how to plot frequency of terms using ggplot(). I did this for the overall corpus, but could not figure out how to select specific terms and plot them by year... 
+
+```{r}
+
+
+#trying out some frequencies? gets the top 10 features overall
+ts_freq <- textstat_frequency(dfm_speech, n = 20)
+ts_freq
+#what about top features by year? 
+ts_freq_byyear <- textstat_frequency(dfm_speech, n = 3, group = year)
+ts_freq_byyear
+
+topterms <- ggplot(data = ts_freq, aes(x = feature)) +
+  geom_bar(aes(y = frequency), stat = "identity") +
+  theme(panel.background = element_rect(fill = "white"), 
+        axis.line = element_line(colour = "black"),
+        axis.text = element_text(size = 12),
+        axis.title.x = element_text(size =12, vjust = -1),
+        axis.title.y = element_text(size =12),
+        legend.key = element_blank(),
+        legend.position = "top",
+        legend.text = element_text(size = 14),
+        legend.title = element_blank())
+
+topterms
+```
+
+Now that my dataset is actually clean and ready to be analyzed, I'm excited to try topic modelling, to learn more about what types of stats I can calculate using the dfm, and figuring our more interesting ways to visualize the data. 
+
+
