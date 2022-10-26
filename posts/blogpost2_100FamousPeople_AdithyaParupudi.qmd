@@ -1,0 +1,78 @@
+---
+title: "Blog Post 2 - 100+ Famous People"
+author: "Adithya Parupudi"
+desription: "Scraped biographies of 100+ famous people to perform text analysis"
+date: "22/10/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - Adithya Parupudi
+  - blogpost2
+---
+
+```{r}
+#| label: setup
+#| warning: false
+
+library(tidyverse)
+library(rvest)
+library(stringr)
+```
+
+Using the website \<\> to scrape daat of 126 famous people from all over the world. This website has the detailed information about their early life, academic achievements, and the impact created by them.
+
+I wanted to find out :
+
+1.  What is the most common profession? Which areas of work do most of them fall into?
+2.  Where are they from? Whats their education background?
+3.  Whats their cause of death?
+4.  Which time period did most of them existed?
+5.  Emotion behind their famous quotes
+
+Reading the content of landing page, which has urls of all the famous people.
+
+```{r}
+all = read_html("https://www.biographyonline.net/people/famous-100.html")
+
+```
+
+I've created three variables to capture the celebrity names, individual page urls and their content. Each page contains various excerpts from their life such as "Early Life", "Notable Achievements", "Famous Quotes" and so on. I further created a dataset with each variable name as its column, to structure the data for further text processing, which is yet to be done.
+
+```{r}
+people_names <- all %>% html_nodes("ol a") %>% html_text()
+# people_names
+
+#getting all the links
+
+links <- all %>% html_nodes("ol a") %>% 
+  html_attr("href") %>% 
+  str_replace(.,"/women/ingrid-bergman.html", "../women/ingrid-bergman.html") %>% 
+  str_replace(.,"https://www.biographyonline.net/", "../") %>% 
+  str_replace(.,"../", "https://www.biographyonline.net/")
+
+get_content = function(link){
+  data = read_html(link)
+  # data = read_html("https://www.biographyonline.net/nobelprize/economics/paul-krugman.html")
+  content = data %>% html_nodes('.clearfix') %>% html_text() %>% paste(collapse = "!!!")
+  return(content)
+    
+}
+
+content = sapply(links, FUN = get_content, USE.NAMES = FALSE) 
+dataset = data.frame(people_names, links, content, stringsAsFactors = FALSE)
+
+
+
+```
+
+Arranging the data in alphabetical order.
+
+```{r}
+arrange(dataset, people_names)
+```
+
+Now that I've collected the dataset, I have to perform text pre-processing by removing some urls that came with scraped content. Also split the content into multiple rows for better readability and context clarity.

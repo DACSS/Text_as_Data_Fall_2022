@@ -69,19 +69,19 @@ symptoms
 ```
 
 ```{r}
-diagnosis <- tibble(name, symptoms)
-diagnosis
+heart_diagnosis <- tibble(name, symptoms)
+heart_diagnosis
 ```
 
 ```{r}
-diagnosis <- cSplit(diagnosis, "symptoms", ";", direction = "long")
-diagnosis
+heart_diagnosis <- cSplit(heart_diagnosis, "symptoms", ";", direction = "long")
+heart_diagnosis
 ```
 
 ```{r}
-diagnosis <- diagnosis %>%
+heart_diagnosis <- heart_diagnosis %>%
   mutate("Type of disease" = "Heart disease")
-diagnosis
+heart_diagnosis
 ```
 
 ## Further study

@@ -99,6 +99,8 @@ jobs:
             any::devtools
             any::DT
             any::R.utils
+            any::emojifont
+            any::syuzhet
           cache-version: 1
           #extra-packages: any::rcmdcheck
           #needs: check
