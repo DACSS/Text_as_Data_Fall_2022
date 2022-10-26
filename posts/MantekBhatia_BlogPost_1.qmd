@@ -42,7 +42,7 @@ Before the game begins, each player creates their player character and records t
 
 This is what a typical character sheet looks like.  
 
-![](C:/Amherst Year 2/2022 Fall/DACSS 697D - Text as Data/GIT Stuff/Text_as_Data_Fall_2022/posts/1.png)  
+[An example completed charactersheet](https://content.instructables.com/ORIG/FYS/E8R6/J8F5STQW/FYSE8R6J8F5STQW.png?auto=webp&frame=1&width=1024&height=1024&fit=bounds&md=65f19fb357f80e959b18bb54eebaaa3e)  
 
 &nbsp;  
 &nbsp;  

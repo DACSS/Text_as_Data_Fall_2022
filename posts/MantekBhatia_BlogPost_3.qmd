@@ -1,0 +1,132 @@
+---
+title: "Blog Post 3"
+author: "Mantek Singh Bhatia"
+desription: "First Blog Post - Literature Review"
+date: "10/25/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - Blog Post 3
+  - Mantek Singh Bhatia
+  - Self-Identity
+  - Online Gaming
+  - Avatars
+  - Characterization
+---
+
+## Research Objective
+
+My research objective for this project is to understand how people characterize their avatars in games.  
+
+:::{.callout-important}
+Here I use the term Research Objective because I do not have a specific Research Question in mind right now. This project is merely exploratory for me. It may develop closer to the end of the project.
+:::
+
+
+Creating avatars in games gives people the freedom to be creative and cultivate an alternate identity. Now, this identity can be their "ideal self" or something that they just create for fun. To understand this process of creating identities I want to first examine the avatars people have already made. For this context I am thinking of scouring Reddit to find threads that talk about people describing the avatars/characters they have created while playing "Dungeons and Dragons". 
+
+&nbsp;  
+&nbsp;  
+&nbsp;  
+
+## Data Collection  
+
+I was able to scrap data from multiple Reddit threads where users talk about their characters that they have created while playing a Dungeons and Dragons campaign.  
+
+
+```{r}
+install.packages("rvest")
+install.packages("RedditExtractoR")
+install.packages("textclean")
+library(RedditExtractoR)
+library(rvest)
+library(tidyverse)
+library(quanteda)
+library(quanteda.textplots)
+library(textclean)
+
+url <- c("https://www.reddit.com/r/DnD/comments/b1pk5c/tell_me_about_your_characters/", 
+         "https://www.reddit.com/r/DnD/comments/33bv4f/best_dd_character_youve_made_or_seen/",
+         "https://www.reddit.com/r/DnD/comments/37cx49/your_first_ever_dd_character/",
+         "https://www.reddit.com/r/rpg/comments/2fk4op/best_dd_character_youve_ever_made/",
+         "https://www.reddit.com/r/DnD/comments/cgdwgl/share_your_dnd_character/",
+         "https://www.reddit.com/r/dndnext/comments/au8k0w/what_are_some_of_your_favourite_dd_character/")
+
+comments <- get_thread_content(url)
+
+
+#preprocessing
+all_comments <- 
+  comments$comments$comment %>% 
+  str_replace_all("\n"," ")           #data cleaning
+
+all_comments <- replace_contraction(all_comments)     #opened all contractions, like didn't to did not
+
+tail(all_comments, n = 10)    #Some of the comments
+
+reddit_DnD_characters <- corpus(all_comments)
+DnD_summary <- summary(reddit_DnD_characters, n = Inf)
+DnD_summary             #SUmmary of the corpus
+
+DnD_tokens <- tokens(reddit_DnD_characters); DnD_tokens       #tokens before preprosessing
+
+#Removed Punctuation
+#Removed symbols
+#Removed Numbers
+#Removed Stopwords
+
+DnD_tokens <- tokens(reddit_DnD_characters, remove_punct=TRUE, remove_symbols = TRUE,
+                     remove_numbers = TRUE) %>%
+  tokens_select(pattern=stopwords("en"), selection="remove"); DnD_tokens
+
+DnD_dfm <- DnD_tokens %>% 
+  dfm() %>%
+  dfm_trim(min_termfreq = 20, verbose = FALSE)
+
+DnD_dfm         #The DFM
+all_features <- featnames(DnD_dfm); all_features
+topfeatures(DnD_dfm, 100)
+
+textplot_wordcloud(DnD_dfm)      #Word Cloud of the existing tokens
+
+
+#creating a Network plot
+DnD_fcm = fcm(DnD_dfm)
+
+# pull the top features
+myFeatures = names(topfeatures(DnD_fcm, 30))
+
+# retain only those top features as part of our matrix
+Smaller_fsm = fcm_select(DnD_fcm, pattern = myFeatures, selection = "keep")
+
+# compute size weight for vertices in network
+size = log(colSums(Smaller_fsm))
+
+# create plot
+textplot_network(Smaller_fsm, vertex_size = size / max(size) * 3)
+
+
+
+#kwic_time <- kwic(reddit_DnD_characters, pattern = phrase("time")); head(kwic_time, n=10)
+
+#kwic_character <- kwic(reddit_DnD_characters, pattern = phrase("character")); head(kwic_character, n=10)
+
+#kwic_party <- kwic(reddit_DnD_characters, pattern = phrase("party")); head(kwic_party, n=10)
+```
+
+This is a preview of what the data is like in the Reddit threads. Right now there are a lot of frequent words as features which do not give us a lot of information, however, there are a few features that talk about the type/class of characters players usually choose which can give us a lot of insights.  
+
+
+&nbsp;  
+&nbsp;  
+&nbsp;  
+
+## Next Steps  
+
+-   Find more threads to scrap more comments.  
+-   Clean/Preprocess the features obtained to extract more nuanced information from the threads.  
+-   Think about what other methods introduced in the Text-as-Data class can be applied to the data to find meaningful observations from the data.  
