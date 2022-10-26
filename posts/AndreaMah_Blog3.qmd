@@ -10,8 +10,9 @@ format:
     code-copy: true
     code-tools: true
 categories:
-  - Blog Post 3
+  - BlogPost3
   - Andrea Mah
+
 ---
 
 ```{r}
@@ -25,7 +26,9 @@ knitr::opts_chunk$set(echo = TRUE)
 For my project, I plan to analyze speeches given by world leaders at the UN Climate conferences. My goal for the past week was to get my data into good shape. Previously, I was able to import all the pdfs into R. However, I did not have metadata associated with those documents, many speeches were not in english, and the data needed to be cleaned.
 
 
+
 My first step was to detect the language of the speeches and to subset my corpus to only include english texts. Fortunately, there were multiple packages which I could use to detect language. Ultimately I chose "cld2" which was reported to have high accuracy. After importing the files, I used the detect_language() command to create a vector representing the language of each document. Then I subsetted the data and saved a new file with only the english texts.
+
 
 
 ```{r}
@@ -67,6 +70,7 @@ result$language <- cld2_vec
 en.result <-result[which(result$language == "en"),]
 #Save as dataframe
 save(en.result, file = "speeches.RData")
+load("speeches.RData")
 
 ```
 
@@ -110,6 +114,8 @@ load("speech.meta.RData")
 text <- speech.meta$text
 text <- gsub("$", " ", text)
 text <- gsub("~", " ", text)
+text <- gsub("<", " ", text)
+text <- gsub(">", " ", text)
 text <- gsub("1st", " ", text)
 text <- gsub("2nd", " ", text)
 text <- gsub("3rd", " ", text)
@@ -135,7 +141,8 @@ text <- gsub("#", " ", text)
 text <-gsub(" th ", " ", text)
 text <-gsub(" t ", " ", text)
 text <-gsub(" l ", " ", text)
-text <-gsub(" d ", text)
+text <-gsub(" d ", " ", text)
+text <- gsub(" mr. ", " ", text)
 speech.meta$text <- text
 speech.meta$text_field <- speech.meta$text
 speech.meta$docid_field <- speech.meta$File
@@ -153,7 +160,7 @@ dfm_speech <- dfm_remove(dfm_speech, stopwords("english")) %>%
 
 ```
 
-Next I was excited to just explore the dfm. I looked at
+Next I was excited to just explore the dfm. 
 ```{r}
 #get some information about the dfm
 ndoc(dfm_speech)
@@ -167,7 +174,9 @@ topfeatures(dfm_speech, 5, groups = year)
 
 #make a wordcloud 
 set.seed(2222)
-textplot_wordcloud(dfm_speech, min_count = 50, random_order = F)
+textplot_wordcloud(dfm_speech, min_count = 100, random_order = F)
+
+dfm.1995 <- subset(dfm_speech, year == "1995")
 ```
 
 
@@ -180,8 +189,11 @@ Finally, since I now had some metadata, I wanted to see if I could actually use 
 ts_freq <- textstat_frequency(dfm_speech, n = 20)
 ts_freq
 #what about top features by year? 
-ts_freq_byyear <- textstat_frequency(dfm_speech, n = 3, group = year)
+ts_freq_byyear <- textstat_frequency(dfm_speech, n = 10, group = year)
 ts_freq_byyear
+
+ts_freq_byspeaker <- textstat_frequency(dfm_speech, n = 10, group = speaker)
+ts_freq_byspeaker
 
 topterms <- ggplot(data = ts_freq, aes(x = feature)) +
   geom_bar(aes(y = frequency), stat = "identity") +
@@ -199,5 +211,3 @@ topterms
 ```
 
 Now that my dataset is actually clean and ready to be analyzed, I'm excited to try topic modelling, to learn more about what types of stats I can calculate using the dfm, and figuring our more interesting ways to visualize the data. 
-
-
