@@ -277,7 +277,7 @@ textplot_wordcloud(social_corpus_dfm, max_words=200, color="orange")
 
 I mentioned previously I would like to test a textplot for Reddit. Below you will see my test.
 
-```{r text plot reddi}
+```{r text plot reddit}
 # let's create a nicer dfm by limiting to words that appear frequently and are in more than 30% of chapters
 rsmaller_dfm <- dfm_trim(reddit_corpus_dfm, max_termfreq = 3400, min_termfreq = 10)
 rsmaller_dfm <- dfm_trim(rsmaller_dfm, max_docfreq = .3, docfreq_type = "prop")
@@ -295,7 +295,7 @@ dim(rsmaller_fcm)
 rmyFeatures <- names(topfeatures(rsmaller_fcm, 30))
 
 # retain only those top features as part of our matrix
-reven_smaller_fcm <- fcm_select(rsmaller_fcm, pattern = myFeatures, selection = "keep")
+reven_smaller_fcm <- fcm_select(rsmaller_fcm, pattern = rmyFeatures, selection = "keep")
 
 # check dimensions
 dim(reven_smaller_fcm)
@@ -304,10 +304,10 @@ dim(reven_smaller_fcm)
 rsize <- log(colSums(reven_smaller_fcm))
 
 # create plot
-textplot_network(reven_smaller_fcm, vertex_size = rsize / max(size) * 3)
+textplot_network(reven_smaller_fcm, vertex_size = rsize / max(rsize) * 3)
 ```
 
-It's interesting to see that the words that are less connected are talking about the series "love is blind" such as "season", "american", and "brazil" versions. Overall Reddit's text plot feels a lot more interconnected than Twitter's.
+It's interesting to see that the contestants names seem to be much more connected. Overall Reddit's text plot feels a lot more interconnected than Twitter's.
 
 I will also test this for the combined data set.
 
@@ -332,7 +332,7 @@ dim(ssmaller_fcm)
 smyFeatures <- names(topfeatures(ssmaller_fcm, 30))
 
 # retain only those top features as part of our matrix
-seven_smaller_fcm <- fcm_select(ssmaller_fcm, pattern = myFeatures, selection = "keep")
+seven_smaller_fcm <- fcm_select(ssmaller_fcm, pattern = smyFeatures, selection = "keep")
 
 # check dimensions
 dim(seven_smaller_fcm)
@@ -341,7 +341,7 @@ dim(seven_smaller_fcm)
 ssize <- log(colSums(seven_smaller_fcm))
 
 # create plot
-textplot_network(seven_smaller_fcm, vertex_size = ssize / max(size) * 3)
+textplot_network(seven_smaller_fcm, vertex_size = ssize / max(ssize) * 3)
 
 ```
 
@@ -427,7 +427,7 @@ ggplot(tsent_df, mapping = aes(x=nrc_polarity, y=lsd2015_polarity)) +
   theme_bw()
 ```
 
-Interestingly it seems there is a good amount of correlation between the two. Although not as strong as the tutorial it does seem that the dictionary is fairly accuarte. Let's test this for both reddit and allsocialmedia.
+Interestingly it seems there is a good amount of correlation between the two. Although not as strong as the tutorial it does seem that the dictionary is fairly accurate. Let's test this for both reddit and allsocialmedia.
 
 # Dictionary Approach with Reddit
 
@@ -624,17 +624,17 @@ I have decided to do this because I believe there's more information that could 
 
 -   I am unsure how I will use co-occurrence.
 
-## Questions and frustrations I still have
-
--   ?
-
 ## Future Work
 
 Here are a few things I'd like to do in blog post 5:
 
--   
+-   I would like to look at co-occurrence more closely and decide if the code I have now is the one I would like to use for the final project. I currently have chosen it based off prior issues (such as having the show's name showing up).
 
-# Final Code
+    -   This may include using a maxium document frequency and a minimum word frequency.
+
+-   I would like to see if I can create an emotional rating comparison using the dictionary method. This would include using the NRC for twitter and reddit to compare the average emotional response.
+
+# Final Code Moving Forward
 
 ```{r reddit word cloud}
 reddit_corpus <- subset(reddit, detect_language(reddit) == "en")
@@ -699,7 +699,7 @@ twitter_corpus_dfm <- twitter_lemmitized %>%
 textplot_wordcloud(twitter_corpus_dfm, max_words=200, color="blue")
 ```
 
-```{r cooccurrence}
+```{r twitter cooccurrence}
 
 # let's create a nicer dfm by limiting to words that appear frequently and are in more than 30% of chapters
 smaller_dfm <- dfm_trim(twitter_corpus_text_dfm, max_termfreq = 3400, min_termfreq = 10)
@@ -728,4 +728,74 @@ size <- log(colSums(even_smaller_fcm))
 
 # create plot
 textplot_network(even_smaller_fcm, vertex_size = size / max(size) * 3)
+```
+
+```{r reddit cooccurrence}
+
+# let's create a nicer dfm by limiting to words that appear frequently and are in more than 30% of chapters
+rsmaller_dfm <- dfm_trim(reddit_corpus_dfm, max_termfreq = 3400, min_termfreq = 10)
+rsmaller_dfm <- dfm_trim(rsmaller_dfm, max_docfreq = .3, docfreq_type = "prop")
+
+textplot_wordcloud(rsmaller_dfm, min_count = 100,
+                   random_order = FALSE)
+
+# create fcm from dfm
+rsmaller_fcm <- fcm(rsmaller_dfm)
+
+# check the dimensions (i.e., the number of rows and the number of columnns)
+# of the matrix we created
+dim(rsmaller_fcm)
+
+rmyFeatures <- names(topfeatures(rsmaller_fcm, 30))
+
+# retain only those top features as part of our matrix
+reven_smaller_fcm <- fcm_select(rsmaller_fcm, pattern = rmyFeatures, selection = "keep")
+
+# check dimensions
+dim(reven_smaller_fcm)
+
+# compute size weight for vertices in network
+rsize <- log(colSums(reven_smaller_fcm))
+
+# create plot
+textplot_network(reven_smaller_fcm, vertex_size = rsize / max(rsize) * 3)
+```
+
+```{r reddit dfm dictionary}
+
+redditDfm_nrc <- dfm(tokens(reddit_lemmitized,
+                              remove_punct = TRUE),
+                       tolower = TRUE) %>%
+                    dfm_lookup(data_dictionary_NRC)
+
+dim(redditDfm_nrc)
+redditDfm_nrc
+
+rdf_nrc <- convert(redditDfm_nrc, to = "data.frame")
+rdf_nrc$polarity <- (rdf_nrc$positive - rdf_nrc$negative)/(rdf_nrc$positive + rdf_nrc$negative)
+rdf_nrc$polarity[which((rdf_nrc$positive + rdf_nrc$negative) == 0)] <- 0
+
+ggplot(rdf_nrc) + 
+  geom_histogram(aes(x=polarity)) + 
+  theme_bw()
+
+```
+
+```{r twitter dfm dictionary}
+twitterDfm_nrc <- dfm(tokens(twitter_lemmitized,
+                              remove_punct = TRUE),
+                       tolower = TRUE) %>%
+                    dfm_lookup(data_dictionary_NRC)
+
+dim(twitterDfm_nrc)
+twitterDfm_nrc
+
+tdf_nrc <- convert(twitterDfm_nrc, to = "data.frame")
+tdf_nrc$polarity <- (tdf_nrc$positive - tdf_nrc$negative)/(tdf_nrc$positive + tdf_nrc$negative)
+tdf_nrc$polarity[which((tdf_nrc$positive + tdf_nrc$negative) == 0)] <- 0
+
+ggplot(tdf_nrc) + 
+  geom_histogram(aes(x=polarity)) + 
+  theme_bw()
+
 ```
