@@ -38,11 +38,13 @@ library(quanteda.sentiment)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+
 # Research Question
 
 **My current research question:** How do Reddit and Twitter users feel about the show *Love is Blind Japan*?
 
 # Reading in the Data
+
 
 ```{r reading data}
 #write csv has been commented out due to it continously trying to save an "updated version" in Git. 
@@ -88,9 +90,11 @@ allsocialmedia <- merge(twitter, reddit, by=c('text','text', 'date', 'date'),all
 #write.csv(twitter, here::here("posts", "_data", "loveisblind_socialmedia.csv") , all(T) )
 ```
 
+
 # Creating a Separate Word Cloud for Twitter
 
 In order to remove the dates from Twitter I decided to run the same formula only on the Twitter text column.
+
 
 ```{r twitter text word cloud}
 twitter_text <- twitter$text
@@ -121,9 +125,11 @@ textplot_wordcloud(twitter_corpus_text_dfm, max_words=200, color="blue")
 
 ```
 
+
 ## Removing The Show's Name
 
 Although the data is a lot cleaner now I do wonder if removing the key words "love", "blind", "japan" and "#loveisblindjapan" will give a better picture of how posters are feeling. I will go ahead and remove the phrases.
+
 
 ```{r removing the shows title}
 
@@ -159,6 +165,7 @@ textplot_wordcloud(twitter_corpus_text_dfm, max_words=200, color="blue")
 
 ```
 
+
 Here is we can see a more accurate idea of how people are tweeting about the show. Even with the show's title being remove love is still a large part of tweets.
 
 I also noticed that "blind" was used often. Looking at the tweets it seems unlikely that the word blind was used in any other way than to mention the show. Thus I'd like to remove the word blind as well since it seems unlikely to be useful to sentiment analysis.
@@ -166,6 +173,7 @@ I also noticed that "blind" was used often. Looking at the tweets it seems unlik
 I will also remove the word "show" as show seemingly is only talking about the series rather than any emotions.
 
 I have also found a different way to remove dates and have done so below.
+
 
 ```{r removing the words blind and show}
 
@@ -202,9 +210,11 @@ textplot_wordcloud(twitter_corpus_text_dfm, max_words=200, color="blue")
 
 ```
 
+
 I have found out why the dates column has become messy. This is because originally I had put the corpus() function after the \[!is.na()\]. However when put first it still shows the date column in the summary.
 
 # Reddit and Updated Social Media word cloud
+
 
 ```{r reddit word cloud same}
 
@@ -272,9 +282,11 @@ social_corpus_dfm <- social_lemmitized %>%
 textplot_wordcloud(social_corpus_dfm, max_words=200, color="orange")
 ```
 
+
 # Text Plot for Reddit
 
 I mentioned previously I would like to test a textplot for Reddit. Below you will see my test.
+
 
 ```{r text plot reddit}
 # let's create a nicer dfm by limiting to words that appear frequently and are in more than 30% of chapters
@@ -306,11 +318,13 @@ rsize <- log(colSums(reven_smaller_fcm))
 textplot_network(reven_smaller_fcm, vertex_size = rsize / max(rsize) * 3)
 ```
 
+
 It's interesting to see that the contestants names seem to be much more connected. Overall Reddit's text plot feels a lot more interconnected than Twitter's.
 
 I will also test this for the combined data set.
 
 # All Social Media Tex Plot
+
 
 ```{r text plot socials}
 
@@ -344,11 +358,13 @@ textplot_network(seven_smaller_fcm, vertex_size = ssize / max(ssize) * 3)
 
 ```
 
+
 Interestingly the text plot has a similarity more to Reddit than to Twitter. Perhaps this is because Reddit has more tokens as there is not a character limit.
 
 # Dictionary Approach with Twitter
 
 I will now try the dictionary approach using reddit, twitter, and the data combined (allsocialmedia).
+
 
 ```{r review sentiment twitter}
 twitterDfm_nrc <- dfm(tokens(twitter_text_lemmitized,
@@ -369,9 +385,11 @@ ggplot(tdf_nrc) +
 
 ```
 
+
 Here we can see that for twitter most people were more positive about the show! That does correlate from what I often saw from skimming the tweets.
 
 Still we should double check to make sure that these actually do skew positively.
+
 
 ```{r comparing dictionaries twitter}
 
@@ -426,9 +444,11 @@ ggplot(tsent_df, mapping = aes(x=nrc_polarity, y=lsd2015_polarity)) +
   theme_bw()
 ```
 
+
 Interestingly it seems there is a good amount of correlation between the two. Although not as strong as the tutorial it does seem that the dictionary is fairly accurate. Let's test this for both reddit and allsocialmedia.
 
 # Dictionary Approach with Reddit
+
 
 ```{r reddit dictionary}
 
@@ -513,7 +533,9 @@ ggplot(rsent_df, mapping = aes(x=nrc_polarity, y=lsd2015_polarity)) +
 
 ```
 
+
 # Dictionary Approach with All Social Media
+
 
 ```{r social media dictionary}
 
@@ -589,6 +611,7 @@ ggplot(sent_df, mapping = aes(x=nrc_polarity, y=lsd2015_polarity)) +
 
 ```
 
+
 # Choosing a Dictionary
 
 Interestingly compared to Twitter, Reddit and "allsocialmedia" were a fair amount lower in correlation. Although it was still a fairly high correlation this may because of the different types of words used by Reddit.
@@ -634,6 +657,7 @@ Here are a few things I'd like to do in blog post 5:
 -   I would like to see if I can create an emotional rating comparison using the dictionary method. This would include using the NRC for twitter and reddit to compare the average emotional response.
 
 # Final Code Moving Forward
+
 
 ```{r reddit word cloud}
 reddit_corpus <- subset(reddit, detect_language(reddit) == "en")
@@ -797,3 +821,4 @@ ggplot(tdf_nrc) +
   theme_bw()
 
 ```
+
