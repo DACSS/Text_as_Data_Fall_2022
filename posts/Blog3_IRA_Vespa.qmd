@@ -1,0 +1,146 @@
+---
+title: "Blog 3- Semantic Network Analysis"
+author: "Rhowena Vespa"
+desription: "TF-IDF/ dfm/Sematic Network Visualization"
+date: "10/16/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - Blog 3
+  - Rhowena Vespa
+  - Semantic Network Analysis
+  - Twitter
+  - TF-IDF
+  - dfm
+  - Text representation
+---
+
+```{r}
+
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+```
+
+
+```{r}
+library(readr)
+library(dplyr)
+library(quanteda)
+library(quanteda.textstats)
+library(quanteda.textplots)
+library(ggplot2)
+library(DT)
+library(tm)
+library(stringr)
+```
+
+This 3rd Blog uses text representation concepts from week 6. Using tweet replies as corpus,
+I will apply document-feature matrix and term-co-occurence matrix to better undersatnd the relationships of the texts.
+I will also apply TF-IDF: Term Frequency-Inverse Document Frequency to rank the words by frequency.
+Data visualization of the semantic network to understand what words co-occur with one another.
+
+```{r}
+# Read in data
+
+IRA<- read_csv("IRA_med.csv")
+#remove @twitter handles
+IRA$text <- gsub("@[[:alpha:]]*","", IRA$text) #remove Twitter handles
+```
+
+```{r}
+IRA_corpus <- corpus(IRA,text_field = "text")   
+```
+
+#tokenize and stemming
+```{r}
+IRA_tokens <- tokens(IRA_corpus)
+IRA_tokens <- tokens_wordstem(IRA_tokens)
+```
+# Locate keywords in text
+I played around with this and compared results from keywords :"inflation", "pharma", and "price".
+
+
+```{r}
+IRA_kw <- kwic(IRA_tokens, pattern =  "price*", window = 3,
+  valuetype = c("glob", "regex", "fixed"),
+  separator = " ",
+  case_insensitive = TRUE,
+  index = NULL) 
+head(IRA_kw, 5) 
+```
+#TF-IDF rank words by term frequency
+
+
+```{r}
+IRA_dfm <- tokens(IRA_corpus, remove_punct = TRUE, remove_numbers = TRUE, remove_symbols = TRUE, remove_url=TRUE) %>%  
+  tokens_remove (stopwords("en")) %>%
+  dfm()
+topfeatures(IRA_dfm) 
+
+```
+
+#rank words by TF-IDF
+
+
+
+```{r}
+IRA_dfm <- dfm_tfidf(IRA_dfm) 
+topfeatures(IRA_dfm) 
+```
+
+
+#Keyness analysis as an alternative to tf-idf
+I grouped the responses as based on possible sensitivity of the tweet replies. 
+The possibly sensitive =TRUE replies "keywords" compared to the associations and a reference group of possible_sensitive= FALSE group replies,
+
+```{r}
+IRA_dfm <- tokens(IRA_corpus, remove_punct = TRUE, remove_numbers = TRUE, remove_symbols = TRUE, remove_url=TRUE) %>%
+  dfm() %>%
+  dfm_group(groups = possibly_sensitive)  
+
+IRAkey <- textstat_keyness(IRA_dfm, target = "TRUE")
+textplot_keyness(IRAkey,
+  show_reference = TRUE,
+  show_legend = TRUE,
+  n = 20L,
+  min_count = 2L,
+  margin = 0.05,
+  color = c("darkblue", "red"),
+  labelcolor = "gray30",
+  labelsize = 4,
+  font = NULL
+)
+```
+# DFM that contains hashtags 
+```{r}
+IRAtag_dfm <- dfm_select(IRA_dfm, pattern = "#*")
+IRAtoptag <- names(topfeatures(IRA_dfm, 50)) 
+head(IRAtoptag)
+```
+
+#Feature-occurrence matrix of hashtags
+
+```{r}
+IRAtag_fcm <- fcm(IRA_dfm)
+head(IRAtag_fcm)
+```
+
+#Visualization of semantic network based on hashtag co-occurrence
+
+```{r}
+IRAtopgat_fcm <- fcm_select(IRAtag_fcm, pattern = IRAtoptag)
+textplot_network(IRAtopgat_fcm, min_freq = 0.5,
+  omit_isolated = TRUE,
+  edge_color = "#1F78B4",
+  edge_alpha = 0.5,
+  edge_size = 2,
+  vertex_color = "#4D4D4D",
+  vertex_size = 2,
+  vertex_labelcolor = NULL,
+  vertex_labelfont = NULL,
+  vertex_labelsize = 5,
+  offset = NULL)
+```
