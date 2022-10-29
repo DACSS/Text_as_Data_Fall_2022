@@ -11,6 +11,8 @@ format:
     code-tools: true
 categories:
   - blog posts
+  - hw1
+  - Molly Hackbarth
 ---
 
 # Introduction to Text as Data Analysis

@@ -12,7 +12,7 @@ format:
 categories:
   - blog posts
   - hw3
-  - molly hackbarth
+  - Molly Hackbarth
 ---
 
 ```{r}
