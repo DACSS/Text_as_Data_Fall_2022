@@ -13,6 +13,7 @@ format:
         css: "styles.css"
 categories: 
   - post 2
+  - saaradhaa
 ---
 
 ```{r}
@@ -139,7 +140,7 @@ sentences_a <- corpus_reshape(corpus_a, to = "sentences")
 sentences_s <- corpus_reshape(corpus_s, to="sentences")
 ```
 
-There are ~43k sentences in the first corpus, and ~6k sentences in the second one.
+There are \~43k sentences in the first corpus, and \~6k sentences in the second one.
 
 Let's make a basic wordcloud using a document feature matrix to see how the transcripts of older vs. younger south asians differ.
 
@@ -254,7 +255,7 @@ reddit_corpus_edit <- reddit_corpus %>% dfm(remove = stopwords('english'), remov
 textplot_wordcloud(reddit_corpus_edit, max_words=50, color="blue")
 ```
 
-From the wordcloud, the Reddit data seems much cleaner than the PDF data. India(n) and family comes up as frequently used, similar to the oral histories. There's also frequent usage of the words "desi" and "white". 
+From the wordcloud, the Reddit data seems much cleaner than the PDF data. India(n) and family comes up as frequently used, similar to the oral histories. There's also frequent usage of the words "desi" and "white".
 
 Let's also look at the use of the word "culture", similar to what I did for the oral histories.
 

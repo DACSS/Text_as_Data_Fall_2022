@@ -13,6 +13,7 @@ format:
         css: "styles.css"
 categories: 
   - post 3
+  - saaradhaa
 ---
 
 ```{r}
@@ -51,7 +52,7 @@ In this post, I will focus on cleaning and pre-processing my data into a format 
 
     -   I manually removed the header for transcripts 12, 14, 21 and 22, and 'narrator', 'date', 'interviewed by', 'place' and 'end of interview' for all.
 
-    -   I manually removed the post-script for transcript 28  - it's a post-interview message from the interviewee, which does not represent meaningful oral history data.
+    -   I manually removed the post-script for transcript 28 - it's a post-interview message from the interviewee, which does not represent meaningful oral history data.
 
     -   I manually removed the header, index and glossary for transcripts 35 to 41.
 
