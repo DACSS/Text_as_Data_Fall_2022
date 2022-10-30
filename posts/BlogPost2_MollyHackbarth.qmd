@@ -12,6 +12,7 @@ format:
 categories:
   - blog posts
   - hw2
+  - Molly Hackbarth
 ---
 
 ```{r}
