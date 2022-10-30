@@ -1,0 +1,249 @@
+---
+title: "Blog 4 -Supervised Learning Part 1"
+author: "Rhowena Vespa"
+desription: "Dictionary and Polarity scores"
+date: "10/29/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - Blog 4
+  - Polarity1
+  - dictionary
+  - healthcare
+  - supervised learning
+  - ggplot2
+---
+
+```{r}
+#| label: setup
+#| warning: false
+
+
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+```
+
+
+
+```{r}
+library(readr)
+library(dplyr)
+library(quanteda)
+library(quanteda.textstats)
+library(quanteda.textplots)
+library(ggplot2)
+library(DT)
+library(tm)
+library(stringr)
+library(tidytext)
+library(plyr)
+library(tidyverse)
+library(quanteda.textmodels)
+library(devtools)
+library(caret)
+library(quanteda.dictionaries)
+#library(devtools)
+#devtools::install_github("kbenoit/quanteda.dictionaries")
+library(quanteda.dictionaries)
+library(syuzhet) 
+#remotes::install_github("quanteda/quanteda.sentiment")
+library(quanteda.sentiment)
+```
+
+
+This 4th Blog starts work on supervised machine learning from week 7 and 8. Using tweet replies as corpus,
+sentiment scores, polarity scores are calculated and visualized.
+
+Supervised machine learning will continue on next blog post to build models for polarity classification
+
+
+```{r}
+# Read in data
+
+IRA<- read_csv("IRA_med.csv")
+#remove @twitter handles
+IRA$text <- gsub("@[[:alpha:]]*","", IRA$text) #remove Twitter handles
+```
+
+```{r}
+IRA_corpus <- corpus(IRA,text_field = "text")   
+```
+
+#tokenize and stemming
+```{r}
+IRA_tokens <- tokens(IRA_corpus)
+IRA_tokens <- tokens_wordstem(IRA_tokens)
+```
+
+
+# USING LECTURE week8 --NRC sentiment
+
+
+```{r}
+# use liwcalike() to estimate sentiment using NRC dictionary
+IRAreviewSentiment_nrc <- liwcalike(IRA_corpus, data_dictionary_NRC)
+
+names(IRAreviewSentiment_nrc)
+```
+```{r}
+
+ggplot(IRAreviewSentiment_nrc) +
+  geom_histogram(aes(x = positive)) +
+  theme_bw()
+                     
+```
+```{r}
+IRA_corpus[which(IRAreviewSentiment_nrc$positive > 15)]
+```
+
+```{r}
+ggplot(IRAreviewSentiment_nrc) +
+  geom_histogram(aes(x = negative)) +
+  theme_bw()
+```
+
+```{r}
+IRA_corpus[which(IRAreviewSentiment_nrc$negative > 15)]
+```
+
+```{r}
+# create a full dfm for comparison
+IRA_Dfm <- tokens(IRA_corpus,
+                         remove_punct = TRUE,
+                         remove_symbols = TRUE,
+                         remove_numbers = TRUE,
+                         remove_url = TRUE,
+                         split_hyphens = FALSE,
+                         include_docvars = TRUE) %>%
+  tokens_tolower() %>%
+  dfm()
+
+head(IRA_Dfm, 10)
+dim(IRA_Dfm)
+
+# convert corpus to dfm using the dictionary
+IRADfm_nrc <- tokens(IRA_corpus,
+                         remove_punct = TRUE,
+                         remove_symbols = TRUE,
+                         remove_numbers = TRUE,
+                         remove_url = TRUE,
+                         split_hyphens = FALSE,
+                         include_docvars = TRUE) %>%
+  tokens_tolower() %>%
+  dfm() %>%
+  dfm_lookup(data_dictionary_NRC)
+  
+  
+dim(IRADfm_nrc)
+head(IRADfm_nrc, 10)
+class(IRADfm_nrc)
+```
+
+# POLARITY
+```{r}
+IRAdf_nrc <- convert(IRADfm_nrc, to = "data.frame")
+names(IRAdf_nrc)
+
+IRAdf_nrc$polarity <- (IRAdf_nrc$positive - IRAdf_nrc$negative)/(IRAdf_nrc$positive + IRAdf_nrc$negative)
+
+IRAdf_nrc$polarity[(IRAdf_nrc$positive + IRAdf_nrc$negative) == 0] <- 0
+
+ggplot(IRAdf_nrc) +
+  geom_histogram(aes(x=polarity)) +
+  theme_bw()
+```
+
+# NEW DATAFRAME WITH TEXT AND POLARITY
+
+```{r}
+IRAdf_nrc_CBIND <- as.data.frame(cbind(IRAdf_nrc, IRA_text_df))
+```
+```{r}
+IRAdf_nrc_CBIND <- as.character(IRAdf_nrc_CBIND)
+typeof(IRAdf_nrc_CBIND)
+```
+
+# NEW CORPUS with polarity scores
+
+```{r}
+IRApolarity_corpus <- corpus(IRAdf_nrc_CBIND)
+
+```
+
+
+```{r}
+writeLines(head(IRA_corpus[which(IRAdf_nrc$polarity == 1)]))
+```
+
+
+# APPLY DICTIONARY within context
+
+```{r}
+# tokenize corpus
+IRAtokens <- tokens(IRA_corpus, remove_punct = TRUE)
+# what are the context (target) words or phrases
+IRA_words <- c("inflation","POTUS", "price*","joe", "biden", "trump","medicare","drug","cost","america*","won","lost")
+```
+```{r}
+# retain only our tokens and their context
+IRAtokens_HC <- tokens_keep(IRAtokens, pattern = phrase(IRA_words), window = 40)
+
+```
+
+```{r}
+IRAdata_dictionary_LSD2015_pos_neg <- data_dictionary_LSD2015[1:2]
+
+IRAtokens_HC_lsd <- tokens_lookup(IRAtokens_HC,
+                               dictionary = data_dictionary_LSD2015_pos_neg)
+```
+
+# COnvert to dfm
+
+```{r}
+IRAdfm_HC <- dfm(IRAtokens_HC_lsd)
+head(IRAdfm_HC, 10)
+```
+
+
+
+```{r}
+# convert to data frame
+IRAmat_HC <- convert(IRAdfm_HC, to = "data.frame")
+```
+```{r}
+# drop if both features are 0
+IRAmat_HC <- IRAmat_HC[-which((IRAmat_HC$negative + IRAmat_HC$positive)==0),]
+```
+```{r}
+# print a little summary info
+paste("We have ",nrow(IRAmat_HC)," tweets replies that mention positive or negative words in the context of Inflation terms.", sep="")
+```
+```{r}
+# create polarity scores
+IRAmat_HC$polarity <- (IRAmat_HC$positive - IRAmat_HC$negative)/(IRAmat_HC$positive + IRAmat_HC$negative)
+
+# summary
+summary(IRAmat_HC$polarity)
+
+# plot
+ggplot(IRAmat_HC) + 
+  geom_histogram(aes(x=polarity)) + 
+  theme_bw()
+
+```
+
+
+
+## REFERENCES
+
+        1. House, T., 2022. BY THE NUMBERS: The Inflation Reduction Act - The White House. [online] The White House. Available at: <https://www.whitehouse.gov/briefing-room/statements-releases/2022/08/15/by-the-numbers-the-inflation-reduction-act/> [Accessed 15 October 2022].
+        2. Biden, P. (2022, October 15). We pay more for our prescription drugs than any other nation in the world. it's outrageous. but now, instead of money going into the pockets of drug companies, it will go into your pockets in the form of lower drug prices. Twitter. Retrieved October 15, 2022, from https://twitter.com/POTUS/status/1581374573815431168 
+        3. Robinson, J. S. and D. (n.d.). Welcome to text mining with r: Text mining with R. Welcome to Text Mining with R | Text Mining with R. Retrieved October 15, 2022, from https://www.tidytextmining.com/ 
+
+
+
+
+

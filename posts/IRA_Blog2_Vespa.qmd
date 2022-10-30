@@ -26,8 +26,6 @@ library(tidyverse)
 library(quarto)
 library(quanteda)
 library(quanteda.textplots)
-library(readtext)
-library(devtools)
 library(lubridate)
 library(tm) 
 library(tidytext) 
@@ -40,10 +38,8 @@ library(stringr)
 library(tidyr)
 library(DT)
 library(RColorBrewer)
-library(R.utils)
-devtools::install_github("quanteda/quanteda.corpora")
 
-devtools::install_github("kbenoit/quanteda.dictionaries")
+
 
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
@@ -103,8 +99,8 @@ With this initial analysis, I would like to examine the replies closely and cond
 
 ```{r}
 # Read in data
-R.utils::getAbsolutePath("IRA_med.csv")
-IRA.csv <- readtext("C:/Users/Owen/Desktop/Text_as_Data_Fall_2022/IRA_med.csv")
+
+IRA.csv <- read.csv("IRA_med.csv")
 ```
 
 ```{r}
@@ -118,18 +114,17 @@ IRA_df$created_at <- with_tz(IRA_df$created_at,"America/New_York")
 IRA_df$created_date <- as.Date(IRA_df$created_at)
 ```
 
-
 new df
 
 ```{r}
 IRA_text <- IRA_df %>%
-  select ("text.1", created_date) #new dataframe isolate text column 
+  select ("text", created_date) #new dataframe isolate text column 
 ```
 
 remove @twitter handles
 
 ```{r}
-IRA_text$text <- gsub("@[[:alpha:]]*","", IRA_text$text.1) #remove Twitter handles
+IRA_text$text <- gsub("@[[:alpha:]]*","", IRA_text$text) #remove Twitter handles
 ```
 
 text mining and cleaning - lowercase, remove common words, stop words, punctuation, retweet, & =amp and numbers
