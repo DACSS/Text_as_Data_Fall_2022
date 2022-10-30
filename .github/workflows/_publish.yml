@@ -103,9 +103,7 @@ jobs:
             any::R.utils
             any::emojifont
             any::syuzhet
-            any::quarto
-            any::phrasemachine
-            
+            any::quarto            
           cache-version: 1
           #extra-packages: any::rcmdcheck
           #needs: check
