@@ -101,6 +101,9 @@ jobs:
             any::R.utils
             any::emojifont
             any::syuzhet
+            any::quarto
+            any::phrasemachine
+            
           cache-version: 1
           #extra-packages: any::rcmdcheck
           #needs: check
