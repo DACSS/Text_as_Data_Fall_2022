@@ -57,7 +57,7 @@ library(quanteda.sentiment)
 This 4th Blog starts work on supervised machine learning from week 7 and 8. Using tweet replies as corpus,
 sentiment scores, polarity scores are calculated and visualized.
 
-Supervised machine learning will continue on next blog post
+Supervised machine learning will continue on next blog post to build models for polarity classification
 
 
 ```{r}
