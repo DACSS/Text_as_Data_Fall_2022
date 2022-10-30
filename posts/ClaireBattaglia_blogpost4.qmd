@@ -1,0 +1,115 @@
+---
+title: "Blog Post 4"
+author: "Claire Battaglia"
+desription: "Applying Dictionary Methods to Open-Text Survey Responses"
+date: "10/30/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - Claire Battaglia
+  - text-as-data
+  - blog post 4
+  - open-text survey response
+  - dictionary methods
+---
+
+```{r}
+#| label: setup
+#| warning: false
+
+library(plyr)
+library(tidyverse)
+library(tidytext)
+library(quanteda)
+library(devtools)
+library(quanteda.dictionaries)
+library(quanteda.sentiment)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+In this post I'll be applying dictionary methods to my corpus. My corpus is the responses to the open-text survey question "What changes would you like to see for Missoula’s food system?" As I understand it, utilizing dictionary methods to analyze a corpus essentially entails measuring the frequency with which words in a given lexicon appear the corpus. I haven't found any pre-existing lexicons that are relevant to my corpus so I believe that I will ultimately need to create my own to really analyze this corpus using dictionary methods. For today, though, I will use existing dictionaries just to practice.
+
+```{r load data}
+# load corpus from blog post 3
+load("change_corpus.RData")
+
+# load dfm from blog post 3
+load("change_no_stop_dfm.RData")
+```
+
+First I'll try the `liwcalike()` function from `quanteda.dictionaries`.
+
+```{r liwc}
+# use liwcalike
+change_sentimentNRC <- liwcalike(change_corpus, data_dictionary_NRC)
+
+names(change_sentimentNRC)
+```
+
+```{r plot positive and negative}
+# create plot for positive
+ggplot(change_sentimentNRC) +
+  geom_histogram(aes(x = positive)) +
+  theme_bw()
+
+# create plot for negative
+ggplot(change_sentimentNRC) +
+  geom_histogram(aes(x = negative)) +
+  theme_bw()
+```
+
+If I'm understanding these plots correctly, the vast majority of responses have not been categorized as either positive or negative. This makes sense given the question "What changes would you like to see for Missoula’s food system?" While respondents may have (and quite likely *do* have) positive or negative feelings about the Missoula food system, the question doesn't specifically ask about those feelings.
+
+<aside> After comparing the measures to the actual text of the documents, some of the documents that are neither positive nor negative may actually be blank responses. </aside>
+
+Next I'll create a document feature matrix using a dictionary.
+
+```{r create dfm}
+# create dfm with NRC dictionary
+change_sentimentNRC_dfm <- tokens(change_corpus,
+                         remove_punct = TRUE,
+                         remove_symbols = TRUE,
+                         remove_numbers = TRUE,
+                         remove_url = TRUE,
+                         split_hyphens = FALSE,
+                         include_docvars = TRUE) %>%
+  tokens_tolower() %>%
+  dfm() %>%
+  dfm_lookup(data_dictionary_NRC)
+
+# preview
+head(change_sentimentNRC_dfm, 10)
+```
+
+Next I'll do the same thing but use a different dictionary.
+
+```{r create 2nd dfm}
+# create dfm with Gen Inq dictionary
+change_sentimentGenInq_dfm <- change_no_stop_dfm %>%
+  dfm_lookup(data_dictionary_geninqposneg)
+
+# preview
+head(change_sentimentGenInq_dfm, 10)
+```
+
+At least from these previews there seems to be reasonable agreement between the two dictionaries. I'm going to look at the actual documents to see if I can get a sense of what is being categorized as positive and negative.
+
+```{r}
+# preview corpus
+head(change_corpus, 10)
+```
+
+Interesting. Based on the categorizations of the above text, I don't ultimately think that analyzing sentiment of the responses is really appropriate. Many of the above documents are neither positive nor negative but are being categorized as one or the other. I also think that given the question that produced these responses, analyzing sentiment isn't especially interesting. I am more interested in a method that will allow me to understand the actual changes respondents would like to see.
+
+I will continue to look for an appropriate dictionary to use for my corpus. I also need to practice these methods a bit more, as I feel that there are parts I don't really understand yet.
+
+
+
+
+
+
