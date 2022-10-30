@@ -49,6 +49,8 @@ jobs:
             any::ggplot2
             any::quanteda
             any::quanteda.textplots
+            any::quanteda.dictionaries
+            any::quanteda.sentiment
             any::tm
             any::wordcloud
             any::wordcloud2
