@@ -1,0 +1,144 @@
+---
+title: "Sentiment Analysis on Covid-19 Vaccine"
+editor: visual
+desription: "Data Pre-Processing"
+date: "10/15/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - blog Post 3
+  - Kaushika 
+---
+
+In this project, I am going to predict the Sentiments of COVID-19 Vaccination tweets. The data I have used is collecting tweets on the topic "Covid-19 Vaccination" (web scraping) and preparing the data. The data was gathered from Twitter and I'm going to use the R environment to implement this project. During the pandemic, lots of studies carried out analyses using Twitter data.
+
+In the previous blog I have mentioned that I have access to only the last 7 days of tweets. However, I have applied for academic access to Twitter API that allows me to collect more tweets for my analysis. I will be using the Premium search rather than the Standard search for tweets using Twitter API.
+
+##Loading important libraries
+
+```{r}
+library(twitteR) #R package which provides access to the Twitter API
+library(tm) #Text mining in R
+library(lubridate) #Lubridate is an R package that makes it easier to work with dates and times.
+library(quanteda) #Makes it easy to manage texts in the form of a corpus.
+library(wordcloud) #Visualize differences and similarity between documents
+library(wordcloud2)
+library(ggplot2) #For creating Graphics 
+library(reshape2) # Transform data between wide and long formats.
+library(dplyr) #Provides a grammar of data manipulation
+library(tidyverse) #Helps to transform and tidy data
+library(tidytext) #Applies the principles of the tidyverse to analyzing text.
+library(tidyr) #Helps to get tidy data
+library(gridExtra) #Arrange multiple grid-based plots on a page, and draw tables
+library(grid) #Produce graphical output
+library(rtweet) #Collecting Twitter Data
+library(syuzhet) #Returns a data frame in which each row represents a sentence from the original file
+```
+
+## Scraping Data from Twitter
+
+After getting access to the Twitter API I can run the following (replacing \###### by my specific credentials) and search for tweets. ("\######" used for protection)
+
+```{r}
+# twitter keys and tokens
+api_key <- "######"
+api_secret <- "######"
+access_token <- "######"
+access_token_secret <- "######"
+
+# create token for rtweet
+token <- create_token(
+  app = "######",
+  api_key,
+  api_secret,
+  access_token,
+  access_token_secret,
+  set_renv = TRUE)
+
+setup_twitter_oauth(api_key, api_secret, access_token, access_token_secret)
+#what to search
+
+#Searching for tweets using terms covid + 19 + vaccine and filtering out the retweets to avoid repetitions. After that I converted the list of tweets into a data frame.
+
+tweets_covid = searchTwitter("covid+19+vaccine -filter:retweets", n = 20000, lang = "en")
+tweets.df = twListToDF(tweets_covid)
+
+for (i in 1:nrow(tweets.df)) {
+    if (tweets.df$truncated[i] == TRUE) {
+        tweets.df$text[i] <- gsub("[[:space:]]*$","...",tweets.df$text[i])
+    }
+}
+
+#Saving the collected tweets into a csv file.
+write.csv(tweets.df, file = "covidtweets.csv", row.names = FALSE)
+```
+
+## Reading the csv file
+
+The csv file has approximately 15,000 tweets on the topic "Covid 19 Vaccination".
+
+```{r}
+covid_19_vaccination <- read.csv("covidtweets.csv", header = T)
+str(covid_19_vaccination)
+```
+
+##Build Corpus A corpus, or collection of text documents(in this case tweets), is the primary document management structure in the R package "tm" (text mining).
+
+```{r}
+corpus <- iconv(covid_19_vaccination$text, to = "utf-8")
+corpus <- Corpus(VectorSource(corpus))
+inspect(corpus[1:5])
+```
+
+```{r}
+#Suppress warnings in the global setting.
+options(warn=-1)
+```
+
+#Cleaning the Data : Data Pre-Processing Cleaning the data include removing stopwords, numbers, punctuation, and other elements. Stopwords are words that have no sentimental meaning, such as conjunctions, pronouns, negations, etc. Common yet meaningless words like "covid," "vaccination," "corona," etc. are also eliminated in this case.
+
+Here we follow a particular order of removing Usernames before Punctuations. Since the symbol '\@' would be removed if we remove punctuations first and that would create an issue while removing usernames after that since the '\@' symbol would not be detected anymore.
+
+```{r}
+# clean text
+removeUsername <- function(x) gsub('@[^[:space:]]*', '', x) #Removes usernames
+removeURL <- function(x) gsub('http[[:alnum:]]*', '', x) #Removes URLs attached to tweets
+removeNumPunct<- function(x) gsub("[^[:alpha:][:space:]]*","",x) #Remove Punctuations
+
+#Text Mining Functions
+cleandata <- tm_map(corpus, PlainTextDocument) #Function to create plain text documents.
+cleandata <- tm_map(cleandata, content_transformer(removeUsername)) #Function to remove Usernames attached to the text.
+cleandata <- tm_map(cleandata, content_transformer(removeURL)) #Function to remove URLs attached to the text.
+cleandata <- tm_map(cleandata, content_transformer(tolower)) #Function to convert text into lowercase.
+cleandata <- tm_map(cleandata, content_transformer(removeNumPunct)) #Function to remove Punctuations attached to text.
+cleandata <- tm_map(cleandata, content_transformer(removeNumbers)) # #Function to remove Numbers attached to texts.
+cleandata <- tm_map(cleandata, removeWords, stopwords("english"))
+
+#Removing meaningless words like "covid," "vaccination," "corona," etc
+cleandata <- tm_map(cleandata, removeWords, c('covid','vaccination', 
+                                            'vaccinations','vaccine','vaccines',
+                                            'vaccinated', "corona", 
+                                            "coronavirus"))
+
+cleandata <- tm_map(cleandata, stripWhitespace) #Function to strip extra whitespace from a text document.
+inspect(cleandata[1:5]) #Inspecting the first 5 rows.
+
+```
+
+## Term Document Matrix
+
+The second function constructs the term-document matrix, that describes the frequency of terms that occur in a collection of documents. This matrix has terms in the first column and documents across the top as individual column names. The rows are the terms (words) and the columns are the documents (tweets). So I made a tdm of our cleandata in the next step.
+
+```{r}
+tdm <- TermDocumentMatrix(cleandata)
+tdm <- as.matrix(tdm)
+tdm[1:5, 1:10]
+```
+
+Now that the data has been cleaned it is ready for analysis. I will be performing the following :
+
+Analysis of the Most Frequent Words - Word Cloud and Sentiment Analysis.
