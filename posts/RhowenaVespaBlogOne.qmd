@@ -1,5 +1,4 @@
 ---
----
 title: "Blog Post One - Exploring Healthcare Costs"
 author: "Rhowena Vespa"
 desription: "Initial Research on Healthcare Costs"

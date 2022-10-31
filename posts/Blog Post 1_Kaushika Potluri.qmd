@@ -7,7 +7,7 @@ editor: visual
 
 Globally, the corona virus disease 2019 (COVID-19) pandemic has had an impact on the daily lives of people. People all across the world use social media networks to express their opinions and general thoughts about the pandemic that has affected their daily life, both generally and during lock down phases. Big data is useful for computer scientists and researchers to assess how people feel about current events, particularly those connected to the pandemic. Analysis of these feelings will therefore result in fascinating findings. One of the most popular social media platforms, Twitter, had a sharp rise in tweets on the corona virus in a short amount of time, including both positive and negative comments as well as neutral ones. Due to the variety of tweets, the researchers turn to sentiment analysis to examine the various feelings that the public has concerning COVID-19. On social media networking sites like Twitter, and Reddit. People have shared their opinions on the safety and efficacy of immunizations. The suggested method uses a variety of feature sets and classifiers to examine the feelings of the gathered tweets for sentiment analysis. Early COVID-19 emotion recognition from gathered tweets enables improved pandemic comprehension and management. Positive, negative, and neutral sentiment categories are used to group tweets.
 
-Tweet responses are widely used for public sentiment analysis to investigate social-psychological trends. Their results suggest that popular users\' impact on social media is consistent with their fame in the real world.
+Tweet responses are widely used for public sentiment analysis to investigate social-psychological trends. Their results suggest that popular users' impact on social media is consistent with their fame in the real world.
 
 # Literature Review
 
@@ -19,7 +19,7 @@ Studies of tweet responses have drawn a lot of interest because they capture how
 
 #### Research Questions
 
-Literature\'s categorization for sentiment analysis and infectious disease.
+Literature's categorization for sentiment analysis and infectious disease.
 
 Different applications for mitigating infectious diseases by sentiment analysis.
 
@@ -47,7 +47,7 @@ Understanding the function of opinion mining and sentiment analysis in Covid-19 
 
 #### Data Used
 
-The data set(from Kaggle) used for the training and testing process of the text classification model is proposed, in which it was used a multi-label convolutional neural networktext classifier is trained, using SpaCy\'s new TextCategorizercomponent. A random subset of the data set is used.
+The data set(from Kaggle) used for the training and testing process of the text classification model is proposed, in which it was used a multi-label convolutional neural networktext classifier is trained, using SpaCy's new TextCategorizercomponent. A random subset of the data set is used.
 
 #### Methods used :
 

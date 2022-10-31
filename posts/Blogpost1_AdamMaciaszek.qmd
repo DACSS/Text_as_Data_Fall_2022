@@ -12,13 +12,13 @@ format:
     code-tools: true
 ---
 
-### Does Zipf\'s Law apply to ancient texts as it does with modern writings?
+### Does Zipf's Law apply to ancient texts as it does with modern writings?
 
-Zipf\'s Law is a curious phenomena that holds for almost all modern human languages it has been tested on and states that words rank is directly proportional to its frequency.
+Zipf's Law is a curious phenomena that holds for almost all modern human languages it has been tested on and states that words rank is directly proportional to its frequency.
 
-If you were to sort all words by the the most common to least common then its position in that sorting is the word\'s ranking. According to zipf\'s law the second highest ranked word will occur half as many times as the first ranked word and the third ranked word will occur a third as many times as the first, and so on
+If you were to sort all words by the the most common to least common then its position in that sorting is the word's ranking. According to zipf's law the second highest ranked word will occur half as many times as the first ranked word and the third ranked word will occur a third as many times as the first, and so on
 
-For example in the Brown Corpus of American English the word \"the\" occurs 7% of all words, then \"of\" which occurs 3.6%, and then \"and\" occurs 2.% of the time falling closely in line with the prediction. The below photo shows how the corpus of Shakespeare follows Zipf's law from the paper *True reason for Zipf's law in language* discussed more further on.
+For example in the Brown Corpus of American English the word "the" occurs 7% of all words, then "of" which occurs 3.6%, and then "and" occurs 2.% of the time falling closely in line with the prediction. The below photo shows how the corpus of Shakespeare follows Zipf's law from the paper *True reason for Zipf's law in language* discussed more further on.
 
 ![](images/shakespearecorpus-01.jpg){fig-align="center" width="300"}
 
@@ -26,20 +26,20 @@ One area of research that is rarely tested is ancient languages. Is this quirk o
 
 One very early example I would love to test is from the old Babylonian period (c. 1900-1500 BCE) The Epic of Gilgamesh and The Codex Hammurabi Thankfully these ancient texts written in Akkadian have been digitized and are converted to a phonetic alphabet. It can be found [here](https://www.soas.ac.uk/baplar/recordings/).
 
-Another very interesting source of text would be the Voynich Manuscript which has been carbon-dated to the early 15th century and written in an unknown language referred to as Voynichese. This text has also been digitized for research purposes as it there has been much research in trying to decode this. Despite not knowing what it says, it would be very interesting if this does or does not follow zipf\'s law which may help determine if it is natural or manufactured language. 
+Another very interesting source of text would be the Voynich Manuscript which has been carbon-dated to the early 15th century and written in an unknown language referred to as Voynichese. This text has also been digitized for research purposes as it there has been much research in trying to decode this. Despite not knowing what it says, it would be very interesting if this does or does not follow zipf's law which may help determine if it is natural or manufactured language. 
 
 ##### Previous Research
 
-*True reason for Zipf's law in language* by Wang Dahu \[1\] This paper analyzes ancient and modern chinese text to see if they conform to Zipf\'s law. To do this they analyzed cheese texts from modern day to th c. 1600 BCE. Wang Dahu\'s results were surprising as tehy older texts followed the Law but then the modern texts diverged from it which went against the hypothesis. The reason for thai is because Chineese works mainly in word pairing since it is character based language which has evolved to use many common phrases together. From their finding they could not confirm this but had strong link that chinese phrasology follows zipf\'s Law.
+*True reason for Zipf's law in language* by Wang Dahu \[1\] This paper analyzes ancient and modern chinese text to see if they conform to Zipf's law. To do this they analyzed cheese texts from modern day to th c. 1600 BCE. Wang Dahu's results were surprising as tehy older texts followed the Law but then the modern texts diverged from it which went against the hypothesis. The reason for thai is because Chineese works mainly in word pairing since it is character based language which has evolved to use many common phrases together. From their finding they could not confirm this but had strong link that chinese phrasology follows zipf's Law.
 
-*The variation of Zipf\'s law in human language* R. Ferrer i Cancho \[2\] This paper aims to identify the cost to benefit ratio of communication effectivity and word variation in languages.  For the data multiple books on quantitative linguistics and statistical analysis of human speech patterns were use to create a probability model of human speech and word choice. Despite the random probability this was done to prove that  Word frequency is not entirely random entropy. There is a direct subcoonscious benefit to use as minal words to get ideas around as possible both for the speaker and listener. 
+*The variation of Zipf's law in human language* R. Ferrer i Cancho \[2\] This paper aims to identify the cost to benefit ratio of communication effectivity and word variation in languages.  For the data multiple books on quantitative linguistics and statistical analysis of human speech patterns were use to create a probability model of human speech and word choice. Despite the random probability this was done to prove that  Word frequency is not entirely random entropy. There is a direct subcoonscious benefit to use as minal words to get ideas around as possible both for the speaker and listener. 
 
 ##### Further Ideas and Expansions to Research Ideas
 
-More than just word choice is language now more complex? If so how to quantify the idea of language \"complexity\" possibly length of sentence and syllable count of the words used?
+More than just word choice is language now more complex? If so how to quantify the idea of language "complexity" possibly length of sentence and syllable count of the words used?
 
 Emoticon usage? Do Emoticons follow the same distrobution as other forms of written language or is there much more variety considering how many there are to choose from?
 
-Dahui, Wang, et al. \"True Reason for Zipf's Law in Language.\" *Physica A: Statistical Mechanics and Its Applications*, vol. 358, no. 2-4, 2005, pp. 545--550., https://doi.org/10.1016/j.physa.2005.04.021.
+Dahui, Wang, et al. "True Reason for Zipf's Law in Language." *Physica A: Statistical Mechanics and Its Applications*, vol. 358, no. 2-4, 2005, pp. 545--550., https://doi.org/10.1016/j.physa.2005.04.021.
 
-Ferrer i Cancho, R. \"The Variation of Zipf?s Law in Human Language.\" *The European Physical Journal B*, vol. 44, no. 2, 2005, pp. 249--257., https://doi.org/10.1140/epjb/e2005-00121-8.
+Ferrer i Cancho, R. "The Variation of Zipf?s Law in Human Language." *The European Physical Journal B*, vol. 44, no. 2, 2005, pp. 249--257., https://doi.org/10.1140/epjb/e2005-00121-8.
