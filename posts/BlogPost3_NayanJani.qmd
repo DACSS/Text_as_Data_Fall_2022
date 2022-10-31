@@ -37,7 +37,7 @@ df_q<- df_q %>%
   rename(text = "I’ll try to get the next video essay out in less than a month lol")
 
 
-df_qRev<- read_csv("_data/comments_qRev.csv")
+df_qRev<- read_csv("_data/comments_q.csv")
 
 df_qRev<- df_qRev %>% 
   rename(text = "I’ll try to get the next video essay out in less than a month lol")
