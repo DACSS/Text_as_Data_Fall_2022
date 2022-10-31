@@ -129,16 +129,6 @@ inspect(cleandata[1:5]) #Inspecting the first 5 rows.
 
 ```
 
-## Term Document Matrix
-
-The second function constructs the term-document matrix, that describes the frequency of terms that occur in a collection of documents. This matrix has terms in the first column and documents across the top as individual column names. The rows are the terms (words) and the columns are the documents (tweets). So I made a tdm of our cleandata in the next step.
-
-```{r}
-tdm <- TermDocumentMatrix(cleandata)
-tdm <- as.matrix(tdm)
-tdm[1:5, 1:10]
-```
-
 Now that the data has been cleaned it is ready for analysis. I will be performing the following :
 
 Analysis of the Most Frequent Words - Word Cloud and Sentiment Analysis.
