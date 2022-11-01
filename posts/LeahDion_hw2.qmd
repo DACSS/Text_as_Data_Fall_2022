@@ -1,0 +1,126 @@
+---
+title: "Mapping Feminist Stories: finding data"
+author: "Leah Dion"
+desription: "My initial exploration of data downloaded from JSTOR and Constellate."
+date: "10/27/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - hw2
+  - leah dion
+  - jsonl files
+  - JSTOR
+---
+
+```{r echo = FALSE}
+#| label: setup
+#| warning: false
+#| error: false
+
+# import packages
+library(here)
+library(pdftools)
+library(tm)
+library(tidyverse)
+library(jsonlite)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Research
+
+Using Clare Hemmings' textual analysis from *Why Stories Matter* as a guide, I have two main questions in mind to my research:
+
+1.  How does Hemmings' argument about the stories told in the gloss of a selection of feminist journal articles compare when applied to a larger body of text from the same feminist journals?
+2.  Using the January 2011 publication of *Why Stories Matter* and Hemmings' paper from 2005, "Telling Feminist Stories", as markers in time, have there been any shifts in citation tactics in feminist journal articles?
+
+To answer these questions I will use several methods offered by Hemmings in her book. The primary of these is her use of citation tactics, which includes comparing text across journals rather than by individual authors. She emphasizes this as "a way of foregrounding knowledge practices as shared rather than individual" (21). Since feminist theory -- and arguably theory in general -- exists as a result of overlapping dialogues of thought, an attention to the cumulative impacts of the text itself resists the urge to centralize any singular writer; an important objective of feminist theory and Hemmings' argument in whole.
+
+Clare Hemmings' approach congeals around citation as she indicates "it anchors an overall chronology, provides a semblance of detail, and has an appropriate status as evidence" (22) of the narrativization she highlights. In practice, this means citing journals and years of publication rather than the author of each article to attend to the collective repetition of narratives. In my analysis I will thus focus on the collective knowledge production of journals over the work of individual authors when gathering inferences and making comparisons.
+
+### Initial attempt
+
+Before I narrowed the scope of my project, I initially attempted to download a PDF file of Clare Hemmings' book *Why Stories Matter* to determine if PDF-to-text would be a feasible approach. This would allow me to control how to parse the text and build a corpus that matches my research objectives.
+
+I downloaded the chapter files from the JSTOR database and loaded them into R using the `pdftools` package.
+
+```{r}
+# extract file names
+files <- list.files(path = "./Hemmings", pattern = "pdf$")
+
+# get chapter text
+chapters <- lapply(here("posts", "Hemmings", files), pdf_text)
+hem_corp <- Corpus(URISource(here("posts", "Hemmings", files)), 
+                   readerControl = list(reader = readPDF))
+
+# view one page of text
+chapters[[1]][3]
+```
+
+The above text is page three of chapter one and gives a brief sample of the processing required to get the text in to a usable format. First of all, at the bottom of each page is a timestamp which marks the time each file was downloaded from the JSTOR database.
+
+```{r}
+chapters[[1]][3] %>%
+str_remove_all("This content downloaded from 128.119.168.112 on Mon, 26 Sep 2022 19:44:21 UTC") %>%
+  str_remove_all("All use subject to https://about.jstor.org/terms")
+```
+
+Removing the timestamp is not very difficult for each page, but when aggregating to larger and larger datasets (i.e. more text) this approach will likely get more complicated and require a lot of preprocessing to a significant amount of journal articles. Before going further I would like to see if there is an easier datatype to work with than PDFs.
+
+### JSTOR and jsonl files
+
+It turns out, JSTOR Labs has an open-source text-mining project they call [Constellate](https://about.jstor.org/whats-in-jstor/text-mining-support/) which lets you filter and compile text into a dataset you can download. My first attempt involved importing the entire published history of *Signs, Feminist Review, and Feminist Theory*, three of the six feminist journals utilized by Clare Hemmings in her book.
+
+Initially, I had difficulty reading the file into RStudio. The file type is `jsonl`, which I learned requires a slightly modified approach to getting it into R than a plain `json` file. A `jsonl` file is a file where each line contains a separate `json` file, with `jsonl` meaning 'JSON lines'. In the case of my data, each line represents a different article. The `jsonlite` package contains a function `stream_in`, which will unlist `jsonl` files to import each of the separate `json` files contained within.
+
+My computer was taking a long time to read in the 9381 documents in my data file, so I downloaded a smaller dataset containing 35 articles published by the journal *Feminist Theory* in 2012 to explore the usefulness of the JSTOR library in my project.
+
+```{r}
+# read file
+json <- stream_in(file("dafd16db-9e50-8e9c-007d-d6ab654e2571-sampled-jsonl.jsonl"))
+```
+
+```{r}
+# column names
+names(json)
+```
+
+Looking at the first few rows reveals that each row corresponds to one of the 35 articles in the corpus. There are 28 columns in total (above), several of which describe details of the article and publication in general. Many of the variable names are straightforward, such as *datePublished, docType, publisher, title,* etc., but there are a few important ones that could determine the usefulness of this dataset for my research questions.
+
+```{r}
+names(json)
+```
+
+The first of these is *keyphrase*. Looking at the snapshot below, this variable seems to contain ten key phrases for each document. I notice there are numerous names of authors in these terms, which I imagine connects to each article's main arguments and the conversation the article's author is engaging in Some of these are last names only, some are (last first) and others are (first last) and some terms share the same root, so I may want to apply stemming techniques to manage the overlaps. Also, I notice one key phrase in the third article, "ceremony and ritual", implying that these likely contain either unigrams, bigrams, or trigrams.
+
+```{r}
+head(json$keyphrase)
+```
+
+The next potential interesting variable is *tdmCategory*. Expanding the list shows that this contains categorization labels used in the digital archival of these texts. In mapping genealogies, it is often important to understand what discipline a given author is trained and located in as it can offer insights into word and prose choices that could be more reflective of a disciplinary approach than an individual author. As I build my corpus, these categories could be used to summarize the larger journals themselves, identifying which field's perspectives are most commonly published.
+
+```{r}
+head(json$tdmCategory)
+```
+
+The last variables to explore are *unigramCount*, *bigramCount*, and *trigramCount*, which I hope contain the entire text of the articles. Looking at the unigram dataframe below, the dimensions are 35 x 26,618. This means there are nearly 27000 unique words combined in the 35 articles.
+
+However, browsing through the column names (i.e. words) reveals that punctuation and capitalization has not been processed, significantly adding to the number of words in the document-term-matrix. Before using these counts I will have to combine and aggregate the counts of each term after adjusting and removing punctuation and capitalization.
+
+```{r}
+dim(json$unigramCount)
+dim(json$bigramCount)
+dim(json$trigramCount)
+```
+
+Checking the dimensions of the other DTMs, there are 99323 words in 
+*bigramCount* and 142305 in *trigramCount*. Processing the raw text would likely give me even more flexibility to check statistics such as how frequently certain words or authors are used in the same sentence. I won't be able to reach that level of granularity with this dataset, but having each of these ngrams in matrix form will help simplify my initial analyses and developing a deeper understanding of the text within.
+
+In my next blog post, I will begin pre-processing the columns of the ngram matrices to reduce the dimensions and aggregate appropriate word counts.
+
+
+
