@@ -28,12 +28,17 @@ library(tm)
 library(tidyverse)
 library(jsonlite)
 
+
+# knitr::opts_chunk$set(cache = TRUE)
+# qwraps2::lazyload_cache_dir(path = "sixth_post_cache/html5")
+
+load("LeahDion_hw2.RData")
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ### Research
 
-Using Clare Hemmings' textual analysis from *Why Stories Matter* as a guide, I have two main questions in mind to my research:
+Using Clare Hemmings' textual analysis from *Why Stories Matter* as a guide, I have two main questions in mind for my research:
 
 1.  How does Hemmings' argument about the stories told in the gloss of a selection of feminist journal articles compare when applied to a larger body of text from the same feminist journals?
 2.  Using the January 2011 publication of *Why Stories Matter* and Hemmings' paper from 2005, "Telling Feminist Stories", as markers in time, have there been any shifts in citation tactics in feminist journal articles?
@@ -75,13 +80,15 @@ Removing the timestamp is not very difficult for each page, but when aggregating
 
 It turns out, JSTOR Labs has an open-source text-mining project they call [Constellate](https://about.jstor.org/whats-in-jstor/text-mining-support/) which lets you filter and compile text into a dataset you can download. My first attempt involved importing the entire published history of *Signs, Feminist Review, and Feminist Theory*, three of the six feminist journals utilized by Clare Hemmings in her book.
 
-Initially, I had difficulty reading the file into RStudio. The file type is `jsonl`, which I learned requires a slightly modified approach to getting it into R than a plain `json` file. A `jsonl` file is a file where each line contains a separate `json` file, with `jsonl` meaning 'JSON lines'. In the case of my data, each line represents a different article. The `jsonlite` package contains a function `stream_in`, which will unlist `jsonl` files to import each of the separate `json` files contained within.
+Initially, I had difficulty reading the file into RStudio. The file type is .jsonl, which I learned requires a slightly modified approach to getting it into R than a plain .json file. A .jsonl file is a file where each line contains a separate .json file, with .jsonl meaning 'JSON lines'. In the case of my data, each line represents a different article. The `jsonlite` package contains a function `stream_in`, which will unlist .jsonl files to import each of the separate json files contained within.
 
-My computer was taking a long time to read in the 9381 documents in my data file, so I downloaded a smaller dataset containing 35 articles published by the journal *Feminist Theory* in 2012 to explore the usefulness of the JSTOR library in my project.
+My computer was taking a really long time to read in the 9381 documents in my data file, so I downloaded a smaller dataset containing 35 articles published by the journal *Feminist Theory* in 2012 to explore the usefulness of the JSTOR library in my project.
 
 ```{r}
 # read file
-json <- stream_in(file("dafd16db-9e50-8e9c-007d-d6ab654e2571-sampled-jsonl.jsonl"))
+#json <- stream_in(file("dafd16db-9e50-8e9c-007d-d6ab654e2571-sampled-jsonl.jsonl"))
+
+save.image("LeahDion_hw2.RData")
 ```
 
 ```{r}
@@ -112,9 +119,11 @@ The last variables to explore are *unigramCount*, *bigramCount*, and *trigramCou
 However, browsing through the column names (i.e. words) reveals that punctuation and capitalization has not been processed, significantly adding to the number of words in the document-term-matrix. Before using these counts I will have to combine and aggregate the counts of each term after adjusting and removing punctuation and capitalization.
 
 ```{r}
-dim(json$unigramCount)
+json$unigramCount
 dim(json$bigramCount)
 dim(json$trigramCount)
+
+save.image("LeahDion_hw2.RData")
 ```
 
 Checking the dimensions of the other DTMs, there are 99323 words in 
