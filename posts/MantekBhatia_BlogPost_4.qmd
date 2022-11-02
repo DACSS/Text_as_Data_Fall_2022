@@ -1,0 +1,243 @@
+---
+title: "Blog Post 4"
+author: "Mantek Singh Bhatia"
+desription: "Blog Post 4"
+date: "10/25/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - Blog Post 4
+  - Mantek Singh Bhatia
+  - Self-Identity
+  - Online Gaming
+  - Avatars
+  - Characterization
+---
+
+## Research Objective
+
+My research objective for this project is to understand how people characterize their avatars in games.  
+
+:::{.callout-important}
+Here I use the term Research Objective because I do not have a specific Research Question in mind right now. This project is merely exploratory for me. It may develop closer to the end of the project.
+:::
+
+
+Creating avatars in games gives people the freedom to be creative and cultivate an alternate identity. Now, this identity can be their "ideal self" or something that they just create for fun. To understand this process of creating identities I want to first examine the avatars people have already made. For this context I am thinking of scouring Reddit to find threads that talk about people describing the avatars/characters they have created while playing "Dungeons and Dragons". 
+
+&nbsp;  
+&nbsp;  
+&nbsp;  
+
+## Data Collection  
+
+I was able to scrap data from multiple Reddit threads where users talk about their characters that they have created while playing a Dungeons and Dragons campaign.  
+
+&nbsp;  
+&nbsp;  
+&nbsp;  
+
+&nbsp;  
+&nbsp;  
+&nbsp;  
+
+
+```{r}
+install.packages("rvest")
+install.packages("RedditExtractoR")
+install.packages("textclean")
+library(RedditExtractoR)
+library(rvest)
+library(tidyverse)
+library(quanteda)
+library(quanteda.textplots)
+library(textclean)
+
+url <- c("https://www.reddit.com/r/DnD/comments/b1pk5c/tell_me_about_your_characters/", 
+         "https://www.reddit.com/r/DnD/comments/33bv4f/best_dd_character_youve_made_or_seen/",
+         "https://www.reddit.com/r/DnD/comments/37cx49/your_first_ever_dd_character/",
+         "https://www.reddit.com/r/rpg/comments/2fk4op/best_dd_character_youve_ever_made/",
+         "https://www.reddit.com/r/DnD/comments/cgdwgl/share_your_dnd_character/",
+         "https://www.reddit.com/r/dndnext/comments/au8k0w/what_are_some_of_your_favourite_dd_character/")
+
+comments <- get_thread_content(url)
+
+#preprocessing
+all_comments <- 
+  comments$comments$comment %>% 
+  str_replace_all("\n"," ")           #data cleaning
+
+all_comments <- replace_contraction(all_comments)     #opened all contractions, like didn't to did not
+
+tail(all_comments, n = 10)    #Some of the comments
+
+reddit_DnD_characters <- corpus(all_comments)
+DnD_summary <- summary(reddit_DnD_characters, n = Inf)
+DnD_summary             #SUmmary of the corpus
+
+DnD_tokens <- tokens(reddit_DnD_characters); DnD_tokens       #tokens before preprosessing
+
+#Removed Punctuation
+#Removed symbols
+#Removed Numbers
+#Removed Stopwords
+
+DnD_tokens <- tokens(reddit_DnD_characters, remove_punct=TRUE, remove_symbols = TRUE,
+                     remove_numbers = TRUE) %>%
+  tokens_select(pattern=stopwords("en"), selection="remove"); DnD_tokens
+
+DnD_dfm <- DnD_tokens %>% 
+  dfm() %>%
+  dfm_trim(min_termfreq = 20, verbose = FALSE)
+
+DnD_dfm         #The DFM
+all_features <- featnames(DnD_dfm); all_features
+```
+
+&nbsp;  
+&nbsp;  
+&nbsp;  
+
+:::{.callout-note}
+## Note  
+
+Now we look at some of the common words in our document feature matrix and evaluate whether they are important in the context of characters created by the D&D players. If they are not, they will be removed from our Bag of Words.  
+:::
+
+&nbsp;  
+&nbsp;  
+&nbsp;  
+
+```{r}
+
+kwic_time <- kwic(reddit_DnD_characters, pattern = phrase("time")); head(kwic_time, n=10)
+
+kwic_character <- kwic(reddit_DnD_characters, pattern = phrase("character")); head(kwic_character, n=10)
+
+kwic_party <- kwic(reddit_DnD_characters, pattern = phrase("party")); head(kwic_party, n=10)
+
+kwic_love <- kwic(reddit_DnD_characters, pattern = phrase("love")); head(kwic_love, n=10)
+
+kwic_kind <- kwic(reddit_DnD_characters, pattern = phrase("kind")); head(kwic_kind, n=10)
+
+kwic_man <- kwic(reddit_DnD_characters, pattern = phrase("man")); head(kwic_man, n=10)
+
+kwic_full <- kwic(reddit_DnD_characters, pattern = phrase("full")); head(kwic_full, n=10)
+
+kwic_group <- kwic(reddit_DnD_characters, pattern = phrase("group")); head(kwic_group, n=10)
+
+kwic_barbarian <- kwic(reddit_DnD_characters, pattern = phrase("barbarian")); head(kwic_barbarian, n=10)
+
+kwic_dragonborn <- kwic(reddit_DnD_characters, pattern = phrase("dragonborn")); head(kwic_dragonborn, n=10)
+```
+
+&nbsp;  
+&nbsp;  
+&nbsp;  
+
+:::{.callout-note}
+## Note  
+
+You can see from the contextual analysis words like time, character, love, etc., are used in the colloquial sense and does not add any meaning to our analysis of the characters, however, words like bargarian, dragonborn are directly related to the characters defined by the D&D players. Hence, we remove many common words from our DFM.  
+:::
+
+&nbsp;  
+&nbsp;  
+&nbsp;  
+
+```{r}
+DnD_dfm1 <- dfm_remove(DnD_dfm, c("give", "love", "well", "also", "go", "way", "help", "like", "fun", "fire", "always", "character",
+                                  "used", "basically", "just", "make", "s", "even", "name","play", "dead", "weapon", "better", "later", 
+                                  "little", "others", "people", "world", "home", "house","however", "made", "small", "back",
+                                  "called", "two", "time", "soon",  "going", "sure", "last", "pretty", "party", "big", "d", "amp",
+                                  "think", "best", "life", "many", "left", "see", "since", "named", "real", "something", "new","part",
+                                  "ever", "one", "day", "got", "away", "took", "came", "found", "decided", "find", "now", "right",
+                                  "person", "first", "can", "group", "times", "trying", "long", "remember", "place", "went", "lot",                                          "still","around", "using", "get", "things", "use", "try", "much", "another", "currently", "never", 
+                                  "really","due", "without", "started", "became", "become", "far", "take", "every", "characters", "want",                                    "let", "know", "ended", "everyone", "gave", "though", "almost", "said", "great", "guy", "enough",
+                                  "actually", "eventually", "set", "next", "tried", "managed", "kept", "thought", "playing", "thing",                                        "rest", "everything"))
+
+featnames(DnD_dfm1)
+
+topfeatures(DnD_dfm1, 100)
+
+textplot_wordcloud(DnD_dfm1)      #Word Cloud of the existing tokens
+
+
+kwic_chaotic_good <- kwic(reddit_DnD_characters, pattern = phrase("chaotic good")); head(kwic_chaotic_good, n=100)
+kwic_lawful_good <- kwic(reddit_DnD_characters, pattern = phrase("lawful good")); head(kwic_lawful_good, n=100)
+kwic_neutral_good <- kwic(reddit_DnD_characters, pattern = phrase("neutral good")); head(kwic_neutral_good, n=100)
+
+kwic_family <- kwic(reddit_DnD_characters, pattern = phrase("family")); head(kwic_family, n=10)
+kwic_father <- kwic(reddit_DnD_characters, pattern = phrase("father")); head(kwic_father, n=10)
+kwic_brother <- kwic(reddit_DnD_characters, pattern = phrase("brother")); head(kwic_brother, n=10)
+```
+
+&nbsp;  
+&nbsp;  
+&nbsp;  
+
+:::{.callout-note}
+## Note  
+
+Here we can see the words like father, brother, and family are used in the context of creating a back story for the character created by the player, however, they just provide metadata about the character, therefore, even though it is important in terms of the character building, they are not directly related to the features of the character itself.  
+
+Bi-grams like chaotic good, lawful good, and neutral good are used to describe the personality of the characters.  
+
+**Chaotic good** is the philosophy that goodness is best achieved through the freedom of individuals to act independently. It is a philosophy of altruistic individualism. This philosophy holds that people should behave altruistically and that society exists for the sake of its individual members.  
+
+**Lawful good** is the philosophy that goodness is best achieved through law and order. It is a philosophy of altruistic collectivism. This philosophy holds that people should behave altruistically and put the needs of the group ahead of individual desires.
+
+**Neutral good** is the philosophy that goodness should be advanced by using whatever means provide the most benefit. It is a philosophy of altruistic consequentialism. This philosophy holds that people should behave altruistically and balance the needs of the collective as a whole and the needs of the individuals making up the collective.  
+:::
+
+&nbsp;  
+&nbsp;  
+&nbsp;  
+
+```{r}
+DnD_dfm_char <- dfm_remove(DnD_dfm1, c("good", "fight", "chaotic", "kind", "campaign", "war", "killed", "story", "death", "old", "friend", 
+                                       "city","full", "man", "knowledge", "gold", "game", "played", "level", "high", "neutral", "hand", 
+                                       "town", "order", "often", "player", "hit",  "battle", "player", "damage", "lawful", "idea", "years",
+                                       "shield", "powerful", "evil", "bad", "strength", "work", "kill", "giant", "wanted", "mind",                                                "village","save", "end", "point", "combat", "dm", "favorite", "died", "magical", "class", "orc", 
+                                       "cast", "half", "spell", "family", "brother", "father", "race", "young", "halfling"))
+
+DnD_dfm_char
+
+topfeatures(DnD_dfm_char, 100)
+
+textplot_wordcloud(DnD_dfm_char)
+
+                           
+#creating a Network plot
+DnD_fcm = fcm(DnD_dfm_char)
+
+# pull the top features
+myFeatures = names(topfeatures(DnD_fcm, 20))
+
+# retain only those top features as part of our matrix
+Smaller_fsm = fcm_select(DnD_fcm, pattern = myFeatures, selection = "keep")
+
+# compute size weight for vertices in network
+size = log(colSums(Smaller_fsm))
+
+# create plot
+textplot_network(Smaller_fsm, vertex_size = size / max(size) * 3)
+```
+
+
+&nbsp;  
+&nbsp;  
+&nbsp;  
+
+:::{.callout-note}
+## Note   
+
+Here, you can read more about the different classes of characters you see in the word cloud and network plot.  
+
+[Different Character Classes of D&D characters](https://www.dndbeyond.com/classes)  
+:::
+
