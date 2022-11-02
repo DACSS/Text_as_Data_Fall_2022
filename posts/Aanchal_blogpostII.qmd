@@ -78,7 +78,7 @@ setup_twitter_oauth(consumer_key = consumerkey, consumer_secret = consumersecret
 ```
 #Set up default authentication for rtweet package
 ```{R}
-auth_setup_default()
+#auth_setup_default()
 ```
 
 ```{r}
