@@ -1,0 +1,18 @@
+Question,"Berttoti & Miner, 2019","Walsh & Elhadad, 2014"
+Research aim,Review sociolinguistic patterns surrounding contraception risk across gynecology textbooks,Compare social histories in clinician notes of inpatient and outpatient treatment centers
+Data source and collection,Sampled randomly 15 medical schools in the United States. Researchers contacted the bookstores and chose 7 books which appeared most frequently,EMR were retrieved from Columbia University Medical Center inpatient and outpatient notes for a 5 year period with IRB approval. They mentioned although the dataset is limited in terms of year span it is an important use of machine learning.
+Hypothesis,Textbook claims relating to pharmacological contraceptives would be associated with more factive language,Clinician notes may differ between inpatient and outpatient.
+Methodology,"Manually identified and selected sentences that described risks or benefits of contraceptives. Researchers identified:
+Reporting verbs: these show author’s opinions on importance/truth of finding (ex “confirm, demonstrate, show”)
+
+Clauses: can show hedging/intensifying effect (ex “however, despite, nonetheless”) 
+
+Attitude markers: also reflect authors’ positions (ex “remarkable, should, unfortunately”)
+
+Hedges and boosters: show tentativeness/certainty of authors’ view of claim (ex “apparently, presumable, clearly, many”) 
+
+Concessions: use of rhetorical device that ‘bolsters the speaker’s case and weakens its counter’
+
+Sentences were then given a score to show the level of certainty associated with a claim",Only the social history section of the note was taken. R was used to remove stopwords and identified contractions (ex: “h o” = “history of”). Inpatient and outpatient notes were then separated into 2 separate corpuses and LDA topic models were applied to both. Topic labels were then manually assigned. Perplexity models (seeing whether the language is the same in 2 different settings) was applied.
+Findings,Textbooks tended to use language that conveyed certainty surrounding the lack of risk of pharmaceutical interventions and used language insinuating doubt when describing the “relevance of risk”. These linguistic strategies reveal a pro-pharmaceutical perspective of the literature,"Social histories didn’t typically include religious affiliation, alternative healthcare practices, or stressors in either setting. Inpatient notes tended not to include clear demarcations of parts of history (ex alcohol use, employment, family support) compared to outpatient."
+My take,"I read this paper to see how data were selected and how they tagged their data. I would like to use some of the strategies that the authors of this study used when comparing genitals and also comparing across time periods. Specifically, I think the use of reporting verbs, hedges/boosters, and attitude markers would be especially interesting, and I would like to review this further..","I read this paper because I wanted to see how the messiness of medical data can be leveraged, here in the perplexity analysis. This paper made me want to use topic modeling to compare textbooks before the feminist movement and after, which is around the mid 1900s. I may look into the use of perplexity analyses."
