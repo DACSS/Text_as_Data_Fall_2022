@@ -63,7 +63,6 @@ primary_lit %>% kable %>%
 This is the other table.
 
 ```{r}
-
 other_lit %>% kable %>% 
   kable_styling()
 ```
