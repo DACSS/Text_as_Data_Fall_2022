@@ -1,7 +1,7 @@
 ---
-title: "Blog Post 1: Research Question and Data Source"
+title: "Blog Post 1: Linguistic Background of Genital Descriptions"
 author: "Emily Miller"
-desription: "Identifying research topics and data sources for identifying linguistic changes in genital anatomy over time"
+desription: "Developing research topics and data sources for studying linguistic changes in genital anatomy over time"
 date: "09/18/2022"
 format:
   html:
@@ -139,3 +139,5 @@ https://pubmed.ncbi.nlm.nih.gov/16779153/
 
 Yacob, M., Lotfi, S., Tang, S., & Jetty, P. (2020). Wikipedia in Vascular Surgery Medical Education: Comparative Study. JMIR medical education, 6(1), e18076. https://doi.org/10.2196/18076
 https://pubmed.ncbi.nlm.nih.gov/32417754/
+
+
