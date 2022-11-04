@@ -29,6 +29,7 @@ library(knitr)
 knitr::opts_chunk$set(echo = TRUE)
 
 primary_lit <- readr::read_csv("/Users/emmanuelmiller/Desktop/dacss697d/forblog/Text_as_Data_Fall_2022/posts/_data/blogpost1 - primary_lit.csv")
+
 other_lit <- readr::read_csv("/Users/emmanuelmiller/Desktop/dacss697d/forblog/Text_as_Data_Fall_2022/posts/_data/blogpost1 - other_lit.csv")
 ```
 
