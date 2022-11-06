@@ -33,6 +33,7 @@ library(quanteda.dictionaries)
 library(quanteda.sentiment)
 #new packages
 library(patchwork)
+library(stm)
 
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -432,16 +433,146 @@ geom_line(data = reddit_emotions, aes(x = date, y = positive, color="Reddit")) +
                      values=c('Reddit'='red', 'Twitter'='blue')) +
   labs(title="Twitter vs Reddit average positveness by date")
 
-(anger / disgust) / (fear / sadness)
+anger / disgust 
+  
+fear / sadness 
 
+anticipation / joy 
 
-(anticipation / joy) / (surprise / trust)
+surprise / trust
 
 positive/negative
 
 ```
 
-```{r}
+Although mean is very helpful to both I believe what I want to do is find the percent of the emotion per day rather than just the average. You will see me working on it below.
+
+```{r percentage based twitter vs reddit}
+
+reddit_emotions <- rdf_nrc %>% 
+  group_by(date) %>% 
+ summarise(polarity = mean(polarity),
+           anger = sum(anger),
+           anticipation = sum(anticipation), 
+           disgust = sum(disgust),
+           fear = sum(fear),
+           joy = sum(joy),
+           negative = sum(negative),
+           positive = sum(positive),
+           sadness = sum(sadness),
+           surprise = sum(surprise),
+           trust = sum(trust)) %>% 
+    rowwise() %>%
+  mutate(word_count = sum(c_across(anger:trust), na.rm = TRUE)) %>% 
+   mutate(anger_percent = round(anger / sum(word_count), 3) * 100,
+          anticipation_percent = round(anticipation / sum(word_count), 3) * 100,
+          disgust_percent = round(disgust/ sum(word_count), 3) * 100,
+          fear_percent = round(fear / sum(word_count), 3) * 100,
+          joy_percent = round(joy / sum(word_count), 3) * 100,
+          negative_percent = round(negative / sum(word_count), 3) * 100,
+          positive_percent = round(positive / sum(word_count), 3) * 100,
+          sadness_percent = round(sadness / sum(word_count), 3) * 100,
+          surprise_percent = round(surprise / sum(word_count), 3) * 100,
+          trust_percent = round(trust / sum(word_count), 3) * 100)
+
+twitter_emotions <- tdf_nrc %>% 
+  group_by(date) %>% 
+ summarise(polarity = mean(polarity),
+           anger = sum(anger),
+           anticipation = sum(anticipation), 
+           disgust = sum(disgust),
+           fear = sum(fear),
+           joy = sum(joy),
+           negative = sum(negative),
+           positive = sum(positive),
+           sadness = sum(sadness),
+           surprise = sum(surprise),
+           trust = sum(trust)) %>% 
+  rowwise() %>%
+  mutate(word_count = sum(c_across(anger:trust), na.rm = TRUE)) %>% 
+   mutate(anger_percent = round(anger / sum(word_count), 3)* 100,
+          anticipation_percent = round(anticipation / sum(word_count), 3) * 100,
+          disgust_percent = round(disgust/ sum(word_count), 3) * 100,
+          fear_percent = round(fear / sum(word_count), 3) * 100,
+          joy_percent = round(joy / sum(word_count), 3) * 100,
+          negative_percent = round(negative / sum(word_count), 3) * 100,
+          positive_percent = round(positive / sum(word_count), 3) * 100,
+          sadness_percent = round(sadness / sum(word_count), 3) * 100,
+          surprise_percent = round(surprise / sum(word_count), 3) * 100,
+          trust_percent = round(trust / sum(word_count), 3) * 100)
+  
+
+anger <- ggplot() +
+geom_line(data = reddit_emotions, aes(x = date, y = anger_percent, color="Reddit")) + geom_line(data = twitter_emotions, aes(x = date, y = anger_percent, color = "Twitter")) +
+    scale_color_manual(name='Social Medias',
+                     breaks=c('Reddit', 'Twitter'),
+                     values=c('Reddit'='red', 'Twitter'='blue')) +
+  labs(title="Twitter vs Reddit anger percentage by date")
+
+anticipation <- ggplot() +
+geom_line(data = reddit_emotions, aes(x = date, y = anticipation_percent, color="Reddit")) + geom_line(data = twitter_emotions, aes(x = date, y = anticipation_percent, color = "Twitter")) +
+    scale_color_manual(name='Social Medias',
+                     breaks=c('Reddit', 'Twitter'),
+                     values=c('Reddit'='red', 'Twitter'='blue')) +
+  labs(title="Twitter vs Reddit anticipation percentage by date")
+
+disgust <- ggplot() +
+geom_line(data = reddit_emotions, aes(x = date, y = disgust_percent, color="Reddit")) + geom_line(data = twitter_emotions, aes(x = date, y = disgust_percent, color = "Twitter")) +
+    scale_color_manual(name='Social Medias',
+                     breaks=c('Reddit', 'Twitter'),
+                     values=c('Reddit'='red', 'Twitter'='blue')) +
+  labs(title="Twitter vs Reddit disgust percentage by date")
+
+fear <- ggplot() +
+geom_line(data = reddit_emotions, aes(x = date, y = fear_percent, color="Reddit")) + geom_line(data = twitter_emotions, aes(x = date, y = fear_percent, color = "Twitter")) +
+    scale_color_manual(name='Social Medias',
+                     breaks=c('Reddit', 'Twitter'),
+                     values=c('Reddit'='red', 'Twitter'='blue')) +
+  labs(title="Twitter vs Reddit fear percentage by date")
+
+joy <- ggplot() +
+geom_line(data = reddit_emotions, aes(x = date, y = joy_percent, color="Reddit")) + geom_line(data = twitter_emotions, aes(x = date, y = joy_percent, color = "Twitter")) +
+    scale_color_manual(name='Social Medias',
+                     breaks=c('Reddit', 'Twitter'),
+                     values=c('Reddit'='red', 'Twitter'='blue')) +
+  labs(title="Twitter vs Reddit joy percentage by date")
+
+sadness <- ggplot() +
+geom_line(data = reddit_emotions, aes(x = date, y = sadness_percent, color="Reddit")) + geom_line(data = twitter_emotions, aes(x = date, y = sadness_percent, color = "Twitter")) +
+    scale_color_manual(name='Social Medias',
+                     breaks=c('Reddit', 'Twitter'),
+                     values=c('Reddit'='red', 'Twitter'='blue')) +
+  labs(title="Twitter vs Reddit sadness percentage by date")
+
+surprise <- ggplot() +
+geom_line(data = reddit_emotions, aes(x = date, y = surprise_percent, color="Reddit")) + geom_line(data = twitter_emotions, aes(x = date, y = surprise_percent, color = "Twitter")) +
+    scale_color_manual(name='Social Medias',
+                     breaks=c('Reddit', 'Twitter'),
+                     values=c('Reddit'='red', 'Twitter'='blue')) +
+  labs(title="Twitter vs Reddit surprise percentage by date")
+
+trust <- ggplot() +
+geom_line(data = reddit_emotions, aes(x = date, y = trust_percent, color="Reddit")) + geom_line(data = twitter_emotions, aes(x = date, y = trust_percent, color = "Twitter")) +
+    scale_color_manual(name='Social Medias',
+                     breaks=c('Reddit', 'Twitter'),
+                     values=c('Reddit'='red', 'Twitter'='blue')) +
+  labs(title="Twitter vs Reddit trust percentage by date")
+
+
+negative <- ggplot() +
+geom_line(data = reddit_emotions, aes(x = date, y = negative_percent, color="Reddit")) + geom_line(data = twitter_emotions, aes(x = date, y = negative_percent, color = "Twitter")) +
+    scale_color_manual(name='Social Medias',
+                     breaks=c('Reddit', 'Twitter'),
+                     values=c('Reddit'='red', 'Twitter'='blue')) +
+  labs(title="Twitter vs Reddit negativeness percentage by date")
+
+positive <- ggplot() +
+geom_line(data = reddit_emotions, aes(x = date, y = positive_percent, color="Reddit")) + geom_line(data = twitter_emotions, aes(x = date, y = positive_percent, color = "Twitter")) +
+    scale_color_manual(name='Social Medias',
+                     breaks=c('Reddit', 'Twitter'),
+                     values=c('Reddit'='red', 'Twitter'='blue')) +
+  labs(title="Twitter vs Reddit positveness percentage by date")
+
 anger / disgust 
   
 fear / sadness 
@@ -453,14 +584,111 @@ surprise / trust
 positive/negative
 ```
 
-```{r}
+Overall we can see with the exception of a few spikes that are likely because of only having a few words, twitter and reddit seem to be very similar about their emotions over time for the show.
 
-ggplot() +
-geom_line(data = reddit_emotions, aes(x = polarity, y = positive, color="Reddit")) + geom_line(data = twitter_emotions, aes(x = polarity, y = positive, color = "Twitter")) +
+## Lack of Words on Certain Days
+
+I noticed that some days have particularly small amount of total words. While this isn't too surprising it does make me wondering if those are useful to the data set. Thus for this data I will remove any dates that had **less than 100 words.**
+
+```{r filter count}
+
+twitter_emotions <- twitter_emotions %>% 
+  filter(word_count > 100)
+
+reddit_emotions <- reddit_emotions %>% 
+  filter(word_count > 100)
+
+anger <- ggplot() +
+geom_line(data = reddit_emotions, aes(x = date, y = anger_percent, color="Reddit")) + geom_line(data = twitter_emotions, aes(x = date, y = anger_percent, color = "Twitter")) +
     scale_color_manual(name='Social Medias',
                      breaks=c('Reddit', 'Twitter'),
                      values=c('Reddit'='red', 'Twitter'='blue')) +
-  labs(title="Twitter vs Reddit average positveness by polarity")
+  labs(title="Twitter vs Reddit anger percentage by date")
+
+anticipation <- ggplot() +
+geom_line(data = reddit_emotions, aes(x = date, y = anticipation_percent, color="Reddit")) + geom_line(data = twitter_emotions, aes(x = date, y = anticipation_percent, color = "Twitter")) +
+    scale_color_manual(name='Social Medias',
+                     breaks=c('Reddit', 'Twitter'),
+                     values=c('Reddit'='red', 'Twitter'='blue')) +
+  labs(title="Twitter vs Reddit anticipation percentage by date")
+
+disgust <- ggplot() +
+geom_line(data = reddit_emotions, aes(x = date, y = disgust_percent, color="Reddit")) + geom_line(data = twitter_emotions, aes(x = date, y = disgust_percent, color = "Twitter")) +
+    scale_color_manual(name='Social Medias',
+                     breaks=c('Reddit', 'Twitter'),
+                     values=c('Reddit'='red', 'Twitter'='blue')) +
+  labs(title="Twitter vs Reddit disgust percentage by date")
+
+fear <- ggplot() +
+geom_line(data = reddit_emotions, aes(x = date, y = fear_percent, color="Reddit")) + geom_line(data = twitter_emotions, aes(x = date, y = fear_percent, color = "Twitter")) +
+    scale_color_manual(name='Social Medias',
+                     breaks=c('Reddit', 'Twitter'),
+                     values=c('Reddit'='red', 'Twitter'='blue')) +
+  labs(title="Twitter vs Reddit fear percentage by date")
+
+joy <- ggplot() +
+geom_line(data = reddit_emotions, aes(x = date, y = joy_percent, color="Reddit")) + geom_line(data = twitter_emotions, aes(x = date, y = joy_percent, color = "Twitter")) +
+    scale_color_manual(name='Social Medias',
+                     breaks=c('Reddit', 'Twitter'),
+                     values=c('Reddit'='red', 'Twitter'='blue')) +
+  labs(title="Twitter vs Reddit joy percentage by date")
+
+sadness <- ggplot() +
+geom_line(data = reddit_emotions, aes(x = date, y = sadness_percent, color="Reddit")) + geom_line(data = twitter_emotions, aes(x = date, y = sadness_percent, color = "Twitter")) +
+    scale_color_manual(name='Social Medias',
+                     breaks=c('Reddit', 'Twitter'),
+                     values=c('Reddit'='red', 'Twitter'='blue')) +
+  labs(title="Twitter vs Reddit sadness percentage by date")
+
+surprise <- ggplot() +
+geom_line(data = reddit_emotions, aes(x = date, y = surprise_percent, color="Reddit")) + geom_line(data = twitter_emotions, aes(x = date, y = surprise_percent, color = "Twitter")) +
+    scale_color_manual(name='Social Medias',
+                     breaks=c('Reddit', 'Twitter'),
+                     values=c('Reddit'='red', 'Twitter'='blue')) +
+  labs(title="Twitter vs Reddit surprise percentage by date")
+
+trust <- ggplot() +
+geom_line(data = reddit_emotions, aes(x = date, y = trust_percent, color="Reddit")) + geom_line(data = twitter_emotions, aes(x = date, y = trust_percent, color = "Twitter")) +
+    scale_color_manual(name='Social Medias',
+                     breaks=c('Reddit', 'Twitter'),
+                     values=c('Reddit'='red', 'Twitter'='blue')) +
+  labs(title="Twitter vs Reddit trust percentage by date")
+
+
+negative <- ggplot() +
+geom_line(data = reddit_emotions, aes(x = date, y = negative_percent, color="Reddit")) + geom_line(data = twitter_emotions, aes(x = date, y = negative_percent, color = "Twitter")) +
+    scale_color_manual(name='Social Medias',
+                     breaks=c('Reddit', 'Twitter'),
+                     values=c('Reddit'='red', 'Twitter'='blue')) +
+  labs(title="Twitter vs Reddit negativeness percentage by date")
+
+positive <- ggplot() +
+geom_line(data = reddit_emotions, aes(x = date, y = positive_percent, color="Reddit")) + geom_line(data = twitter_emotions, aes(x = date, y = positive_percent, color = "Twitter")) +
+    scale_color_manual(name='Social Medias',
+                     breaks=c('Reddit', 'Twitter'),
+                     values=c('Reddit'='red', 'Twitter'='blue')) +
+  labs(title="Twitter vs Reddit positveness percentage by date")
+
+anger / disgust 
+  
+fear / sadness 
+
+anticipation / joy 
+
+surprise / trust
+
+positive/negative
+
+
+twitter_reddit_sentiment <- ggplot() +
+geom_smooth(data = reddit_emotions, aes(x = date, y = polarity, color="Reddit")) + geom_smooth(data = twitter_emotions, aes(x = date, y = polarity, color = "Twitter")) + 
+scale_color_manual(name='Social Medias',
+                  breaks=c('Reddit', 'Twitter'),
+                  values=c('Reddit'='red', 'Twitter'='blue')) +
+  labs(title="Twitter vs Reddit Average Dictionary Sentiment")
+
+twitter_reddit_sentiment
+
 ```
 
 # Co-occurrence
@@ -504,25 +732,49 @@ textplot_network(even_smaller_fcm, vertex_size = size / max(size) * 3)
 
 Something I notice right away is that Reddit connections are more linked towards the contestants names on the show. However for Twitter it's more connected to what people felt about the show.
 
+# STM 
+
+Below I will attempt to do structure topic modeling for both Reddit and Twitter.
+
+```{r stm}
+rdfm <- dfm(reddit_lemmitized)
+# choose our number of topics
+  k <- 25
+rmodel <- convert(rdfm, to = "stm",
+                K = k,
+               prevalence = ~ sentiment,
+               data = rdfm,
+               max.em.its = 1000,
+               seed = 1234,
+               init.type = "Spectral")
+
+tdfm <- dfm(twitter_lemmitized)
+
+# specify model
+tModel <- convert(rdfm, to = "stm",
+                K = k,
+               prevalence = ~ sentiment,
+               data = rdfm,
+               max.em.its = 1000,
+               seed = 1234,
+               init.type = "Spectral")
+```
+
 # Final Thoughts (TLDR)
 
 ## Final thoughts
 
--   I have found a way to keep the date column in the summary but remove it from the actual tokens afterwards.
+-   I have found a way to use the date column with the different types of sentiment! I'm very pleased with this as it allowed me to compare the NRC dictionary categories as well over time.
 
--   I have made a list of stop words that are related to the title of the show from Twitter.
+-   I have decided to use co-occurrence without limiting the data set. This is because I want to see how the text plots compare to each other with all words included.
 
-    -   I have also included the removal of the word "show" as for tweets it only referenced show as a TV series. However for Reddit I have not removed the word show as Redditors seemed to use the word show outside of of meaning a TV show.
+-   I am slightly tweaking my research question to: How do Reddit and Twitter users sentiment differentiate about the show *Love is Blind Japan* **over time**?
 
-    -   Reddit also did not have the same issues with the title of the show due to all of the posts in the sub reddit being related to Love is Blind Japan.
-
--   I have decided to use the NRC dictionary.
-
--   I am unsure how I will use co-occurrence.
+    -   This is because I think it's a much more interesting question to see how people felt about the show over the course of the show and the aftermath.
 
 ## Future Work
 
-Here are a few things I'd like to do in blog post 5:
+Here are a few things I'd like to do in blog post 6:
 
 -   I would like to look at co-occurrence more closely and decide if the code I have now is the one I would like to use for the final project. I currently have chosen it based off prior issues (such as having the show's name showing up).
 
