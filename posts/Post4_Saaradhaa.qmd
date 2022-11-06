@@ -43,15 +43,16 @@ In the first part of the post, I will revise some of the processing and prelimin
 
 ```{r}
 # list out files.
-file_list <- dir("~/Desktop/2022_Fall/GitHub/Text_as_Data_Fall_2022/posts/Transcripts", 
-             full.names = TRUE, pattern = "*.txt")
+# file_list <- dir("~/Desktop/2022_Fall/GitHub/Text_as_Data_Fall_2022/posts/Transcripts", full.names = TRUE, pattern = "*.txt")
 
 # create list of text files.
-transcripts <- readtext(paste0(file_list), docvarnames = c("transcript", "text"))
+# transcripts <- readtext(paste0(file_list), docvarnames = c("transcript", "text"))
 
 # remove references to 'interviewer:' and 'interviewee:', as well as line breaks, '\n'. I found this website really helpful in testing out regex: https://spannbaueradam.shinyapps.io/r_regex_tester/
-transcripts$text <- str_replace_all(transcripts$text, "[a-zA-Z]+:", "")
-transcripts$text <- str_replace_all(transcripts$text, "\n", "")
+# transcripts$text <- str_replace_all(transcripts$text, "[a-zA-Z]+:", "")
+# transcripts$text <- str_replace_all(transcripts$text, "\n", "")
+# saveRDS(transcripts, "transcripts.rds")
+transcripts <- read_rds("transcripts.rds")
 
 # create 'quanteda' corpus. 
 oh_corpus <- corpus(transcripts$text)
