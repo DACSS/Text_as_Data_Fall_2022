@@ -1,0 +1,17 @@
+---
+title: "Reading in text data"
+format: html
+---
+
+```{r setup, echo=TRUE}
+
+```
+
+PDF file for Part 1 of Clare Hemmings' *Why Stories Matter* is in the working directory.
+
+```{r}
+library(pdftools)
+
+hemProg <- pdf_text("hemmingsProgress.pdf")
+hemProg
+```
