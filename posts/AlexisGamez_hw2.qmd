@@ -1,0 +1,183 @@
+---
+title: "Blog Post #2: Gathering Data"
+author: "Alexis Gamez"
+desription: "Studying text-as-data as it relates to eating bugs"
+date: "11/03/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - blogpost2
+  - Alexis Gamez
+  - research
+  - academic articles
+---
+# Setup
+
+<details>
+  <summary> View Code</summary>
+  
+```{r setup, include=TRUE}
+library(tidyverse)
+library(tidytext)
+library(readr)
+library(devtools)
+library(plyr)
+library(knitr)
+library(rvest)
+library(rtweet)
+library(twitteR)
+library(tm)
+library(lubridate)
+library(quanteda)
+library(quanteda.textplots)
+knitr::opts_chunk$set(echo = TRUE)
+```
+</details>
+
+# **Data Sources**
+For this assignment, I gathered the data for my corpus from the Twitter social media platform. The 'rtweet' R package was used heavily in the gathering and preliminary analysis of the data I used. In order to extract twitter data to R, I needed to first create a developer account to gain the appropriate permissions. Once the account was made, I was able to create a new project through the developer app and connect it to R. From there, I was able to begin gathering data and conducting a preliminary analysis of what I could find so far.
+
+# **Gathering Data**
+
+The first step in data analysis, is gathering the data you intend to analyze! I started by gathering as many tweets as possible related to the subject of my project. At this point, the goal of my project is to conduct a sentiment analysis surrounding the perception of eating insects among twitter users. So, I pulled tweets containing the keywords `eating` and `bugs/insects`. Finding it unnecessary, I excluded re-tweets and chose to restrict source language to only those in English. 
+
+```{r, echo=TRUE}
+#Pull together tweets containing keywords 'eating` and `bugs/insects`.
+tweet_bugs <- search_tweets("eating bugs OR insects", n = 10000,
+                             type = "mixed",
+                             include_rts = FALSE,
+                             lang = "en")
+```
+
+# **Creating a Corpus**
+
+From the previous chunk, I was able to gather a total of 1,533 tweets along with their metadata. The following chunk is dedicated toward cleaning up the data a bit and pulling out the information I need in order to conduct the analysis. First I extracted the `full_text` column from the `tweet_bugs` object I created and stored it as `tweet_text`. From there, I converted the text object to a corpus, i.e. `tweet_corpus`. Lastly, I used the `summary` function to summarize corpus information like sentence and token count per tweet (for some reason, the summary function limited itself to only 100 out of the 1,533 entries. A goal for the future is to figure out how to extend it so that I can summarize the full corpus data).
+
+```{r, echo=TRUE}
+#Separate out the text from tweet_bugs and build the corpus.
+tweet_text <- as.vector.data.frame(tweet_bugs$full_text, mode = "any")
+tweet_corpus <- corpus(tweet_text)
+tweet_summary <- summary(tweet_corpus)
+```
+
+While not entirely useful, I also decided to add in a tweet count indicator to number the tweets. Once again, the count only extended up to the first 100 entries. Hopefully, there is a workaround to include the remainder of the entries, but ultimately it isn't crucial when conducting sentiment analysis.
+
+<details>
+  <summary> View Code</summary>
+  
+```{r, echo=TRUE, message=FALSE}
+#Creating tweet count indicator (i.e. Count).
+tweet_summary$Count <- as.numeric(str_extract(tweet_summary$Text,"[0-9]+"))
+tweet_summary
+```
+</details>
+
+Additionally, because Twitter's base developer guidelines only allow me to extract tweets created within the last 6-9 days, I tried to pull as many within this time frame as possible and write them to a csv document for storage. My hope is that as my project progresses, I can accumulate and append additional tweets to my existing corpus so that by the end I have a larger data frame to work with.
+
+```{r, echo=TRUE}
+#Creating a new document to store existing corpus and hopefully add more over time.
+write.csv(tweet_corpus, file = "eating_bugs_tweets_11_3_22.csv", row.names = FALSE)
+```
+
+# **Preliminary Analysis**
+
+Beginning my analysis of the data, I decided to run the `docvars` function to check for metadata (which after extracting the text column from the the initial `tweet_bugs` object, I figured would no longer include any).
+
+<details>
+  <summary> View Code</summary>
+  
+```{r, echo=TRUE, message=FALSE}
+#Trying to pull metadata, but there no longer is any.
+docvars(tweet_corpus)
+```
+</details>
+
+Afterwards, I decided to split the corpus down into sentence level documents. I thought that by doing this, I would be able to call back to this object eventually and analyze sentiment within each individual sentence, but I realized and felt as though this spread my data a bit too thin and thought that it would be better to split it down to the tweet level (`documents`) instead. That way, I can consolidate the data a bit and effectively analyze the sentiment of the person behind each individual tweet. 
+
+<details>
+  <summary> View Code</summary>
+  
+```{r, echo=TRUE, message=FALSE}
+#These lines of code separate out each sentence within the tweet corpus. Only problem was, many tweets contained multiple sentences and this spreads the data very thin.
+ndoc(tweet_corpus)
+tweet_corpus_sentences <- corpus_reshape(tweet_corpus, to = "sentences")
+ndoc(tweet_corpus_sentences)
+
+#From there, I instead decided to separate them by tweet, i.e. document, to get a better idea of each individuals writing style and opinion. I felt as though 'sentences' was spreading it too thin.
+tweet_corpus_document <- corpus_reshape(tweet_corpus, to = "documents")
+ndoc(tweet_corpus_document)
+summary(tweet_corpus_document, n=5)
+```
+</details>
+
+## *Tokens*
+
+Next I decided break the corpus down to the token level and conduct a surface level analysis on the use of certain keywords. The following code chunk is indicative of my thought process when creating the `tweet_token` object. First, I created the base object, then removed any punctuation, and finally removed all numbers.  
+
+<details>
+  <summary> View Code</summary>
+  
+```{r, echo=TRUE, message=FALSE}
+#My next step was to tokenize the corpus. The initial 'token' code uses the base tokenizer which breaks on white space.  
+tweet_tokens <- tokens(tweet_corpus)
+print(tweet_tokens)
+
+#This line of code drops punctuation along with the default space breaks.
+tweet_tokens <- tokens(tweet_corpus,
+                        remove_punct = T)
+print(tweet_tokens)
+
+#This last line of code drops numbers within the token corpus as well.
+tweet_tokens <- tokens(tweet_corpus,
+                        remove_punct = T,
+                        remove_numbers = T)
+print(tweet_tokens)
+```
+</details>
+
+After creating the `tweet_tokens` object, I searched through the corpus for the keywords using the `kwic` function. The first use of the function in the chunk below searched for the use of the keywords `bug` & `bugs`, while the second analyzes the words `insect` & `insects`. I decided to open up the window to 20 words surrounding the keywords (i.e. patterns). I felt this gave me a sufficient window to, at a glance, gauge sentiment within the use of the words.
+
+```{r, echo=TRUE}
+#These lines of code are dedicated toward the analysis of tokens on a more granular level. This first blurb is analyzing the use of the keywords 'bug' & 'bugs' within the corpus.
+kwic_bugs <- kwic(tweet_tokens,
+                   pattern = c("bug", "bugs"),
+                   window = 20)
+view(kwic_bugs)
+
+#This second blurb analyzes the use of the keywords 'insect' & 'insects' instead.
+kwic_insects <- kwic(tweet_tokens, 
+                   pattern = c("insect", "insects"),
+                   window = 20)
+view(kwic_insects)
+```
+
+I noticed throughout the corpus that the specified keywords were often surrounded by argument and context provided by the individual tweeting them. This is what eventually led me to open the window to 20 words. I also noticed that there were a lot of advertisement campaigns based upon the concept of promoting ones channel/profile by eating bugs. Similarly, there were also some occurrences where the topic of eating bugs was brought up as it relates to nature (for example, bats eating insects and other animal diets) and not according to human dietary habits. I hope that I will be able to further clean up the corpus in future iterations of my project and blog post, consolidating the information further will definitely help me get better results.
+
+With that said, there were plenty of entries relating to the perspective surrounding humans eating bugs. Many were in relation to political ideologies as well and from a bird's eye view, I noticed a relatively even dispersion of positive and negative opinions surrounding the topic (although, I feel like the average leaned a bit more toward the negative). My goal in the future would be to use dictionary functions to conduct a legitimate sentiment analysis and see how the use of the keywords appear in proportionality of positive vs. negative uses.
+
+## *Word Cloud*
+
+That last thing I attempted was creating a word cloud using the basis of tokenization that I presented in the previous subsection. Please note, effectively, I could have just used the `tweet_token` object here instead `tweet_corpus`, but I wanted to show the thought process of creating a word cloud and practice the syntax behind the relevant functions.
+
+```{r, echo=TRUE}
+#Creating a dfm that we'll use to create a wordcloud to try and obtain a birds eye view of word usage throughout our corpus.
+tweet_dfm <- tokens(tweet_corpus, 
+                     remove_punct = TRUE,
+                     remove_numbers = TRUE,
+                     remove_symbols = TRUE,
+                     remove_url = TRUE) %>%
+                             tokens_select(pattern = stopwords("en"),
+                                           selection = "remove") %>%
+                             dfm()
+textplot_wordcloud(tweet_dfm)
+```
+
+Unfortunately, I couldn't take away much from creating the wordcloud. Observably, 'eating', 'insects' and 'bugs' were the most common words, but nothing else in the cloud stood out much or held any real significance. I also noticed that twitter handles and other '@s' still appeared even though I thought I cut them out with the 'remove_symbols' function. A goal in the future will be to cut down further language that might be considered disruptive to the analysis.
+
+
+
+
