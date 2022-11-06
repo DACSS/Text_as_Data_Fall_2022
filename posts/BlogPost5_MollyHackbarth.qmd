@@ -361,56 +361,56 @@ reddit_emotions <- rdf_nrc %>%
            surprise = mean(surprise),
            trust = mean(trust))
 
-ggplot() +
+anger <- ggplot() +
 geom_line(data = reddit_emotions, aes(x = date, y = anger, color="Reddit")) + geom_line(data = twitter_emotions, aes(x = date, y = anger, color = "Twitter")) +
     scale_color_manual(name='Social Medias',
                      breaks=c('Reddit', 'Twitter'),
                      values=c('Reddit'='red', 'Twitter'='blue')) +
   labs(title="Twitter vs Reddit average anger by date")
 
-ggplot() +
+anticipation <- ggplot() +
 geom_line(data = reddit_emotions, aes(x = date, y = anticipation, color="Reddit")) + geom_line(data = twitter_emotions, aes(x = date, y = anticipation, color = "Twitter")) +
     scale_color_manual(name='Social Medias',
                      breaks=c('Reddit', 'Twitter'),
                      values=c('Reddit'='red', 'Twitter'='blue')) +
   labs(title="Twitter vs Reddit average anticipation by date")
 
-ggplot() +
+disgust <- ggplot() +
 geom_line(data = reddit_emotions, aes(x = date, y = disgust, color="Reddit")) + geom_line(data = twitter_emotions, aes(x = date, y = disgust, color = "Twitter")) +
     scale_color_manual(name='Social Medias',
                      breaks=c('Reddit', 'Twitter'),
                      values=c('Reddit'='red', 'Twitter'='blue')) +
   labs(title="Twitter vs Reddit average disgust by date")
 
-ggplot() +
+fear <- ggplot() +
 geom_line(data = reddit_emotions, aes(x = date, y = fear, color="Reddit")) + geom_line(data = twitter_emotions, aes(x = date, y = fear, color = "Twitter")) +
     scale_color_manual(name='Social Medias',
                      breaks=c('Reddit', 'Twitter'),
                      values=c('Reddit'='red', 'Twitter'='blue')) +
   labs(title="Twitter vs Reddit average fear by date")
 
-ggplot() +
+joy <- ggplot() +
 geom_line(data = reddit_emotions, aes(x = date, y = joy, color="Reddit")) + geom_line(data = twitter_emotions, aes(x = date, y = joy, color = "Twitter")) +
     scale_color_manual(name='Social Medias',
                      breaks=c('Reddit', 'Twitter'),
                      values=c('Reddit'='red', 'Twitter'='blue')) +
   labs(title="Twitter vs Reddit average joy by date")
 
-ggplot() +
+sadness <- ggplot() +
 geom_line(data = reddit_emotions, aes(x = date, y = sadness, color="Reddit")) + geom_line(data = twitter_emotions, aes(x = date, y = sadness, color = "Twitter")) +
     scale_color_manual(name='Social Medias',
                      breaks=c('Reddit', 'Twitter'),
                      values=c('Reddit'='red', 'Twitter'='blue')) +
   labs(title="Twitter vs Reddit average sadness by date")
 
-ggplot() +
+surprise <- ggplot() +
 geom_line(data = reddit_emotions, aes(x = date, y = surprise, color="Reddit")) + geom_line(data = twitter_emotions, aes(x = date, y = surprise, color = "Twitter")) +
     scale_color_manual(name='Social Medias',
                      breaks=c('Reddit', 'Twitter'),
                      values=c('Reddit'='red', 'Twitter'='blue')) +
   labs(title="Twitter vs Reddit average surprise by date")
 
-ggplot() +
+trust <- ggplot() +
 geom_line(data = reddit_emotions, aes(x = date, y = trust, color="Reddit")) + geom_line(data = twitter_emotions, aes(x = date, y = trust, color = "Twitter")) +
     scale_color_manual(name='Social Medias',
                      breaks=c('Reddit', 'Twitter'),
@@ -418,22 +418,49 @@ geom_line(data = reddit_emotions, aes(x = date, y = trust, color="Reddit")) + ge
   labs(title="Twitter vs Reddit average trust by date")
 
 
-ggplot() +
+negative <- ggplot() +
 geom_line(data = reddit_emotions, aes(x = date, y = negative, color="Reddit")) + geom_line(data = twitter_emotions, aes(x = date, y = negative, color = "Twitter")) +
     scale_color_manual(name='Social Medias',
                      breaks=c('Reddit', 'Twitter'),
                      values=c('Reddit'='red', 'Twitter'='blue')) +
   labs(title="Twitter vs Reddit average negativeness by date")
 
-ggplot() +
+positive <- ggplot() +
 geom_line(data = reddit_emotions, aes(x = date, y = positive, color="Reddit")) + geom_line(data = twitter_emotions, aes(x = date, y = positive, color = "Twitter")) +
     scale_color_manual(name='Social Medias',
                      breaks=c('Reddit', 'Twitter'),
                      values=c('Reddit'='red', 'Twitter'='blue')) +
   labs(title="Twitter vs Reddit average positveness by date")
 
+(anger / disgust) / (fear / sadness)
 
 
+(anticipation / joy) / (surprise / trust)
+
+positive/negative
+
+```
+
+```{r}
+anger / disgust 
+  
+fear / sadness 
+
+anticipation / joy 
+
+surprise / trust
+
+positive/negative
+```
+
+```{r}
+
+ggplot() +
+geom_line(data = reddit_emotions, aes(x = polarity, y = positive, color="Reddit")) + geom_line(data = twitter_emotions, aes(x = polarity, y = positive, color = "Twitter")) +
+    scale_color_manual(name='Social Medias',
+                     breaks=c('Reddit', 'Twitter'),
+                     values=c('Reddit'='red', 'Twitter'='blue')) +
+  labs(title="Twitter vs Reddit average positveness by polarity")
 ```
 
 # Co-occurrence
