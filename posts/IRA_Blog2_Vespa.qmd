@@ -11,8 +11,9 @@ format:
     code-copy: true
     code-tools: true
 categories:
-  - Healthcare cost
+  - Healthcare
   - Twitter
+  - IRA
   - Rhowena Vespa
   - Blog Post 2
   - Sentiment Analysis
