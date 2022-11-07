@@ -34,7 +34,7 @@ library(quanteda.sentiment)
 #new packages
 library(patchwork)
 library(stm)
-
+library(tm)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -732,32 +732,342 @@ textplot_network(even_smaller_fcm, vertex_size = size / max(size) * 3)
 
 Something I notice right away is that Reddit connections are more linked towards the contestants names on the show. However for Twitter it's more connected to what people felt about the show.
 
-# STM 
+# Checking the K-Means
+
+Below I will focus on checking on how many "k" options I need. I will start with 25.
+
+```{r checking k}
+
+## reddit 
+truth.K <- 25
+rdm <- dfm(reddit_lemmitized)
+rdm <- convert(rdm, to = "tm")
+rdm.tfidf <- tm::weightTfIdf(rdm)
+rdm.tfidf <- tm::removeSparseTerms(rdm.tfidf, 0.999) # (data,allowed sparsity)
+rfidf.matrix <- as.matrix(rdm.tfidf)
+rdist.matrix = proxy::dist(rfidf.matrix, method = "cosine")
+rclustering.kmeans <- kmeans(rfidf.matrix, truth.K)
+names(rclustering.kmeans)
+
+k <- 25
+rvarper <- NULL
+for(i in 1:k){
+  rclustering.kmeans2 <- kmeans(rfidf.matrix, i)
+  rvarper <- c(rvarper, as.numeric(rclustering.kmeans2$betweenss)/as.numeric(rclustering.kmeans2$totss))
+}
+
+rvarper
+
+plot(1:k, rvarper, xlab = "# of clusters", ylab = "explained variance")
+
+## twitter 
+
+truth.K <- 25
+tdm <- tm::DocumentTermMatrix(twitter_lemmitized)
+tdm <- dfm(twitter_lemmitized)
+tdm <- convert(tdm, to = "tm")
+tdm.tfidf <- tm::weightTfIdf(tdm)
+tdm.tfidf <- tm::removeSparseTerms(tdm.tfidf, 0.999) # (data,allowed sparsity)
+tfidf.matrix <- as.matrix(tdm.tfidf)
+tdist.matrix = proxy::dist(tfidf.matrix, method = "cosine")
+tclustering.kmeans <- kmeans(tfidf.matrix, truth.K)
+names(tclustering.kmeans)
+
+k <- 25
+tvarper <- NULL
+for(i in 1:k){
+  tclustering.kmeans2 <- kmeans(tfidf.matrix, i)
+  tvarper <- c(tvarper, as.numeric(tclustering.kmeans2$betweenss)/as.numeric(tclustering.kmeans2$totss))
+}
+
+tvarper
+
+plot(1:k, tvarper, xlab = "# of clusters", ylab = "explained variance")
+
+```
+
+Here we can see that 25 topics may not be enough surprisingly. While there is a bit of a plateau at 20, I will try to do 100.
+
+```{r testing 100k}
+
+k <- 100
+rvarper <- NULL
+for(i in 1:k){
+  rclustering.kmeans2 <- kmeans(rfidf.matrix, i)
+  rvarper <- c(rvarper, as.numeric(rclustering.kmeans2$betweenss)/as.numeric(rclustering.kmeans2$totss))
+}
+
+plot(1:k, rvarper, xlab = "# of clusters", ylab = "explained variance")
+
+k <- 100
+tvarper <- NULL
+for(i in 1:k){
+  tclustering.kmeans2 <- kmeans(tfidf.matrix, i)
+  tvarper <- c(tvarper, as.numeric(tclustering.kmeans2$betweenss)/as.numeric(tclustering.kmeans2$totss))
+}
+
+tvarper
+
+plot(1:k, tvarper, xlab = "# of clusters", ylab = "explained variance")
+```
+
+Well 100 certainly seems like too many! It still seems that around 20-25 is the sweet spot for an equal explained variance. I think I will stick with 25.
+
+Still lets check it one more way.
+
+```{r checking once more}
+ktwitter <- dfm(twitter_lemmitized)
+ktwitter$polarity <- tdf_nrc$polarity
+
+ktwitter<-comments[-ktwitter$docs.removed,]
+length(ktwitter)
+
+tdifferentKs <- searchK(ktwitter,
+                       K = c(5, 25, 50),
+                       prevalence = ~ polarity,
+                       N = 250,
+                       max.em.its = 1000,
+                       init.type = "Spectral")
+
+plot(tdifferentKs)
+
+kreddit <- dfm(reddit_lemmitized)
+kreddit$polarity <- rdf_nrc$polarity
+
+kreddit<-comments[-kreddit$docs.removed,]
+length(kreddit)
+
+rdifferentKs <- searchK(kreddit,
+                       K = c(5, 25, 50),
+                       prevalence = ~ polarity,
+                       N = 250,
+                       max.em.its = 1000,
+                       init.type = "Spectral")
+
+plot(rdifferentKs)
+```
+
+# STM
 
 Below I will attempt to do structure topic modeling for both Reddit and Twitter.
 
 ```{r stm}
+
+rModel <- dfm(reddit_lemmitized)
+
+docvars(reddit_lemmitized) <- rModel
+
+rModel$polarity <- rdf_nrc$polarity
+
+rModel<-comments[-rModel$docs.removed,]
+length(rModel)
+
+rcor_topic_model <- stm(rModel, K = 5,
+                       verbose = FALSE, init.type = "Spectral")
+rcor_topic_model
+summary(rcor_topic_model)
+
+labelTopics(rcor_topic_model)
+
+findThoughts(rcor_topic_model,
+             texts = reddit_lemmitized,
+             topics = c(1:5),
+             n = 1)
+
+
+```
+
+https://stackoverflow.com/questions/43492667/r-stm-number-of-provided-texts-and-number-of-documents-modeled-do-not-match
+
+```{r}
+rModel <- dfm(reddit_lemmitized)
+
+docvars(reddit_lemmitized) <- rModel
+
+rModel$polarity <- rdf_nrc$polarity
+
+rModel <- stm(rModel,
+                K = k,
+              prevalence = ~ polarity,
+               max.em.its = 1000,
+               seed = 1234,
+               init.type = "Spectral")
+
+#labelTopics(rModel)
+plot(rModel, type = "summary")
+
+# get the words
+rTopicNames <- labelTopics(rModel, n=4)$frex
+
+# set up an empty vector
+rTopicLabels <- rep(NA, k)
+
+# set up a loop to go through the topics and collapse the words to a single name
+for (i in 1:k){
+  rTopicLabels[i] <- paste(rTopicNames[i,], collapse = "_")
+}
+
+# print the names
+rTopicLabels
+
+# estimate effects
+rmodelEffects <- estimateEffect(formula = 1:k ~ polarity,
+                               stmobj = rModel,
+                               metadata = reddit_lemmitized)
+
+# plot effects
+rRows <- 2
+par(mfrow = c(rRows, 3), bty = "n", lwd = 2)
+for (i in 1:k){
+  plot.estimateEffect(rmodelEffects,
+                      covariate = "polarity",
+                      xlim = c(-.25, .25),
+                      model = rModel,
+                      topics = rmodelEffects$topics[i],
+                      method = "difference",
+                      cov.value1 = 1,
+                      cov.value2 = 0, 
+                      main = rTopicLabels[i],
+                      printlegend = F,
+                      linecol = "grey26",
+                      labeltype = "custom",
+                      verbose.labels = F,
+                      custom.labels = c(""))
+  par(new = F)
+}
+
+
+```
+
+```{r}
+library(stm)
+### REDDIT
 rdfm <- dfm(reddit_lemmitized)
+rModel <- convert(rdfm, to = "stm", docvars = docvars(reddit_lemmitized))
 # choose our number of topics
   k <- 25
-rmodel <- convert(rdfm, to = "stm",
+  
+rModel <- stm(rdfm,
                 K = k,
-               prevalence = ~ sentiment,
-               data = rdfm,
+              data = rModel,
+              prevalence = ~ polarity,
                max.em.its = 1000,
                seed = 1234,
                init.type = "Spectral")
 
-tdfm <- dfm(twitter_lemmitized)
 
+#labelTopics(rModel)
+plot(rModel, type = "summary")
+
+# get the words
+rTopicNames <- labelTopics(rModel, n=4)$frex
+
+# set up an empty vector
+rTopicLabels <- rep(NA, k)
+
+# set up a loop to go through the topics and collapse the words to a single name
+for (i in 1:k){
+  rTopicLabels[i] <- paste(rTopicNames[i,], collapse = "_")
+}
+
+# print the names
+rTopicLabels
+
+# estimate effects
+rmodelEffects <- estimateEffect(formula = 1:k ~ sentiment,
+                               stmobj = rModel,
+                               metadata = reddit_lemmitized)
+
+# plot effects
+rRows <- 2
+par(mfrow = c(rRows, 3), bty = "n", lwd = 2)
+for (i in 1:k){
+  plot.estimateEffect(rmodelEffects,
+                      covariate = "sentiment",
+                      xlim = c(-.25, .25),
+                      model = rModel,
+                      topics = rmodelEffects$topics[i],
+                      method = "difference",
+                      cov.value1 = 1,
+                      cov.value2 = 0, 
+                      main = rTopicLabels[i],
+                      printlegend = F,
+                      linecol = "grey26",
+                      labeltype = "custom",
+                      verbose.labels = F,
+                      custom.labels = c(""))
+  par(new = F)
+}
+
+```
+
+```{r}
+
+### TWITTER
+tModel <- dfm(twitter_lemmitized)
+
+docvars(twitter_lemmitized) <- tModel
+
+tModel$polarity <- tdf_nrc$polarity
+
+tModel <- stm(tModel,
+                K = k,
+              prevalence = ~ polarity,
+               max.em.its = 1000,
+               seed = 1234,
+               init.type = "Spectral")
 # specify model
-tModel <- convert(rdfm, to = "stm",
+tModel <- convert(tdfm, to = "stm", docvars = docvars(twitter_lemmitized))
+
+tModel <- stm(tModel,
                 K = k,
-               prevalence = ~ sentiment,
-               data = rdfm,
+               data = tModel,
                max.em.its = 1000,
                seed = 1234,
                init.type = "Spectral")
+
+labelTopics(tModel)
+plot(tModel, type = "summary")
+
+# get the words
+tTopicNames <- labelTopics(tModel, n=4)$frex
+
+# set up an empty vector
+tTopicLabels <- rep(NA, k)
+
+# set up a loop to go through the topics and collapse the words to a single name
+for (i in 1:k){
+  tTopicLabels[i] <- paste(tTopicNames[i,], collapse = "_")
+}
+
+# print the names
+tTopicLabels
+
+# estimate effects
+tmodelEffects <- estimateEffect(formula = 1:k ~ sentiment,
+                               stmobj = tModel,
+                               metadata = twitter_lemmitized)
+
+# plot effects
+tRows <- 2
+par(mfrow = c(tRows, 3), bty = "n", lwd = 2)
+for (i in 1:k){
+  plot.estimateEffect(tmodelEffects,
+                      covariate = "sentiment",
+                      xlim = c(-.25, .25),
+                      model = tModel,
+                      topics = tmodelEffects$topics[i],
+                      method = "difference",
+                      cov.value1 = 1,
+                      cov.value2 = 0, 
+                      main = tTopicLabels[i],
+                      printlegend = F,
+                      linecol = "grey26",
+                      labeltype = "custom",
+                      verbose.labels = F,
+                      custom.labels = c(""))
+  par(new = F)
+}
 ```
 
 # Final Thoughts (TLDR)
