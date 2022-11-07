@@ -101,7 +101,7 @@ With this initial analysis, I would like to examine the replies closely and cond
 ```{r}
 # Read in data
 
-IRA.csv <- read.csv("IRA_med.csv")
+IRA.csv <- read_csv("IRA_med.csv")
 ```
 
 ```{r}

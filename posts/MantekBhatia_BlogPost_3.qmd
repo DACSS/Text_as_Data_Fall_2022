@@ -18,6 +18,7 @@ categories:
   - Characterization
 ---
 
+
 ## Research Objective
 
 My research objective for this project is to understand how people characterize their avatars in games.  
@@ -39,9 +40,9 @@ I was able to scrap data from multiple Reddit threads where users talk about the
 
 
 ```{r}
-install.packages("rvest")
-install.packages("RedditExtractoR")
-install.packages("textclean")
+# install.packages("rvest")
+# install.packages("RedditExtractoR")
+# install.packages("textclean")
 library(RedditExtractoR)
 library(rvest)
 library(tidyverse)
@@ -56,8 +57,11 @@ url <- c("https://www.reddit.com/r/DnD/comments/b1pk5c/tell_me_about_your_charac
          "https://www.reddit.com/r/DnD/comments/cgdwgl/share_your_dnd_character/",
          "https://www.reddit.com/r/dndnext/comments/au8k0w/what_are_some_of_your_favourite_dd_character/")
 
-comments <- get_thread_content(url)
 
+
+# comments <- get_thread_content(url)
+# save.image("mantek_blogpost3.RData")
+load("mantek_blogpost3.RData")
 
 #preprocessing
 all_comments <- 
