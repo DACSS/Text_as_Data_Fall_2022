@@ -101,7 +101,8 @@ jobs:
             any::R.utils
             any::emojifont
             any::syuzhet
-            any::quarto            
+            any::quarto  
+            any::kableExtra
           cache-version: 1
           #extra-packages: any::rcmdcheck
           #needs: check
