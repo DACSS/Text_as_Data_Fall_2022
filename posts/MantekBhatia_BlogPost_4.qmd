@@ -64,8 +64,8 @@ url <- c("https://www.reddit.com/r/DnD/comments/b1pk5c/tell_me_about_your_charac
          "https://www.reddit.com/r/DnD/comments/cgdwgl/share_your_dnd_character/",
          "https://www.reddit.com/r/dndnext/comments/au8k0w/what_are_some_of_your_favourite_dd_character/")
 
-# comments <- get_thread_content(url)
-# save.image("mantek_blogpost4.RData")
+#comments <- get_thread_content(url)
+#save.image("mantek_blogpost4.RData")
 load("mantek_blogpost4.RData")
 
 #preprocessing

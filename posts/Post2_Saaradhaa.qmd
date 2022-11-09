@@ -99,7 +99,7 @@ urls <- c("https://digitalcollections.lib.washington.edu/digital/api/collection/
 urls <- urls[!duplicated(urls)]
 
 # let's download the files.
-# download.file(urls, paste0("~/Desktop/2022_Fall/GitHub/Text_as_Data_Fall_2022/posts/Transcripts/", seq(1:50), ".pdf", sep=""))
+#download.file(urls, paste0("~/Desktop/2022_Fall/GitHub/Text_as_Data_Fall_2022/posts/Transcripts/", seq(1:50), ".pdf", sep=""))
 ```
 
 I've got all the PDFs, and now I'll try to convert them into a corpus.
