@@ -14,19 +14,20 @@ format:
 categories:
   - Post2
   - ManiShankerKamarapu
-  - Symptoms and Disease diagnosis
+  - Amazon Review analysis
 ---
 
 ::: callout-tip
 ## New Research Questions
 
-1.  To find the most common symptoms that can effect the function in the body.
-2.  To diagnosis the disease through analysis of the symptoms.
+I specifically focused on Amazon reviews. I wish to perform a Sentiment Analysis on reviews related to the best selling book series in Amazon by different customers. In the first part, I wish to collect reviews related to these books (Web scraping) and prepare the data.
+
+In the next part, I wish to conduct a social network analysis and visualize the underlying emotions (sentiments) of the reviews.
 :::
 
 ## Data sources
 
-I am web-scrapping the data using *rvest* package from *https://webmd.com* and concentarting mainly on the top common and important diseases.
+I am web-scrapping the data using *rvest* package from *https://amazon.com* and concentarting mainly on the top selling book series.
 
 ## Loading the libraries
 
@@ -35,55 +36,73 @@ library(polite)
 library(rvest)
 library(tidyverse)
 library(stringr)
-library(splitstackshape)
+library(quanteda)
+library(tidyr)
+library(quanteda.textplots)
 
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Scraping the sample data
+```{r}
+bow("https://www.amazon.com/")
+```
+
 
 ```{r}
-url <- "https://www.webmd.com/heart-disease/guide/heart-disease-symptoms"
-bow(url)
+scrape_amazon <- function(ASIN, page_num){
+  
+  url_reviews <- paste0("https://www.amazon.com/product-reviews/",ASIN,"/?pageNumber=",page_num)
+  
+  doc <- read_html(url_reviews) # Assign results to `doc`
+  
+  # Review Title
+  doc %>% 
+    html_nodes("[class='a-size-base a-link-normal review-title a-color-base review-title-content a-text-bold']") %>%
+    html_text() -> review_title
+  
+  # Review Text
+  doc %>% 
+    html_nodes("[class='a-size-base review-text review-text-content']") %>%
+    html_text() -> review_text
+  
+  # Number of stars in review
+  doc %>%
+    html_nodes("[data-hook='review-star-rating']") %>%
+    html_text() -> review_star
+  
+  # Return a tibble
+  tibble(review_title,
+         review_text,
+         review_star,
+         page = page_num) %>% return()
+}
 ```
 
 ```{r}
-name <- url %>%
-  read_html() %>%
-  html_nodes("h2") %>%
-  html_text2()
-name <- tibble(name)
-name
+out <- scrape_amazon("B0001DBI1Q", 1)
+for (i in 2:500) {
+  out <- bind_rows(out, scrape_amazon("B0001DBI1Q", i))
+  if((i %% 3) == 0){
+    Sys.sleep(2) # Take an additional two second break
+  }
+}
+out
 ```
 
 ```{r}
-symptoms <- url %>%
-  read_html() %>%
-  html_nodes("section~ section+ section ul , p+ ul") %>%
-  html_text2()
-symptoms <- str_replace_all(symptoms, "\n", ";")
-symptoms[5] <- paste(symptoms[5], symptoms[6])
-symptoms <- tibble(symptoms)
-symptoms <- symptoms[-6,]
-symptoms
+text <- corpus(c(out$review_text))
+text <- tokens(text, remove_punct=TRUE, remove_numbers = TRUE) %>%
+             tokens_select(pattern=stopwords("en"),
+                            selection="remove")
+text
 ```
 
 ```{r}
-heart_diagnosis <- tibble(name, symptoms)
-heart_diagnosis
+textplot_wordcloud(dfm(text))
 ```
 
-```{r}
-heart_diagnosis <- cSplit(heart_diagnosis, "symptoms", ";", direction = "long")
-heart_diagnosis
-```
 
-```{r}
-heart_diagnosis <- heart_diagnosis %>%
-  mutate("Type of disease" = "Heart disease")
-heart_diagnosis
-```
 
 ## Further study
 
-I have scrapped and collect the data for one type of disease and planning to do the same for the top common diseases and analysis the symptoms and do the models based on the symptoms.
+I have scrapped and collect the data for one of the book series reviews and planning to do the same for the top other book series and analysis the reviews and do the models based on the reviews.
