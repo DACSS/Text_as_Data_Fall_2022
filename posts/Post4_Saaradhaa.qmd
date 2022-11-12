@@ -129,6 +129,8 @@ phrases[[7]]$phrases[300:320]
 phrases[[8]]$phrases[300:320]
 phrases[[9]]$phrases[300:320]
 phrases[[10]]$phrases[300:320]
+
+save.image("post4_saaradhaa.RData")
 ```
 
 From the small selection of n-grams above, it seems like some topics that might arise are memories from South Asia, what prompted the move to the US (education, work), travel, experiences in the US, etc.
@@ -297,6 +299,8 @@ sum(ntoken(oh_tokens))
 
 # test proportions.
 prop.test(x = c(8047, 502), n = c(2029966, 206015), p = NULL, alternative = "two.sided", correct = TRUE)
+
+save.image("post4_saaradhaa.RData")
 ```
 
 Interesting - the younger generation referenced culture significantly more than the older generation did.
