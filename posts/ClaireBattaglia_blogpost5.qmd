@@ -1,0 +1,224 @@
+---
+title: "Blog Post 5"
+author: "Claire Battaglia"
+desription: "Topic Models"
+date: "11/13/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - Claire Battaglia
+  - text-as-data
+  - blog post 5
+  - open-text survey response
+  - supervised learning
+  - topic models
+---
+
+```{r}
+#| label: setup
+#| warning: false
+
+library(readxl)
+library(plyr)
+library(tidyverse)
+library(tidytext)
+library(quanteda)
+library(stm)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+In my last post I applied dictionary methods to my corpus: responses to the open-text survey question "What changes would you like to see for Missoula’s food system?" I used both the NRC and General Inquirer dictionaries to conduct a sentiment analysis but ultimately decided that this was not an appropriate analysis for my corpus. This is primarily because the survey question doesn't ask specifically about respondents' feelings about anything, meaning that a typical valid response doesn't contain either positive or negative sentiment.
+
+I plan to create my own dictionary at some point but for this post I will be attempting to analyze my corpus using Structural Topic Modeling (STM). This method of analysis will allow me to understand both the prevalence of topics across my corpus and the content (i.e. words used to talk about) those topics. Importantly, STM will allow me to analyze the responses alongside some covariates of interest. The two that I am particularly interested in are ZIP Code and annual household income. I expect that at least the *prevalence* of topics will vary by these two covariates, if not the *content*. Keeping the long term goal of this analysis in mind, it makes a tremendous difference if respondents recommending a particular change to the food system are concentrated in a single ZIP Code or income bracket or distributed across the city/over all income brackets.
+
+## Creating My Document Feature Matrix
+
+I created a DFM in a previous post but I'll create a new one here because the one I previously created doesn't contain the covariates I'm interested in.
+
+```{r load data}
+# load tidy data
+load("CFA_tidy.RData")
+
+# create dfm
+dfm_change <- dfm(tokens(CFA_tidy$change),
+             tolower = TRUE,
+             remove = stopwords("en"),
+             remove_punct = TRUE)
+
+# get dimensions
+dim(dfm_change)
+```
+
+It contains 215 rows (the responses, called documents here) and 1,146 columns (all the words that appear in the corpus).
+
+<aside> When I first attempted to build a STM, I noticed that the `stm()` function automatically removed *NA* values but that that created problems in later functions. I went back to my tidy dataset and removed all rows that contained any *NA* values to try and address that. Of the 389 respondents, only 215 answered every question. </aside>
+
+Now I'll take a quick look at the two covariates I am interested in: ZIP Code and annual household income.
+
+```{r covariates}
+# zip
+table(CFA_tidy$zip)
+
+# income
+table(CFA_tidy$income)
+```
+
+## Correlated Topic Model
+
+```{r ctm}
+# build correlated topic model
+ctm_change <- stm(dfm_change, K = 5,
+                       verbose = FALSE, init.type = "Spectral")
+# get summary
+summary(ctm_change)
+```
+
+A few things to note:
+
+* It looks like the `stm()` function automatically drops empty documents. Because I removed all rows that contained *NA* values from my tidy dataset, however, I am not sure why Text 96 is being considered "empty." I have a feeling this is going to cause problems later on.
+* I specified that *k* = 5 and while that doesn't seem unreasonable, I did just make that number up.
+* There are packages and functions specifically for building CTM but here I used the `stm()` function from the `stm` package because I am ultimately building a STM and not a CTM.
+
+Next I'll use the `labelTopics()` function to take a look at the words that are associated with each of the five topics that have been revealed.
+
+```{r label topics}
+# label topics
+labelTopics(ctm_change)
+```
+
+According to the [package documentation](https://cran.r-project.org/web/packages/stm/vignettes/stmVignette.pdf):
+
+**Highest Probability** are the words with the highest probability of association with that topic .
+
+**FREX** weights words by their overall frequency and how exclusive they are to that topic.
+
+**Lift** weights words by dividing by their frequency in other topics.
+
+**Score** divides the log frequency of the word in the topic by the log frequency of the word in other topics.
+
+Next the `findThoughts()` function will allow me to see an example document that is highly associated with each of the five topics.
+
+```{r find thoughts}
+# find thoughts
+findThoughts(ctm_change,
+             texts = CFA_tidy$change,
+             topics = c(1:5),
+             n = 1)
+```
+
+I think that this error is occurring because Text 96 was removed and so now there are 215 rows in my dataset but only 214 texts. As mentioned previously, I am not sure why Text 96 was removed so I'll take a look at it now and see if I can figure it out.
+
+```{r text 96}
+# get text 96
+CFA_tidy[96,]
+```
+I see the problem. That row was not removed when I removed rows with *NA* values but the *change* cell contains no information in my DFM because I removed punctuation. I'll remove that row and see if that fixes the problem.
+
+```{r remove row}
+# remove row 96
+CFA_tidy_2 <- subset(CFA_tidy, change !="?")
+
+# view to check
+print(CFA_tidy_2)
+```
+
+Everything looks good to me so now I'll create a new DFM from my new tidy dataset.
+
+```{r new dfm}
+# create dfm
+dfm_change_2 <- dfm(tokens(CFA_tidy_2$change),
+             tolower = TRUE,
+             remove = stopwords("en"),
+             remove_punct = TRUE)
+
+# get dimensions
+dim(dfm_change_2)
+```
+
+```{r new ctm}
+# build correlated topic model
+ctm_change_2 <- stm(dfm_change_2, K = 5,
+                       verbose = FALSE, init.type = "Spectral")
+# get summary
+summary(ctm_change_2)
+
+# label topics
+labelTopics(ctm_change_2)
+
+# find thoughts
+findThoughts(ctm_change_2,
+             texts = CFA_tidy_2$change,
+             topics = c(1:5),
+             n = 1)
+```
+
+Yes! That seems to have resolved the problem. Now I'll use the second DFM to build a STM.
+
+## Structured Topic Model
+
+```{r stm}
+# specify number of topics
+k <- 5
+
+# specify model
+stm_change <- stm(dfm_change_2,
+               K = k,
+               prevalence = ~ zip,
+               data = CFA_tidy_2,
+               max.em.its = 1000,
+               seed = 1234,
+               init.type = "Spectral")
+```
+
+```{r label topics stm}
+# label topics
+labelTopics(stm_change)
+```
+
+```{r plot stm}
+plot(stm_change, type = "summary")
+```
+
+This is interesting. "Food" appears in all of the topics. This isn't surprising but I wonder how meaningful its inclusion here is. It might be more interesting to remove it when creating my DFM and see what other words surface once it's been removed. Given the question I think it's safe to assume that every topic *should* have something to do with food.
+
+```{r estimate effects}
+# estimate effects of income
+income_effects <- estimateEffect(formula = 1:k ~ income,
+                               stmobj = stm_change,
+                               metadata = CFA_tidy_2)
+
+# get summary
+summary(income_effects)
+
+# estimate effects of ZIP Code
+zip_effects <- estimateEffect(formula = 1:k ~ zip,
+                               stmobj = stm_change,
+                               metadata = CFA_tidy_2)
+
+# get summary
+summary(zip_effects)
+```
+
+It appears that each income bracket is slightly positively or negatively associated with each of the five topics but that none of these associations are statistically significant. There are some statistically significant associations between some of the ZIP Codes and particular topics. However, given that I am still exploring how to preprocess my corpus into a DFM and the appropriate number of topics, I am not considering this analysis to be final. Ultimately, the sample is such (too small, not distributed over income brackets and ZIP Codes--some of the ZIP Codes have one respondent!) that it will preclude me from drawing any firm conclusions about associations anyway.
+
+## Challenges and Questions Moving Forward
+
+One challenge with topic modeling is that it is up to the researcher to decide how many topics (*k*) to include in the model. I have no sense of how to do this. Given that the corpus I am working with right now is only a few hundred short documents, I could count them manually but that will not always be feasible. It seems that the best practice is to build models with several different values for *k* and use various methods to evaluate those models.
+
+In addition to thinking about how to tweak my DFM to make the results of my analysis more revealing, I also need to learn how to evaluate my models to determine which is the most appropriate. Related to that, I need to figure out how to visualize my results.
+
+
+
+
+
+
+
+
+
+
+

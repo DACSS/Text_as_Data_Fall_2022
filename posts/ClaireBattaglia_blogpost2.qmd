@@ -74,7 +74,7 @@ CFA_tidy <- CFA_raw %>%
 
 # create subset
 CFA_tidy <- CFA_tidy %>%
-  subset(select = c("id", "zip", "age", "income", "size", "change", "strengths"))
+  subset(select = c("id", "zip", "age", "income", "change"))
 
 # preview
 head(CFA_tidy)
@@ -85,13 +85,15 @@ head(CFA_tidy)
 CFA_tidy$id <- as.character(CFA_tidy$id)
 CFA_tidy$zip <- as.character(CFA_tidy$zip)
 CFA_tidy$age <- as.numeric(CFA_tidy$age)
-CFA_tidy$size <- as.numeric(CFA_tidy$size)
 
 # TODO decide what to do with income categories
 # CFA_tidy$size <- as.numeric(CFA_tidy$size)
 
 # preview
 head(CFA_tidy)
+
+# remove na values
+CFA_tidy <- na.omit(CFA_tidy)
 
 save(CFA_tidy, file = "CFA_tidy.RData")
 
