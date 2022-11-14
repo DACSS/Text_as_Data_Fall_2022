@@ -1,0 +1,845 @@
+---
+title: "Blog 5-Twitter Engagement Analysis of MA Gubernatorial Candidates"
+author: "Rhowena Vespa"
+desription: "Analysis of Replies on Gubernatorial Candidates' Tweets and Influence on Election Results"
+date: "11/06/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - Blog 5
+  - Twitter Replies
+  - Twarc2
+  - Rhowena Vespa
+  - Massachusetts Gubernatorial Elections
+  - Healey
+  - Diehl
+  - Supervised Machine Learning
+  - Sentiment Analysis
+  - TF-IDF
+  - Semantic Network
+  - Naive Bayes
+  - Support Vector Machines
+  - Random Forest
+---
+
+```{r}
+#| label: setup
+#| warning: false
+
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, StringsAsFActors= FALSE)
+```
+
+This project analyzes Twitter engagement of specific Massachusetts GOvernor Candidates namely
+Maura Healey and Geoff Diehl. 
+CORPUS: Extracted twitter replies (Oct 29 to Nov 4) from all of Healey and Diehl's tweets.
+The replies looks into how these candidates engages other twitter users by generating a response 
+to their original tweet or retweet.
+The replies are then cleaned and pre-processed.
+Analysis: 
+        Initial Data visualization (word cloud)
+        TF-IDF
+        Semantic Network Analysis
+        Sentiment Analysis + Polarity
+        SML -Naive Bayes, SVM, Random Forest
+        
+        
+I wanted to analyze twitter engagement and correlate it with poll results
+With the election coming up, I would also like to correlate my analysis with actual election results.
+
+
+# LOAD PACKAGES
+
+```{r}
+library(tidyverse)
+library(readr)
+library(dplyr)
+library(quanteda)
+library(quanteda.textstats)
+library(quanteda.textplots)
+library(ggplot2)
+library(DT)
+library(tm)
+library(stringr)
+library(tidytext)
+library(plyr)
+library(tidyverse)
+library(quanteda.textmodels)
+library(devtools)
+library(caret)
+library(e1071)
+library(quanteda.dictionaries)
+#library(devtools)
+#devtools::install_github("kbenoit/quanteda.dictionaries")
+library(quanteda.dictionaries)
+library(syuzhet) 
+#remotes::install_github("quanteda/quanteda.sentiment")
+library(quanteda.sentiment)
+```
+
+# Healey DATA
+## Load Data
+```{r}
+Healy <- read_csv("Healy.csv")
+Healy$text <- gsub("@[[:alpha:]]*","", Healy$text) #remove Twitter handles
+Healy$text <- gsub("&amp", "", Healy$text)
+Healy$text <- gsub("healey", "", Healy$text)
+Healy$text <- gsub("_", "", Healy$text)
+
+```
+## Data Cleaning/ Preprocessing
+```{r}
+Healy_corpus <- Corpus(VectorSource(Healy$text))
+Healy_corpus <- tm_map(Healy_corpus, tolower) #lowercase
+Healy_corpus <- tm_map(Healy_corpus, removeWords, 
+                     c("s","healey", "healy","maura","rt", "amp"))
+Healy_corpus <- tm_map(Healy_corpus, removeWords, 
+                     stopwords("english"))
+Healy_corpus <- tm_map(Healy_corpus, removePunctuation)
+Healy_corpus <- tm_map(Healy_corpus, stripWhitespace)
+Healy_corpus <- tm_map(Healy_corpus, removeNumbers)
+```
+## Tokenize and stemming
+
+```{r}
+Healy_corpus <- corpus(Healy_corpus,text_field = "text") 
+Healy_text_df <- as.data.frame(Healy_corpus)
+Healy_tokens <- tokens(Healy_corpus)
+Healy_tokens <- tokens_wordstem(Healy_tokens) 
+print(Healy_tokens)
+dfm(Healy_tokens)
+```
+
+## Create dfm
+```{r}
+# create a full dfm for comparison---use this to append to polarity
+Healy_Dfm <- tokens(Healy_tokens,
+                  remove_punct = TRUE,
+                  remove_symbols = TRUE,
+                  remove_numbers = TRUE,
+                  remove_url = TRUE,
+                  split_hyphens = FALSE,
+                  split_tags = FALSE,
+                  include_docvars = TRUE) %>%
+  tokens_tolower() %>%
+  dfm(remove = stopwords('english')) %>%
+  dfm_trim(min_termfreq = 10, verbose = FALSE) %>%
+  dfm()
+```
+
+
+## TF-IDF 
+
+```{r}
+topfeatures(Healy_Dfm)
+```
+```{r}
+Healy_tf_dfm <- dfm_tfidf(Healy_Dfm, force = TRUE) #create a new DFM by tf-idf scores
+topfeatures(Healy_tf_dfm) ## this shows top words by tf-idf
+```
+```{r}
+# convert corpus to dfm using the dictionary---use to append ???
+HealyDfm_nrc <- tokens(Healy_tokens,
+                     remove_punct = TRUE,
+                     remove_symbols = TRUE,
+                     remove_numbers = TRUE,
+                     remove_url = TRUE,
+                     split_tags = FALSE,
+                     split_hyphens = FALSE,
+                     include_docvars = TRUE) %>%
+  tokens_tolower() %>%
+  dfm(remove = stopwords('english')) %>%
+  dfm_trim(min_termfreq = 10, verbose = FALSE) %>%
+  dfm() %>%
+  dfm_lookup(data_dictionary_NRC)
+
+```
+
+## Word Cloud
+
+```{r}
+library(RColorBrewer)
+textplot_wordcloud(Healy_Dfm, scale=c(5,1), max.words=50, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, "Dark2"))
+```
+
+## Feature-Occurence Matrix
+
+```{r}
+# DFM that contains hashtags 
+Healytag_dfm <- dfm_select(Healy_Dfm, pattern = "#*")
+Healytoptag <- names(topfeatures(Healy_Dfm, 30)) 
+head(Healytoptag)
+```
+```{r}
+Healytag_fcm <- fcm(Healy_Dfm, context = "document", tri = FALSE)
+head(Healytag_fcm)
+```
+## Semantic Network Visualization
+
+```{r}
+#Visualization of semantic network based on hashtag co-occurrence
+Healytopgat_fcm <- fcm_select(Healytag_fcm, pattern = Healytoptag)
+textplot_network(Healytopgat_fcm, min_freq = 0.8,
+                 omit_isolated = TRUE,
+                 edge_color = "#1F78B4",
+                 edge_alpha = 0.5,
+                 edge_size = 2,
+                 vertex_color = "#4D4D4D",
+                 vertex_size = 2,
+                 vertex_labelcolor = NULL,
+                 vertex_labelfont = NULL,
+                 vertex_labelsize = 8,
+                 offset = NULL)
+
+```
+```{r}
+textplot_network(Healytopgat_fcm, vertex_labelsize = 1.5 * rowSums(Healytopgat_fcm)/min(rowSums(Healytopgat_fcm)))
+```
+
+## Sentiment Analysis
+
+```{r} 
+#convert cleaned Healy_tokens back tp corpus for sentiment analysis
+Healy_corpus <- corpus(as.character(Healy_tokens))
+```
+### NRC Dictionary
+
+```{r}
+# use liwcalike() to estimate sentiment using NRC dictionary
+HealyTweetSentiment_nrc <- liwcalike(Healy_corpus, data_dictionary_NRC)
+names(HealyTweetSentiment_nrc)
+```
+```{r}
+HealyTweetSentiment_nrc_viz <- HealyTweetSentiment_nrc %>%
+  select(c("anger", "anticipation", "disgust", "fear","joy","sadness", "surprise","trust","positive","negative"))
+```
+```{r}
+Healy_tr<-data.frame(t(HealyTweetSentiment_nrc_viz)) #transpose
+```
+```{r}
+Healy_tr_new <- data.frame(rowSums(Healy_tr[2:1900]))
+Healy_tr_mean <- data.frame(rowMeans(Healy_tr[2:1900]))#get mean of sentiment values
+names(Healy_tr_new)[1] <- "Count"
+Healy_tr_new <- cbind("sentiment" = rownames(Healy_tr_new), Healy_tr_new)
+rownames(Healy_tr_new) <- NULL
+Healy_tr_new2<-Healy_tr_new[1:8,]
+```
+```{r}
+write_csv(Healy_tr_new2,"Healy-Sentiments")
+write_csv(Healy_tr_new,"Healy-8 Sentiments")
+```
+```{r}
+
+#Plot One - Count of words associated with each sentiment
+quickplot(sentiment, data=Healy_tr_new2, weight=Count, geom="bar", fill=sentiment, ylab="count")+ggtitle("Emotions of REPLIES to Maura Healey Tweets")
+```
+```{r}
+names(Healy_tr_mean)[1] <- "Mean"
+Healy_tr_mean <- cbind("sentiment" = rownames(Healy_tr_mean), Healy_tr_mean)
+rownames(Healy_tr_mean) <- NULL
+Healy_tr_mean2<-Healy_tr_mean[9:10,]
+write_csv(Healy_tr_mean2,"Healy-Mean Sentiments")
+```
+```{r}
+#Plot One - Count of words associated with each sentiment
+quickplot(sentiment, data=Healy_tr_mean2, weight=Mean, geom="bar", fill=sentiment, ylab="Mean Sentiment Score")+ggtitle("Mean Sentiment Scores to Maura Healey Tweets")
+                                                                                                                        
+```
+
+
+## Polarity scores
+
+```{r}
+# POLARITY
+
+Healydf_nrc <- convert(HealyDfm_nrc, to = "data.frame")
+names(Healydf_nrc)
+write_csv(Healydf_nrc,"Healy-Polarity Scores")
+
+Healydf_nrc$polarity <- (Healydf_nrc$positive - Healydf_nrc$negative)/(Healydf_nrc$positive + Healydf_nrc$negative)
+
+Healydf_nrc$polarity[(Healydf_nrc$positive + Healydf_nrc$negative) == 0] <- 0
+
+ggplot(Healydf_nrc) +
+  geom_histogram(aes(x=polarity)) +
+  theme_bw()
+
+```
+
+## New DF with Polarity scores
+```{r}
+Healy_text_df <-as.data.frame(Healy_text_df)
+HealyCorpus_Polarity <-as.data.frame((cbind(Healydf_nrc,Healy_text_df)))
+```
+
+## New CORPUS (Polarity+text)
+```{r}
+HealyCorpus_Polarity <- HealyCorpus_Polarity %>%
+    select(c("polarity","Healy_corpus"))
+``` 
+```{r}
+HealyCorpus_Polarity$polarity <- recode(HealyCorpus_Polarity$polarity,
+                                      "1" = "positive",
+                                      "-1" = "negative",
+                                      "0" = "neutral",)
+```
+### Omit na
+```{r}
+HealyCorpus_Polarity <- na.omit(HealyCorpus_Polarity)
+head(HealyCorpus_Polarity)
+```
+### Convert cleaned DF to corpus
+```{r}
+HealyCorpus_P<- corpus(HealyCorpus_Polarity,text_field = "Healy_corpus")   
+
+```
+
+# HEALEY- MACHINE LEARNING METHODS
+
+
+```{r}
+# set seed
+set.seed(123)
+
+# create id variable in corpus metadata
+docvars(HealyCorpus_P, "id") <- 1:ndoc(HealyCorpus_P)
+
+
+# create training set (60% of data) and initial test set
+N <- ndoc(HealyCorpus_P)
+trainIndex <- sample(1:N,.6 * N) 
+testIndex <- c(1:N)[-trainIndex]
+
+
+# split test set in half (so 20% of data are test, 20% of data are held-out)
+N <- length(testIndex)
+heldOutIndex <- sample(1:N, .5 * N)
+testIndex <- testIndex[-heldOutIndex]
+
+
+
+# now apply indices to create subsets and dfms
+dfmTrain <- corpus_subset(HealyCorpus_P, id %in% trainIndex) %>% tokens() %>% dfm()
+dfmTest <- corpus_subset(HealyCorpus_P, id %in% testIndex) %>% tokens() %>% dfm()
+dfmHeldOut <- corpus_subset(HealyCorpus_P, id %in% heldOutIndex) %>% tokens() %>% dfm()
+
+
+head(trainIndex)
+head(testIndex)
+```
+
+## NB model
+```{r}
+
+polarity_NaiveBayes <- textmodel_nb(dfmTrain, docvars(dfmTrain, "polarity"), distribution = "Bernoulli") 
+summary(polarity_NaiveBayes)
+
+
+dfmTestMatched <- dfm_match(dfmTest, features = featnames(dfmTrain))
+```
+
+### CONFUSION MATRIX
+
+```{r}
+# create a confusion matrix 
+actual <- docvars(dfmTestMatched, "polarity")
+predicted <- predict(polarity_NaiveBayes, newdata = dfmTestMatched)
+confusion <- table(actual, predicted)
+
+# now calculate a number of statistics related to the confusion matrix
+confusionMatrix(confusion, mode = "everything")
+```
+
+
+```{r}
+predicted_prob <- predict(polarity_NaiveBayes, newdata = dfmTestMatched, type = "probability")
+head(predicted_prob)
+summary(predicted_prob)
+```
+```{r}
+# The most positive review
+mostPos <- sort.list(predicted_prob[,1], dec=F)[1]
+as.character(corpus_subset(HealyCorpus_P, id %in% testIndex))[mostPos]
+
+```
+```{r}
+mostNeg <- sort.list(predicted_prob[,1], dec=T)[1]
+as.character(corpus_subset(HealyCorpus_P, id %in% testIndex))[mostNeg]
+```
+```{r}
+# The most positive review
+mixed <- sort.list(abs(predicted_prob[,1] - .5), dec=F)[1]
+predicted_prob[mixed,]
+as.character(corpus_subset(HealyCorpus_P, id %in% testIndex))[mixed]
+```
+
+
+# Naive Bayes -held out
+
+```{r}
+actual <- docvars(dfmHeldOut)$polarity
+count(actual)
+dfmHeldOutMatched <- dfm_match(dfmHeldOut, features = featnames(dfmTrain))
+predicted.nb <- predict(polarity_NaiveBayes, dfmHeldOutMatched)
+count(predicted.nb)
+confusion <- table(actual, predicted.nb)
+confusionMatrix(confusion, mode = "everything")
+```
+
+## SVM
+
+```{r}
+# set seed
+set.seed(123)
+
+# set of training data
+newTrainIndex <- trainIndex[sample(1:length(trainIndex))]
+
+# create small DFM
+dfmTrainSmall <- corpus_subset(HealyCorpus_P, id %in% newTrainIndex) %>% dfm(remove = stopwords("English"), remove_punct=T)
+
+# trim the DFM down to frequent terms
+dfmTrainSmall <- dfm_trim(dfmTrainSmall, min_docfreq = 20, min_termfreq = 20)
+
+dim(dfmTrainSmall)
+
+# run model
+polarity_SVM <- textmodel_svm(dfmTrainSmall, docvars(dfmTrainSmall, "polarity")) 
+
+# update test set
+dfmTestMatchedSmall <- dfm_match(dfmTest, features = featnames(dfmTrainSmall))
+
+# create a confusion matrix 
+actual <- docvars(dfmTestMatchedSmall, "polarity")
+predicted <- predict(polarity_SVM, newdata = dfmTestMatchedSmall)
+confusion <- table(actual, predicted)
+```
+
+### Confusion Matrix
+```{r}
+# now calculate a number of statistics related to the confusion matrix
+confusionMatrix(confusion, mode = "everything")
+```
+```{r}
+# check code---Error in order(V1) : object 'V1' not found
+svmCoefs <- as.data.frame(t(coefficients(polarity_SVM)))
+head(svmCoefs,10)
+tail(svmCoefs,10)
+```
+
+## RANDOM FOREST
+
+```{r}
+library(randomForest)
+
+dfmTrainSmallRf <- convert(dfmTrainSmall, to = "matrix")
+dfmTestMatchedSmallRf <- convert(dfmTestMatchedSmall, to = "matrix")
+
+set.seed(123)
+Healey_polarity_RF <- randomForest(dfmTrainSmallRf, 
+                            y = as.factor(docvars(dfmTrainSmall)$polarity),
+                            xtest = dfmTestMatchedSmallRf, 
+                            ytest = as.factor(docvars(dfmTestMatchedSmall)$polarity),
+                            importance = TRUE,
+                            mtry = 20,
+                            ntree = 100
+)
+
+```
+### Confusion Matrix
+```{r}
+actual <- as.factor(docvars(dfmTestMatchedSmall)$polarity)
+predicted <- Healey_polarity_RF$test[['predicted']]
+confusion <- table(actual,predicted)
+confusionMatrix(confusion, mode="everything")
+```
+```{r}
+varImpPlot(Healey_polarity_RF)
+```
+
+
+--------------------------------------------------
+
+# DIEHL DATA
+
+## Load Data
+```{r}
+Diehl <- read_csv("Diehl.csv")
+Diehl$text <- gsub("@[[:alpha:]]*","", Diehl$text) #remove Twitter handles
+Diehl$text <- gsub("&amp", "", Diehl$text)
+Diehl$text <- gsub("_", "", Diehl$text)
+
+```
+## Data Cleaning/ Preprocessing
+```{r}
+Diehl_corpus <- Corpus(VectorSource(Diehl$text))
+Diehl_corpus <- tm_map(Diehl_corpus, tolower) #lowercase
+Diehl_corpus <- tm_map(Diehl_corpus, removeWords, 
+                       c("s","geoff", "diehl","rt", "amp"))
+Diehl_corpus <- tm_map(Diehl_corpus, removeWords, 
+                       stopwords("english"))
+Diehl_corpus <- tm_map(Diehl_corpus, removePunctuation)
+Diehl_corpus <- tm_map(Diehl_corpus, stripWhitespace)
+Diehl_corpus <- tm_map(Diehl_corpus, removeNumbers)
+
+Diehl_corpus <- corpus(Diehl_corpus,text_field = "text") 
+
+Diehl_text_df <- as.data.frame(Diehl_corpus)
+
+```
+
+## Tokenize and stemming
+```{r}
+Diehl_tokens <- tokens(Diehl_corpus)
+Diehl_tokens <- tokens_wordstem(Diehl_tokens)
+print(Diehl_tokens)
+dfm(Diehl_tokens)
+```
+## Create dfm
+```{r}
+# create a full dfm for comparison---use this to append to polarity
+Diehl_Dfm <- tokens(Diehl_tokens,
+                    remove_punct = TRUE,
+                    remove_symbols = TRUE,
+                    remove_numbers = TRUE,
+                    remove_url = TRUE,
+                    split_hyphens = FALSE,
+                    split_tags = FALSE,
+                    include_docvars = TRUE) %>%
+  tokens_tolower() %>%
+  dfm(remove = stopwords('english')) %>%
+  dfm_trim(min_termfreq = 10, verbose = FALSE) %>%
+  dfm()
+```
+
+
+
+## TF-IDF
+
+```{r}
+topfeatures(Diehl_Dfm)
+```
+```{r}
+Diehl_tf_dfm <- dfm_tfidf(Diehl_Dfm, force = TRUE) #create a new DFM by tf-idf scores
+topfeatures(Diehl_tf_dfm) ## this shows top words by tf-idf
+```
+
+
+```{r}
+
+# convert corpus to dfm using the dictionary---use to append 
+DiehlDfm_nrc <- tokens(Diehl_tokens,
+                       remove_punct = TRUE,
+                       remove_symbols = TRUE,
+                       remove_numbers = TRUE,
+                       remove_url = TRUE,
+                       split_tags = FALSE,
+                       split_hyphens = FALSE,
+                       include_docvars = TRUE) %>%
+  tokens_tolower() %>%
+  dfm(remove = stopwords('english')) %>%
+  dfm_trim(min_termfreq = 10, verbose = FALSE) %>%
+  dfm() %>%
+  dfm_lookup(data_dictionary_NRC)
+
+
+dim(DiehlDfm_nrc)
+head(DiehlDfm_nrc, 10)
+
+```
+## Word CLoud
+```{r}
+library(RColorBrewer)
+textplot_wordcloud(Diehl_Dfm, scale=c(5,1), max.words=50, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, "Dark2"))
+```
+
+## Feature-occurrence matrix 
+```{r}
+Diehltag_dfm <- dfm_select(Diehl_Dfm, pattern = "#*")
+Diehltoptag <- names(topfeatures(Diehl_Dfm, 30)) 
+head(Diehltoptag)
+```
+```{r}
+Diehltag_fcm <- fcm(Diehl_Dfm)
+head(Diehltag_fcm)
+```
+
+## Semantic Network Analysis
+```{r}
+#Visualization of semantic network based on hashtag co-occurrence
+
+Diehltopgat_fcm <- fcm_select(Diehltag_fcm, pattern = Diehltoptag)
+textplot_network(Diehltopgat_fcm, min_freq = 0.8,
+                 omit_isolated = TRUE,
+                 edge_color = "#1F78B4",
+                 edge_alpha = 0.5,
+                 edge_size = 2,
+                 vertex_color = "#4D4D4D",
+                 vertex_size = 2,
+                 vertex_labelcolor = NULL,
+                 vertex_labelfont = NULL,
+                 vertex_labelsize = 8,
+                 offset = NULL)
+
+```
+
+
+## Sentiment Analysis
+
+### NRC Dictionary
+```{r}
+#convert cleaned Diehl_tokens back tp corpus for sentiment analysis
+Diehl_corpus <- corpus(as.character(Diehl_tokens))
+
+# use liwcalike() to estimate sentiment using NRC dictionary
+DiehlTweetSentiment_nrc <- liwcalike(Diehl_corpus, data_dictionary_NRC)
+
+names(DiehlTweetSentiment_nrc)
+```
+```{r}
+
+DiehlTweetSentiment_nrc_viz <- DiehlTweetSentiment_nrc %>%
+  select(c("anger", "anticipation", "disgust", "fear","joy","sadness", "surprise","trust","positive","negative"))
+
+
+Diehl_tr<-data.frame(t(DiehlTweetSentiment_nrc_viz)) #transpose
+
+Diehl_tr_new <- data.frame(rowSums(Diehl_tr[2:497]))
+Diehl_tr_mean <- data.frame(rowMeans(Diehl_tr[2:497]))#get mean of sentiment values
+names(Diehl_tr_new)[1] <- "Count"
+Diehl_tr_new <- cbind("sentiment" = rownames(Diehl_tr_new), Diehl_tr_new)
+rownames(Diehl_tr_new) <- NULL
+Diehl_tr_new2<-Diehl_tr_new[1:8,]
+write_csv(Diehl_tr_new2,"Diehl- 8 Sentiments")
+```
+```{r}
+
+#Plot One - Count of words associated with each sentiment
+quickplot(sentiment, data=Diehl_tr_new2, weight=Count, geom="bar", fill=sentiment, ylab="count")+ggtitle("Emotions to REPLIES Geoff Diehl Tweets")
+
+```
+```{r}
+names(Diehl_tr_mean)[1] <- "Mean"
+Diehl_tr_mean <- cbind("sentiment" = rownames(Diehl_tr_mean), Diehl_tr_mean)
+rownames(Diehl_tr_mean) <- NULL
+Diehl_tr_mean2<-Diehl_tr_mean[9:10,]
+write_csv(Diehl_tr_mean2,"Diehl -Mean Sentiments")
+```
+```{r}
+#Plot One - Count of words associated with each sentiment
+quickplot(sentiment, data=Diehl_tr_mean2, weight=Mean, geom="bar", fill=sentiment, ylab="Mean Sentiment Score")+ggtitle("Mean Sentiment Scores to Geoff Diehl Tweets")
+```
+
+
+
+## Polarity Scores
+```{r}
+Diehldf_nrc <- convert(DiehlDfm_nrc, to = "data.frame")
+write_csv(Diehldf_nrc, "Diehl- Polarity Scores")
+
+Diehldf_nrc$polarity <- (Diehldf_nrc$positive - Diehldf_nrc$negative)/(Diehldf_nrc$positive + Diehldf_nrc$negative)
+
+Diehldf_nrc$polarity[(Diehldf_nrc$positive + Diehldf_nrc$negative) == 0] <- 0
+
+ggplot(Diehldf_nrc) +
+  geom_histogram(aes(x=polarity)) +
+  theme_bw()
+
+```
+
+## Bind to new DF
+```{r}
+Diehl_text_df <-as.data.frame(Diehl_text_df)
+DiehlCorpus_Polarity <-as.data.frame((cbind(Diehldf_nrc,Diehl_text_df)))
+```
+
+## subset to polarity and text
+```{r}
+DiehlCorpus_Polarity <- DiehlCorpus_Polarity %>%
+  select(c("polarity","Diehl_corpus"))
+
+
+DiehlCorpus_Polarity$polarity <- recode(DiehlCorpus_Polarity$polarity,
+                                        "1" = "positive",
+                                        "-1" = "negative",
+                                        "0" = "neutral",)
+```
+## Cleaned DF
+```{r}
+DiehlCorpus_Polarity <- na.omit(DiehlCorpus_Polarity)
+head(DiehlCorpus_Polarity)
+```
+## New Corpus with polarity scores
+```{r}
+DiehlCorpus_P<- corpus(DiehlCorpus_Polarity,text_field = "Diehl_corpus")   
+
+```
+
+
+# DIEHL-MACHINE LEARNING
+
+```{r}
+# set seed
+set.seed(123)
+
+# create id variable in corpus metadata
+docvars(DiehlCorpus_P, "id") <- 1:ndoc(DiehlCorpus_P)
+
+
+# create training set (60% of data) and initial test set
+DN <- ndoc(DiehlCorpus_P)
+DtrainIndex <- sample(1:DN,.6 * DN) 
+DtestIndex <- c(1:N)[-DtrainIndex]
+
+
+# split test set in half (so 20% of data are test, 20% of data are held-out)
+DN <- length(DtestIndex)
+DheldOutIndex <- sample(1:DN, .5 * DN)
+DtestIndex <- DtestIndex[-DheldOutIndex]
+
+
+
+# now apply indices to create subsets and dfms
+DdfmTrain <- corpus_subset(DiehlCorpus_P, id %in% DtrainIndex) %>% tokens() %>% dfm()
+DdfmTest <- corpus_subset(DiehlCorpus_P, id %in% DtestIndex) %>% tokens() %>% dfm()
+DdfmHeldOut <- corpus_subset(DiehlCorpus_P, id %in% DheldOutIndex) %>% tokens() %>% dfm()
+
+
+head(DtrainIndex)
+head(DtestIndex)
+```
+## NB model
+```{r}
+
+polarity_NaiveBayes <- textmodel_nb(DdfmTrain, docvars(DdfmTrain, "polarity"), distribution = "Bernoulli") 
+summary(polarity_NaiveBayes)
+
+
+DdfmTestMatched <- dfm_match(DdfmTest, features = featnames(DdfmTrain))
+```
+
+### CONFUSION MATRIX
+
+```{r}
+# create a confusion matrix 
+Dactual <- docvars(DdfmTestMatched, "polarity")
+Dpredicted <- predict(polarity_NaiveBayes, newdata = DdfmTestMatched)
+Dconfusion <- table(Dactual, Dpredicted)
+
+# now calculate a number of statistics related to the confusion matrix
+confusionMatrix(Dconfusion, mode = "everything")
+```
+```{r}
+
+
+Dpredicted_prob <- predict(polarity_NaiveBayes, newdata = DdfmTestMatched, type = "probability")
+head(Dpredicted_prob)
+summary(Dpredicted_prob)
+```
+```{r}
+
+# The most positive review
+mostPos <- sort.list(Dpredicted_prob[,1], dec=F)[1]
+as.character(corpus_subset(DiehlCorpus_P, id %in% DtestIndex))[mostPos]
+```
+```{r}
+
+mostNeg <- sort.list(Dpredicted_prob[,1], dec=T)[1]
+as.character(corpus_subset(DiehlCorpus_P, id %in% DtestIndex))[mostNeg]
+```
+```{r}
+
+# The most positive review
+Dmixed <- sort.list(abs(Dpredicted_prob[,1] - .5), dec=F)[1]
+Dpredicted_prob[Dmixed,]
+as.character(corpus_subset(DiehlCorpus_P, id %in% DtestIndex))[Dmixed]
+```
+
+
+## SVM
+
+```{r}
+# set seed
+set.seed(123)
+
+# sample smaller set of training data
+DnewTrainIndex <- DtrainIndex[sample(1:length(DtrainIndex))]
+
+# create small DFM
+DdfmTrainSmall <- corpus_subset(DiehlCorpus_P, id %in% DnewTrainIndex) %>% dfm(remove = stopwords("English"), remove_punct=T)
+
+# trim the DFM down to frequent terms
+DdfmTrainSmall <- dfm_trim(DdfmTrainSmall, min_docfreq = 2, min_termfreq = 2)
+
+dim(DdfmTrainSmall)
+```
+### run model
+```{r}
+Dpolarity_SVM <- textmodel_svm(DdfmTrainSmall, docvars(DdfmTrainSmall, "polarity")) 
+
+# update test set
+DdfmTestMatchedSmall <- dfm_match(DdfmTest, features = featnames(DdfmTrainSmall))
+```
+```{r}
+# create a confusion matrix 
+Dactual <- docvars(DdfmTestMatchedSmall, "polarity")
+Dpredicted <- predict(Dpolarity_SVM, newdata = DdfmTestMatchedSmall)
+Dconfusion <- table(Dactual, Dpredicted)
+# now calculate a number of statistics related to the confusion matrix
+confusionMatrix(Dconfusion, mode = "everything")
+```
+```{r}
+# SVM coeff
+DsvmCoefs <- as.data.frame(t(coefficients(Dpolarity_SVM)))
+head(DsvmCoefs,10)
+tail(DsvmCoefs,10)
+```
+
+## RANDOM FOREST
+```{r}
+library(randomForest)
+
+DdfmTrainSmallRf <- convert(DdfmTrainSmall, to = "matrix")
+DdfmTestMatchedSmallRf <- convert(DdfmTestMatchedSmall, to = "matrix")
+
+set.seed(123)
+Diehl_polarity_RF <- randomForest(DdfmTrainSmallRf, 
+                            y = as.factor(docvars(DdfmTrainSmall)$polarity),
+                            xtest = DdfmTestMatchedSmallRf, 
+                            ytest = as.factor(docvars(DdfmTestMatchedSmall)$polarity),
+                            importance = TRUE,
+                            mtry = 20,
+                            ntree = 100
+)
+```
+```{r}
+Dactual <- as.factor(docvars(DdfmTestMatchedSmall)$polarity)
+Dpredicted <- Diehl_polarity_RF$test[['predicted']]
+Dconfusion <- table(Dactual,Dpredicted)
+confusionMatrix(Dconfusion, mode="everything")
+```
+```{r}
+
+varImpPlot(Diehl_polarity_RF)
+```
+
+
+## Naive Bayes -Held out
+
+
+
+```{r}
+Dactual <- docvars(DdfmHeldOut)$polarity
+count(Dactual)
+```
+```{r}
+DdfmHeldOutMatched <- dfm_match(DdfmHeldOut, features = featnames(DdfmTrain))
+Dpredicted.nb <- predict(polarity_NaiveBayes, DdfmHeldOutMatched, force =  TRUE )
+count(Dpredicted.nb)
+Dconfusion <- table(Dactual, Dpredicted.nb)
+confusionMatrix(Dconfusion, mode = "everything")
+```
+
