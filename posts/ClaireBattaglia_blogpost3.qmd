@@ -44,6 +44,8 @@ I am most interested in the question "What changes would you like to see for Mis
 # create corpus for "change"
 change_corpus <- corpus(CFA_tidy$change)
 
+save(change_corpus, file = "change_corpus.RData")
+
 # get summary
 change_summary <- summary(change_corpus)
 
@@ -112,6 +114,8 @@ change_tokens_no_stop <- tokens_select(change_tokens,
                                        selection = "remove")
 # create new dfm
 change_no_stop_dfm <- dfm(change_tokens_no_stop)
+
+save(change_no_stop_dfm, file = "change_no_stop_dfm.RData")
 
 # get 10 most frequent terms
 topfeatures(change_no_stop_dfm, 10)
