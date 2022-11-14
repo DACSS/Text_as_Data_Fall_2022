@@ -1,0 +1,137 @@
+---
+title: "Blog Post 3 - Data Cleaning"
+author: "Adithya Parupudi"
+desription: "Scraped biographies of 100+ famous people to perform text analysis"
+date: "10/11/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - Adithya Parupudi
+---
+
+```{r}
+#| label: setup
+#| warning: false
+library(quanteda)
+library(tidyverse)
+library(rvest)
+library(stringr)
+library(tokenizers)
+```
+
+Using the website \<\> to scrape daat of 126 famous people from all over the world. This website has the detailed information about their early life, academic achievements, and the impact created by them.
+
+I wanted to find out :
+
+1.  What is the most common profession? Which areas of work do most of them fall into?
+2.  Where are they from? Whats their education background?
+3.  Whats their cause of death?
+4.  Which time period did most of them existed?
+5.  Emotion behind their famous quotes
+
+Reading the content of landing page, which has urls of all the famous people.
+
+```{r}
+all = read_html("https://www.biographyonline.net/people/famous-100.html")
+
+```
+
+I've created three variables to capture the celebrity names, individual page urls and their content. Each page contains various excerpts from their life such as "Early Life", "Notable Achievements", "Famous Quotes" and so on. I further created a dataset with each variable name as its column, to structure the data for further text processing, which is yet to be done.
+
+```{r}
+people_names <- all %>% html_nodes("ol a") %>% html_text()
+# people_names
+
+#getting all the links
+
+links <- all %>% html_nodes("ol a") %>% 
+  html_attr("href") %>% 
+  str_replace(.,"/women/ingrid-bergman.html", "../women/ingrid-bergman.html") %>% 
+  str_replace(.,"https://www.biographyonline.net/", "../") %>% 
+  str_replace(.,"../", "https://www.biographyonline.net/")
+
+get_content = function(link){
+  data = read_html(link)
+  # data = read_html("https://www.biographyonline.net/nobelprize/economics/paul-krugman.html")
+  content = data %>% html_nodes('.clearfix') %>% html_text() %>% paste(collapse = "!!!")
+  return(content)
+    
+}
+
+content = sapply(links, FUN = get_content, USE.NAMES = FALSE) 
+dataset = data.frame(people_names, links, content, stringsAsFactors = FALSE)
+
+
+
+```
+
+Arranging the data in alphabetical order.
+
+```{r}
+dataset = arrange(dataset, people_names)
+
+#saving dataset to .csv file
+write.csv(dataset,"100FamousPeople.csv")
+```
+
+Now that I've collected the dataset, I have to perform text pre-processing by removing some urls that came with scraped content. Also split the content into multiple rows for better readability and context clarity.
+
+**Read CSV**
+
+```{r}
+dataset <- read_csv("100FamousPeople.csv")
+```
+
+**Extracting only the year column**
+
+```{r}
+temp1 <- all %>% html_nodes("ol li") %>% html_text() %>% 
+  tolower() %>%
+  str_replace_all(., " ", "") %>% arrange(.,.)
+  # str_extract(.,"[0-9]+\\s.\\s[0-9]+")
+
+# able to extract 1918 – 2013. and filling the unmatched pattern with 2000
+temp2 <-  all %>% html_nodes("ol li") %>% html_text() %>% 
+  tolower() %>% str_extract(.,"[0-9]+\\s.\\s[0-9]+")%>% replace(.,is.na(.),'2000')
+temp2
+
+
+
+```
+
+**Extracting their position of influence**
+
+```{r}
+temp3 <- all %>% html_nodes("ol li") %>% html_text() %>%  tolower() %>% str_sort()
+temp4<- temp3 %>% str_extract(.,"\\).*") %>% str_replace(.,"\\) ","") 
+temp3
+
+
+people_names_temp <- people_names %>% str_sort()
+
+length(people_names_temp) <- length(temp3)
+
+peoples_title <- temp4 %>% str_remove_all(.,"\\)[0-9]*") %>% str_trim(.,"both")
+peoples_title <- peoples_title %>% str_remove_all(.,"[0-9]*") %>% str_trim(.,"right") %>% str_replace_all("[–|-|-|(|.]","") %>% str_trim(.,"both")
+peoples_title
+
+#dataset 2
+dataset2 = data.frame(people_names_temp,temp3)
+dataset2
+
+write.csv(dataset2,"PeopleTitles.csv")
+
+# #inner join with dataset to remove duplicate values. 
+# dataset$people_names %>% inner_join(dataset2,by="temp3")
+# dataset$people_names
+
+
+
+
+
+```
+

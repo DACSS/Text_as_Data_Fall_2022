@@ -2,7 +2,7 @@
 title: "Blog Post 4 - Data Visualizations"
 author: "Adithya Parupudi"
 desription: "Data Visualizations - Word cloud etc"
-date: "11/10/2022"
+date: "10/11/2022"
 format:
   html:
     toc: true
