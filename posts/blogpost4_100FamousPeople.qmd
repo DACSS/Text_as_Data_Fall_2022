@@ -1,0 +1,116 @@
+---
+title: "Blog Post 4 - Data Visualizations"
+author: "Adithya Parupudi"
+desription: "Data Visualizations - Word cloud etc"
+date: "10/11/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - Adithya Parupudi
+---
+
+```{r}
+#| label: setup
+#| warning: false
+library(quanteda)
+library(tidyverse)
+library(rvest)
+library(stringr)
+library(tidytext)
+library(tm) # for stop words removal
+library(ggplot2) # for graphs
+library(tokenizers)
+```
+
+Reading data from CSV file
+
+```{r}
+
+people_titles <- read_csv("PeopleTitles.csv")
+all_data <- read_csv("100FamousPeople.csv")
+```
+
+Removed all stop words using the SnowBallC package.
+
+```{r}
+xyz <- all_data %>% unnest_tokens(words, content, token="words", strip_punct = TRUE)
+
+# removed stop words using filter() function
+xyz <- xyz %>% filter(!(words %in% stopwords(source = "smart")))
+
+# for stemmimg
+library(SnowballC)
+new_xyz <- xyz %>%
+  mutate(stem = wordStem(words)) %>%
+  count(stem, sort = TRUE)
+
+```
+
+Attempts to remove stop words. DIfferent chunks of code. 
+```{r}
+# tokenised_data <- all_data %>%
+#   unnest_tokens(tokens,content)
+# # arg 1 -> output columns
+# # arg 2 - column from dataset which is going to be tokenized
+# length(tokenised_data$tokens)
+# 
+# data("stop_words")
+# 
+# removed_stop_words <- tokenised_data %>%
+#   anti_join(stop_words, by=character())
+# 
+# 
+# 155144
+# summary(removed_stop_words)
+
+
+
+
+removed_stop_words <- removeWords(all_data$content %>% tolower(), stopwords())
+```
+
+
+Created a corpus, removed stop words, punctuation, numbers, whitespaces, converted to lowercase.
+Then created document term matrix and generated a word cloud
+
+```{r}
+# only content picked
+only_content <- all_data$content
+# corpus created
+create_corpus <- Corpus(VectorSource(only_content))
+
+library(tm)
+# cleaning data using tm library
+create_corpus <- create_corpus %>%
+  tm_map(removeNumbers) %>%
+  tm_map(removePunctuation) %>%
+  tm_map(stripWhitespace)
+create_corpus <- tm_map(create_corpus, content_transformer(tolower))
+create_corpus <- tm_map(create_corpus, removeWords, stopwords("english"))
+
+# creating document term matrix
+
+dtm <- TermDocumentMatrix(create_corpus) 
+matrix <- as.matrix(dtm) 
+words <- sort(rowSums(matrix),decreasing=TRUE) 
+df <- data.frame(word = names(words),freq=words)
+
+# generate word cloud
+library(wordcloud)
+set.seed(1234) # for reproducibility 
+wordcloud(words = df$word, freq = df$freq, min.freq = 1,           max.words=200, random.order=FALSE, rot.per=0.35,            colors=brewer.pal(8, "Dark2"))
+
+create_corpus <- corpus(dataset$content)
+corpus_summary <- summary(create_corpus)
+corpus_summary
+
+docvars(create_corpus)
+
+# # get a list of years from each name
+# all %>% html_nodes("ol li") %>% html_text2() %>% 
+#   str_detect(.,"\\(.*>\)")
+```
