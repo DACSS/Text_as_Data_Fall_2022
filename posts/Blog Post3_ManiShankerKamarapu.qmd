@@ -212,7 +212,9 @@ clean_text <- function (text) {
 ```
 
 ```{r}
-reviews$clean_text <- clean_text(reviews$review_text)
+reviews$clean_text <- clean_text(reviews$review_text) 
+reviews <- reviews %>%
+  drop_na(clean_text)
 reviews
 ```
 
@@ -262,6 +264,7 @@ textplot_network(even_text_fcm, vertex_size = size / max(size) * 2)
 
 ```{r}
 textplot_wordcloud(text, min_count = 100, max_words = 200, random_order = TRUE)
+
 ```
 
 ## Further study
