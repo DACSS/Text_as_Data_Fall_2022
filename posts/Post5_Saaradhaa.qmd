@@ -92,7 +92,7 @@ Unfortunately, RStudio crashes/hangs when I try to load the plot for the Reddit 
 
 The main part of this post focuses on implementing the Personal Values Dictionary (PVD) on the oral histories and Reddit data. This dictionary was created by Ponizovskiy et al. (2020), based on the 10 fundamental values theorized by Schwartz (1992). These are shown in the figure below, which was taken from their paper:
 
-![ *Figure Credit: Ponizovskiy et al. (2020)*](images/Screenshot%202022-11-09%20at%202.07.12%20PM.png){fig-align="center" width="366"}
+![*Figure Credit: Ponizovskiy et al. (2020)*](images/Screenshot%202022-11-09%20at%202.07.12%20PM.png){fig-align="center" width="366"}
 
 I created the table below to briefly summarize what each value means, adapting the descriptions from Schwartz (2012):
 
