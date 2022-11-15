@@ -1,117 +1,131 @@
-,people_names_temp,temp3
-1,Abraham Lincoln,abraham lincoln (1809 – 1865) us president during american civil war
-2,Adolf Hitler ,adolf hitler  (1889 – 1945) leader of nazi germany 1933 – 1945
-3,Albert Einstein,"albert einstein (1879 – 1955) german scientist, theory of relativity"
-4,Alfred Hitchcock,"alfred hitchcock (1899 – 1980) english / american film producer, director"
-5,Amelia Earhart (,amelia earhart (1897 – 1937) aviator
-6,Angelina Jolie,"angelina jolie (1975 – ) actress, director, humanitarian"
-7,Anne Frank,anne frank (1929 – 1945) dutch jewish author who died in holocaust
-8,Audrey Hepburn,audrey hepburn (1929 – 1993) british actress and humanitarian
-9,Aung San Suu Kyi ,aung san suu kyi  (1945 – ) burmese opposition leader
-10,Babe Ruth,babe ruth (1895 – 1948) american baseball player
-11,Barack Obama,barack obama (1961 – ) us president 2008 – 2016
-12,Benazir Bhutto,benazir bhutto (1953 – 2007) prime minister of pakistan 1993 – 1996
-13,Bill Gates ,"bill gates  (1955 – ) american businessman, founder of microsoft"
-14,Billie Holiday,billie holiday (1915 – 1959) american jazz singer
-15,Billie Jean King,billie jean king (1943 – ) american tennis player and human rights activist
-16,Bob Geldof,"bob geldof (1951 – ) irish musician, charity worker"
-17,C.S. Lewis ,c.s. lewis  (1898 – 1963) british author
-18,Carl Lewis,carl lewis (1961 – ) us athlete and olympian
-19,Charles Darwin,"charles darwin (1809 – 1882) british scientist, theory of evolution"
-20,Charles de Gaulle,charles de gaulle (1890 – 1970) french resistance leader and president 1959 – 1969
-21,Christopher Columbus,christopher columbus (1451 – 1506) italian explorer
-22,Cleopatra,cleopatra (69 – 30 bce) queen of egypt
-23,Coco Chanel ,coco chanel (1883 – 1971) french fashion designer
-24,Cristiano Ronaldo,cristiano ronaldo (1985 – ) portuguese footballer.
-25,Dalai Lama,dalai lama (1938 – ) spiritual and political leader of tibetans
-26,David Beckham,david beckham (1975 – )  english footballer
-27,Desmond Tutu,desmond tutu (1931 – 2021) south african bishop and opponent of apartheid
-28,Donald Trump ,"donald trump (1946 – ) businessman, us president."
-29,Elvis Presley,elvis presley (1935 – 1977) american musician
-30,Emile Zatopek,emile zatopek (1922 – 2000) czech athlete
-31,Emmeline Pankhurst ,emmeline pankhurst  (1858 – 1928) english suffragette.
-32,Ernest Hemingway,ernest hemingway (1899 – 1961) american author
-33,Eva Peron,eva peron (1919 – 1952) first lady of argentina 1946 – 1952
-34,Fidel Castro,fidel castro (1926 – ) president of cuba 1976 – 2008
-35,Florence Nightingale,florence nightingale (1820 – 1910) british nurse
-36,Franklin D. Roosevelt,franklin d. roosevelt (1882 – 1945) us president 1932 – 1945
-37,George Orwell ,george orwell  (1903 – 1950) british author
-38,Grace Kelly,"grace kelly (1929 – 1982) american actress, princess of monaco\"
-39,Greta Thunberg,greta thunberg (2003 – ) environmentalist activist)
-40,Haile Selassie,haile selassie (1892 – 1975) emperor of ethiopia 1930 – 1974
-41,Henry Ford,henry ford (1863 – 1947) us industrialist
-42,Indira Gandhi,indira gandhi (1917 – 1984) prime minister of india 1966 – 1977
-43,Ingrid Bergman,ingrid bergman (1915 – 1982) swedish actress
-44,J.K.Rowling,j.k.rowling (1965 – ) british author
-45,J.R.R. Tolkien,j.r.r. tolkien (1892 – 1973) british author
-46,Jacqueline Kennedy Onassis,jacqueline kennedy onassis (1929 – 1994) american wife of jf kennedy
-47,Jawaharlal Nehru ,jawaharlal nehru  (1889 – 1964) indian prime minister 1947 – 1964
-48,Jesse Owens,"jesse owens (1913 – 1980) us track athlete, 1936 olympics"
-49,John F. Kennedy,john f. kennedy (1917 – 1963) us president 1961 – 1963
-50,John Lennon,"john lennon (1940 – 1980) british musician, member of the beatles"
-51,John M Keynes,john m keynes (1883 – 1946) british economist
-52,Jon Stewart,jon stewart (1962 – ) american comedian
-53,Joseph Stalin,joseph stalin (1879 – 1953) leader of soviet union 1924 – 1953
-54,Julie Andrews,"julie andrews (1935 – ) british singer, actress"
-55,Katherine Hepburn,katherine hepburn (1907 – 2003) american actress
-56,Lance Armstrong,lance armstrong (1971 – ) american cyclist
-57,Lech Walesa,lech walesa (1943 – ) polish leader of solidarity movement
-58,Leo Tolstoy,leo tolstoy (1828 – 1910) russian author and philosopher
-59,Leonardo da Vinci (,"leonardo da vinci (1452 – 1519) italian, painter, scientist, polymath"
-60,Lionel Messi,lionel messi (1987 – ) argentinian footballer
-61,Lord Baden Powell,lord baden powell (1857 – 1941) british founder of scout movement
-62,Louis Pasteur ,louis pasteur (1822 – 1895) french chemist and microbiologist
-63,Ludwig Beethoven,ludwig beethoven (1770 – 1827) german composer
-64,Lyndon Johnson,lyndon johnson (1908 – 1973) us president 1963 – 1969
-65,Madonna ,"madonna (1958 – ) american musician, actress, author"
-66,Mahatma Gandhi,mahatma gandhi (1869 – 1948) leader of indian independence movement
-67,Malala Yousafzai,malala yousafzai (1997 – ) pakistani human rights activist
-68,Malcolm X,malcolm x (1925 – 1965) american black nationalist leader
-69,Mao Zedong,mao zedong (1893 – 1976) leader of chinese communist revolution
-70,Margaret Thatcher,margaret thatcher (1925 – 2013) british prime minister 1979 – 1990
-71,Marie Antoinette,"marie antoinette (1755 – 1793) french queen, executed during the french revolution"
-72,Marie Curie,marie curie (1867 – 1934) polish / french scientist
-73,Marilyn Monroe,"marilyn monroe (1926 – 1962) american actress, singer, model"
-74,Martin Luther King ,martin luther king (1929 – 1968)  american civil rights campaigner
-75,Mary Magdalene,mary magdalene (4 bce – 40ce) devotee of jesus christ
-76,Mata Hari ,"mata hari (1876 – 1917) dutch exotic dancer, executed as spy"
-77,Michael Jackson,michael jackson (1958 – 2009) american musician
-78,Michael Jordon,michael jordon (1963 – ) us basketball star
-79,Mikhail Gorbachev,mikhail gorbachev (1931 – ) leader of soviet union 1985 – 1991
-80,Mother Teresa,mother teresa (1910 – 1997) macedonian catholic missionary nun
-81,Muhammad Ali,muhammad ali (1942 – 2016) american boxer and civil rights campaigner
-82,Neil Armstrong,neil armstrong (1930 – 2012) us astronaut
-83,Nelson Mandela ,nelson mandela  (1918 – 2013)  south african president anti-apartheid campaigner
-84,Oprah Winfrey,"oprah winfrey (1954 – ) american tv presenter, actress, entrepreneur"
-85,Oscar Wilde ,"oscar wilde (1854 – 1900) irish author, poet, playwright"
-86,Pablo Picasso,pablo picasso (1881 – 1973) spanish modern artist
-87,Paul Krugman,paul krugman (1953 – ) american nobel prize winning economist
-88,Paul McCartney,"paul mccartney (1942 – ) british musician, member of beatles"
-89,Pele,"pele (1940 – ) brazilian footballer, considered greatest of 20th century."
-90,Peter Sellers,peter sellers (1925 – 1980) british actor and comedian
-91,Plato,plato (423 bc – 348 bc) greek philosopher
-92,Pope Francis,pope francis (1936 – ) first pope from the americas
-93,Pope John Paul II,pope john paul ii (1920 – 2005) polish pope
-94,Prince Charles,prince charles (1948 – )  heir to british throne
-95,Queen Elizabeth ,queen elizabeth ii (1926 – 2022) british monarch since 1954
-96,Queen Victoria (,queen victoria ( 1819 – 1901) british monarch 1837 – 1901
-97,Richard Branson,richard branson (1950 – ) british entrepreneur
-98,Roger Federer,roger federer (1981 – ) swiss tennis player
-99,Ronald Reagan,ronald reagan (1911 – 2004) us president 1981-1989
-100,Rosa Parks ,rosa parks  (1913 – 2005)  american civil rights activist
-101,Shakira,shakira (1977 – ) colombian singer
-102,Sigmund Freud,sigmund freud (1856 – 1939) austrian psychoanalyst
-103,Simon Bolivar,simon bolivar (1783 – 1830) venezuelan independence activist in south america.
-104,Stephen Hawking ,stephen hawking (1942 – ) british scientist
-105,Steve Jobs,steve jobs (1955 – 2012) co-founder of apple computers
-106,Sting,sting (1951 – ) british musician
-107,Thomas Edison (,thomas edison ( 1847 – 1931) american inventor
-108,Tim Berners Lee,tim berners lee (1955 – ) english creator of world wide web
-109,Usain Bolt,usain bolt (1986 – ) jamaican athlete and olympian
-110,Vincent Van Gogh,vincent van gogh (1853 – 1890) dutch artist
-111,Vladimir Lenin,vladimir lenin (1870 – 1924) leader of russian revolution 1917
-112,Vladimir Putin,vladimir putin (1952 – ) russian leader
-113,Walt Disney,walt disney (1901 – 1966) american film producer
-114,Winston Churchill ,winston churchill  (1874 – 1965) british prime minister during wwii
-115,Woodrow Wilson,woodrow wilson (1856 – 1924) us president 1913 – 1921
-116,Wright Brothers,"wright brothers  orville (1871 – 1948) and wilbur (1867 – 1912) american inventors, aviation pioneers"
+"","people_names_temp","temp3"
+"1","Abraham Lincoln","abraham lincoln (1809 – 1865) us president during american civil war"
+"2","Adolf Hitler ","adolf hitler  (1889 – 1945) leader of nazi germany 1933 – 1945"
+"3","Albert Einstein","al gore (1948 – ) us presidential candidate and environmental campaigner"
+"4","Alfred Hitchcock","albert einstein (1879 – 1955) german scientist, theory of relativity"
+"5","Amelia Earhart (","alfred hitchcock (1899 – 1980) english / american film producer, director"
+"6","Angelina Jolie","amelia earhart (1897 – 1937) aviator"
+"7","Anne Frank","angelina jolie (1975 – ) actress, director, humanitarian"
+"8","Audrey Hepburn","anne frank (1929 – 1945) dutch jewish author who died in holocaust"
+"9","Aung San Suu Kyi ","audrey hepburn (1929 – 1993) british actress and humanitarian"
+"10","Babe Ruth","aung san suu kyi  (1945 – ) burmese opposition leader"
+"11","Barack Obama","babe ruth (1895 – 1948) american baseball player"
+"12","Benazir Bhutto","barack obama (1961 – ) us president 2008 – 2016"
+"13","Bill Gates ","benazir bhutto (1953 – 2007) prime minister of pakistan 1993 – 1996"
+"14","Billie Holiday","bill gates  (1955 – ) american businessman, founder of microsoft"
+"15","Billie Jean King","billie holiday (1915 – 1959) american jazz singer"
+"16","Bob Geldof","billie jean king (1943 – ) american tennis player and human rights activist"
+"17","C.S. Lewis ","bob geldof (1951 – ) irish musician, charity worker"
+"18","Carl Lewis","brad pitt (1963 – ) actor"
+"19","Charles Darwin","c.s. lewis  (1898 – 1963) british author"
+"20","Charles de Gaulle","carl lewis (1961 – ) us athlete and olympian"
+"21","Christopher Columbus","charles darwin (1809 – 1882) british scientist, theory of evolution"
+"22","Cleopatra","charles de gaulle (1890 – 1970) french resistance leader and president 1959 – 1969"
+"23","Coco Chanel ","christopher columbus (1451 – 1506) italian explorer"
+"24","Cristiano Ronaldo","cleopatra (69 – 30 bce) queen of egypt"
+"25","Dalai Lama","coco chanel (1883 – 1971) french fashion designer"
+"26","David Beckham","cristiano ronaldo (1985 – ) portuguese footballer."
+"27","Desmond Tutu","dalai lama (1938 – ) spiritual and political leader of tibetans"
+"28","Donald Trump ","david beckham (1975 – )  english footballer"
+"29","Elvis Presley","desmond tutu (1931 – 2021) south african bishop and opponent of apartheid"
+"30","Emile Zatopek","donald trump (1946 – ) businessman, us president."
+"31","Emmeline Pankhurst ","elon musk (1971 – ) business magnate, and entrepreneur."
+"32","Ernest Hemingway","elvis presley (1935 – 1977) american musician"
+"33","Eva Peron","emile zatopek (1922 – 2000) czech athlete"
+"34","Fidel Castro","emmeline pankhurst  (1858 – 1928) english suffragette."
+"35","Florence Nightingale","ernest hemingway (1899 – 1961) american author"
+"36","Franklin D. Roosevelt","eva peron (1919 – 1952) first lady of argentina 1946 – 1952"
+"37","George Orwell ","fidel castro (1926 – ) president of cuba 1976 – 2008"
+"38","Grace Kelly","florence nightingale (1820 – 1910) british nurse"
+"39","Greta Thunberg","franklin d. roosevelt (1882 – 1945) us president 1932 – 1945"
+"40","Haile Selassie","george clooney (1961 – ) american actor and political activist"
+"41","Henry Ford","george orwell  (1903 – 1950) british author"
+"42","Indira Gandhi","grace kelly (1929 – 1982) american actress, princess of monaco\"
+"43","Ingrid Bergman","greta thunberg (2003 – ) environmentalist activist)"
+"44","J.K.Rowling","haile selassie (1892 – 1975) emperor of ethiopia 1930 – 1974"
+"45","J.R.R. Tolkien","henry ford (1863 – 1947) us industrialist"
+"46","Jacqueline Kennedy Onassis","indira gandhi (1917 – 1984) prime minister of india 1966 – 1977"
+"47","Jawaharlal Nehru ","ingrid bergman (1915 – 1982) swedish actress"
+"48","Jesse Owens","j.k.rowling (1965 – ) british author"
+"49","John F. Kennedy","j.r.r. tolkien (1892 – 1973) british author"
+"50","John Lennon","jacqueline kennedy onassis (1929 – 1994) american wife of jf kennedy"
+"51","John M Keynes","jawaharlal nehru  (1889 – 1964) indian prime minister 1947 – 1964"
+"52","Jon Stewart","jesse owens (1913 – 1980) us track athlete, 1936 olympics"
+"53","Joseph Stalin","jimmy wales (1966 – ) american creator of wikipedia"
+"54","Julie Andrews","joe biden (1942 – ) us president"
+"55","Katherine Hepburn","john f. kennedy (1917 – 1963) us president 1961 – 1963"
+"56","Lance Armstrong","john lennon (1940 – 1980) british musician, member of the beatles"
+"57","Lech Walesa","john m keynes (1883 – 1946) british economist"
+"58","Leo Tolstoy","jon stewart (1962 – ) american comedian"
+"59","Leonardo da Vinci (","joseph stalin (1879 – 1953) leader of soviet union 1924 – 1953"
+"60","Lionel Messi","julie andrews (1935 – ) british singer, actress"
+"61","Lord Baden Powell","katherine hepburn (1907 – 2003) american actress"
+"62","Louis Pasteur ","kim kardashian (1980 – ) american socialiate"
+"63","Ludwig Beethoven","kylie minogue (1968 – ) australian singer and actress"
+"64","Lyndon Johnson","lance armstrong (1971 – ) american cyclist"
+"65","Madonna ","lech walesa (1943 – ) polish leader of solidarity movement"
+"66","Mahatma Gandhi","leo tolstoy (1828 – 1910) russian author and philosopher"
+"67","Malala Yousafzai","leonardo da vinci (1452 – 1519) italian, painter, scientist, polymath"
+"68","Malcolm X","lionel messi (1987 – ) argentinian footballer"
+"69","Mao Zedong","lord baden powell (1857 – 1941) british founder of scout movement"
+"70","Margaret Thatcher","louis pasteur (1822 – 1895) french chemist and microbiologist"
+"71","Marie Antoinette","ludwig beethoven (1770 – 1827) german composer"
+"72","Marie Curie","lyndon johnson (1908 – 1973) us president 1963 – 1969"
+"73","Marilyn Monroe","madonna (1958 – ) american musician, actress, author"
+"74","Martin Luther King ","mahatma gandhi (1869 – 1948) leader of indian independence movement"
+"75","Mary Magdalene","malala yousafzai (1997 – ) pakistani human rights activist"
+"76","Mata Hari ","malcolm x (1925 – 1965) american black nationalist leader"
+"77","Michael Jackson","mao zedong (1893 – 1976) leader of chinese communist revolution"
+"78","Michael Jordon","margaret thatcher (1925 – 2013) british prime minister 1979 – 1990"
+"79","Mikhail Gorbachev","marie antoinette (1755 – 1793) french queen, executed during the french revolution"
+"80","Mother Teresa","marie curie (1867 – 1934) polish / french scientist"
+"81","Muhammad Ali","marilyn monroe (1926 – 1962) american actress, singer, model"
+"82","Neil Armstrong","martin luther king (1929 – 1968)  american civil rights campaigner"
+"83","Nelson Mandela ","mary magdalene (4 bce – 40ce) devotee of jesus christ"
+"84","Oprah Winfrey","mata hari (1876 – 1917) dutch exotic dancer, executed as spy"
+"85","Oscar Wilde ","michael jackson (1958 – 2009) american musician"
+"86","Pablo Picasso","michael jordon (1963 – ) us basketball star"
+"87","Paul Krugman","mikhail gorbachev (1931 – ) leader of soviet union 1985 – 1991"
+"88","Paul McCartney","mother teresa (1910 – 1997) macedonian catholic missionary nun"
+"89","Pele","muhammad ali (1942 – 2016) american boxer and civil rights campaigner"
+"90","Peter Sellers","neil armstrong (1930 – 2012) us astronaut"
+"91","Plato","nelson mandela  (1918 – 2013)  south african president anti-apartheid campaigner"
+"92","Pope Francis","oprah winfrey (1954 – ) american tv presenter, actress, entrepreneur"
+"93","Pope John Paul II","oscar wilde (1854 – 1900) irish author, poet, playwright"
+"94","Prince Charles","pablo picasso (1881 – 1973) spanish modern artist"
+"95","Queen Elizabeth ","paul krugman (1953 – ) american nobel prize winning economist"
+"96","Queen Victoria (","paul mccartney (1942 – ) british musician, member of beatles"
+"97","Richard Branson","pele (1940 – ) brazilian footballer, considered greatest of 20th century."
+"98","Roger Federer","peter sellers (1925 – 1980) british actor and comedian"
+"99","Ronald Reagan","plato (423 bc – 348 bc) greek philosopher"
+"100","Rosa Parks ","pope francis (1936 – ) first pope from the americas"
+"101","Shakira","pope john paul ii (1920 – 2005) polish pope"
+"102","Sigmund Freud","prince charles (1948 – )  heir to british throne"
+"103","Simon Bolivar","queen elizabeth ii (1926 – 2022) british monarch since 1954"
+"104","Stephen Hawking ","queen victoria ( 1819 – 1901) british monarch 1837 – 1901"
+"105","Steve Jobs","richard branson (1950 – ) british entrepreneur"
+"106","Sting","roger federer (1981 – ) swiss tennis player"
+"107","Thomas Edison (","roman abramovich (1966 – ) russian oligarch"
+"108","Tim Berners Lee","ronald reagan (1911 – 2004) us president 1981-1989"
+"109","Usain Bolt","rosa parks  (1913 – 2005)  american civil rights activist"
+"110","Vincent Van Gogh","rupert murdoch (1931 – ) media owner of news corporation"
+"111","Vladimir Lenin","sacha baron cohen (1971 – ) english comedian"
+"112","Vladimir Putin","shakira (1977 – ) colombian singer"
+"113","Walt Disney","sigmund freud (1856 – 1939) austrian psychoanalyst"
+"114","Winston Churchill ","simon bolivar (1783 – 1830) venezuelan independence activist in south america."
+"115","Woodrow Wilson","stephen hawking (1942 – ) british scientist"
+"116","Wright Brothers","stephen king (1947 – ) american author"
+"117",NA,"steve jobs (1955 – 2012) co-founder of apple computers"
+"118",NA,"sting (1951 – ) british musician"
+"119",NA,"thomas edison ( 1847 – 1931) american inventor"
+"120",NA,"tiger woods (1975 – ) american golfer"
+"121",NA,"tim berners lee (1955 – ) english creator of world wide web"
+"122",NA,"tom cruise (1962 – ) american actor"
+"123",NA,"usain bolt (1986 – ) jamaican athlete and olympian"
+"124",NA,"vincent van gogh (1853 – 1890) dutch artist"
+"125",NA,"vladimir lenin (1870 – 1924) leader of russian revolution 1917"
+"126",NA,"vladimir putin (1952 – ) russian leader"
+"127",NA,"walt disney (1901 – 1966) american film producer"
+"128",NA,"winston churchill  (1874 – 1965) british prime minister during wwii"
+"129",NA,"woodrow wilson (1856 – 1924) us president 1913 – 1921"
+"130",NA,"wright brothers  orville (1871 – 1948) and wilbur (1867 – 1912) american inventors, aviation pioneers"
