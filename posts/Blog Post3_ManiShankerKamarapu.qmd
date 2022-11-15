@@ -72,27 +72,117 @@ scrape_amazon <- function(ASIN, page_num){
 ```
 
 <!-- ```{r} -->
-<!-- book_ASIN <- list("B0001DBI1Q", "B0001MC01Y", "B00026WUZU", "B07ZN4WM13", "B005C7QVUE", "B000BO2D64", "B000I2JFQU", "B000UW50LW", "B001FD6RLM", "B07HHJ7669", "B07T6BQV2L", "B07T43YYRY") -->
 <!-- out <- scrape_amazon("B0001DBI1Q", 1) -->
-<!-- for (j in book_ASIN) { -->
-<!--   for (i in 1:400) { -->
-<!--     out <- bind_rows(out, scrape_amazon(j, i)) -->
-<!--     if((i %% 3) == 0){ -->
-<!--       Sys.sleep(2) # Take an additional two second break -->
-<!--     } -->
+<!-- for (i in 2:400) { -->
+<!--   out <- bind_rows(out, scrape_amazon("B0001DBI1Q", i)) -->
+<!--   if((i %% 3) == 0){ -->
+<!--     Sys.sleep(2) # Take an additional two second break -->
 <!--   } -->
 <!-- } -->
-<!-- out -->
 <!-- ``` -->
 
-```{r}
-out <- tail(out, -10)
-out
-```
+<!-- ```{r} -->
+<!-- for (i in 1:400) { -->
+<!--   out <- bind_rows(out, scrape_amazon("B0001MC01Y", i)) -->
+<!--   if((i %% 3) == 0){ -->
+<!--     Sys.sleep(2) # Take an additional two second break -->
+<!--   } -->
+<!-- } -->
+<!-- ``` -->
 
-```{r}
-write.csv(out, "amazonreview.csv")
-```
+<!-- ```{r} -->
+<!-- for (i in 1:400) { -->
+<!--   out <- bind_rows(out, scrape_amazon("B00026WUZU", i)) -->
+<!--   if((i %% 3) == 0){ -->
+<!--     Sys.sleep(2) # Take an additional two second break -->
+<!--   } -->
+<!-- } -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- for (i in 1:400) { -->
+<!--   out <- bind_rows(out, scrape_amazon("B07ZN4WM13", i)) -->
+<!--   if((i %% 3) == 0){ -->
+<!--     Sys.sleep(2) # Take an additional two second break -->
+<!--   } -->
+<!-- } -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- for (i in 1:400) { -->
+<!--   out <- bind_rows(out, scrape_amazon("B005C7QVUE", i)) -->
+<!--   if((i %% 3) == 0){ -->
+<!--     Sys.sleep(2) # Take an additional two second break -->
+<!--   } -->
+<!-- } -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- for (i in 1:400) { -->
+<!--   out <- bind_rows(out, scrape_amazon("B000BO2D64", i)) -->
+<!--   if((i %% 3) == 0){ -->
+<!--     Sys.sleep(2) # Take an additional two second break -->
+<!--   } -->
+<!-- } -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- for (i in 336:400) { -->
+<!--   out <- bind_rows(out, scrape_amazon("B000I2JFQU", i)) -->
+<!--   if((i %% 3) == 0){ -->
+<!--     Sys.sleep(2) # Take an additional two second break -->
+<!--   } -->
+<!-- } -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- for (i in 311:400) { -->
+<!--   out <- bind_rows(out, scrape_amazon("B000UW50LW", i)) -->
+<!--   if((i %% 3) == 0){ -->
+<!--     Sys.sleep(2) # Take an additional two second break -->
+<!--   } -->
+<!-- } -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- for (i in 1:400) { -->
+<!--   out <- bind_rows(out, scrape_amazon("B001FD6RLM", i)) -->
+<!--   if((i %% 3) == 0){ -->
+<!--     Sys.sleep(2) # Take an additional two second break -->
+<!--   } -->
+<!-- } -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- for (i in 1:400) { -->
+<!--   out <- bind_rows(out, scrape_amazon("B07HHJ7669", i)) -->
+<!--   if((i %% 3) == 0){ -->
+<!--     Sys.sleep(2) # Take an additional two second break -->
+<!--   } -->
+<!-- } -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- for (i in 1:400) { -->
+<!--   out <- bind_rows(out, scrape_amazon("B07T6BQV2L", i)) -->
+<!--   if((i %% 3) == 0){ -->
+<!--     Sys.sleep(2) # Take an additional two second break -->
+<!--   } -->
+<!-- } -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- for (i in 1:400) { -->
+<!--   out <- bind_rows(out, scrape_amazon("B07T43YYRY", i)) -->
+<!--   if((i %% 3) == 0){ -->
+<!--     Sys.sleep(2) # Take an additional two second break -->
+<!--   } -->
+<!-- } -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- write.csv(out, "amazonreview.csv") -->
+<!-- ``` -->
 
 ```{r}
 reviews <- read_csv("amazonreview.csv")
@@ -122,7 +212,7 @@ clean_text <- function (text) {
 ```
 
 ```{r}
-reviews$clean_text <- clean(reviews$review_text)
+reviews$clean_text <- clean_text(reviews$review_text)
 reviews
 ```
 
@@ -141,8 +231,6 @@ sum(ntoken(text))
 ```{r}
 summary(corpus(c(reviews$clean_text)))
 ```
-
-Finding the word frequencies in the documents/ tweets
 
 ```{r}
 word_counts <- as.data.frame(sort(colSums(text),dec=T))
@@ -173,9 +261,9 @@ textplot_network(even_text_fcm, vertex_size = size / max(size) * 2)
 ```
 
 ```{r}
-textplot_wordcloud(text)
+textplot_wordcloud(text, min_count = 100, max_words = 200, random_order = TRUE)
 ```
 
 ## Further study
 
-I will be adding more reviews and doing preprocessing and also plot some analysis plots and if possible also do some sentiment analysis.
+I will be adding more reviews and doing pre-processing and also plot some analysis plots and if possible also do some sentiment analysis.
