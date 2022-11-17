@@ -1,0 +1,91 @@
+---
+title: "CaitlinRowley - Blog Post 2"
+author: "Caitlin Rowley"
+description: "In my second blog post, I will be running some analyses on my selected data set, Dobbs v. Jackson Women's Health Organization."
+format: html
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+```{r}
+# install packages
+
+install.packages("cleanNLP")
+install.packages("tidytext")
+install.packages("tidyverse")
+install.packages("quanteda")
+install.packages("pdftools")
+
+# load libraries
+
+library(cleanNLP)
+library(tidytext)
+library(tidyverse)
+library(quanteda)
+library(pdftools)
+library(stringr)
+
+# initialize the NLP backend
+
+cnlp_init_udpipe(
+  model_name = NULL, 
+  model_path = NULL, 
+  tokenizer = "tokenizer",
+  tagger = "default",
+  parser = "default")
+```
+
+I will be using the June 24, 2022 Supreme Court decision "Dobbs v. Jackson Women's Health Organization" for my research project. Though I still need to do some refining, my research questions will focus on the rationale behind both the majority opinion and the dissenting opinion. Specifically, I would like to apply a co-occurrence matrix using terms such as ''Roe', 'Wade', 'v.', 'state', 'federal', 'reproductive', 'rights', 'women', 'women\`s', and 'female'.
+
+```{r}
+# read in data:
+
+Dobbs <- pdf_text("C:\\Users\\caitr\\OneDrive\\Documents\\DACSS\\DACSS 679\\DACSS 697\\Dobbs v. Jackson Women's Health Organization.pdf")
+
+# test data by pulling content from a particular page:
+
+test <- Dobbs[50]
+```
+
+```{r}
+# view entire decision: 
+
+print(Dobbs)
+length(sentences)
+
+```
+
+\# This opinion is 213 pages long. There are 720 sentences. I would like to create eight separate character vectors: (1) syllabus, (2) majority opinion, (3) appendices to majority opinion, (4) concurring opinion (Thomas), (5) concurring appendix (Kavanaugh), concurring in judgment (Roberts), (7) dissenting opinion, and (8) appendix to dissenting opinion.
+
+```{r}
+# detect all pages that contain the word "syllabus":
+
+str_detect(Dobbs, "syllabus")
+```
+
+\# This function is showing that the word "syllabus" only appears on the first page of the text. I know this is not true, so I will work more on that line of code so that I can identify each vector.
+
+```{r}
+# try to detect "majority opinion"
+
+str_detect(Dobbs, "majority opinion")
+```
+
+\# I received a similar result from this code. It is my assumption that this code is not pulling text from the entire page, but rather from the body of the text. I am trying to pull text from the headers of each page so as to separate the text into vectors. I will do more research on this topic for future blog posts.
+
+\# In the meantime, I will try to pull references to particular indicators that I have identified.
+
+```{r}
+# find references to "Roe v. Wade"
+
+str_match(Dobbs, "Roe v. Wade | Roe | Wade")
+```
+
+\# From this code, we can see on which pages there were references to Roe v. Wade. However, I do know that both Roe and Wade are mentioned in the first page, so I would like to figure out why this is not appearing in my results.
+
+\# Next steps: work on pre-processing and generating co-occurrence matrices. I would also like to play around with data visualization.

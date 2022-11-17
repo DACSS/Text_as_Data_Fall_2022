@@ -1,0 +1,69 @@
+---
+title: "CaitlinRowley - Blog Post 3"
+author: "Caitlin Rowley"
+description: "In this blog post, I am continuing run analyses on my selected data set. I will specifically focus on pre-processing and data visualization."
+format: html
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+```{r}
+# install packages
+
+install.packages("cleanNLP")
+install.packages("tidytext")
+install.packages("tidyverse")
+install.packages("quanteda")
+install.packages("pdftools")
+install.packages("wordcloud")
+install.packages("RColorBrewer")
+install.packages("tm")
+install.packages("slam")
+install.packages("NLP")
+
+# load libraries
+
+library(cleanNLP)
+library(tidytext)
+library(tidyverse)
+library(quanteda)
+library(pdftools)
+library(stringr)
+library(quanteda.textplots)
+library(XML)
+library(wordcloud)
+library(tm)
+library(slam)
+library(NLP)
+
+# initialize the NLP backend
+
+cnlp_init_udpipe(
+  model_name = NULL, 
+  model_path = NULL, 
+  tokenizer = "tokenizer",
+  tagger = "default",
+  parser = "default")
+```
+
+\# I am seeking some guidance regarding my character vectors, but in the interim, I will do some pre-processing, generate co-occurence matrices, and try some data visualization. First, I will work on transforming all letters to lowercase, removing punctuation, and removing stop words. I do not want to remove numbers, because I anticipate years being an important component of this text.
+
+```{r}
+Dobbs_token <- tokens(Dobbs, "word", remove_symbols = FALSE, remove_numbers = FALSE, remove_url = FALSE, remove_separators = TRUE, split_hyphens = FALSE, include_docvars = TRUE, padding = FALSE, verbose = quanteda_options("verbose"))
+  tokens_tolower(Dobbs_token)
+  remove_punct = T
+  tokens_select(Dobbs_token, pattern = stopwords("en"), selection = "remove")
+```
+
+\# I am not yet convinced that I will need to do any stemming or lemmatization, as I will be focusing primarily on nouns, but I will reconsider this as I move forward. I will next try some data visualization:
+
+```{r}
+wordcloud(Dodds, min_count = 5, max_words = 50, random_order = FALSE)
+```
+
+\# I keep receiving the following errors: 'loading required package: RColorBrewer' and 'loading required namespace: tm'. It is my understanding that textplot_wordcloud only works on dfm. So, I will need to conduct some additional research on forms of data visualization for text files if 'wordcloud' continues to not work.

@@ -1,0 +1,219 @@
+---
+title: "CaitlinRowley - Blog Post 5"
+author: "Caitlin Rowley"
+editor: visual
+---
+
+I have switched data sets for future blog posts. I will be using open-ended survey responses from a 1996 study titled *Survey of Gun Owners in the United States*.
+
+For the study, respondents were asked six qualifying questions related to: (1) gun ownership, (2) gun-carrying practices, (3) gun display against the respondent, (4) gun use in self-defense against animals, (5) gun use in self-defense against people, and (6) other weapons used in self-defense. A "yes" response to a qualifying question led to a series of additional questions on the same topic as the qualifying question.
+
+The open-ended responses include descriptions specifically related to the following questions: (1) where the respondent was when he or she displayed a gun (in self-defense or otherwise), (2) specific reasons why the respondent displayed a gun, (3) how the other individual reacted when the respondent displayed the gun, (4) how the individual knew the respondent had a gun, (5) whether the police were contacted for specific self-defense events, and (6) if not, why not.
+
+I will focus on the following research question: Can we identify the most common circumstance in which respondents displayed a gun? I am hoping that "circumstance" can include references to both the catalyst in the situation and the environment.
+
+```{r}
+# install packages:
+
+install.packages("RColorBrewer")
+install.packages("stopwords")
+
+# load libraries: 
+
+library(readr)
+library(tidyverse)
+library(dplyr)
+library(quanteda)
+library(magrittr)
+library(RColorBrewer)
+library(wordcloud)
+library(tidytext)
+library(stopwords)
+library(tm)
+library(quanteda.textplots)
+library(tokenizers)
+
+# read in data:
+
+Survey <- read_csv("C:\\Users\\caitr\\OneDrive\\Documents\\DACSS\\DACSS 679\\DACSS 697\\DACSS 697 - Survey.csv", col_names = TRUE)
+
+#rename columns:
+
+names(Survey) <- c('Respondent_ID','Survey_Question', 'Code', 'Open_Ended_Response')
+print(Survey)
+
+# remove duplicate observations: 
+
+Survey_unique <- distinct(Survey)
+
+Survey_unique %>% 
+    separate_rows(Open_Ended_Response) %>% 
+    distinct() %>%
+    nrow
+
+```
+
+There are 812 rows in this data frame and 4 columns. The four columns represent the following variables: survey respondent ID ('Respondent_ID), survey question ('Survey_Question'), response code ('Code'), and verbatim open-ended responses ('Open_Ended_Responses'). Each of the 812 rows now represents a unique observation. Additionally, there are 8134 unique words across all open-ended responses.
+
+I will next create a corpus and remove both capitalization and punctuation from all open-ended responses.
+
+```{r}
+# create a corpus:
+
+Survey_corpus <- corpus(Survey_unique$Open_Ended_Response)
+head(Survey_corpus)
+
+# tokenize, remove capitalization and punctuation:
+
+Survey_tokens <- tokens(Survey_corpus, 
+    remove_punct = T)
+Survey_tokens <- tokens_tolower(Survey_tokens)
+head(Survey_tokens)
+
+# remove stopwords separately: 
+
+Survey_tokens_stopwords <- tokens_select(Survey_tokens,
+                                       pattern = stopwords("en"),
+                                       selection = "remove")
+
+```
+
+I will next extract features from my corpus by creating a document feature matrix. From there, I will be able to generate data visualizations.
+
+```{r}
+# create document feature matrix:
+
+Survey_tokens <- dfm(Survey_tokens_stopwords)
+
+# identify 10 most common words:
+
+topfeatures(Survey_dfm, 10)
+
+# create a wordcloud:
+
+textplot_wordcloud(Survey_dfm, min_count = 5, max_words = 50, random_order = FALSE)
+```
+
+Next, I will generate a feature co-occurrence matrix:
+
+```{r}
+# create a dfm that is limited to words that appear frequently (more than 30% of responses).
+
+Survey_dfm_freq <- dfm_trim(Survey_dfm, min_termfreq = 30)
+Survey_dfm_freq <- dfm_trim(Survey_dfm_freq, min_docfreq = .3, docfreq_type = "prop")
+
+# use dfm to create a feature co-occurring matrix:
+
+Survey_fcm <- fcm(Survey_dfm_freq)
+
+# check dimensions:
+
+dim(Survey_fcm)
+
+```
+
+QUESTION: The first time I ran this chunk of code, the dimensions of the feature co-occurring matrix were shown to be 395 rows by 395 columns. After re-running the codes after reopening R, the dimensions are now showing as 0 rows by 0 columns.
+
+\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+
+Next, I will apply the correlated topic modeling approach to my data set, since I do not have a covariate such as sentiment.
+
+```{r}
+# install packages:
+
+library(stm)
+library(quanteda)
+
+# generate data frame:
+
+Survey_dfm_clean <- dfm(Survey_dfm)
+             tolower = TRUE
+             remove = stopwords("en")
+             remove_punct = TRUE
+dim(Survey_dfm_clean)
+```
+
+The dimensions of my data frame are 812 rows and 1224 columns. Next, I will generate
+
+```{r}
+# generate correlated topic model:
+
+cor_topic_model <- stm(Survey_dfm, K = 5,
+                       verbose = FALSE, init.type = "Spectral")
+cor_topic_model
+summary(cor_topic_model)
+
+# label topics:
+# frex = words that are both frequent and exclusive to topic.
+# lift = calculated by dividing the topic-word distribution by the empirical word count probability distribution.
+
+labelTopics(cor_topic_model)
+```
+
+I now have a topic model with 5 topics, 805 documents, and a 1224-word dictionary.
+
+```{r}
+# identify document most frequently associated with the five topics:
+
+findThoughts(cor_topic_model,
+             texts = Survey_dfm$Open_Ended_Responses,
+             topics = c(1:5),
+             n = 1)
+
+
+```
+
+I am having a little trouble with this code; my understanding is that it's intended to yield the document most frequently associated with the five topics, but I am seeing a different, less informative output. I will work more on this.
+
+QUESTION: Do I need to identify question numbers associated with location/reason for drawing a weapon and apply this as a covariate? Do I need a covariate? If so, how do I identify one when all open-ended responses are aggregated? I.e., the 'Survey_Question' variable is the only indicator for response categories, so there isn't necessarily another variable to choose from in terms of identifying a predictor.
+
+\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+
+Try structural topic modeling (without predictor). My thought is that these results may look similar to the correlation topic model since I am not adding a predictor.
+
+```{r}
+# choose the number of topics:
+
+k <- 5
+
+# specify model:
+
+Survey_STM <- stm(Survey_dfm,
+               K = k,
+               data = Survey_dfm$Open_Ended_Responses,
+               max.em.its = 1224,
+               seed = 1234,
+               init.type = "Spectral")
+
+labelTopics(Survey_STM)
+```
+
+Try some visualization to capture the estimated frequency of words across topics:
+
+```{r}
+plot(Survey_STM, type = "summary")
+```
+
+Next, I want to try extracting topics and assigning them to the vector of document proportions. Extract the top words (as identified by 'frex'), collapse the strings, and separate the tokens:
+
+```{r}
+# get the words:
+
+Survey_words <- labelTopics(Survey_STM, n=5)$frex
+
+# set up an empty vector:
+
+Survey_topic_labels <- rep(NA, k)
+
+# set up a loop to go through the topics and collapse the words to a single label:
+
+for(i in 1:k){Survey_topic_labels[i] <- paste(Survey_words[i,], collapse = "_")}
+
+# print the labels:
+
+Survey_topic_labels
+```
+
+Without a predictor or covariate, I am unable to measure the effect on topic distributions. Identifying a way to incorporate a covariate or predictor will be my next task.
+
+I may also try a K-Means analysis.
