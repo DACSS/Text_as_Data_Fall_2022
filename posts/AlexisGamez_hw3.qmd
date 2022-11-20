@@ -1,0 +1,375 @@
+---
+title: "Blog Post #3"
+author: "Alexis Gamez"
+desription: "Studying text-as-data as it relates to eating bugs"
+date: "11/13/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - blogpost3
+  - Alexis Gamez
+  - research
+  - academic articles
+---
+# Setup
+
+<details>
+  <summary> View Code</summary>
+  
+```{r setup, include=TRUE}
+library(plyr)
+library(tidyverse)
+library(tidytext)
+library(readr)
+library(devtools)
+library(knitr)
+library(rvest)
+library(rtweet)
+library(twitteR)
+library(tm)
+library(lubridate)
+library(quanteda)
+library(quanteda.textplots)
+library(quanteda.textstats)
+library(wordcloud)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = TRUE)
+```
+</details>
+
+# **Data Sources**
+
+For this assignment, I've already gathered the data I will be using for my corpus from the Twitter social media platform. The 'rtweet' R package was used heavily to gather the tweets I will be using and a majority of that process was shared in detail in my previous blog post. While the size of my original corpus wasn't laughable, I also wanted to document my methodology depicting how to append additional tweets from a new `search_tweets` function to my existing corpus.
+
+# **Consolidating Data**
+
+I start off by reading in my corpus as the `tweet_bugs_1` object. Utilizing a simple `read.csv` function, we easily create the object. Afterwards, we'll run another `search_tweets` function identical to the one we utilized in the previous blog post.
+
+```{r, echo=TRUE}
+#Here we're reading in the existing data we pulled for our last blog post and assigning it to object tweet_bugs_1.
+tweet_bugs_1 <- read.csv("eating_bugs_corpus_11_8_22.csv")
+
+#Pull together tweets containing keywords 'eating` and `bugs/insects`. In this case, we'll be adding these tweets to the existing data later on.
+tweet_bugs_2 <- search_tweets("eating bugs OR insects", n = 10000,
+                             type = "mixed",
+                             include_rts = FALSE,
+                             lang = "en")
+```
+
+I included the chunk below as a reference, in case anything could be pulled as useful by analyzing the new `tweet_bugs_2` object independently. This process is also identical to what was shown in blog post 2.
+
+```{r, echo=TRUE}
+#Once again, we can separate out the text from tweet_bugs_2 and analyze it as a corpus on its own, if we so choose, before appending it to our existing tweet corpus.
+tweet_text_2 <- as.vector.data.frame(tweet_bugs_2$full_text, mode = "any")
+tweet_corpus_2 <- corpus(tweet_text_2)
+tweet_summary_2 <- summary(tweet_corpus_2)
+```
+
+Now that we have both required objects to append into a new and improved corpus, it's time to go ahead an merge. Thankfully, it's a relatively simple process. We simply run a vector append and assign the result to a new object i.e. `tweet_bugs_new`.   
+
+```{r, echo=TRUE}
+#Here, we're merging the existing and new tweet_bugs objects.  
+tweet_bugs_new <- c(tweet_bugs_1$x, tweet_bugs_2$full_text)
+```
+
+However, a thought did occur to me when I was writing this chunk. What if I didn't want to wait the 6-9 days to pull new tweets? What if I wanted to continuously run my `search_tweets` function day by day until I had an even larger corpus to work with? I wanted to find a way to find and eliminate duplicates so as not to taint my final data and that's exactly what I do in this following chunk.
+
+<details>
+  <summary> View Code</summary>
+  
+```{r, echo=TRUE}
+#This first function tells us that some of the tweets we've added to our corpus are duplicates.
+tail(duplicated(tweet_bugs_new))
+
+#Running this function simply provides us with the text belonging to the duplicate tweets so that we can confirm visually.
+head(tweet_bugs_new[duplicated(tweet_bugs_new)])
+
+#This function overwrites the tweet_bugs_new object to exclude all duplicates found from the previous functions.
+tweet_bugs_new <- tweet_bugs_new[!duplicated(tweet_bugs_new)]
+```
+</details>
+
+Now we've filtered out all duplicate tweets from our corpus and should only have unique entries moving forward. For the sake of record, we will write a new csv containing our new and improved corpus that we can pull from in the future.
+
+```{r, echo=TRUE}
+#I am going to use the write csv function here to save our corpus thus far. 
+write.csv(tweet_bugs_new, file = "eating_bugs_tweets_11_13_22.csv", row.names = FALSE)
+```
+
+# **Pre-Analysis**
+Now that we have our working corpus, we'll move to a bit of pre-analysis by cleaning it up a bit! We'll be utilizing the `tm` package quite a bit moving forward and as we do, please note that some code below utilizes slightly different syntax. For example, the `Corpus` function utilized immediately below is slightly different from R's `corpus` function (difference being the capital "C"). This slightly different function configures our `tweet_bugs_new` project into a corpus that is compatible with `tm` functions. 
+
+Here we convert the new object into a corpus and summarize it to see if can immediately pull any relevant information. Unfortunately, it looks like the answer is no as the `tm` corpus format does not play well with the summary function.
+
+```{r, echo=TRUE}
+#Now that we've cleaned up our new text object, we can convert it to a corpus and summarize the data if we'd like as well. This new `Corpus` function simply shapes the corpus so that all class elements are identical. This way, we can take full advantage of the functions within the text mining package.
+tweet_corpus_new <- Corpus(VectorSource(tweet_bugs_new))
+tweet_summary_new <- summary(tweet_corpus_new)
+```
+
+If you recall, in blog post 2 we did not work to process the corpus and filter out non-useful tokens until our token analysis process toward the end of the post. Instead of waiting until we run `kwic` functions to filter out certain words, I've introduced some new functions in the chunk below to acknowledge those things sooner. We start by filtering out English stop words, punctuation and white spaces. Then we introduce a function to stem words into a single root word structure. From there, we finish off by converting all words to lower case. 
+  
+```{r, echo=TRUE}
+#First, we should be sure to remove all English normalized stop words so that they don't clutter up our data.
+tweet_corpus_new <- tm_map(tweet_corpus_new, removeWords, stopwords("en"))
+
+#This line removes all standardized punctuation, similar to one of the functions used in the last blog post.
+tweet_corpus_new <- tm_map(tweet_corpus_new, removePunctuation)
+
+#This function just removes all extra white spaces that aren't necessary. 
+tweet_corpus_new <- tm_map(tweet_corpus_new, stripWhitespace)
+
+#Here we stem words within the documents using Porter's stemming algorithm, which will assist with analysis later on.
+tweet_corpus_new <- tm_map(tweet_corpus_new, stemDocument)
+
+#Here we, convert all text to lower case.
+tweet_corpus_new <- tm_map(tweet_corpus_new, content_transformer(tolower))
+```
+
+However, if left at this stage, we're still faced with some issues that plagued our corpus in our last blog post. Those issues being the variety of additional symbols and punctuation not standardized within the functions we just mentioned above. On top of that, a large portion of tweets included url's which we haven't accounted for yet either. Not to worry! Through some online research I was able to write a couple of functions to address the issue. The first of which simply removes any text relating to a typical "http" url structure. The second works to remove any "@'s" and non-standard punctuation so we can simply analyze the actual text within our corpus. 
+
+```{r, echo=TRUE}
+#Here we are creating a function that removes any and all tokens containing URL formatted tokens.
+remove_url <- function(x) gsub("http[^[:space:]]*", "", x)
+tweet_corpus_new <- tm_map(tweet_corpus_new, content_transformer(remove_url))
+
+#If you remember the last blog post, we had trouble removing @'s and other non-standard punctuation. The function we create here takes care of that problem for us.
+removeNumPunct <- function(x) gsub("[^[:alpha:][:space:]]*", "", x)
+tweet_corpus_new <- tm_map(tweet_corpus_new, content_transformer(removeNumPunct))
+```
+
+Now that we've cleaned up our corpus, let's try and create a new word cloud to use as a gauge for our current corpus.
+
+```{r, echo=TRUE}
+#This function is similar to the last time we used `wordcloud`, but I'm introducing the `min.freq` indicator so that the final result only includes tokens mentioned at least 15 times.
+wordcloud(tweet_corpus_new, min.freq = 20)
+```
+
+This isn't terrible, but something we had trouble with last post was eliminating some other pesky words that weren't doing us much good. For example, while our research question surrounds the perception/sentimentality of eating insects, the actual words `eat/ing`, `bug/s` and `insect/s` aren't doing us much good within the word cloud itself. The reason being that the criteria we used to gather the tweets in the first place, was that they had to contain some variation of those 3 words. Therefore, we're going to add them to a personal `stopwords` object and remove them from the corpus.
+
+```{r, echo=TRUE}
+#Here, we only include the root words, all variations (i.e. eating, bugs, insects) will be excluded as inherently from what the function provides.
+myStopWords <- c("eat", "bug", "insect")
+tweet_corpus_new <- tm_map(tweet_corpus_new, removeWords, myStopWords)
+
+set.seed(1234)
+
+#Here we'll run the word cloud again, this time adding in the `random.order` function so that the most frequently used words are at the center and the least towards the perimeter.
+wordcloud(tweet_corpus_new, min.freq = 20, random.order = F)
+```
+
+This is a huge improvement! However, there are still some words we can work to exclude. Let's try filtering out a few more problematic words.
+
+```{r, echo=TRUE}
+myStopWords <- c("eat", "bug", "insect", "xxn", "because", "fuck", "shit", "yeah", "you")
+tweet_corpus_new <- tm_map(tweet_corpus_new, removeWords, myStopWords)
+
+wordcloud(tweet_corpus_new, min.freq = 20, random.order = F)
+```
+
+This is looking great! There's quite an interesting spread of vocabulary surrounding the topics of eating bugs/insects. However, this is still just a surface level analysis and all we can really take away is that there is a heavy mix of positive and negative words around the topic. We'll let this stand where it is for the moment and transition over to analyzing our corpus from a different angle.
+
+# **Analysis**
+
+## *Readability*
+
+In this next section, I will be attempting to analyze the readability of our corpus to see if any context can be gained from the results. It feels fair to mention the controversy surrounding readability ratings. From what I've come to understand, the results pulled from readability functions are somewhat vague and inconclusive. I suspect this is going to be especially true within our corpus. Considering  these tweets are written by the average person across English speaking countries, I don't expect the resulting readability scores to be very high.
+
+With that said, I'm still curious as to what the result might be. Lets kick-off the process by transforming our  existing `tweet_corpus_new` object into something of the appropriate format by using the `corpus` function instead this time.
+
+```{r, echo=TRUE}
+#Since we're transitioning back from using the `tm` package, we need to transform our existing `tweet_corpus_new` object into something of the appropriate format.
+corpus_new <- corpus(tweet_corpus_new)
+
+# calculate readability
+readability <- textstat_readability(corpus_new,
+                                     measure = c("Flesch.Kincaid"))
+
+# add in a tweet count indicator
+readability$tweet <- c(1:nrow(readability))
+
+# look at the dataset
+head(readability)
+```
+
+Some interesting results, not unexpected to be honest. Let's see what it'd look like as a graph.
+
+```{r, echo=TRUE}
+# plot results
+ggplot(readability, aes(x = tweet, y = Flesch.Kincaid)) +
+     geom_line() + 
+     geom_smooth() + 
+     theme_bw()
+```
+
+Once again, nothing really unexpected here. Our `Flesch.Kincaid` rating seems to average out around 10, meaning that in terms of readability, our tweets don't fair too well and are on the more difficult end of the spectrum to read. This is nor a detriment nor a benefit to our analysis. Twitter as a social media platform isn't dedicated to academia level vocabulary and many tweets utilize vernacular common to select regions within English speaking countries. So it's fair to assume that same dialect won't transition smoothly across all said regions and vice versa.
+
+For the sake of curiosity, lets continue to analyze readability by comparing our `Flesch.Kincaid` rating to the `FOG` and `Coleman.Liau.grade` systems. 
+
+```{r, echo=TRUE}
+readability <- textstat_readability(corpus_new, measure = c("Flesch.Kincaid", "FOG", "Coleman.Liau.grade"))
+
+# add in a tweet count indicator
+readability$tweet <- c(1:nrow(readability))
+
+# look at the data set
+head(readability)
+```
+
+Once again, nothing entirely unexpected. Although, immediately we can tell that the `Coleman.Liau.grade` system seems to host a higher level of grade variations than the other systems. I suspect we're going to get higher correlation levels betweent `FOG` and `Flesch.Kincaid` than any other combination. 
+
+Let's plot it out again and get a bird's eye view. 
+
+```{r, echo=TRUE}
+# plot results
+ggplot(readability, aes(x = tweet)) +
+          geom_line(aes(y = Flesch.Kincaid), color = "black") + 
+          geom_line(aes(y = FOG), color = "red") + 
+          geom_line(aes(y = Coleman.Liau.grade), color = "blue") + 
+          theme_bw()
+```
+
+From a glance, it seems as though our suspicions are true. The blue line, `Coleman.Liau.grade`, seems to possess the most variation from the initial `Flesch.Kincaid` line we drew. Next we'll analyze the correlation grade between the systems.
+
+```{r, echo=TRUE}
+cor(readability$Flesch.Kincaid, readability$FOG, use = "complete.obs")
+cor(readability$Coleman.Liau.grade, readability$FOG, use = "complete.obs")
+cor(readability$Coleman.Liau.grade, readability$Flesch.Kincaid, use = "complete.obs")
+```
+
+As we suspected, the lowest correlation scores came from the functions utilizing the `Coleman.Liau.grade`. While this information doesn't add or take away from our results, it's interesting to see how much readability scales differ. 
+
+# *Token Frequency*
+
+In this next section we'll take a look at the frequency of which certain tokens appear within our corpus. We start off by coercing our corpus into a document-feature matrix (dfm).
+
+```{r, echo=TRUE}
+# This function takes the corpus object and coerces it into a document-feature matrix.
+bugs_dfm <- dfm(tokens(corpus_new))
+
+# Pull up a quick summary of the dfm
+bugs_dfm
+
+# Running the function written  below does not do much since we've already cleaned up our corpus prior to converting it to a dfm. We'll run it anyway to assure we cleaned up our corpus as much as possible.
+bugs_dfm <- tokens(corpus_new,
+                    remove_punct = TRUE,
+                    remove_numbers = TRUE) %>%
+                    dfm(tolower=TRUE) %>%
+                    dfm_remove(stopwords('english'))
+
+# Using this function gives us a quick peek at the most frequent terms in our corpus.
+topfeatures(bugs_dfm, 20)
+```
+
+We've got some interesting results so far. I think there are a still a few words within our selection that are a bit tricky. We see words such as "like" & "im", which make it difficult to read the context and usage of the word within the document. We won't be able to tell whether the word "like", for example, is used in an affirmative context such as liking something, or whether it's being used in a comparative setting (one thing being like/unlike another). For now, we'll push forward with our visualizations, but this will most likely be addressed in the following blog post.
+
+Let's plot out our dfm in a word cloud!
+
+```{r, echo=TRUE}
+# We'll set a standardized starting point to we get a consistent output when we decide to plot out the word cloud
+set.seed(1234)
+textplot_wordcloud(bugs_dfm, min_count = 20, random_order = FALSE)
+```
+
+An interesting visual, we can see that there is a lot of variation between what might be considered positive and negative vocabulary. Unfortunately, it's difficult to tell how a word used without the context surrounding it. 
+
+Let's also analyze token frequency using Zipf's law and try and visualize the ranking of our tokens.
+
+```{r, echo=TRUE}
+# first, we need to create a word frequency variable and the rankings
+word_counts <- as.data.frame(sort(colSums(bugs_dfm),dec=T))
+colnames(word_counts) <- c("Frequency")
+word_counts$Rank <- c(1:ncol(bugs_dfm))
+head(word_counts)
+```
+
+Interesting. According to Zipf's law, the frequency of a word within a selected corpus should be inversely proportionate with its rank and at a glance, that theory isn't very consistent with our results. Let's toss it on a graph.  
+
+```{r, echo=TRUE}
+# now we can plot this
+ggplot(word_counts, mapping = aes(x = Rank, y = Frequency)) + 
+     geom_point() +
+     labs(title = "Zipf's Law", x = "Rank", y = "Frequency") + 
+     theme_bw()
+```
+
+The drop-off for token usage seems to be extremely sheer in our case. I don't think this does us much good in terms of analysis, but it we can begin to infer is that a certain vocabulary is expected within tweets belonging to our theme/field of study and all other can be consider a sort of "fluff".
+
+# *Minimum Term Frequency*
+
+The following selection of coding attempts to cut down our DFM even further from what we have so far. A difficulty I ran into is that a majority of the corpus continues to be considered sparse. This means, that a majority of the tokens within our corpus appear in certain documents and not others, which isn't unexpected but does not ease our analysis either. Since each tweet is considered its own document, it's obvious that individuals are going to be pulling from the exact same vernacular/vocabulary every time. Unfortunately, this means we aren't able to utilize the `min_docfreq` to its fullest capability when attempting to trim our DFM.
+
+Instead, we're going to play with `min_termfreq` quite a bit and try to find a magic number.
+
+```{r, echo=TRUE}
+# trim based on the overall frequency (i.e., the word counts)
+smaller_dfm <- dfm_trim(bugs_dfm, min_termfreq = 20)
+
+# trim based on the proportion of documents that the feature appears in; here, 
+# the feature needs to appear in more than 10% of documents (chapters)
+# this doesn't do much since wording is so incosistent between tweets(documents)
+# smaller_dfm <- dfm_trim(smaller_dfm, min_docfreq = 0.1, docfreq_type = "prop")
+
+smaller_dfm
+
+textplot_wordcloud(smaller_dfm, min_count = 10, random_order = FALSE)
+```
+
+Looking at this visual, what exactly changed? Well, according to my observations, not much. Calling back to the Zipf's law visual, those tokens that are frequently repeated, are very frequently repeated, but the frequency ranking drops rapidly. Logically, of course we would get practically the same result for this word cloud. The only words that are going to appear are those above the ranking that surpasses a minimum frequency of 20 times. So unfortunately, our previous suspicion was confirmed and these trimming strategies aren't going to serve us much good.
+
+# *Maximum Term Frequency*
+
+In this following section, we are going to attempt the inverse and analyze from the maximum perspective.
+
+```{r, echo=TRUE}
+# Here we're filtering from the opposite end, max going down 
+smaller_dfm <- dfm_trim(bugs_dfm, max_termfreq = 250)
+smaller_dfm <- dfm_trim(smaller_dfm, max_docfreq = .5, docfreq_type = "prop")
+
+smaller_dfm
+
+textplot_wordcloud(smaller_dfm, min_count = 20, random_order = FALSE)
+```
+
+Once again, while it's okay to be hopeful, we get a nearly identical result to what we pulled before. This isn't necessarily a negative, but there's not much to contribute aside from what we've previously gathered.
+
+# *Feature Co-occurrence Matrix*
+
+Next, we're going to analyze the corpus using a feature co-occurrence matrix. This matrix will essentially tell us how many times a word within our corpus appears within the same document as another word within the same corpus. So we start in a similar manner by forcing the `FCM`.
+
+```{r, echo=TRUE}
+# let's create a nicer dfm by limiting to words that appear frequently.
+smaller_dfm <- dfm_trim(bugs_dfm, min_termfreq = 20)
+
+# create fcm from dfm
+smaller_fcm <- fcm(smaller_dfm)
+
+# check the dimensions (i.e., the number of rows and the number of columns) of the matrix we created
+dim(smaller_fcm)
+```
+
+Running the `dim` function using our `FCM` shows us that there are a total of 223 instances that we pulled into the matrix. You might also notice that there are an equal number of columns to rows. Each cell is a display of how many times the row and column word co-occur. This may come in handy once we're ready to leverage these co-occurences to estimate word embedding.
+
+Let's create a network diagram to visualize co-occurences within our corpus.
+
+```{r, echo=TRUE}
+# pull the top features
+myFeatures <- names(topfeatures(smaller_fcm, 30))
+
+# retain only those top features as part of our matrix
+even_smaller_fcm <- fcm_select(smaller_fcm, pattern = myFeatures, selection = "keep")
+
+# check dimensions
+dim(even_smaller_fcm)
+
+# compute size weight for vertices in network
+size <- log(colSums(even_smaller_fcm))
+
+# create plot
+textplot_network(even_smaller_fcm, vertex_size = size / max(size) * 3)
+```
+
+What we see here is actually pretty interesting, depending on how you might interpret it at a glance. As expected, we see that the co-occurrence of the words "climate" & "change" are relatively frequent. What's curious, however, is frequency in which the word "don't" & "make" co-occur with others from our corpus. Further analysis will reveal more information as the term progresses, but at a glance this makes me think that people "don't" want to eat bugs or they think someone will eventually "make" them. This is all speculation, but I feel as though this could be the beginnings of something more definitive.
