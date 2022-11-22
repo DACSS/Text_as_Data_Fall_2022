@@ -27,6 +27,8 @@ library(quanteda.textplots)
 library(quanteda.dictionaries)
 library(utils)
 
+load("post5_saaradhaa.rdata")
+
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
@@ -37,7 +39,7 @@ I will first work on the comments I received for Post 4. I compared the appearan
 ```{r}
 #| label: kwic OH
 # load saved R object with oral histories.
-transcripts <- read_rds("transcripts.rds")
+# transcripts <- read_rds("transcripts.rds")
 
 # create 'quanteda' corpus. 
 oh_corpus <- corpus(transcripts$text)
@@ -65,7 +67,7 @@ I am not too sure how to interpret this plot and might need some help with this.
 ```{r}
 #| label: kwic reddit
 # load saved R object with reddit data and create corpus. remove punctuation/symbols, lowercase.
-reddit_comments_final <- read_rds("reddit_comments_final.rds")
+# reddit_comments_final <- read_rds("reddit_comments_final.rds")
 reddit_corpus <- corpus(reddit_comments_final$comment)
 
 # use same list of stopwords as oral histories.
@@ -195,6 +197,8 @@ We can qualitatively skim the interview with the highest achievement score:
 ```{r}
 #| label: OH ac
 oh_values %>% select(docname,ac) %>% arrange(desc(ac)) %>% head(1)
+
+# save.image("post5_saaradhaa.RData")
 ```
 
 Opening Text 36 on my computer, the interviewee discusses her grueling training in classical dance, and how it was challenging to keep up with especially when she migrated to the US. This is a classic example of achievement.
