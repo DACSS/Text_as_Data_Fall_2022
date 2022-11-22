@@ -1,0 +1,455 @@
+---
+title: "Blog Post 5"
+author: "Mani Shanker Kamarapu"
+desription: "Sentimental analysis"
+date: "11/16/2022"
+format:
+  html:
+    df-print: paged
+    css: styles.css
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - Post5
+  - ManiShankerKamarapu
+  - Amazon Review analysis
+---
+## Introduction
+
+In the last post, I have tidyed data more and analysis data using visualizations. In this blog I plan to do sentimental analysis and compare different lexicons.
+
+## Loading the libraries
+
+```{r}
+library(polite)
+library(rvest)
+library(ggplot2)
+library(plotly)
+library(tidyverse)
+library(SnowballC)
+library(stringr)
+library(quanteda)
+library(tidyr)
+library(reshape2)
+library(RColorBrewer)
+library(tidytext)
+library(quanteda.textplots)
+library(wordcloud)
+library(textdata)
+library(gridExtra)
+library(wordcloud2)
+library(devtools)
+library(quanteda.dictionaries)
+library(quanteda.sentiment)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Reading the data
+
+```{r}
+reviews <- read_csv("amazonreview.csv")
+reviews
+```
+
+## Pre-processing function
+
+```{r}
+clean_text <- function (text) {
+  str_remove_all(text," ?(f|ht)(tp)(s?)(://)(.*)[.|/](.*)") %>% 
+    # Remove mentions
+    str_remove_all("@[[:alnum:]_]*") %>% 
+    # Replace "&" character reference with "and"
+    str_replace_all("&amp;", "and") %>%
+    # Remove punctuation
+    str_remove_all("[[:punct:]]") %>%
+    # remove digits
+    str_remove_all("[[:digit:]]") %>%
+    # Replace any newline characters with a space
+    str_replace_all("\\\n|\\\r", " ") %>%
+    # remove strings like "<U+0001F9F5>"
+    str_remove_all("<.*?>") %>% 
+    # Make everything lowercase
+    str_to_lower() %>%
+    # Remove any trailing white space around the text and inside a string
+    str_squish()
+}
+```
+
+## Tidying the data
+
+```{r}
+reviews$clean_text <- clean_text(reviews$review_text) 
+reviews <- reviews %>%
+  drop_na(clean_text)
+reviews
+```
+
+Removing unnecessary columns
+
+```{r}
+reviews <- reviews %>%
+  select(-c(...1, page, review_text))
+reviews
+```
+
+Pre-processing the title variable
+
+```{r}
+reviews$review_title <- reviews$review_title %>%
+  str_remove_all("\n")
+reviews
+```
+
+Converting star of reviews from character to numeric 
+
+```{r}
+reviews$review_star <- substr(reviews$review_star, 1, 3) %>%
+  as.numeric()
+  reviews
+```
+
+## Adding new variable book title to the reviews
+
+```{r}
+reviews <- reviews %>%
+  mutate(book_title = case_when(ASIN == "B0001DBI1Q" ~ "A Game of Thrones: A Song of Ice and Fire, Book 1", 
+                                ASIN == "B0001MC01Y" ~ "A Clash of Kings: A Song of Ice and Fire, Book 2", 
+                                ASIN == "B00026WUZU" ~ "A Storm of Swords: A Song of Ice and Fire, Book 3", 
+                                ASIN == "B07ZN4WM13" ~ "A Feast for Crows: A Song of Ice and Fire, Book 4", 
+                                ASIN == "B005C7QVUE" ~ "A Dance with Dragons: A Song of Ice and Fire, Book 5", 
+                                ASIN == "B000BO2D64" ~ "Twilight: The Twilight Saga, Book 1", 
+                                ASIN == "B000I2JFQU" ~ "New Moon: The Twilight Saga, Book 2", 
+                                ASIN == "B000UW50LW" ~ "Eclipse: The Twilight Saga, Book 3", 
+                                ASIN == "B001FD6RLM" ~ "Breaking Dawn: The Twilight Saga, Book 4 ", 
+                                ASIN == "B07HHJ7669" ~ "The Hunger Games", 
+                                ASIN == "B07T6BQV2L" ~ "Catching Fire: The Hunger Games", 
+                                ASIN == "B07T43YYRY" ~ "Mockingjay: The Hunger Games, Book 3"))
+reviews
+```
+
+Adding new variable series title to the reviews
+
+```{r}
+reviews <- reviews %>%
+  mutate(series_title = case_when(ASIN == "B0001DBI1Q" ~ "A Song of Ice and Fire", 
+                                ASIN == "B0001MC01Y" ~ "A Song of Ice and Fire", 
+                                ASIN == "B00026WUZU" ~ "A Song of Ice and Fire", 
+                                ASIN == "B07ZN4WM13" ~ "A Song of Ice and Fire", 
+                                ASIN == "B005C7QVUE" ~ "A Song of Ice and Fire", 
+                                ASIN == "B000BO2D64" ~ "The Twilight Saga", 
+                                ASIN == "B000I2JFQU" ~ "The Twilight Saga", 
+                                ASIN == "B000UW50LW" ~ "The Twilight Saga", 
+                                ASIN == "B001FD6RLM" ~ "The Twilight Saga", 
+                                ASIN == "B07HHJ7669" ~ "The Hunger Games", 
+                                ASIN == "B07T6BQV2L" ~ "The Hunger Games", 
+                                ASIN == "B07T43YYRY" ~ "The Hunger Games"))
+reviews
+```
+## Sentimental analysis
+
+There are a variety of dictionaries that exist for evaluating the opinion or emotion in text. In this project we focus and compare between two types of lexicons in the sentiments data set. The two lexicons are
+
+- bing
+- nrc
+
+All two of these lexicons are based on unigrams (or single words). These lexicons contain many English words and the words are assigned scores for positive/negative sentiment, and also possibly emotions like joy, anger, sadness, and so forth. The nrc lexicon categorizes words in a binary fashion (“yes”/“no”) into categories of positive, negative, anger, anticipation, disgust, fear, joy, sadness, surprise, and trust. The bing lexicon categorizes words in a binary fashion into positive and negative categories. All of this information is tabulated in the sentiments dataset, and tidytext provides a function get_sentiments() to get specific sentiment lexicons without the columns that are not used in that lexicon.
+
+```{r}
+reviews1 <- reviews %>%
+  filter(series_title == "A Song of Ice and Fire")
+reviews2 <- reviews %>%
+  filter(series_title == "The Twilight Saga")
+reviews3 <- reviews %>%
+  filter(series_title == "The Hunger Games")
+```
+ 
+## Tokenization of data
+
+```{r}
+# Converting the text into corpus
+text_corpus1 <- corpus(c(reviews1$clean_text))
+# Converting the text into tokens
+text_token1 <- tokens(text_corpus1, remove_punct=TRUE, remove_numbers = TRUE, remove_separators = TRUE, remove_symbols = TRUE) %>% 
+  tokens_select(pattern=c(stopwords("en"), "im", "didnt", "couldnt","wasnt", "id", "ive", "isnt", "dont", "wont", "shes", "doesnt"), selection="remove") %>%
+  tokens_select(pattern=stopwords("SMART"), 
+                selection="remove") 
+# Converting tokens into Document feature matrix
+text_dfm1 <- dfm(text_token1)
+text_dfm1
+```
+
+```{r}
+# Converting the text into corpus
+text_corpus2 <- corpus(c(reviews2$clean_text))
+# Converting the text into tokens
+text_token2 <- tokens(text_corpus2, remove_punct=TRUE, remove_numbers = TRUE, remove_separators = TRUE, remove_symbols = TRUE) %>% 
+  tokens_select(pattern=c(stopwords("en"), "im", "didnt", "couldnt","wasnt", "id", "ive", "isnt", "dont", "wont", "shes", "doesnt"), selection="remove") %>%
+  tokens_select(pattern=stopwords("SMART"), 
+                selection="remove") 
+# Converting tokens into Document feature matrix
+text_dfm2 <- dfm(text_token2)
+text_dfm2
+```
+
+```{r}
+# Converting the text into corpus
+text_corpus3 <- corpus(c(reviews3$clean_text))
+# Converting the text into tokens
+text_token3 <- tokens(text_corpus3, remove_punct=TRUE, remove_numbers = TRUE, remove_separators = TRUE, remove_symbols = TRUE) %>% 
+  tokens_select(pattern=c(stopwords("en"), "im", "didnt", "couldnt","wasnt", "id", "ive", "isnt", "dont", "wont", "shes", "doesnt"), selection="remove") %>%
+  tokens_select(pattern=stopwords("SMART"), 
+                selection="remove") 
+# Converting tokens into Document feature matrix
+text_dfm3 <- dfm(text_token3)
+text_dfm3
+```
+
+```{r}
+textplot_wordcloud(text_dfm1, min_size = 1.5, max_size = 4, random_order = TRUE, max_words = 150, min_count = 50, color = brewer.pal(8, "Dark2") )
+```
+
+```{r}
+textplot_wordcloud(text_dfm2, min_size = 1.2, max_size = 3.5, random_order = TRUE, max_words = 150, min_count = 50, color = brewer.pal(8, "Dark2") )
+```
+
+```{r}
+textplot_wordcloud(text_dfm3, min_size = 1.5, max_size = 4, random_order = TRUE, max_words = 150, min_count = 50, color = brewer.pal(8, "Dark2") )
+```
+
+```{r}
+word_counts1 <- as.data.frame(sort(colSums(text_dfm1),dec=T))
+colnames(word_counts1) <- c("Frequency")
+word_counts1$word <- row.names(word_counts1)
+word_counts1$Rank <- c(1:ncol(text_dfm1))
+word_counts2 <- as.data.frame(sort(colSums(text_dfm2),dec=T))
+colnames(word_counts2) <- c("Frequency")
+word_counts2$word <- row.names(word_counts2)
+word_counts2$Rank <- c(1:ncol(text_dfm2))
+word_counts3 <- as.data.frame(sort(colSums(text_dfm3),dec=T))
+colnames(word_counts3) <- c("Frequency")
+word_counts3$word <- row.names(word_counts3)
+word_counts3$Rank <- c(1:ncol(text_dfm3))
+```
+
+```{r}
+Sentiment1_bing <- word_counts1 %>%
+ inner_join(get_sentiments("bing"), by = "word")
+Sentiment1_nrc <- word_counts1 %>%
+  inner_join(get_sentiments("nrc"), by = "word")
+Sentiment2_bing <- word_counts2 %>%
+ inner_join(get_sentiments("bing"), by = "word")
+Sentiment2_nrc <- word_counts2 %>%
+  inner_join(get_sentiments("nrc"), by = "word")
+Sentiment3_bing <- word_counts3 %>%
+ inner_join(get_sentiments("bing"), by = "word")
+Sentiment3_nrc <- word_counts3 %>%
+  inner_join(get_sentiments("nrc"), by = "word")
+```
+
+```{r}
+p1 <- Sentiment1_bing %>% 
+  group_by(sentiment) %>% 
+  count() %>% 
+  ungroup() %>% 
+  mutate(perc = `n` / sum(`n`)) %>% 
+  arrange(perc) %>%
+  mutate(labels = scales::percent(perc)) %>%
+  ggplot(aes(x = "", y = perc, fill = as.factor(sentiment))) +
+  ggtitle("Postive vs Negative count") +
+  geom_col(color = "black") +
+  geom_label(aes(label = labels), color = c(1, "white"),
+            position = position_stack(vjust = 0.5),
+            show.legend = FALSE) +
+  guides(fill = guide_legend(title = "Sentiment")) +
+  scale_fill_viridis_d() +
+  coord_polar(theta = "y") + 
+  theme_void() 
+p2 <- Sentiment1_nrc %>% 
+  group_by(sentiment) %>% 
+  count() %>% 
+  ungroup() %>% 
+  mutate(perc = `n` / sum(`n`)) %>% 
+  arrange(perc) %>%
+  mutate(labels = scales::percent(perc)) %>%
+  ggplot(aes(x = "", y = perc, fill = as.factor(sentiment))) +
+  ggtitle("Emotions count") +
+  geom_col(color = "black") +
+  geom_label(aes(label = labels), color = c(1, "white", "white", "white", "white", "white", "white", "white", "white", "white"),
+            position = position_stack(vjust = 0.5),
+            show.legend = FALSE) +
+  guides(fill = guide_legend(title = "Sentiment")) +
+  scale_fill_viridis_d() +
+  coord_polar(theta = "y") + 
+  theme_void()
+grid.arrange(arrangeGrob(p1, p2, ncol = 2),
+             nrow = 1)
+```
+
+```{r}
+p1 <- Sentiment2_bing %>% 
+  group_by(sentiment) %>% 
+  count() %>% 
+  ungroup() %>% 
+  mutate(perc = `n` / sum(`n`)) %>% 
+  arrange(perc) %>%
+  mutate(labels = scales::percent(perc)) %>%
+  ggplot(aes(x = "", y = perc, fill = as.factor(sentiment))) +
+  ggtitle("Postive vs Negative count") +
+  geom_col(color = "black") +
+  geom_label(aes(label = labels), color = c(1, "white"),
+            position = position_stack(vjust = 0.5),
+            show.legend = FALSE) +
+  guides(fill = guide_legend(title = "Sentiment")) +
+  scale_fill_viridis_d() +
+  coord_polar(theta = "y") + 
+  theme_void()
+p2 <- Sentiment2_nrc %>% 
+  group_by(sentiment) %>% 
+  count() %>% 
+  ungroup() %>% 
+  mutate(perc = `n` / sum(`n`)) %>% 
+  arrange(perc) %>%
+  mutate(labels = scales::percent(perc)) %>%
+  ggplot(aes(x = "", y = perc, fill = as.factor(sentiment))) +
+  ggtitle("Emotions count") +
+  geom_col(color = "black") +
+  geom_label(aes(label = labels), color = c(1, "white", "white", "white", "white", "white", "white", "white", "white", "white"),
+            position = position_stack(vjust = 0.5),
+            show.legend = FALSE) +
+  guides(fill = guide_legend(title = "Sentiment")) +
+  scale_fill_viridis_d() +
+  coord_polar(theta = "y") + 
+  theme_void()
+grid.arrange(arrangeGrob(p1, p2, ncol = 2),
+             nrow = 1)
+```
+
+```{r}
+p1 <- Sentiment3_bing %>% 
+  group_by(sentiment) %>% 
+  count() %>% 
+  ungroup() %>% 
+  mutate(perc = `n` / sum(`n`)) %>% 
+  arrange(perc) %>%
+  mutate(labels = scales::percent(perc)) %>%
+  ggplot(aes(x = "", y = perc, fill = as.factor(sentiment))) +
+  ggtitle("Postive vs Negative count") +
+  geom_col(color = "black") +
+  geom_label(aes(label = labels), color = c(1, "white"),
+            position = position_stack(vjust = 0.5),
+            show.legend = FALSE) +
+  guides(fill = guide_legend(title = "Sentiment")) +
+  scale_fill_viridis_d() +
+  coord_polar(theta = "y") + 
+  theme_void()
+p2 <- Sentiment3_nrc %>% 
+  group_by(sentiment) %>% 
+  count() %>% 
+  ungroup() %>% 
+  mutate(perc = `n` / sum(`n`)) %>% 
+  arrange(perc) %>%
+  mutate(labels = scales::percent(perc)) %>%
+  ggplot(aes(x = "", y = perc, fill = as.factor(sentiment))) +
+  ggtitle("Emotions count") +
+  geom_col(color = "black") +
+  geom_label(aes(label = labels), color = c(1, "white", "white", "white", "white", "white", "white", "white", "white", "white"),
+            position = position_stack(vjust = 0.5),
+            show.legend = FALSE) +
+  guides(fill = guide_legend(title = "Sentiment")) +
+  scale_fill_viridis_d() +
+  coord_polar(theta = "y") + 
+  theme_void()
+grid.arrange(arrangeGrob(p1, p2, ncol = 2),
+             nrow = 1)
+```
+
+```{r}
+p1 <- Sentiment1_bing %>%
+ filter(Frequency > 600) %>%
+ mutate(Frequency = ifelse(sentiment == "negative", -Frequency, Frequency)) %>%
+ mutate(word = reorder(word, Frequency)) %>%
+ ggplot(aes(word, Frequency, fill = sentiment))+
+ geom_col() +
+ coord_flip() +
+ labs(y = "Sentiment Score")
+p2 <- Sentiment2_bing %>%
+ filter(Frequency > 700) %>%
+ mutate(Frequency = ifelse(sentiment == "negative", -Frequency, Frequency)) %>%
+ mutate(word = reorder(word, Frequency)) %>%
+ ggplot(aes(word, Frequency, fill = sentiment))+
+ geom_col() +
+ coord_flip() +
+ labs(y = "Sentiment Score")
+p3 <- Sentiment3_bing %>%
+ filter(Frequency > 500) %>%
+ mutate(Frequency = ifelse(sentiment == "negative", -Frequency, Frequency)) %>%
+ mutate(word = reorder(word, Frequency)) %>%
+ ggplot(aes(word, Frequency, fill = sentiment))+
+ geom_col() +
+ coord_flip() +
+ labs(y = "Sentiment Score")
+grid.arrange(arrangeGrob(p1, p2, ncol = 2),
+             p3,
+             nrow = 2)
+```
+
+```{r}
+Sentiment1_nrc %>% 
+ filter(Frequency > 500) %>%
+ mutate(word = reorder(word, Frequency)) %>%
+ ggplot(aes(word, Frequency))+
+ facet_wrap(~ sentiment, scales = "free", nrow = 5) +
+ geom_col() +
+ coord_flip() +
+ labs(y = "Sentiment Score") 
+```
+
+```{r}
+Sentiment2_nrc %>% 
+ filter(Frequency > 600) %>%
+ mutate(word = reorder(word, Frequency)) %>%
+ ggplot(aes(word, Frequency))+
+ facet_wrap(~ sentiment, scales = "free", nrow = 5) +
+ geom_col() +
+ coord_flip() +
+ labs(y = "Sentiment Score") 
+```
+
+```{r}
+Sentiment3_nrc %>% 
+ filter(Frequency > 500) %>%
+ mutate(word = reorder(word, Frequency)) %>%
+ ggplot(aes(word, Frequency))+
+ facet_wrap(~ sentiment, scales = "free", nrow = 5) +
+ geom_col() +
+ coord_flip() +
+ labs(y = "Sentiment Score") 
+```
+
+```{r}
+Sentiment1_bing %>%
+acast(word ~ sentiment, value.var = "Frequency", fill = 0) %>%
+ comparison.cloud(colors = c("red", "dark green"),
+          max.words = 100)
+```
+
+```{r}
+Sentiment2_bing %>%
+acast(word ~ sentiment, value.var = "Frequency", fill = 0) %>%
+ comparison.cloud(colors = c("red", "dark green"),
+          max.words = 150)
+```
+
+```{r}
+Sentiment3_bing %>%
+acast(word ~ sentiment, value.var = "Frequency", fill = 0) %>%
+ comparison.cloud(colors = c("red", "dark green"),
+          max.words = 100)
+```
+
+## Further study
+
+I will do topic modelling in the next blog and try to analyse it.
