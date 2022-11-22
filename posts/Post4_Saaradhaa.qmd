@@ -20,11 +20,7 @@ categories:
 #| label: setup
 #| warning: false
 #| message: false
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
-```
 
-```{r}
-# load libraries.
 library(tidyverse)
 library(stringr)
 library(quanteda)
@@ -35,6 +31,8 @@ library(RedditExtractoR)
 library(readr)
 
 load("post4_saaradhaa.rdata")
+
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
 ## Introduction
@@ -54,7 +52,7 @@ In the first part of the post, I will revise some of the processing and prelimin
 # transcripts$text <- str_replace_all(transcripts$text, "[a-zA-Z]+:", "")
 # transcripts$text <- str_replace_all(transcripts$text, "\n", "")
 # saveRDS(transcripts, "transcripts.rds")
-transcripts <- read_rds("transcripts.rds")
+# transcripts <- read_rds("transcripts.rds")
 
 # create 'quanteda' corpus. 
 oh_corpus <- corpus(transcripts$text)
@@ -180,7 +178,7 @@ The previous time I tried to load the Reddit data, it just didn't work. I'm goin
 
 # generate comments for 'hot' posts.
 # comments_hot <- get_thread_content(content_hot$url[1:936])$comments
-# comments_hot$type <- "hot"
+# comments_hot$type <- "hot" 
 # saveRDS(comments_hot, "comments_hot.rds")
 # comments_hot <- read_rds("comments_hot.rds")
 
@@ -190,12 +188,12 @@ The previous time I tried to load the Reddit data, it just didn't work. I'm goin
 # content_hot <- content_hot[,-8]
 # reddit_posts <- rbind(content_hot, content_top)
 # saveRDS(reddit_posts, "reddit_posts.rds")
-reddit_posts <- read_rds("reddit_posts.rds")
+# reddit_posts <- read_rds("reddit_posts.rds")
 
 # combine 'hot' and 'top' comments into 1 dataframe.
 # reddit_comments <- rbind(comments_hot, comments_top)
 # saveRDS(reddit_comments, "reddit_comments.rds")
-reddit_comments <- read_rds("reddit_comments.rds")
+# reddit_comments <- read_rds("reddit_comments.rds")
 ```
 
 Ok, this is a quick summary of what I've done above - I generated both the 'top' and 'hot' posts of all time from the subreddit, as well as all the comments on the posts, and some associated information. I then combined them into two dataframes - one with all the posts (*N* = 1,936) and another with all the comments (*N* = 110,967). I'm going to clean up the two dataframes in the following code chunk.
@@ -224,7 +222,7 @@ reddit_comments <- reddit_comments[!(reddit_comments$comment==""), ]
 # saveRDS(reddit_comments, "reddit_comments_final.rds")
 
 # re-load the object.
-reddit_comments_final <- read_rds("reddit_comments_final.rds")
+# reddit_comments_final <- read_rds("reddit_comments_final.rds")
 
 # ok, now check the dataframe of posts.
 glimpse(reddit_posts)
@@ -242,7 +240,7 @@ reddit_posts <- reddit_posts %>% select (-c(subreddit))
 # saveRDS(reddit_posts, "reddit_posts_final.rds")
 
 # re-load the object.
-reddit_posts_final <- read_rds("reddit_posts_final.rds")
+# reddit_posts_final <- read_rds("reddit_posts_final.rds")
 ```
 
 ## Reddit: Text Plots
