@@ -24,6 +24,7 @@ library(quanteda.sentiment)
 library(tidytext)
 library(DT)
 library(quanteda.textstats)
+library(text2vec)
 
 knitr::opts_chunk$set(echo = TRUE)
 
@@ -518,4 +519,14 @@ I think I'll want to do LDA modelling based on what we learned in Tutorial 10 in
 
 ```{r}
 textplot_keyness(textstat_keyness(blue_dfm))
+```
+
+# Writing csv for data
+
+```{r}
+
+write_csv(blue_comments, "blue_comments1")
+
+
+write_csv(red_comments, "red_comments1")
 ```
