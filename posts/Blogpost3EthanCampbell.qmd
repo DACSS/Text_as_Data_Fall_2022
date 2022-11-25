@@ -1,0 +1,696 @@
+---
+title: "Text as Data Final Project"
+author: "Ethan Campbell"
+description: "Research into English Premier League and how language changes depending on the season"
+date: "11/16/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - Blog Post 2
+---
+
+```{r}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Loading Packages
+
+```{r}
+#| warning: false
+library(rvest)
+library(tidyverse)
+library(polite)
+library(stringr)
+library(preText)
+library(quanteda)
+library(quanteda.textplots)
+library(tidytext)
+library(tm)
+library(SentimentAnalysis)
+```
+
+# Data Sources
+
+There are 6 teams included in this study 2 from the top of the table 2 from the middle and 2 from the bottom. They are already in that order from top to bottom. Data needed to be web scraped from a page called match report. This page was located on each teams official website and this page included information about the match, statistics, and quotes from both the players and the managers. This data will include this current season and all of last season.
+
+[Arsenal Data](https://www.arsenal.com/news?field_article_arsenal_team_value=men&revision_information=&page=1)
+
+[Manchester City Data](https://www.mancity.com/news/mens)
+
+[Newcastle United Data](https://www.nufc.co.uk/matches/first-team/#results)
+
+[Everton Data](https://www.evertonfc.com/results)
+
+[Leicester Data](https://www.lcfc.com/matches/reports)
+
+[West Ham United Data](https://www.whufc.com/fixture/list/713)
+
+# Hypothesis for project
+
+::: callout-note
+## Research Questions
+
+A. Does Premier League soccer teams language change over the course of the season?
+
+B. Does the language grow in correlation to the success of the season?
+:::
+
+The hypothesis will be tested as follows:
+
+::: callout-tip
+## H~0A~
+
+The Premier league soccer team language [does not]{.underline} change over the course of the season.
+:::
+
+::: callout-tip
+## H~1A~
+
+The Premier league soccer team language [does]{.underline} change over the course of the season.
+:::
+
+::: callout-tip
+## H~0A~
+
+The language [does not]{.underline} correlate to the success of the season.
+:::
+
+::: callout-tip
+## H~1A~
+
+The language [does]{.underline} correlate to the success of the season.
+:::
+
+# Analytic planning
+
+```{mermaid}
+flowchart LR
+  A[Web Scrape] --> B(Preprocess)
+  B --> C[Organize]
+  C --> D(TDM)
+  D --> E[Sentiment Analysis]
+  E --> F[Research Question 1]
+  F --> G{Conclusion}
+  D --> H[DTM]
+  H --> I[Document Similarity]
+  I --> J[Research Question 2]
+  J --> G{Conclusion}
+```
+
+# Web Scraping/Tidying data
+
+Here is the beginning of the web scraping process. I was unable to find a way to make the web scraper search for one object then proceed to the next page where you could then scrape whats inside. For the time being I decided to manually web scrape the information. The tidying process is the real issue as there are many unwanted variables inside. For example there are a lot of /n's.
+
+```{r}
+## The function is working at reading in the data however. parts of the cleaning process are failing and I am thinking this is because I am not specifying the create values
+
+# I need to remove punct, capitalization, stopwords like (the, a ',') finish repeating the process to all teams and adjusting the function until it grabs every single problem once this is complete we should be able to tokenize then corpus and work with the data
+
+Web_scrape_function_Arsenal <- function(url,css,data) { # creating function to repeat web scrape 
+  url <- read_html(url) 
+css <- (".article-body")
+data <- url %>% 
+  html_node(css = css) %>%
+  html_text2()
+}
+
+tidy_function <- function(data){data <- str_replace_all(data, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_replace_all("'\'", "#") %>%
+  str_replace_all("[0-9] of [0-9]To buy official Arsenal pictures visit Arsenal Pics", "#") %>%
+  str_remove("WHAT HAPPENED") %>%
+  str_remove_all("[0-9] of 42To buy official Arsenal pictures visit Arsenal Pics") %>%
+  str_remove_all("[0-9] of 29To buy official Arsenal pictures visit Arsenal Pics") %>%
+  str_remove_all("[0-9] of 45To buy official Arsenal pictures visit Arsenal Pics") %>%
+  str_remove_all("[0-9] of 38To buy official Arsenal pictures visit Arsenal Pics") %>%
+  str_remove_all("[0-9] of 32To buy official Arsenal pictures visit Arsenal Pics") %>%
+  str_remove_all("[0-9] of 36To buy official Arsenal pictures visit Arsenal Pics") %>%
+  str_remove("Play videoWatch Arsenal video online05:24Highlights | Crystal Palace 0-2 Arsenal - bitesize") %>%
+  str_remove("111111111122222222223333333333444") %>%
+  str_remove("111111111122222222223333333") %>%
+  str_remove("11111111112222222222") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_replace_all("||", "#") %>%
+  str_remove_all("'Play videoWatch Arsenal video online02:17Mikel Arteta post-match interview | Crystal Palace 0-2 Arsenal | Premier LeagueArteta: \'") %>%
+  str_remove_all("\"read everything from his press conferencePlay videoWatch Arsenal video online02:07William Saliba post-match interview || Premier LeagueSaliba:") %>%
+  str_remove_all("#") %>%
+  unlist()
+}
+
+# Running the tidy function twice to clean up certain parts that are getting missed the first time for some reason and this is a temporary fix.
+Arsenal_url <- "https://www.arsenal.com/fixture/arsenal/2022-Aug-05/crystal-palace-0-2-arsenal-match-report"
+Match_1 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_1 <- tidy_function(Match_1)
+Match_1 <- tidy_function(Match_1)
+Arsenal_url <- "https://www.arsenal.com/fixture/arsenal/2022-Aug-13/arsenal-4-2-leicester-city-match-report"
+Match_2 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_2 <- tidy_function(Match_2)
+Match_2 <- tidy_function(Match_2)
+Arsenal_url <- "https://www.arsenal.com/premier-league-match-report-bournemouth-odegaard-saliba-jesus"
+Match_3 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_3 <- tidy_function(Match_3)
+Match_3 <- tidy_function(Match_3)
+Arsenal_url <- "https://www.arsenal.com/premier-league-match-report-fulham-odegaard-gabriel"
+Match_4 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_4 <- tidy_function(Match_4)
+Match_4 <- tidy_function(Match_4)
+Arsenal_url <- "https://www.arsenal.com/match-report-aston-villa-premier-league-martinelli-jesus"
+Match_5 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_5 <- tidy_function(Match_5)
+Match_5 <- tidy_function(Match_5)
+Arsenal_url <- "https://www.arsenal.com/fixture/arsenal/2022-Sep-04/manchester-united-3-1-arsenal-match-report"
+Match_6 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_6 <- tidy_function(Match_6)
+Match_6 <- tidy_function(Match_6)
+Arsenal_url <- "https://www.arsenal.com/premier-league-match-report-brentford-saliba-jesus-vieira"
+Match_7 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_7 <- tidy_function(Match_7)
+Match_7 <- tidy_function(Match_7)
+# Arsenal 2021 season 
+
+Arsenal_url <- "https://www.arsenal.com/fixture/arsenal/2021-Jul-28/arsenal-4-1-watford-match-report"
+Match_1_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_1_2021 <- tidy_function(Match_1_2021)
+Match_1_2021 <- tidy_function(Match_1_2021)
+Arsenal_url <- "https://www.arsenal.com/fixture/arsenal/2021-Aug-01/arsenal-1-2-chelsea-match-report"
+Match_2_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_2_2021 <- tidy_function(Match_2_2021)
+Match_2_2021 <- tidy_function(Match_2_2021)
+Arsenal_url <- "https://www.arsenal.com/fixture/arsenal/2021-Aug-08/tottenham-hotspur-1-0-arsenal-match-report"
+Match_3_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_3_2021 <- tidy_function(Match_3_2021)
+Match_3_2021 <- tidy_function(Match_3_2021)
+Arsenal_url <- "https://www.arsenal.com/fixture/arsenal/2021-Aug-13/brentford-fc-2-0-arsenal-match-report"
+Match_4_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_4_2021 <- tidy_function(Match_4_2021)
+Match_4_2021 <- tidy_function(Match_4_2021)
+Arsenal_url <- "https://www.arsenal.com/fixture/arsenal/2021-Aug-22/arsenal-0-2-chelsea-match-report"
+Match_5_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_5_2021 <- tidy_function(Match_5_2021)
+Match_5_2021 <- tidy_function(Match_5_2021)
+Arsenal_url <- "https://www.arsenal.com/fixture/arsenal/2021-Aug-28/manchester-city-5-0-arsenal-match-report"
+Match_6_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_6_2021 <- tidy_function(Match_6_2021)
+Match_6_2021 <- tidy_function(Match_6_2021)
+Arsenal_url <- "https://www.arsenal.com/fixture/arsenal/2021-Sep-11/arsenal-1-0-norwich-city-match-report"
+Match_7_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_7_2021 <- tidy_function(Match_7_2021)
+Match_7_2021 <- tidy_function(Match_7_2021)
+Arsenal_url <- "https://www.arsenal.com/fixture/arsenal/2021-Sep-18/burnley-0-1-arsenal-match-report"
+Match_8_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_8_2021 <- tidy_function(Match_8_2021)
+Match_8_2021 <- tidy_function(Match_8_2021)
+Arsenal_url <- "https://www.arsenal.com/fixture/arsenal/2021-Sep-26/arsenal-3-1-tottenham-hotspur-match-report"
+Match_9_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_9_2021 <- tidy_function(Match_9_2021)
+Match_9_2021 <- tidy_function(Match_9_2021)
+Arsenal_url <- "https://www.arsenal.com/fixture/arsenal/2021-Oct-02/brighton-0-0-arsenal-match-report"
+Match_10_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_10_2021 <- tidy_function(Match_10_2021)
+Match_10_2021 <- tidy_function(Match_10_2021)
+Arsenal_url <- "https://www.arsenal.com/fixture/arsenal/2021-Oct-18/arsenal-2-2-crystal-palace-match-report"
+Match_11_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_11_2021 <- tidy_function(Match_11_2021)
+Match_11_2021 <- tidy_function(Match_11_2021)
+Arsenal_url <- "https://www.arsenal.com/fixture/arsenal/2021-Oct-22/arsenal-3-1-aston-villa-match-report"
+Match_12_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_12_2021 <- tidy_function(Match_12_2021)
+Match_12_2021 <- tidy_function(Match_12_2021)
+Arsenal_url <- "https://www.arsenal.com/fixture/arsenal/2021-Oct-30/leicester-city-0-2-arsenal-match-report"
+Match_13_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_13_2021 <- tidy_function(Match_13_2021)
+Match_13_2021 <- tidy_function(Match_13_2021)
+Arsenal_url <- "https://www.arsenal.com/fixture/arsenal/2021-Nov-07/arsenal-1-0-watford-match-report"
+Match_14_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_14_2021 <- tidy_function(Match_14_2021)
+Match_14_2021 <- tidy_function(Match_14_2021)
+Arsenal_url <- "https://www.arsenal.com/fixture/arsenal/2021-Nov-20/liverpool-4-0-arsenal-match-report"
+Match_15_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_15_2021 <- tidy_function(Match_15_2021)
+Match_15_2021 <- tidy_function(Match_15_2021)
+Arsenal_url <- "https://www.arsenal.com/fixture/arsenal/2021-Nov-27/arsenal-2-0-newcastle-united-match-report"
+Match_16_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_16_2021 <- tidy_function(Match_16_2021)
+Match_16_2021 <- tidy_function(Match_16_2021)
+Arsenal_url <- "https://www.arsenal.com/arsenal-manchester-united-match-report-premier-league"
+Match_17_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_17_2021 <- tidy_function(Match_17_2021)
+Match_17_2021 <- tidy_function(Match_17_2021)
+Arsenal_url <- "https://www.arsenal.com/fixture/arsenal/2021-Dec-06/everton-2-1-arsenal-match-report"
+Match_18_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_18_2021 <- tidy_function(Match_18_2021)
+Match_18_2021 <- tidy_function(Match_18_2021)
+Arsenal_url <- "https://www.arsenal.com/arsenal-southampton-match-report-premier-league-lacazette"
+Match_19_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_19_2021 <- tidy_function(Match_19_2021)
+Match_19_2021 <- tidy_function(Match_19_2021)
+Arsenal_url <- "https://www.arsenal.com/arsenal-west-ham-match-report-premier-league-martinelli-smith-rowe"
+Match_20_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_20_2021 <- tidy_function(Match_20_2021)
+Match_20_2021 <- tidy_function(Match_20_2021)
+Arsenal_url <- "https://www.arsenal.com/fixture/arsenal/2021-Dec-18/leeds-1-4-arsenal-match-report"
+Match_21_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_21_2021 <- tidy_function(Match_21_2021)
+Match_21_2021 <- tidy_function(Match_21_2021)
+Arsenal_url <- "https://www.arsenal.com/fixture/arsenal/2021-Dec-26/norwich-city-0-5-arsenal-match-report"
+Match_22_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_22_2021 <- tidy_function(Match_22_2021)
+Match_22_2021 <- tidy_function(Match_22_2021)
+Arsenal_url <- "https://www.arsenal.com/arsenal-manchester-city-report-xhaka-gabriel-premier-league"
+Match_23_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_23_2021 <- tidy_function(Match_23_2021)
+Match_23_2021 <- tidy_function(Match_23_2021)
+Arsenal_url <- "https://www.arsenal.com/premier-league-burnley-match-report-emirates-stadium"
+Match_24_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_24_2021 <- tidy_function(Match_24_2021)
+Match_24_2021 <- tidy_function(Match_24_2021)
+Arsenal_url <- "https://www.arsenal.com/fixture/arsenal/2022-Feb-10/wolves-0-1-arsenal-match-report"
+Match_25_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_25_2021 <- tidy_function(Match_25_2021)
+Match_25_2021 <- tidy_function(Match_25_2021)
+Arsenal_url <- "https://www.arsenal.com/match-report-emile-smith-rowe-bukayo-saka-premier-league-southampton"
+Match_26_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_26_2021 <- tidy_function(Match_26_2021)
+Match_26_2021 <- tidy_function(Match_26_2021)
+Arsenal_url <- "https://www.arsenal.com/fixture/arsenal/2022-Feb-24/arsenal-2-1-wolves-match-report-0"
+Match_27_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_27_2021 <- tidy_function(Match_27_2021)
+Match_27_2021 <- tidy_function(Match_27_2021)
+Arsenal_url <- "https://www.arsenal.com/premier-league-match-report-watford-odegaard-saka-martinelli"
+Match_28_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_28_2021 <- tidy_function(Match_28_2021)
+Match_28_2021 <- tidy_function(Match_28_2021)
+Arsenal_url <- "https://www.arsenal.com/premier-league-match-report-leicester-city-thomas-partey-alexandre-lacazette"
+Match_29_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_29_2021 <- tidy_function(Match_29_2021)
+Match_29_2021 <- tidy_function(Match_29_2021)
+Arsenal_url <- "https://www.arsenal.com/fixture/arsenal/2022-Mar-16/arsenal-0-2-liverpool-match-report"
+Match_30_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_30_2021 <- tidy_function(Match_30_2021)
+Match_30_2021 <- tidy_function(Match_30_2021)
+Arsenal_url <- "https://www.arsenal.com/premier-league-match-report-bukayo-saka-aston-villa-top-four"
+Match_31_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_31_2021 <- tidy_function(Match_31_2021)
+Match_31_2021 <- tidy_function(Match_31_2021)
+Arsenal_url <- "https://www.arsenal.com/fixture/arsenal/2022-Apr-04/crystal-palace-3-0-arsenal-match-report"
+Match_32_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_32_2021 <- tidy_function(Match_32_2021)
+Match_32_2021 <- tidy_function(Match_32_2021)
+Arsenal_url <- "https://www.arsenal.com/premier-league-match-report-brighton-martin-odegaard-emirates-stadium"
+Match_33_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_33_2021 <- tidy_function(Match_33_2021)
+Match_33_2021 <- tidy_function(Match_33_2021)
+Arsenal_url <- "https://www.arsenal.com/fixture/arsenal/2022-Apr-16/southampton-1-0-arsenal-match-report"
+Match_34_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_34_2021 <- tidy_function(Match_34_2021)
+Match_34_2021 <- tidy_function(Match_34_2021)
+Arsenal_url <- "https://www.arsenal.com/match-report-premier-league-chelsea-nketiah-smith-rowe-saka"
+Match_35_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_35_2021 <- tidy_function(Match_35_2021)
+Match_35_2021 <- tidy_function(Match_35_2021)
+Arsenal_url <- "https://www.arsenal.com/premier-league-match-report-manchester-united-saka-tavares-xhaka-ronaldo"
+Match_36_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_36_2021 <- tidy_function(Match_36_2021)
+Match_36_2021 <- tidy_function(Match_36_2021)
+Arsenal_url <- "https://www.arsenal.com/premier-league-match-report-west-ham-london-stadium"
+Match_37_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_37_2021 <- tidy_function(Match_37_2021)
+Match_37_2021 <- tidy_function(Match_37_2021)
+Arsenal_url <- "https://www.arsenal.com/premier-league-match-report-leeds-united-emirates-stadium-top-four-nketiah"
+Match_38_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_38_2021 <- tidy_function(Match_38_2021)
+Match_38_2021 <- tidy_function(Match_38_2021)
+Arsenal_url <- "https://www.arsenal.com/premier-league-match-report-tottenham-hotspur-top-four"
+Match_39_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_39_2021 <- tidy_function(Match_39_2021)
+Match_39_2021 <- tidy_function(Match_39_2021)
+Arsenal_url <- "https://www.arsenal.com/fixture/arsenal/2022-May-16/newcastle-united-2-0-arsenal-match-report"
+Match_40_2021 <- Web_scrape_function_Arsenal(Arsenal_url)
+Match_40_2021 <- tidy_function(Match_40_2021)
+Match_40_2021 <- tidy_function(Match_40_2021)
+# Manchester City data
+
+Web_scrape_function_mancity <- function(url,css,data) { # creating function to repeat web scrape 
+  url <- read_html(url) 
+css <- (".article-body__article-text")
+data <- url %>% 
+  html_node(css = css) %>%
+  html_text2()
+data <- str_replace_all(data, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("#") %>%
+  unlist()
+}
+
+mancity_url <- "https://www.mancity.com/news/mens/west-ham-v-manchester-city-premier-league-match-report-63795480"
+Manc_1 <- Web_scrape_function_mancity(mancity_url)
+
+mancity_url <- "https://www.mancity.com/news/mens/man-city-bournemouth-premier-league-match-report-63795987"
+Manc_2 <- Web_scrape_function_mancity(mancity_url)
+
+mancity_url <- "https://www.mancity.com/news/mens/newcastle-v-manchester-city-match-report-63796690"
+Manc_3 <- Web_scrape_function_mancity(mancity_url)
+
+mancity_url <- "https://www.mancity.com/news/mens/man-city-crystal-palace-match-report-63797204"
+Manc_4 <- Web_scrape_function_mancity(mancity_url)
+
+mancity_url <- "https://www.mancity.com/news/mens/manchester-city-v-nottingham-forest-match-report-31-august-63797573"
+Manc_5 <- Web_scrape_function_mancity(mancity_url)
+
+mancity_url <- "https://www.mancity.com/news/mens/aston-villa-manchester-city-premier-league-match-report-63797816"
+Manc_6 <- Web_scrape_function_mancity(mancity_url)
+
+mancity_url <- "https://www.mancity.com/news/mens/wolves-manchester-city-away-premier-league-2022-match-report-63799002"
+Manc_7 <- Web_scrape_function_mancity(mancity_url)
+
+# New Castle 
+
+# New Castle United first match against nottingham forest
+# 1 rule for 1 bots crawl delay 5 seconds, scrapable
+
+bow("https://www.nufc.co.uk/matches/first-team/2022-23/newcastle-united-v-nottingham-forest/")
+
+Web_scrape_function_Newcastle <- function(url,css,data) { # creating function to repeat web scrape 
+  url <- read_html(url) 
+css <- (".article__body")
+data <- url %>% 
+  html_node(css = css) %>%
+  html_text2()
+data <- str_replace_all(data, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+}
+
+Newcastle_url <- "https://www.nufc.co.uk/matches/first-team/2022-23/newcastle-united-v-nottingham-forest/"
+nc_1 <- Web_scrape_function_Newcastle(Newcastle_url)
+                        
+Newcastle_url <- "https://www.nufc.co.uk/matches/first-team/2022-23/brighton-and-hove-albion-v-newcastle-united/"
+nc_2 <- Web_scrape_function_Newcastle(Newcastle_url)
+                        
+Newcastle_url <- "https://www.nufc.co.uk/matches/first-team/2022-23/newcastle-united-v-manchester-city/"
+nc_3 <- Web_scrape_function_Newcastle(Newcastle_url)
+                        
+Newcastle_url <- "https://www.nufc.co.uk/matches/first-team/2022-23/wolverhampton-wanderers-v-newcastle-united/"
+nc_4 <- Web_scrape_function_Newcastle(Newcastle_url)
+                        
+Newcastle_url <- "https://www.nufc.co.uk/matches/first-team/2022-23/liverpool-v-newcastle-united/"
+nc_5 <- Web_scrape_function_Newcastle(Newcastle_url)
+                        
+Newcastle_url <- "https://www.nufc.co.uk/matches/first-team/2022-23/newcastle-united-v-crystal-palace/"
+nc_6 <- Web_scrape_function_Newcastle(Newcastle_url)
+                        
+Newcastle_url <- "https://www.nufc.co.uk/matches/first-team/2022-23/newcastle-united-v-bournemouth/"
+nc_7 <- Web_scrape_function_Newcastle(Newcastle_url)
+
+# Everton 
+
+# Everton vs Chelsea
+# 1 rule for 1 bots crawl delay 5 seconds, scrapable
+
+bow("https://www.evertonfc.com/match/74913/everton-chelsea#report")
+
+Web_scrape_function_Everton <- function(url,css,data) { # creating function to repeat web scrape 
+  url <- read_html(url) 
+css <- (".article__body.mc-report__body.js-article-body")
+data <- url %>% 
+  html_node(css = css) %>%
+  html_text2()
+data <- str_replace_all(data, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  unlist()
+}
+
+Everton_url <- "https://www.evertonfc.com/match/74913/everton-chelsea#report"
+ever_1 <- Web_scrape_function_Everton(Everton_url)
+
+Everton_url <- "https://www.evertonfc.com/match/74922/aston-villa-everton#report"
+ever_2 <- Web_scrape_function_Everton(Everton_url)
+
+Everton_url <- "https://www.evertonfc.com/match/74933/everton-nottm-forest#report"
+ever_3 <- Web_scrape_function_Everton(Everton_url)
+
+Everton_url <-"https://www.evertonfc.com/match/74943/brentford-everton#report"
+ever_4 <- Web_scrape_function_Everton(Everton_url)
+
+Everton_url <- "https://www.evertonfc.com/match/74955/leeds-everton#report"
+ever_5 <- Web_scrape_function_Everton(Everton_url)
+
+Everton_url <- "https://www.evertonfc.com/match/74965/everton-liverpool#report"
+ever_6 <- Web_scrape_function_Everton(Everton_url)
+
+Everton_url <- "https://www.evertonfc.com/match/74985/everton-west-ham#report"
+ever_7 <- Web_scrape_function_Everton(Everton_url)
+
+# Leicester 
+
+# Leicester against Brentford
+# 1 bot 1 rule scrapable 5 second crawl
+bow("https://www.lcfc.com/news/2729025/city-held-by-bees-in-premier-league-opener/featured")
+
+Web_scrape_function_Leicester <- function(url,css,data) { # creating function to repeat web scrape 
+  url <- read_html(url) 
+css <- (".col-12")
+data <- url %>% 
+  html_node(css = css) %>%
+  html_text2()
+data <- str_replace_all(data, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  str_remove_all("More on this story. . . In Photos -") %>%
+  unlist()
+}
+
+Leicester_url <- "https://www.lcfc.com/news/2729025/city-held-by-bees-in-premier-league-opener/featured"
+lei_1 <- Web_scrape_function_Leicester(Leicester_url)
+
+Leicester_url <- "https://www.lcfc.com/news/2739798/foxes-fall-to-defeat-at-arsenal/featured"
+lei_2 <- Web_scrape_function_Leicester(Leicester_url)
+
+Leicester_url <- "https://www.lcfc.com/news/2751347/saints-take-the-points-on-filbert-way/featured"
+lei_3 <- Web_scrape_function_Leicester(Leicester_url)
+
+Leicester_url <- "https://www.lcfc.com/news/2762326/city-defeated-as-10man-chelsea-win-at-stamford-bridge/featured"
+lei_4 <- Web_scrape_function_Leicester(Leicester_url)
+
+Leicester_url <- "https://www.lcfc.com/news/2774578/man-utd-defeat-for-leicester-on-matchday-five/featured"
+lei_5 <- Web_scrape_function_Leicester(Leicester_url)
+
+Leicester_url <- "https://www.lcfc.com/news/2779658/city-beaten-away-to-brighton/featured"
+lei_6 <- Web_scrape_function_Leicester(Leicester_url)
+
+Leicester_url <- "https://www.lcfc.com/news/2793845/leicester-lose-to-spurs-in-london/featured"
+lei_7 <- Web_scrape_function_Leicester(Leicester_url)
+
+# West Ham 
+
+# West Ham vs Manchester City
+
+Web_scrape_function_WestHam <- function(url,css,data) { # creating function to repeat web scrape 
+  url <- read_html(url) 
+css <- (".m-article__columns")
+data <- url %>% 
+  html_node(css = css) %>%
+  html_text2()
+data <- str_replace_all(data, "\n", "####") %>%
+  str_replace_all("/n", "####") %>%
+  str_remove_all("/n") %>%
+  str_remove_all("\n") %>%
+  str_remove_all(" - ") %>%
+  str_remove_all("\\(") %>%
+  str_remove_all("\\)") %>%
+  str_remove_all("\"") %>%
+  str_remove_all("#") %>%
+  str_remove_all("More on this story. . . In Photos -") %>%
+  unlist()
+}
+
+WestHam_url <- "https://www.whufc.com/fixture/view/6472"
+wh_1 <- Web_scrape_function_WestHam(WestHam_url)
+
+WestHam_url <- "https://www.whufc.com/fixture/view/6464"
+wh_2 <- Web_scrape_function_WestHam(WestHam_url)
+
+WestHam_url <- "https://www.whufc.com/fixture/view/6452"
+wh_3 <- Web_scrape_function_WestHam(WestHam_url)
+
+WestHam_url <- "https://www.whufc.com/fixture/view/6450"
+wh_4 <- Web_scrape_function_WestHam(WestHam_url)
+
+WestHam_url <- "https://www.whufc.com/fixture/view/6436"
+wh_5 <- Web_scrape_function_WestHam(WestHam_url)
+
+WestHam_url <- "https://www.whufc.com/fixture/view/6428"
+wh_6 <- Web_scrape_function_WestHam(WestHam_url)
+
+WestHam_url <- "https://www.whufc.com/fixture/view/6407"
+wh_7 <- Web_scrape_function_WestHam(WestHam_url)
+```
+
+# Preprocessing
+
+```{r}
+
+
+# First step is to make these character vectors into a corpus to use for preprocessing 
+# Arsenal
+Arsenal <- c(Match_1, Match_2, Match_3, Match_4, Match_5, Match_6, Match_7,Match_1_2021, Match_2_2021, Match_3_2021, Match_4_2021, Match_5_2021, Match_6_2021, Match_7_2021,Match_8_2021, Match_9_2021, Match_10_2021, Match_11_2021, Match_12_2021, Match_13_2021, Match_14_2021, Match_15_2021, Match_16_2021, Match_17_2021, Match_18_2021, Match_19_2021, Match_20_2021, Match_21_2021, Match_22_2021, Match_23_2021, Match_24_2021, Match_25_2021, Match_26_2021, Match_27_2021, Match_28_2021, Match_29_2021, Match_30_2021, Match_31_2021, Match_32_2021, Match_33_2021, Match_34_2021, Match_35_2021, Match_36_2021, Match_37_2021, Match_38_2021, Match_39_2021, Match_40_2021)
+
+Arsenal_corpus <- corpus(Arsenal)
+# Man city
+
+Manchester_City <- c(Manc_1, Manc_2, Manc_3, Manc_4, Manc_5, Manc_6, Manc_7)
+                        
+
+# Newcastle united
+
+Newcastle_United <- c(nc_1, nc_2, nc_3, nc_4, nc_5, nc_6, nc_7)
+
+# Everton
+
+Everton <- c(ever_1, ever_2, ever_3, ever_4, ever_5, ever_6, ever_7)
+
+# Leicester
+
+Leicester <- c(lei_1, lei_2, lei_3, lei_4, lei_5, lei_6, lei_7)
+
+# West Ham
+
+West_Ham_United <- c(wh_1, wh_2, wh_3, wh_4, wh_5, wh_6, wh_7)
+
+# Creating list of objects to put into the loop
+Prem <- c("Arsenal", "Manchester_City", "Newcastle_United", "Everton", "Leicester", "West_Ham_United")
+
+
+# create loop.
+for (i in 1:length(Prem)){
+  
+  # create corpora
+  corpusCall <- paste(Prem[i],"_corpus <- corpus(",Prem[i],")", sep = "")
+    #print(corpusCall)
+  eval(parse(text=corpusCall))
+   #print(corpusCall)
+
+  # change document names for each chapter to include the book title. If you don't do this, the document names will be duplicated and you'll get an error.
+  namesCall <- paste("tmpNames <- docnames(",Prem[i],"_corpus)", sep = "")
+  eval(parse(text=namesCall))
+  print(namesCall)
+  bindCall <- paste("docnames(",Prem[i],"_corpus) <- paste(\"",Prem[i],"\", tmpNames, sep = \"-\")", sep = "")
+  eval(parse(text=bindCall))
+  print(bindCall)
+  # create summary data
+  summaryCall <- paste(Prem[i],"_summary <- summary(",Prem[i],"_corpus)", sep = "")
+  eval(parse(text=summaryCall))
+
+  # add indicator
+  bookCall <- paste(Prem[i],"_summary$Team <- \"",Prem[i],"\"", sep = "")
+  eval(parse(text=bookCall))
+
+  # add chapter indicator
+  chapterCall <- paste(Prem[i],"_summary$Match <- as.numeric(str_extract(",Prem[i],"_summary$Text, \"[0-9]+\"))", sep = "")
+  eval(parse(text=chapterCall))
+
+  # add meta data to each corpus
+  metaCall <- paste("docvars(",Prem[i],"_corpus) <- ",Prem[i],"_summary", sep = "")
+  eval(parse(text=metaCall))
+
+}
+
+Prem <- c(Arsenal_corpus, Manchester_City_corpus, Newcastle_United_corpus, Everton_corpus, Leicester_corpus, West_Ham_United_corpus)
+
+Prem_summary <- summary(Prem)
+ndoc(Prem)
+
+Arsenal_1 <- corpus_subset(Prem, Team == 'Arsenal')
+
+summary(Arsenal_1)
+
+
+Prem_dfm <- dfm(tokens(Prem,
+remove_punct = TRUE,
+remove_symbols = TRUE) %>%
+dfm(tolower = TRUE) %>%
+dfm_remove(stopwords('english')))
+
+topfeatures(Prem_dfm, 20)
+
+set.seed(1)
+
+# Creating a table to show the highest frequency items and then ranking them
+word_counts <- as.data.frame(sort(colSums(Prem_dfm),dec=T))
+colnames(word_counts) <- c("Frequency")
+word_counts$Rank <- c(1:ncol(Prem_dfm))
+
+ggplot(word_counts, mapping = aes(x = Rank, y = Frequency)) + 
+  geom_point() +
+  labs(title = "Zipf's Law", x = "Rank", y = "Frequency") + 
+  theme_bw()
+
+Prem_smaller_dfm <- dfm_trim(Prem_dfm, min_termfreq = 10)
+
+# trim based on the proportion of documents that the feature appears in; here, 
+# the feature needs to appear in more than 10% of documents (chapters)
+Prem_smaller_dfm <- dfm_trim(Prem_smaller_dfm, min_docfreq = 0.1, docfreq_type = "prop")
+
+Prem_smaller_dfm
+
+textplot_wordcloud(Prem_smaller_dfm, min_count = 50,
+                   random_order = FALSE)
+
+
+# Creating the FCM
+
+Prem_smaller_dfm <- dfm_trim(Prem_dfm, min_termfreq = 20)
+Prem_smaller_dfm <- dfm_trim(Prem_smaller_dfm, min_docfreq = .3, docfreq_type = "prop")
+
+# create fcm from dfm
+Prem_smaller_fcm <- fcm(Prem_smaller_dfm)
+
+# check the dimensions (i.e., the number of rows and the number of columnns)
+# of the matrix we created
+dim(Prem_smaller_fcm)
+
+# pull the top features
+myFeatures <- names(topfeatures(Prem_smaller_fcm, 30))
+
+# retain only those top features as part of our matrix
+Prem_smaller_fcm <- fcm_select(Prem_smaller_fcm, pattern = myFeatures, selection = "keep")
+
+# compute size weight for vertices in network
+size <- log(colSums(Prem_smaller_fcm))
+
+# create plot
+textplot_network(Prem_smaller_fcm, vertex_size = size / max(size) * 3)
+```
