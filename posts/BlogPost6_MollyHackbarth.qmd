@@ -575,14 +575,14 @@ geom_smooth(data = test3, aes(x = date, y = sentiment, color="Twitter")) + geom_
  ggplot() + geom_smooth(data = test4, aes(x = date, y = sentiment, color = "Reddit Tokenized")) + geom_smooth(data = test3, aes(x = date, y = sentiment, color = "Twitter Tokenized")) + geom_smooth(data = test2, aes(x = date, y = sentiment, color = "Reddit Uncleaned Data")) + geom_smooth(data = test, aes(x = date, y = sentiment, color = "Twitter Uncleaned Data")) + 
 scale_color_manual(name='Social Medias',
                   breaks=c('Reddit Tokenized', 'Twitter Tokenized', 'Reddit Uncleaned Data', 'Twitter Uncleaned Data'),
-                  values=c('Reddit Tokenized'='#EEA2AD', 'Twitter Tokenized'='cadetblue1', 'Reddit Uncleaned Data' = 'red', 'Twitter Uncleaned Data' = 'blue')) +
+                  values=c('Reddit Tokenized'='Red', 'Twitter Tokenized'='blue', 'Reddit Uncleaned Data' = '#EEA2AD', 'Twitter Uncleaned Data' = 'cadetblue1')) +
   labs(title="Twitter vs Reddit Average Sentiment")
                  
          
  ggplot() + geom_density(data = test4, aes(sentiment, color = "Reddit Tokenized")) + geom_density(data = test3, aes(sentiment, color = "Twitter Tokenized")) + geom_density(data = test2, aes(sentiment, color = "Reddit Uncleaned Data")) + geom_density(data = test, aes(sentiment, color = "Twitter Uncleaned Data")) + 
 scale_color_manual(name='Social Medias',
                   breaks=c('Reddit Tokenized', 'Twitter Tokenized', 'Reddit Uncleaned Data', 'Twitter Uncleaned Data'),
-                  values=c('Reddit Tokenized'='#EEA2AD', 'Twitter Tokenized'='cadetblue1', 'Reddit Uncleaned Data' = 'red', 'Twitter Uncleaned Data' = 'blue')) +
+                  values=c('Reddit Tokenized'='Red', 'Twitter Tokenized'='blue', 'Reddit Uncleaned Data' = '#EEA2AD', 'Twitter Uncleaned Data' = 'cadetblue1')) +
   labs(title="Twitter vs Reddit Average Sentiment")
 
 ```
