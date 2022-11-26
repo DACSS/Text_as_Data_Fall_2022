@@ -1,0 +1,136 @@
+---
+title: "Tidying Tweets"
+author: "Kirsten Johnson"
+desription: "Blog Post 2: Tidying Tweets"
+date: "11/15/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - Blog post 2 
+  - Twitter
+  - Traffic Safety
+  - Sentiment Analysis
+---
+
+```{r}
+#| label: setup
+#| warning: false
+
+library(tidyverse)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Using the Twitter API
+
+For my final project, I plan on conducting an analysis of tweets mentioning MassDOT, as I work on social media for the agency as part of my job. With the MBTA GM stepping down in early November and the agency under scrutiny over the past few weeks due to public dissatisfaction with the public transit system in Massachusetts, I'm interested if a negative sentiment can be identified towards MassDOT. Though MBTA and MassDOT are two different agencies, they work in tandem and the work of both are often conflated with each other by the public.
+
+I decided to look at tweets in particular since MassDOT's primary social media precense is on Twitter. Using the Twitter API took much trial and error. After some time I was able to gathered tweets from the past 7 days that mention MassDOT on Twitter using the twarc2 package in Python. The goal is to capture the public's attitude towards the agency and traffic safety culture. I plan to gather 30 days of tweets over the next few weeks, but I will start tidying the data I have collected thus far. These tweets have been saved to a CSV file.
+
+### Tidy Tweets
+
+The Twitter API limits searching for tweets up to seven days old. Assuming Twitter still exists (thanks Elon), I'll be gathering tweets using the API over the next few weeks in hopes to compile at least a month of data.
+
+## The tweets I've gathered thus far are for November 8th-15th, 2022. I'll start by creating a corpus with these tweets. Let's start by loading the necessary packages.
+
+```{r}
+packages <- c("cleanNLP", "devtools", "tidytext", "plyr", "tidyverse", "quanteda")
+
+install.packages(setdiff(packages, rownames(installed.packages())))  
+
+
+# load libraries
+library(cleanNLP)
+library(tidytext)
+library(tidyverse)
+library(quanteda)
+library(plyr)
+library(dplyr)
+library(devtools)
+library(tidyverse)
+```
+
+Now I'll import the csv of tweets and preview the first 20 rows of data and summarize the data.
+
+```{r}
+# Import csv of tweets containing the text "MassDOT
+massdot_tweets <- read.csv("../MassDOTtweets.csv")
+massdot_tweets <- as_tibble(massdot_tweets)
+
+# Preview first 20 rows
+head(massdot_tweets, 20)
+
+# Summarize data
+summary(massdot_tweets)
+```
+
+Over the 7-day time period, 533 tweets mention MassDOT. The tweets data contains 78 columns, many of which are of no interest to me. While I may change my mind in the future, I am only interested in the tweet text, the tweet date, and the username that the tweet came from. I also don't want to include tweets that are from the @MassDOT or @MassDOTSafety handles, as I am only interested in tweets coming from outside of the agency. I'll filter those out.
+
+```{r}
+#Subset data to only include relevant fields
+#Filter out tweets from @MassDOT or @MassDOTSafety
+library(dplyr)
+massdot_tweets<- massdot_tweets %>% 
+  select(author.username, created_at, text)%>%
+  filter(author.username != "MassDOT")%>%
+  filter(author.username != "MassDOTSafety")
+summary(massdot_tweets)
+```
+
+After filtering out tweets from MassDOT, I'm left with 500 tweets. Now I'll create a corpus.
+
+```{r}
+# Create corpus of tweets
+massdot_tweets_corpus <-corpus(massdot_tweets)
+massdot_tweets_summary <- summary(massdot_tweets_corpus)
+massdot_tweets_summary
+```
+
+Twitter users often write tweets in more of a stream of consciousness format, meaning they don't use complete sentences. I'm skeptical about the reliability of the sentences field in the summary output. However, the word count is likely more accurate. I'm curious how many words on average are used in a tweet mentioning MassDOT.
+
+```{r}
+##Get mean number of words in a tweet
+mean((ntoken(massdot_tweets_corpus)))
+##Get median number of words in a tweet
+median((ntoken(massdot_tweets_corpus)))
+```
+
+On average, 29 tokens (words) are contained in a tweet mentioning MassDOT, and the median amount of tokens in the 500 tweet set is 24. Next I will tokenize these tweets and drop the puncuation. For now, I'll include the numbers
+
+```{r}
+# Tokenize tweets
+tweets_tokens <- tokens(massdot_tweets_corpus,
+                        remove_punct = T)
+(print(tweets_tokens))
+
+```
+
+Now I want to take a quick look at how "MassDOT" is used in these tweets, whether it be a tag or just mentioned in the text.
+
+```{r}
+# check use of MassDOT in tweets
+kwic_massDOT<- kwic(tweets_tokens,
+                    pattern = c("massdot"),
+                    window = 5)
+head(kwic_massDOT, 50)
+```
+
+I notice a lot of the tweet text is repeated in multiple records, likely indicating a retweet. I do wonder how those records should be handled.
+
+Since I ultimately am interested in understanding the sentiment of the tweets, I need to start investigating what words are used and the frequency of those words. I'll look at what adjectives are used most in my next blog post.
+
+### Questions and Next Steps
+
+After this initial exploration, I'm left with more questions than answers:
+
+1.  *Assuming I am able to gather tweets every 7 days, will 1000-2000 tweets be sufficient for a reliable analysis? Is my analysis too narrow?*
+
+2.  *Is there even a sentiment to be found?* In my experience of reviewing tweets mentioning MassDOT, many come from news or informational accounts. Can these be used in understanding public sentiment or should I pivot to topic modeling?
+
+3.  *Do retweets need to be removed?* Retweets will create duplicates of the tweet text, but does this still count as an individual tweet? I'm inclined to say yes, since a retweet is often the Twitter user agreeing with the tweet. I'll look through literature to understand if this is appropriate.
+
+------------------------------------------------------------------------
