@@ -260,56 +260,56 @@ geom_smooth(data = reddit_emotions, aes(x = date, y = anger_percent, color="Redd
     scale_color_manual(name='Social Medias',
                      breaks=c('Reddit', 'Twitter'),
                      values=c('Reddit'='red', 'Twitter'='blue')) +
-  labs(title="Twitter vs Reddit anger percentage by date")
+  labs(title="Twitter vs Reddit anger percentage by date") + ylab("anger percent")
 
 anticipation <- ggplot() +
 geom_smooth(data = reddit_emotions, aes(x = date, y = anticipation_percent, color="Reddit")) + geom_smooth(data = twitter_emotions, aes(x = date, y = anticipation_percent, color = "Twitter")) +
     scale_color_manual(name='Social Medias',
                      breaks=c('Reddit', 'Twitter'),
                      values=c('Reddit'='red', 'Twitter'='blue')) +
-  labs(title="Twitter vs Reddit anticipation percentage by date")
+  labs(title="Twitter vs Reddit anticipation percentage by date") + ylab("anticipation percent")
 
 disgust <- ggplot() +
 geom_smooth(data = reddit_emotions, aes(x = date, y = disgust_percent, color="Reddit")) + geom_smooth(data = twitter_emotions, aes(x = date, y = disgust_percent, color = "Twitter")) +
     scale_color_manual(name='Social Medias',
                      breaks=c('Reddit', 'Twitter'),
                      values=c('Reddit'='red', 'Twitter'='blue')) +
-  labs(title="Twitter vs Reddit disgust percentage by date")
+  labs(title="Twitter vs Reddit disgust percentage by date") + ylab("disgust percent")
 
 fear <- ggplot() +
 geom_smooth(data = reddit_emotions, aes(x = date, y = fear_percent, color="Reddit")) + geom_smooth(data = twitter_emotions, aes(x = date, y = fear_percent, color = "Twitter")) +
     scale_color_manual(name='Social Medias',
                      breaks=c('Reddit', 'Twitter'),
                      values=c('Reddit'='red', 'Twitter'='blue')) +
-  labs(title="Twitter vs Reddit fear percentage by date")
+  labs(title="Twitter vs Reddit fear percentage by date") + ylab("fear percent")
 
 joy <- ggplot() +
 geom_smooth(data = reddit_emotions, aes(x = date, y = joy_percent, color="Reddit")) + geom_smooth(data = twitter_emotions, aes(x = date, y = joy_percent, color = "Twitter")) +
     scale_color_manual(name='Social Medias',
                      breaks=c('Reddit', 'Twitter'),
                      values=c('Reddit'='red', 'Twitter'='blue')) +
-  labs(title="Twitter vs Reddit joy percentage by date")
+  labs(title="Twitter vs Reddit joy percentage by date") + ylab("joy percent")
 
 sadness <- ggplot() +
 geom_smooth(data = reddit_emotions, aes(x = date, y = sadness_percent, color="Reddit")) + geom_smooth(data = twitter_emotions, aes(x = date, y = sadness_percent, color = "Twitter")) +
     scale_color_manual(name='Social Medias',
                      breaks=c('Reddit', 'Twitter'),
                      values=c('Reddit'='red', 'Twitter'='blue')) +
-  labs(title="Twitter vs Reddit sadness percentage by date")
+  labs(title="Twitter vs Reddit sadness percentage by date") + ylab("sadness percent")
 
 surprise <- ggplot() +
 geom_smooth(data = reddit_emotions, aes(x = date, y = surprise_percent, color="Reddit")) + geom_smooth(data = twitter_emotions, aes(x = date, y = surprise_percent, color = "Twitter")) +
     scale_color_manual(name='Social Medias',
                      breaks=c('Reddit', 'Twitter'),
                      values=c('Reddit'='red', 'Twitter'='blue')) +
-  labs(title="Twitter vs Reddit surprise percentage by date")
+  labs(title="Twitter vs Reddit surprise percentage by date") + ylab("surprise percent")
 
 trust <- ggplot() +
 geom_smooth(data = reddit_emotions, aes(x = date, y = trust_percent, color="Reddit")) + geom_smooth(data = twitter_emotions, aes(x = date, y = trust_percent, color = "Twitter")) +
     scale_color_manual(name='Social Medias',
                      breaks=c('Reddit', 'Twitter'),
                      values=c('Reddit'='red', 'Twitter'='blue')) +
-  labs(title="Twitter vs Reddit trust percentage by date")
+  labs(title="Twitter vs Reddit trust percentage by date") + ylab("trust percent")
 
 
 negative <- ggplot() +
@@ -317,24 +317,34 @@ geom_smooth(data = reddit_emotions, aes(x = date, y = negative_percent, color="R
     scale_color_manual(name='Social Medias',
                      breaks=c('Reddit', 'Twitter'),
                      values=c('Reddit'='red', 'Twitter'='blue')) +
-  labs(title="Twitter vs Reddit negativeness percentage by date")
+  labs(title="Twitter vs Reddit negativeness percentage by date") + ylab("negative percent")
 
 positive <- ggplot() +
 geom_smooth(data = reddit_emotions, aes(x = date, y = positive_percent, color="Reddit")) + geom_smooth(data = twitter_emotions, aes(x = date, y = positive_percent, color = "Twitter")) +
     scale_color_manual(name='Social Medias',
                      breaks=c('Reddit', 'Twitter'),
                      values=c('Reddit'='red', 'Twitter'='blue')) +
-  labs(title="Twitter vs Reddit positveness percentage by date")
+  labs(title="Twitter vs Reddit positveness percentage by date") + ylab("positive percent")
 
-anger / disgust 
+anger 
+
+disgust 
   
-fear / sadness 
+fear
 
-anticipation / joy 
+sadness 
 
-surprise / trust
+anticipation
 
-positive/negative
+joy 
+
+surprise
+
+trust
+
+positive
+
+negative
 
 
 twitter_reddit_sentiment <- ggplot() +
@@ -342,7 +352,7 @@ geom_smooth(data = reddit_emotions, aes(x = date, y = polarity, color="Reddit"))
 scale_color_manual(name='Social Medias',
                   breaks=c('Reddit', 'Twitter'),
                   values=c('Reddit'='red', 'Twitter'='blue')) +
-  labs(title="Twitter vs Reddit average dictionary sentiment")
+  labs(title="Twitter vs Reddit average dictionary sentiment") + ylab("sentiment")
 
 twitter_reddit_sentiment
 
