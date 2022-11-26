@@ -1,5 +1,5 @@
 ---
-title: "Blog Post Six: Working with Time Series"
+title: "Blog Post Six: Working Towards the Final"
 author: "Molly Hackbarth"
 description: "Working with the data"
 date: "12/9/2022"
@@ -14,12 +14,6 @@ categories:
   - hw6
   - Molly Hackbarth
 ---
-
-```{r qwrap2}
-library(qwraps2)
-knitr::opts_chunk$set(cache = TRUE)
-#qwraps2::lazyload_cache_dir(path = "sixth_post_cache/html5")
-```
 
 ```{r libraries}
 library(tidyverse)
@@ -40,6 +34,8 @@ library(tm)
 
 ## new package 
 library(sentimentr)
+library(text2vec)
+library(LDAvis)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -187,10 +183,14 @@ tdf_nrc$date <- twitterDfm_nrc@docvars$date
 tdf_nrc$polarity <- (tdf_nrc$positive - tdf_nrc$negative)/(tdf_nrc$positive + tdf_nrc$negative)
 tdf_nrc$polarity[which((tdf_nrc$positive + tdf_nrc$negative) == 0)] <- 0
 
+tdf_nrc <- tdf_nrc %>% arrange((date)) %>% rowid_to_column(var='count')
+
 rdf_nrc <- convert(redditDfm_nrc, to = "data.frame")
 rdf_nrc$date <- redditDfm_nrc@docvars$date
 rdf_nrc$polarity <- (rdf_nrc$positive - rdf_nrc$negative)/(rdf_nrc$positive + rdf_nrc$negative)
 rdf_nrc$polarity[which((rdf_nrc$positive + rdf_nrc$negative) == 0)] <- 0
+
+rdf_nrc <- rdf_nrc %>% arrange((date)) %>% rowid_to_column(var='count')
 
 reddit_emotions <- rdf_nrc %>% 
   group_by(date) %>% 
@@ -399,6 +399,41 @@ r_np
 Overall we're able to see that for Twitter the top three sentiments are: anticipation, joy and trust. For Reddit the top three sentiments are: trust, anticipation, and joy. This is interesting as it seems Reddit and Twitter share similar feelings about the show from a pure word count standpoint.
 
 Additionally we can see there is a much higher word count for positive words for Reddit and Twitter.
+
+```{r sentiments by social media}
+
+ggplot() +
+geom_smooth(data = reddit_emotions, aes(x = date, y = anger_percent, color = "anger")) + geom_smooth(data = reddit_emotions, aes(x = date, y = anticipation_percent, color = "anticipation")) + geom_smooth(data = reddit_emotions, aes(x = date, y = disgust_percent, color = "disgust")) + geom_smooth(data = reddit_emotions, aes(x = date, y = fear_percent, color = "fear")) + geom_smooth(data = reddit_emotions, aes(x = date, y = joy_percent, color = "joy")) + geom_smooth(data = reddit_emotions, aes(x = date, y = sadness_percent, color = "sadness")) + geom_smooth(data = reddit_emotions, aes(x = date, y = surprise_percent, color = "surprise")) + geom_smooth(data = reddit_emotions, aes(x = date, y = trust_percent, color = "trust")) + 
+    scale_color_manual(name='Sentiments',
+                     breaks=c('anger', 'anticipation', 'disgust', 'fear', 'joy', 'sadness', 'surprise', 'trust'),
+                     values=c('anger'='#4E79A7', 'anticipation'='#F28E2B', 'disgust' = '#E15759', 'fear' = '#76B7B2', 'joy' = '#59A14F', 'sadness' = '#EDC948', 'surprise' = '#B07AA1', 'trust' = '#FF9DA7')) +
+  labs(title="Reddit sentiment percentages by date") + ylab("percent")
+
+ggplot() +
+geom_smooth(data = twitter_emotions, aes(x = date, y = anger_percent, color = "anger")) + geom_smooth(data = twitter_emotions, aes(x = date, y = anticipation_percent, color = "anticipation")) + geom_smooth(data = twitter_emotions, aes(x = date, y = disgust_percent, color = "disgust")) + geom_smooth(data = twitter_emotions, aes(x = date, y = fear_percent, color = "fear")) + geom_smooth(data = twitter_emotions, aes(x = date, y = joy_percent, color = "joy")) + geom_smooth(data = twitter_emotions, aes(x = date, y = sadness_percent, color = "sadness")) + geom_smooth(data = twitter_emotions, aes(x = date, y = surprise_percent, color = "surprise")) + geom_smooth(data = twitter_emotions, aes(x = date, y = trust_percent, color = "trust")) + 
+    scale_color_manual(name='Sentiments',
+                     breaks=c('anger', 'anticipation', 'disgust', 'fear', 'joy', 'sadness', 'surprise', 'trust'),
+                     values=c('anger'='#4E79A7', 'anticipation'='#F28E2B', 'disgust' = '#E15759', 'fear' = '#76B7B2', 'joy' = '#59A14F', 'sadness' = '#EDC948', 'surprise' = '#B07AA1', 'trust' = '#FF9DA7')) +
+  labs(title="Twitter sentiment percentages by date") + ylab("percent")
+
+
+ggplot() +
+geom_smooth(data = twitter_emotions, aes(x = date, y = positive_percent, color = "positive")) + geom_smooth(data = twitter_emotions, aes(x = date, y = negative_percent, color = "negative")) + 
+    scale_color_manual(name='Sentiments',
+                     breaks=c('positive', 'negative'),
+                     values=c('positive'='#E28394', 'negative'='#77A2BB')) +
+  labs(title="Twitter positive and negative sentiment percentages by date") + ylab("percent")
+
+ggplot() +
+geom_smooth(data = reddit_emotions, aes(x = date, y = positive_percent, color = "positive")) + geom_smooth(data = reddit_emotions, aes(x = date, y = negative_percent, color = "negative")) + 
+    scale_color_manual(name='Sentiments',
+                     breaks=c('positive', 'negative'),
+                     values=c('positive'='#E28394', 'negative'='#77A2BB')) +
+  labs(title="Reddit positive and negative sentiment percentages by date") + ylab("percent")
+
+```
+
+I have also added a few more graphs that I am unsure if I will use them in the final project. I think they're all very interesting, but would need to figure out what the best ones would be to include.
 
 ## Sentiment New!
 
@@ -622,6 +657,8 @@ scale_color_manual(name='Social Medias',
 
 ```
 
+Here I tested a few more graphs that seemed like interesting ideas to go onto the final project. Although all of them could be good I think the most interesting one is comparing the graphs of uncleaned data to the tokenized version. This shows us the importance of tokenizing and making sure our data is showing an actual sentiment with less filler words.
+
 # Word Cloud
 
 ```{r wordclouds}
@@ -630,9 +667,161 @@ textplot_wordcloud(twitter_corpus_dfm, max_words=200, color="blue")
 textplot_wordcloud(reddit_corpus_dfm, max_words=200, color="red")
 ```
 
+# LDA New!
+
+Below I will try testing the LDA.
+
+```{r lda}
+
+rlda <- dfm(reddit_lemmitized)
+
+docvars(reddit_lemmitized) <- rlda
+
+rlda$polarity <- rdf_nrc$polarity
+
+rlda$date <- rdf_nrc$date
+
+rlda_model <- LDA$new(n_topics = 25, doc_topic_prior = 0.1,
+                     topic_word_prior = 0.01)
+
+rdoc_topic_distr <- 
+  rlda_model$fit_transform(x = rlda, n_iter = 1000,
+                          convergence_tol = 0.001, n_check_convergence = 25,
+                          progressbar = FALSE)
+
+
+```
+
+```{r t lda}
+
+tlda <- dfm(twitter_lemmitized)
+
+docvars(twitter_lemmitized) <- tlda
+
+tlda$polarity <- tdf_nrc$polarity
+
+tlda$date <- tdf_nrc$date
+
+tlda_model <- LDA$new(n_topics = 25, doc_topic_prior = 0.1,
+                     topic_word_prior = 0.01)
+
+tdoc_topic_distr <- 
+  tlda_model$fit_transform(x = tlda, n_iter = 1000,
+                          convergence_tol = 0.001, n_check_convergence = 25,
+                          progressbar = FALSE)
+
+
+```
+
+```{r charting r}
+
+barplot(rdoc_topic_distr[1, ], xlab = "topic",
+        ylab = "proportion", ylim = c(0,1),
+        names.arg = 1:ncol(rdoc_topic_distr))
+
+rlda_model$get_top_words(n = 10, topic_number = c(1L, 5L, 10L),
+                        lambda = 1)
+rlda_model$get_top_words(n = 10, topic_number = c(1L, 5L, 10L),
+                        lambda = 0.2)
+
+```
+
+```{r charting t}
+
+barplot(tdoc_topic_distr[1, ], xlab = "topic",
+        ylab = "proportion", ylim = c(0,1),
+        names.arg = 1:ncol(tdoc_topic_distr))
+
+tlda_model$get_top_words(n = 10, topic_number = c(1L, 5L, 10L),
+                        lambda = 1)
+tlda_model$get_top_words(n = 10, topic_number = c(1L, 5L, 10L),
+                        lambda = 0.2)
+```
+
+```{r testing visuals}
+
+library(LDAvis)
+
+rlda_model$plot()
+
+tlda_model$plot()
+
+
+```
+
+Here we're able to see some interesting things! For Reddit especially, Twitter and Reddit topics seem to have topics that overlap significantly. This was something I hadn't seen before with my STM models.
+
+We're also able to see with a lambda of 1 and .2 there's quite a difference in topic names.
+
+Additionally we're able to see that some bar topics stand out quite a lot more than other topics. This made me decide to try a smaller amount of topics.
+
+```{r 2nd test}
+rlda_model <- LDA$new(n_topics = 5, doc_topic_prior = 0.1,
+                     topic_word_prior = 0.01)
+
+rdoc_topic_distr <- 
+  rlda_model$fit_transform(x = rlda, n_iter = 1000,
+                          convergence_tol = 0.001, n_check_convergence = 25,
+                          progressbar = FALSE)
+
+tlda_model <- LDA$new(n_topics = 5, doc_topic_prior = 0.1,
+                     topic_word_prior = 0.01)
+
+tdoc_topic_distr <- 
+  tlda_model$fit_transform(x = tlda, n_iter = 1000,
+                          convergence_tol = 0.001, n_check_convergence = 25,
+                          progressbar = FALSE)
+
+barplot(rdoc_topic_distr[1, ], xlab = "topic",
+        ylab = "proportion", ylim = c(0,1),
+        names.arg = 1:ncol(rdoc_topic_distr))
+
+barplot(tdoc_topic_distr[1, ], xlab = "topic",
+        ylab = "proportion", ylim = c(0,1),
+        names.arg = 1:ncol(tdoc_topic_distr))
+
+rlda_model$plot()
+
+tlda_model$plot()
+```
+
+Hmm looking at the charts while it seems to work alright, none of the topics touch each other that much. Additionally there seems to be a lot more interacting that's realistic when it was broken out into more categories. Since in my previous blog post I did find the best k-means to be 25 I'll stick with that.
+
+```{r full lda code}
+
+rlda_model <- LDA$new(n_topics = 25, doc_topic_prior = 0.1,
+                     topic_word_prior = 0.01)
+
+rdoc_topic_distr <- 
+  rlda_model$fit_transform(x = rlda, n_iter = 1000,
+                          convergence_tol = 0.001, n_check_convergence = 25,
+                          progressbar = FALSE)
+
+tlda_model <- LDA$new(n_topics = 25, doc_topic_prior = 0.1,
+                     topic_word_prior = 0.01)
+
+tdoc_topic_distr <- 
+  tlda_model$fit_transform(x = tlda, n_iter = 1000,
+                          convergence_tol = 0.001, n_check_convergence = 25,
+                          progressbar = FALSE)
+
+barplot(rdoc_topic_distr[1, ], xlab = "topic",
+        ylab = "proportion", ylim = c(0,1),
+        names.arg = 1:ncol(rdoc_topic_distr))
+
+barplot(tdoc_topic_distr[1, ], xlab = "topic",
+        ylab = "proportion", ylim = c(0,1),
+        names.arg = 1:ncol(tdoc_topic_distr))
+
+rlda_model$plot()
+
+tlda_model$plot()
+
+```
+
 # STM New!
 
-Below I will have the STM for both reddit and twitter. This time I have added two prevalance items, polarity and dates.
+Below I will have the STM for both reddit and twitter. This time I have added two prevalence items, polarity and dates. To get a count of days I used the arrange() function to arrange the dates correctly and then the rowid_to_column(var='count') function to gather a count by row.
 
 ```{r stm reddit}
 k <- 25
@@ -642,32 +831,17 @@ docvars(reddit_lemmitized) <- rModel
 
 rModel$polarity <- rdf_nrc$polarity
 
+rModel$count <- rdf_nrc$count
+
 rModel <- stm(rModel,
                 K = k,
-              prevalence = ~ polarity + date,
+              prevalence = ~ polarity + s(count),
                max.em.its = 1000,
                seed = 1234,
                init.type = "Spectral")
 
 #labelTopics(rModel)
 plot(rModel, type = "summary", main="Reddit top topics by sentiment and date")
-
-# get the words
-rTopicNames <- labelTopics(rModel, n=4)$frex
-
-# set up an empty vector
-rTopicLabels <- rep(NA, k)
-
-# set up a loop to go through the topics and collapse the words to a single name
-for (i in 1:k){
-  rTopicLabels[i] <- paste(rTopicNames[i,], collapse = "_")
-}
-
-# print the names
-rTopicLabels
-
-
-
 ```
 
 ```{r stm twitter}
@@ -679,32 +853,20 @@ docvars(twitter_lemmitized) <- tModel
 
 tModel$polarity <- tdf_nrc$polarity
 
+tModel$count <- tdf_nrc$count
+
 tModel <- stm(tModel,
                 K = k,
-              prevalence = ~ polarity + date,
+              prevalence = ~ polarity + s(count),
                max.em.its = 1000,
                seed = 1234,
                init.type = "Spectral")
 
 labelTopics(tModel)
 plot(tModel, type = "summary", main="Twitter top topics by sentiment and date")
-
-# get the words
-tTopicNames <- labelTopics(tModel, n=4)$frex
-
-# set up an empty vector
-tTopicLabels <- rep(NA, k)
-
-# set up a loop to go through the topics and collapse the words to a single name
-for (i in 1:k){
-  tTopicLabels[i] <- paste(tTopicNames[i,], collapse = "_")
-}
-
-# print the names
-tTopicLabels
 ```
 
-Here I was able to see that even with two factors (polarity and dates) it seems that the topics stayed fairly similar.
+Here I was able to see that even with two factors (polarity and dates) it seems that the topics stayed fairly similar. However when I used count instead of date it did turn into a somewhat different STM model! This may be because the function s() is working properly on a continuous variable.
 
 # Final Thoughts (TLDR)
 
