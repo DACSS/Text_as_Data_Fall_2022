@@ -445,5 +445,16 @@ book_peek
 ```
 
 
+# References
+
+Goodrum H, Roberts K, Bernstam EV. Automatic classification of scanned electronic health record documents. Int J Med Inform. 2020 Dec;144:104302. doi: 10.1016/j.ijmedinf.2020.104302. Epub 2020 Oct 17. PMID: 33091829; PMCID: PMC7731898. https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7731898/
+
+Hsu E, Malagaris I, Kuo YF, Sultana R, Roberts K. Deep learning-based NLP data pipeline for EHR-scanned document information extraction. JAMIA Open. 2022 Jun 11;5(2):ooac045. doi: 10.1093/jamiaopen/ooac045. PMID: 35702624; PMCID: PMC9188320. https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9188320/ 
+
+Liu X, Meehan J, Tong W, Wu L, Xu X, Xu J. DLI-IT: a deep learning approach to drug label identification through image and text embedding. BMC Med Inform Decis Mak. 2020 Apr 15;20(1):68. doi: 10.1186/s12911-020-1078-3. PMID: 32293428; PMCID: PMC7158001. https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7158001/
+
+Nguyen, A., O'Dwyer, J., Vu, T., Webb, P. M., Johnatty, S. E., & Spurdle, A. B. (2020). Generating high-quality data abstractions from scanned clinical records: text-mining-assisted extraction of endometrial carcinoma pathology features as proof of principle. BMJ open, 10(6), e037740. https://doi.org/10.1136/bmjopen-2020-037740 https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7295399/
+
+Rasmussen LV, Peissig PL, McCarty CA, Starren J. Development of an optical character recognition pipeline for handwritten form fields from an electronic health record. J Am Med Inform Assoc. 2012 Jun;19(e1):e90-5. doi: 10.1136/amiajnl-2011-000182. Epub 2011 Sep 2. PMID: 21890871; PMCID: PMC3392858.https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3392858/
 
 
