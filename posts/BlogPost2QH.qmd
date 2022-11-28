@@ -1,0 +1,124 @@
+---
+title: "Text as Data Final Project"
+author: "Quinn He"
+desription: "Research project"
+date: "10/19/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - Blog Post 2
+---
+
+```{r}
+#| label: setup
+#| warning: false
+
+library(tidyverse)
+library(RedditExtractoR)
+library(syuzhet)
+library(rvest)
+library(quanteda)
+library(quanteda.textplots)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Research Question
+
+Compare how two subreddits (/r/republicans and /r/democrats) discuss particular political issues. With this it may be difficult because the democrat subreddit has a far superior user base. 
+
+I think I will have to actually scrape reddit for the comments at least because I cannot find the command to get comments of posts. I am able to get the titles of posts and how many comments they have, but I want to analze the discourse of the comments as well. 
+
+Should I do something with /r/conspiracy?
+
+If I choose to look into rhetoric on the ukraine/russian war, I would have to pick different subreddits because there were little to no posts in subreddit titles. 
+
+What words do they tend to use over the opposition?
+
+Below I am pulling data from the two subreddits below. As of now, these two subreddits will be my focus for analysis. 
+```{r}
+
+red <- find_thread_urls(subreddit = "republicans", sort_by = "top", period = "month")
+
+blue <- find_thread_urls(subreddit = "democrats", sort_by = "top", period = "month")
+
+```
+Word cloud for /r/democrats titles
+```{r}
+
+blue_corpus <- corpus(blue$title)
+
+blue_tokens <- tokens(blue_corpus,
+                      remove_punct = T,
+                      remove_numbers = T)
+
+blue_tokens <- tokens_select(blue_tokens,
+                             pattern = stopwords("en"),
+                             selection = "remove")
+            
+
+blue_dfm <- dfm(blue_tokens)%>% 
+  dfm_trim(min_termfreq = 3)
+
+textplot_wordcloud(blue_dfm, max_words = 100, color = "blue")
+
+```
+I created this wordcloud just to get a visual of the popular words for /r/democrats. I made sure to set a specific minimum frequency to weed out words that are too infrequent. I also implemented some basic preprocessing techniques on corpus and tokens I created of the two subreddits titles. It's interesting that both subreddit's titles mostly contain "trump". The fringe words on the outside of both wordclouds is more noteworthy as that is where the niche discussions associated with the subreddits comes in. 
+
+
+Word cloud for /r/republicans titles
+```{r}
+red_corpus <- corpus(red$title)
+
+red_tokens <- tokens(red_corpus,
+                      remove_punct = T,
+                      remove_numbers = T)
+
+red_tokens <- tokens_select(red_tokens,
+                             pattern = stopwords("en"),
+                             selection = "remove")
+            
+
+red_dfm <- dfm(red_tokens) %>% 
+  dfm_trim(min_termfreq = 3)
+
+textplot_wordcloud(red_dfm, max_words = 100, color = "red")
+```
+
+This only gets the titles of the recent posts on the subreddit, but for now I will use it to just run sentiment analysis on that.
+
+```{r}
+
+red_title_sent <- get_nrc_sentiment(red$title)
+
+blue_title_sent <- get_nrc_sentiment(blue$title)
+
+red_title_sent <- cbind(red_title_sent, red)
+
+blue_title_sent <- cbind(blue_title_sent, blue)
+
+```
+
+## Notes from other research
+
+Reddit is not a great representation of the general public. It is a niche group, but can have more in depth discussion than Twitter. Reddit users are also, usually, passionate about certain ideas and subjects, therefore many users will talk freely about their ideas. 
+
+## For Blog Post 3
+
+I'd like to work with dictionaries and try to measure sentiment and polarity among the subreddits. In this post I ran analysis on just the titles of reddit posts because I was unable to get the comments through the Reddit ExtractoR package. I will also try to touch on topic modeling. 
+
+
+## Previous Research
+
+A Tale of Two Subreddits: https://ojs.aaai.org/index.php/ICWSM/article/view/19347/19119
+
+No echo in the chambers of political interactions on Reddit: https://www.nature.com/articles/s41598-021-81531-x
+
+Determining Presidential Approval Rating Using Reddit Sentiment Analysis: https://towardsdatascience.com/determining-presidential-approval-rating-using-reddit-sentiment-analysis-7912fdb5fcc7
+
+https://www.researchgate.net/publication/349794705_Populist_Supporters_on_Reddit_A_Comparison_of_Content_and_Behavioral_Patterns_Within_Publics_of_Supporters_of_Donald_Trump_and_Hillary_Clinton
+
