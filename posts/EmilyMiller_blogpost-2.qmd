@@ -43,6 +43,16 @@ load("/Users/emmanuelmiller/Desktop/dacss697d/Text_as_Data_Fall_2022/posts/_data
 # load("dat9.RData")
 ```
 
+# Recap
+
+Questions:
+
+* Is there a difference in language use between penises and vulvas?
+* Is there a change in language use over time?
+
+How: Compare language use in anatomy textbooks
+
+
 # Overview
 
 Acquiring textbooks from the Internet Archive (IA) took me multiple steps. On the IA website, there is an option to search through the text portion of a book. On the IA API, however, I couldn't find this option. The best I could find was looking through a book's metadata, which wasn't the same. When I looked for the word "vagina", this returned gynecology books and almost no anatomy books, compared to when I searched in the text. I decided to search "vagina" instead of "genital" because some anatomy books historically haven't reviewed the vagina/vulva. Because of this I performed the data review in multiple steps:
