@@ -1,0 +1,470 @@
+---
+title: "Blog Post #4: Word Embedding & Dictionaries"
+author: "Alexis Gamez"
+desription: "Studying text-as-data as it relates to eating bugs"
+date: "11/20/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - Alexis Gamez 
+  - blogpost4
+  - Word Embedding
+  - Dictionary Analysis
+---
+# Setup
+
+<details>
+  <summary> View Code</summary>
+  
+```{r setup, include=TRUE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = TRUE)
+library(plyr)
+library(tidyverse)
+library(tidytext)
+library(readr)
+library(devtools)
+library(knitr)
+library(data.table)
+library(rvest)
+library(rtweet)
+library(twitteR)
+library(tm)
+library(lubridate)
+library(quanteda)
+library(quanteda.textplots)
+library(quanteda.textstats)
+library(wordcloud)
+library(text2vec)
+library(ggplot2)
+library(devtools)
+# devtools::install_github("kbenoit/quanteda.dictionaries")
+library(quanteda.dictionaries)
+# remotes::install_github("quanteda/quanteda.sentiment")
+library(quanteda.sentiment)
+```
+</details>
+
+# **Data Source**
+
+As with previous blog posts, I will be continuing to use the corpus I've built from pulling tweets from the social media platform Twitter. All tweets have been pulled with relevance to the key words and phrases of `eating bugs` and `eating insects`. The CSV file we will eventually read in is a compilation of such tweets extracted between the dates of November 3rd and November 13th. 
+
+# **Goals**
+
+For this post, I'm going to be exploring the use of word embedding, & dictionary methods within my corpus. I will exclusively be utilizing the techniques found within tutorials 7 & 8. As to whether each technique is effectively useful to our analysis is to be determined by our experimentation. 
+
+# **Word Embeddings**
+
+## *Pre-Analysis*
+
+I start off by reading in my corpus as the `bug_tweets` object. Then, we'll work to tokenize and vectorize the corpus. We'll be using the `text2vec` package heavily in this section.
+
+```{r, echo=TRUE}
+# First we're going to read in our existing corpus, calling to the csv file we created in blog post #2
+bug_tweets <- read.csv("eating_bugs_tweets_11_13_22.csv")
+head(bug_tweets, 10)
+dim(bug_tweets)
+```
+
+### Tokenizing & Vectorizing
+
+Now that we've read in our `bug_tweets` object, we'll be using `word_tokenizer` to tokenize our documents into a new object, `bug_tokens`.
+
+<details>
+  <summary> View Code</summary>
+  
+```{r, echo=TRUE}
+# Tokenizing the corpus
+bug_tokens <- word_tokenizer(bug_tweets)
+head(bug_tokens, 5)
+```
+</details>
+
+With the token object created, we can move to creating an iterator object and begin building the vocabulary we're going to be using in this section.
+
+```{r, echo=TRUE}
+# Create an iterator
+it <- itoken(bug_tokens, progressbar = FALSE)
+
+# Then we're going to build the vocabulary
+vocab <- create_vocabulary(it)
+# Calling the vocab object
+vocab
+# Calling for the dimensions of our vocabulary object
+dim(vocab)
+```
+
+With the `vocab` object created, we can now prune and vectorize it. While vectorizing is pretty self explanatory (coercing our vocab object into a vector), pruning simply trims down our object and removes words that aren't mentioned above a certain number of times. In this case, that threshold is a minimum of 5 times. All tokens not mentioned at least 5 times will be dropped from our object.
+
+<details>
+  <summary> View Code</summary>
+  
+```{r, echo=TRUE}
+# Now we're going to prune the vocabulary
+vocab <- prune_vocabulary(vocab, term_count_min = 5)
+# Checking the dimensions of the vocab list again shows how much we were able to cut down the original list
+dim(vocab)
+
+# Now we're going to vectorize our vocab
+vectorizer <- vocab_vectorizer(vocab)
+```
+</details>
+
+Finally, we're going to create a term co-occurrence matrix. We're going to be sticking to a skip gram window of 5 considering we don't have a massive corpus.
+
+```{r, echo=TRUE}
+# Creating a term co-occurrence matrix
+tcm <- create_tcm(it, vectorizer, skip_grams_window = 5L)
+```
+
+### Fitting out a GloVe Model
+
+We have a Term Co-Occurrence Matrix! With our TCM created, let's move to creating a GloVe model and fitting it to objectively fit our analysis.
+
+<details>
+  <summary> View Code</summary>
+  
+```{r, echo=TRUE}
+# Creating GloVe model
+bug_glove <- GlobalVectors$new(rank = 50, x_max = 10)
+bug_glove
+
+# Creating the fitting model here
+bug_main <- bug_glove$fit_transform(tcm, n_iter= 10, 
+                                convergence_tol = 0.01,
+                                n_threads = 8)
+dim(bug_main)
+```
+</details>
+
+We've now created our `target` word vector. As stated in tutorial 7, the `target` word vector can be thought of as the words of interest we seek within our corpus, while all other words would be considered to be a part of the `context` word vector. We'll be creating the `context` vector now.
+
+```{r, echo=TRUE}
+# Since we've created the `main` target vector, we're going to create a context vector now
+bug_context <- bug_glove$components
+dim(bug_context)
+```
+
+With the `target` and `context` vectors made, we can create a word vector matrix by taking the sum of both.
+
+<details>
+  <summary> View Code</summary>
+  
+```{r, echo=TRUE}
+# Creating vector matrix
+bug_vectors <- bug_main + t(bug_context)
+bug_vectors
+```
+</details>
+
+Now that the word vector matrix has been created, we're free to begin our analysis using Cosine Similarity.
+
+## *Cosine Similarity*
+
+The logic behind Cosine Similarity looks to find the correlation between two vectors (i.e. our `target` and `context` vectors).The functions below are fed our word vector matrix and a token of our selection in an attempt to find any correlation with said token and others within our corpus. I decided to start off by testing the word "cricket" as it seemed the most direct (aside from "eating", "bugs" and "insects") while maintaining an air of objectivity.
+
+<details>
+  <summary> View Code</summary>
+  
+```{r, echo=TRUE}
+# We're going to test out Cosine Similarity now by running the following functions.
+cricket <- bug_vectors["Cricket", , drop = FALSE]
+
+cricket_cos_sim <- sim2(x = bug_vectors, y = cricket, 
+                       method = "cosine", norm = "l2")
+cricket_cos_sim
+```
+</details>
+
+We can see some interesting results here, mostly that the most similar words (other than the word "cricket" itself), according to cosine similarity, are an assortment of seemingly negative ones. I say seemingly here because, without proper context, there's no way of definitively understanding the intended sentiment behind it. With that said, we can still take some educated guessed. In this case, we see objectively negative words such as "nope", "crap", "mandatory", "nobody", and "bother" near the top. Let's run a couple more tests and see what else pops up.
+
+<details>
+  <summary> View Code</summary>
+  
+```{r, echo=TRUE}
+right_wing <- bug_vectors["POTUS", , drop = FALSE] -
+     bug_vectors["liberals", , drop = FALSE] +
+     bug_vectors["Conservative", , drop = FALSE]
+right_wing_cos_sim = sim2(x = bug_vectors, y = right_wing, method = "cosine", norm = "l2")
+right_wing_cos_sim
+
+conservative <- bug_vectors["POTUS", , drop = FALSE] -
+     bug_vectors["JoeBiden", , drop = FALSE] +
+     bug_vectors["Trump", , drop = FALSE]
+conservative_cos_sim = sim2(x = bug_vectors, y = conservative, method = "cosine", norm = "l2")
+conservative_cos_sim
+
+liberal <- bug_vectors["POTUS", , drop = FALSE] -
+     bug_vectors["Trump", , drop = FALSE] +
+     bug_vectors["JoeBiden", , drop = FALSE]
+liberal_cos_sim = sim2(x = bug_vectors, y = liberal, method = "cosine", norm = "l2")
+liberal_cos_sim
+
+eating_bugs <- bug_vectors["eating", , drop = FALSE] -
+     bug_vectors["meat", , drop = FALSE] +
+     bug_vectors["insects", , drop = FALSE] +
+     bug_vectors["bugs", , drop = FALSE]
+eating_bugs_cos_sim = sim2(x = bug_vectors, y = eating_bugs, method = "cosine", norm = "l2")
+eating_bugs_cos_sim
+```
+</details>
+
+There are some interesting results here, primarily those cosine similarities that are politically oriented. We see in the results for the last `eating_bugs` chunk of code that there's a bit of obstruction per many stop words that our pruning didn't seem to eliminate. Either that or the code we did write needs a little work. Either way, we can effectively see some sentiment behind the previous code and key words, let's see if we can rework the last bit of coding just a bit before we move on from cosine similarities.
+
+<details>
+  <summary> View Code</summary>
+  
+```{r, echo=TRUE}
+eating_insects <- bug_vectors["eating", , drop = FALSE] -
+     bug_vectors["meat", , drop = FALSE] +
+     bug_vectors["insects", , drop = FALSE]
+eating_insects_cos_sim = sim2(x = bug_vectors, y = eating_bugs, method = "cosine", norm = "l2")
+
+eating_bugs <- bug_vectors["eating", , drop = FALSE] -
+     bug_vectors["meat", , drop = FALSE] +
+     bug_vectors["bugs", , drop = FALSE]
+eating_bugs_cos_sim = sim2(x = bug_vectors, y = eating_bugs, method = "cosine", norm = "l2")
+```
+</details>
+
+We still see the same skewing of results, even after simplifying our code. What we'll have to decide from here, is whether it's worth returning to the pre-processing stage and filtering out stop words from our corpus or whether we should include word embedding in our analysis at all. For now, we'll move on from cosine similarity tests.
+
+# **Dictionaries**
+
+Next we're going to make use of quanteda's dictionary package. We're going to start by reading in our data set again to reset it's properties and convert it into a `corpus`.
+
+```{r, echo=TRUE}
+bug_tweets <- read.csv("eating_bugs_tweets_11_13_22.csv")
+bug_corpus <- corpus(bug_tweets$x)
+```
+
+## *Dictionary Analysis*
+
+With our corpus loaded in, we can begin taking a stab at different dictionary analysis methods. In this case, we're going to start by using the NRC dictionary which will attempt to calculate a percentage of the the documents within our corpus that reflect certain emotional characteristics. The NRC dictionary refers to the NRC Emotion Lexicon which associates words with certain emotions.
+
+```{r, echo=TRUE}
+bug_sentiment_nrc <- liwcalike(bug_corpus, data_dictionary_NRC)
+# The function below provides us with the column names within our new `bug_sentiment_nrc` object
+names(bug_sentiment_nrc)
+
+ggplot(bug_sentiment_nrc) +
+     geom_histogram(aes(x = positive), binwidth = 2) +
+     theme_bw()
+```
+
+We see some interesting results here after plotting our data, specifically, a lack of positive documents within our corpus. Additionally, according to our analysis, a majority of the documents are appearing as neutral sitting at a 0 "positive" score. First, let's take a look at some positive texts to see what we're dealing with.
+  
+```{r, echo=TRUE}
+bug_corpus[which(bug_sentiment_nrc$positive > 15)]
+```
+
+Something we can immediately see is that, while there are some positive sentiments referring to our eating bugs corpus, our code can't seem to pick up on all nuances of twitter based dialect. Let's look at this selection more thoroughly. 
+
+<details>
+  <summary> View Code</summary>
+  
+```{r, echo=TRUE}
+table(bug_corpus[which(bug_sentiment_nrc$positive > 15)])
+```
+</details>
+
+Even at a glance, I think is alright to assume that a majority of there "positive" reviews contain heavy sarcasm and satirical language. I think this is something we can remedy through the use of different dictionaries. For now, we're going to continue with the NRC dictionary and take a look at the most negative documents.
+
+```{r, echo=TRUE}
+ggplot(bug_sentiment_nrc) +
+     geom_histogram(aes(x = negative), binwidth = 2) +
+     theme_bw()
+```
+
+Right off the bat, we see that there is a higher spread of negative values from our plot. While the positive results were more concentrated toward the lower values of positivity, the negative values are more diverse in negative values. Also I noticed that, for some reason, there are more documents valued as neutral in the negative plot than the positive one. Let's take a deeper look into the negative documents as we did with the positive ones.
+
+<details>
+  <summary> View Code</summary>
+  
+```{r, echo=TRUE}
+table(bug_corpus[which(bug_sentiment_nrc$negative > 15)])
+```
+</details>
+
+Noticeably, I can see that a majority of the documents presented from this function are indeed negative! There are still some language nuances that NRC can't seem to pick up on, but it's interesting to see the quantity and intensity of the negative documents within our corpus.
+
+Having isolated both positive and negative results, let's try analyzing our corpus by incorporating both sides of the proverbial coin. 
+
+```{r, echo=TRUE}
+bug_sentiment_nrc$polarity <- bug_sentiment_nrc$positive - bug_sentiment_nrc$negative
+
+ggplot(bug_sentiment_nrc) +
+     geom_histogram(aes(polarity), binwidth = 2) +
+     theme_bw()
+```
+
+It seems that our previous observations are still consistent here. There isn't much else to take away other than the fact that there seems to be a higher concentration of positive documents than negative, which is unexpected. I suspect that the NRC dictionary we're using is heavily skewing the results. The fact that there are so many neutral valued documents further fortifies my suspicions.
+
+## *Dictionaries with DFMs*
+
+Next, we're going to be utilizing dictionary analysis methods that utilize DFMs as opposed to the corpus.
+
+```{r, echo=TRUE}
+# Here we are coercing our corpus into a dfm without using the NRC dictionary. 
+bug_dfm <- tokens(bug_corpus,
+                         remove_punct = TRUE,
+                         remove_symbols = TRUE,
+                         remove_numbers = TRUE,
+                         remove_url = TRUE,
+                         split_hyphens = FALSE,
+                         include_docvars = TRUE) %>%
+                         tokens_tolower() %>%
+  dfm()
+
+# Now we'll coerce our corpus to a dfm using the NRC dictionary
+bug_dfm_nrc <- tokens(bug_corpus,
+                         remove_punct = TRUE,
+                         remove_symbols = TRUE,
+                         remove_numbers = TRUE,
+                         remove_url = TRUE,
+                         split_hyphens = FALSE,
+                         include_docvars = TRUE) %>%
+  tokens_tolower() %>% 
+  dfm() %>% 
+  dfm_lookup(data_dictionary_NRC)
+
+head(bug_dfm_nrc, 10)
+# These functions can be run to provide some more details behind our new bug_dfm_nrc object
+# dim(bug_dfm_nrc)
+# class(bug_dfm_nrc)
+```
+
+Compared to the standard dfm (w/o dictionaries) we can see there's a bit more diversity in terms of polarity measures. Instead of counts for each token we analyze, we can categorize all tokens into different sentiments which may serve us some good. Next, we're going to be converting the dictionary dfm into a dataframe. From there, we can create a  polarity measure and attempt to visualize the data similarly to how we did prior to converting to dfm. 
+
+```{r, echo=TRUE}
+bug_df_nrc <- convert(bug_dfm_nrc, to = "data.frame")
+# Again, these provide the sentiment categories to which we'll be arranging our data
+names(bug_df_nrc)
+
+bug_df_nrc$polarity <- (bug_df_nrc$positive - bug_df_nrc$negative)/(bug_df_nrc$positive + bug_df_nrc$negative)
+
+bug_df_nrc$polarity[(bug_df_nrc$positive + bug_df_nrc$negative) == 0] <- 0
+
+ggplot(bug_df_nrc) +
+  geom_histogram(aes(x=polarity), binwidth = .25) +
+  theme_bw()
+
+# This function provides us with the most positive reviews ranked at a value of 1
+writeLines(head(bug_corpus[which(bug_df_nrc$polarity == 1)]))
+```
+
+Interestingly, we receive very similar results to those we received when using dictionaries without coercing to dfm. While not surprised, our operations are still struggling to define what is positive and negative accurately according to our `writeLines` function.
+
+## *Using Different Dictionaries*
+
+Seeing as the NRC dictionary didn't exactly give us what we wanted to see, we're going to test drive a few other options we have. We'll start with the General Inquirer dictionary.
+
+```{r, echo=TRUE}
+# Here we're re-converting our corpus to a dfm using the general inquirer dictionary
+bug_dfm_geninq <- bug_dfm %>%
+  dfm_lookup(data_dictionary_geninqposneg)
+
+head(bug_dfm_geninq, 6)
+```
+
+We can see here that the general inquirer dictionary, as opposed NRC, splits sentiments into only 2 categories. Positive and Negative. From the surface, it already looks like we're going to be getting a majority positive. Let's continue.
+
+```{r, echo=TRUE}
+# Create polarity measure for `geninq`
+bug_df_geninq <- convert(bug_dfm_geninq, to = "data.frame")
+
+bug_df_geninq$polarity <- (bug_df_geninq$positive - bug_df_geninq$negative)/(bug_df_geninq$positive + bug_df_geninq$negative)
+
+bug_df_geninq$polarity[which((bug_df_geninq$positive + bug_df_geninq$negative) == 0)] <- 0
+
+head(bug_df_geninq)
+```
+
+Here we can see a bit of the logic behind the polarity scaling. We can also see that tokens of opposite polarities nullify each other, making it so that the documents are rated as a neutral 0. Interesting, but I'm not sure if it's all that useful toward our analysis.
+
+<details>
+  <summary> View Code</summary>
+  
+```{r, echo=TRUE}
+# Let's create unique names for each data frame
+colnames(bug_df_nrc) <- paste("nrc", colnames(bug_df_nrc), sep = "_")
+colnames(bug_df_geninq) <- paste("geninq", colnames(bug_df_geninq), sep = "_")
+
+# Now let's compare our estimates
+sent_df <- merge(bug_df_nrc, bug_df_geninq, by.x = "nrc_doc_id", by.y = "geninq_doc_id")
+
+head(sent_df)
+
+cor(sent_df$nrc_polarity, sent_df$geninq_polarity)
+```
+</details>
+
+With the functions used above, we've now successfully built a correlation model according to the results we received while using the General Inquirer and NRC dictionaries! Now, lets try and plot it.
+
+```{r, echo=TRUE}
+#  Now we'll plot them out
+ggplot(sent_df, mapping = aes(x = nrc_polarity,
+                              y = geninq_polarity)) +
+  geom_point(alpha = 0.1) +
+  geom_smooth() +
+  geom_abline(intercept = 0, slope = 1, color = "red") +
+  theme_bw()
+```
+
+While there was some correlation between both models, we can see from our visual that there is a clear distinction between them as well. The NRC dictionary seems to rank polarity in an extremely linear fashion while the General Inquirer rankings are much more fluid and varying. The variance between both show us that it's going to come down to what better serves our analysis. What other options could we benefit from? Next, we're going to experiment a bit with applying dictionaries within contexts.
+
+## *Dictionaries within Contexts*
+
+Using contexts within dictionary analysis essentially let us prompt our functions with "context vectors" that provide the data with key words to use in its associations. We start by isolating the tokens we wish to use as context.
+
+```{r, echo=TRUE}
+# tokenize corpus
+bug_tokens <- tokens(bug_corpus, remove_punct = TRUE)
+
+# what are the context (target) words or phrases
+bug_words <- c("eating bugs", "eating insects", "bug", "bugs", "insect", "insects")
+
+# retain only our tokens and their context
+tokens_bugs <- tokens_keep(bug_tokens, pattern = phrase(bug_words), window = 40)
+```
+
+Next, within those token sets, we can pull out the positive and negative dictionaries to get an inside look at what we're working with. In this case we'll be using the Lexicoder Sentiment Dictionary or `LSD` as it's denoted in the functions below. Once we've done that, we'll coerce our token object into a DFM.
+
+```{r, echo=TRUE}
+data_dictionary_LSD2015_pos_neg <- data_dictionary_LSD2015[1:2]
+
+tokens_bugs_lsd <- tokens_lookup(tokens_bugs,
+                                dictionary = data_dictionary_LSD2015_pos_neg)
+
+dfm_bugs <- dfm(tokens_bugs_lsd)
+head(dfm_bugs, 10)
+```
+
+Finally, we'll use the objects we've created thus far to; create a data frame, drop any features that contain only 0 values (have neither negative nor positive tokens within the document), print a summary sentence to tell us exactly how many tweets mention positive or negative tokens in the context of eating bugs, and finally create & plot the resulting polarity scores
+
+```{r, echo=TRUE}
+# convert to data frame
+mat_bugs <- convert(dfm_bugs, to = "data.frame")
+
+# drop if both features are 0
+mat_bugs <- mat_bugs[-which((mat_bugs$negative + mat_bugs$positive)==0),]
+
+# print a little summary info
+paste("We have ",nrow(mat_bugs)," tweets that mention positive or negative words in the context of eating bugs or insects.", sep="")
+
+# create polarity scores
+mat_bugs$polarity <- (mat_bugs$positive - mat_bugs$negative)/(mat_bugs$positive + mat_bugs$negative)
+
+# summary
+summary(mat_bugs$polarity)
+
+# plot
+ggplot(mat_bugs) + 
+     geom_histogram(aes(x=polarity), binwidth = .25) + 
+     theme_bw()
+```
+
+Look at those results! Out of all the data we've pulled and created thus far, I believe the Lexicoder Sentiment Dictionary (`LSD`) has provided us with the most accurate results. If we were to use the `view(mat_bugs)` function, we could see the breakdown of the polarity scores and how each individual document received it's ranking. The one problem I still notice is the relevance of certain tweets in the context of humans eating bugs, but I believe our pre-processing work assists with filtering those down enough so that they don't skew our final results. With that, we'll close out our post for today. Thank you for reading! :)
