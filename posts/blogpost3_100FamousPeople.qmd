@@ -31,6 +31,8 @@ library(wordcloud2)
 library(stopwords)
 library(tidyverse)
 library(tidytext)
+
+knitr::opts_chunk$set(echo=TRUE)
 ```
 
 # Reading Data
@@ -38,7 +40,8 @@ library(tidytext)
 ### **From CSV**
 
 ```{r}
-dataset <- read_csv("./100FamousPeople.csv")
+dataset2 <- read_csv("./100FamousPeople.csv")
+head(dataset2)
 ```
 
 ### **Reading data from the website**.
@@ -60,7 +63,7 @@ There are many people in the list who are still alive. Hence the age range(eg. 1
 only_year <-  all %>% html_nodes("ol li") %>% html_text() %>% 
   tolower() %>% str_extract(.,"[0-9]+\\s.\\s[0-9]+")%>% replace(.,is.na(.),'2000')
 only_year <- data.frame(only_year)
-only_year
+head(only_year)
 
 
 
@@ -89,7 +92,7 @@ peoples_title <- temp3 %>% str_remove_all(.,"\\)[0-9]*") %>% str_trim(.,"both")
 peoples_title <- peoples_title %>% str_remove_all(.,"[0-9]*") %>% str_trim(.,"right") %>% str_replace_all("[–|-|-|(|.]","") %>% str_trim(.,"both")
 
 peoples_title <- data.frame(peoples_title)
-peoples_title
+head(peoples_title)
 
 ```
 
@@ -100,11 +103,12 @@ I've used stringr package to remove text such as "adsbygoogle.com" which came al
 This cleaning is done to all rows in the data set, but there are a few special characters that are still left to be cleaned. Writing regex had been difficult, but at least for the word cloud has a feature to ignore special characters :). I will have to find a way to generate dataset which is void of all special characters so that it doesn't effect the analysis in later stages.
 
 ```{r}
-dataset$content <- dataset$content %>% str_remove_all(.,"adsbygoogle") %>%
+dataset2$content <- dataset2$content %>% str_remove_all(.,"adsbygoogle") %>%
   str_remove_all(.,"www.biographyonline.net") %>% 
   str_remove_all(.,"window.") %>% 
   str_remove_all(.,".push") %>% 
-  gsub("Citation.*","",.) 
+  gsub("Citation.*","",.)
+
 ```
 
 # Wordclouds!!!
@@ -137,6 +141,8 @@ Lets try to visualise everyone's occupation using word clouds. Here I am followi
 
 ### Word Cloud on Occupations
 
+Looks like it is evident that 1/3rd of people in the list are from the USA, and Britain and most of them could be leaders, actresses, author, musician etc. It would be interesting to see the correlation of the word and the people associated with it.
+
 ```{r}
 for_occupation = peoples_title %>%
   unnest_tokens(word, peoples_title, token = "words", strip_punct = TRUE) %>% 
@@ -152,8 +158,8 @@ create_corpus_occupation <- create_corpus_occupation %>%
   tm_map(removeNumbers) %>%
   tm_map(removePunctuation) %>%
   tm_map(stripWhitespace)
-create_corpus_occupation <- tm_map(create_corpus, content_transformer(tolower))
-create_corpus_occupation <- tm_map(create_corpus, removeWords, stopwords("english"))
+create_corpus_occupation <- tm_map(create_corpus_occupation, content_transformer(tolower))
+create_corpus_occupation <- tm_map(create_corpus_occupation, removeWords, stopwords("english"))
 
 # creating document term matrix
 
@@ -162,53 +168,44 @@ matrix_occupation <- as.matrix(dtm_occupation)
 words_occupation <- sort(rowSums(matrix_occupation),decreasing=TRUE) 
 df2 <- data.frame(word = names(words_occupation),freq=words_occupation)
 
-wordcloud2(data=df2, size = 0.7, shape = 'pentagon')
+wordcloud2(data=df2, size = 0.8)
 ```
-
-![**Word Cloud of Occupations**](AdithyaParupudi_people_titles.png)
-
-Interesting to see what TIME means here. Just like we see below, there are many born in the warring ages which shaped many people's careers and their deeds, thus landing an entry in this list.
 
 ### Word cloud on ALL biographies
 
 ```{r}
-bio = dataset %>%
+bio <- dataset2 %>% 
   unnest_tokens(word, content, token = "words", strip_punct = TRUE) %>% 
   filter(!(word %in% stopwords(source = "stopwords-iso"))) 
 
-create_corpus <- Corpus(VectorSource(bio$word))
 
-# cleaning data using tm library
+# tokenize_words(dataset$content)
+
+# %>% filter(!(word %in% stopwords(source = "stopwords-iso"))) 
+# 
+bio_vec <- bio$word
+create_corpus <- Corpus(VectorSource(bio_vec))
+
+#cleaning data using tm library
 create_corpus <- create_corpus %>%
-  tm_map(removeNumbers) %>%
-  tm_map(removePunctuation) %>%
-  tm_map(stripWhitespace)
+ tm_map(removeNumbers) %>%
+ tm_map(removePunctuation) %>%
+ tm_map(stripWhitespace)
 create_corpus <- tm_map(create_corpus, content_transformer(tolower))
 create_corpus <- tm_map(create_corpus, removeWords, stopwords("english"))
 
 
-# creating document term matrix
+#creating document term matrix
 
 dtm <- TermDocumentMatrix(create_corpus)
 matrix <- as.matrix(dtm)
 words <- sort(rowSums(matrix),decreasing=TRUE)
 df <- data.frame(word = names(words),freq=words)
-
-# generate word cloud
-
-set.seed(1234) # for reproducibility
-wordcloud(words = df$word,
-          freq = df$freq,
-          min.freq = 1,
-          max.words=300,
-          random.order=FALSE, rot.per=0.35,
-          colors=brewer.pal(8, "Dark2"))
-
-
-wordcloud2(data=df, size = 0.7, shape = 'pentagon')
+#word cloud
+wordcloud2(data=df, size = 0.7)
 ```
 
-![**People's Biographies**](AdithyaParupudi_contentCloud.png)
+![Word cloud on all biographies](People_Bios.png)
 
 The above word cloud provides really good insights about their biographies as a whole. It revolved mostly around war, people, government, politics and so on. Since this list is from the last century, the words like [*war*]{.underline} are highlighted. Since all of them are famous people, hence the word :).
 
