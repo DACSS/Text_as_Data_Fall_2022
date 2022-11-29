@@ -1,0 +1,474 @@
+---
+title: "Blog Post 2: Medical Textbook Acquisition"
+author: "Emily Miller"
+desription: "Downloading medical textbooks through webscraping and OCR"
+date: "10/02/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - hw2
+  - blogpost2
+  - Emily Miller
+  - internetarchivebooks
+  - internetarchive
+  - tidyverse
+  - polite
+  - rvest
+  - tesseract
+---
+
+```{r, include = F}
+
+library(tidyverse)
+library(kableExtra)
+library(knitr) 
+library(rvest)
+library(polite)
+library(stringi)
+library(tidytext)
+library(hunspell)
+
+load("/Users/emmanuelmiller/Desktop/dacss697d/Text_as_Data_Fall_2022/posts/_data/hrefs.RData")
+load("/Users/emmanuelmiller/Desktop/dacss697d/Text_as_Data_Fall_2022/posts/_data/dat7.RData")
+load("/Users/emmanuelmiller/Desktop/dacss697d/Text_as_Data_Fall_2022/posts/_data/ia_hist.RData")
+load("/Users/emmanuelmiller/Desktop/dacss697d/Text_as_Data_Fall_2022/posts/_data/book_peek.RData")
+```
+
+```{r, eval = F}
+#load this here so I don't have to rerun everything
+# dat <- readr::read_csv("_data/out.csv")
+# load("dat9.RData")
+```
+
+# Recap
+
+**Questions:**
+
+-   Is there a difference in language use between penises and vulvas?
+-   Is there a change in language use over time?
+
+**How:** Compare language use in anatomy textbooks
+
+# Overview
+
+Acquiring textbooks from the Internet Archive (IA) took me multiple steps. On the IA website, there is an option to search through the text portion of a book. On the IA API, however, I couldn't find this option. The best I could find was looking through a book's metadata, which wasn't the same. When I looked for the word "vagina", this returned gynecology books and almost no anatomy books, compared to when I searched in the text. I decided to search "vagina" instead of "genital" because some anatomy books historically haven't reviewed the vagina/vulva. Because of this I performed the data review in multiple steps:
+
+1.  Search "vagina" in the IA eBooks and Texts collection, using "text contents" search option.
+
+-   I later select "English" as the language to avoid non-English texts.
+
+2.  Webscrape titles and years of publication from the results.
+3.  Filter titles of interest.
+4.  Use internetarchive package in conjunction with webscraping to download PDF files.
+
+I found that most of the texts I could download were from pre-1970. I requested titles retrieved from my IA search through the UMass library or through an inter-library loan, which were primarily PDFs like the IA data. I then processed both datasets:
+
+1.  Remove headers/footer chapter titles
+2.  Edit image backgrounds and transparency for OCR
+3.  Use Tesseract to OCR
+
+# Internet Archive Data Retrieval
+
+### Part 1 and 2: Webscraping Titles from the IA Website
+
+I performed the search explained in step 1 above. As a note, when I tried to use "AND" to include both "penis" and "vagina", but when I flipped the order, a different number of results appeared. I confirmed with the IA API search manual I used the correct syntax. Because of this, I left the search-word at "vagina" since many texts historically don't include vaginal anatomy but will include penis'.
+
+In order to confirm that I can webscrape, I use the package "bow" to check the website url. It says that I need a 5 minute delay.
+
+```{r}
+bow("https://archive.org/details/texts?query=vagina")
+```
+
+The webpage has 2 options. There is infinite scrolling, but there is also a webscraping-friendly option which is with pages. I checked that the last page number is 133, so I make a set of urls to webscrape with through all these pages.
+
+```{r}
+#i found out that the max page number is 133, and starts at page 0
+urls<- paste0("https://archive.org/details/texts?query=vagina&sin=TXT&and[]=languageSorter%3A%22English%22&page=",
+              0:133)
+
+urls %>% head
+```
+
+I want to retrieve the title of each result as well as the hyperlink to its page. I next practiced scraping from one webpage. Once I confirmed that the code worked, I put it into a function. This allows me to iteratively scrape pages using map_dfr(). I make sure to include a 5 second wait period after each page is webscraped. After map scrapes all the pages, the function outputs all the results into a dataframe (which is the dfr option) so I can begin manipulating them without much more pre-processing.
+
+```{r, eval=F}
+#make a function that does all the work for me
+get_titles_dates<-function(aurl){
+  page<- read_html(aurl)
+  
+  #scrape titles 
+  titles<- page %>% 
+    html_elements(., xpath="//div[contains(concat(' ',normalize-space(@class),' '),' item-ttl C C2 ')]/a") %>% 
+    html_attr("title")
+  
+  hrefs<- page %>% 
+    html_elements(., xpath="//div[contains(concat(' ',normalize-space(@class),' '),' item-ttl C C2 ')]/a") %>% 
+    html_attr("href")
+  
+  #combine
+  tempdat<- bind_cols(titles = titles, 
+                      hrefs = hrefs)
+  
+  return(tempdat)
+}
+
+# iteratively scrape urls and return as a dataframe
+dat<-map_dfr(urls, ~{
+  Sys.sleep(5)
+  tryCatch({get_titles_dates(.x)},
+           error = function(e){
+             cat("\n\n", .x, "\n\n") #report bad urls -- used for testing
+           })
+})
+
+##save data in case it crashes
+# save(dat, file = "/Users/emmanuelmiller/Desktop/dacss697d/forblog/Text_as_Data_Fall_2022/posts/_data/hrefs.RData")
+```
+
+```{r}
+dat %>% head
+```
+
+### Part 3: Clean and Select Titles of Interest
+
+I first need to clean the webscraped titles so I can identify duplicate uploads. This is because multiple users can upload the same book and all results are included in my search. I'll remove duplicates a bit further down.
+
+```{r}
+#clean titles
+dat2<- dat %>% 
+  mutate(original_titles = titles,
+         titles = trimws(titles, which = "both"),
+         titles = tolower(titles),
+         titles = str_replace_all(titles, c("[[:punct:]]|electronic resource" = " ",
+                                            "æ" = "ae",
+                                            "\\bvol\\w*" = "",
+                                            "microform" = "", 
+                                            "\\s+" = " ")), #theres extra punct at ends
+         titles = trimws(titles, which = "both")
+         ) %>% 
+  select(-matches("\\.")) %>% #get rid of the extra row that map gives us
+  unique
+
+dat2 %>% head
+```
+
+I remove titles, following what I have described primarily in blog post 1 about my text selection criteria. Here I will go into further detail:
+
+-   The text sources we are looking at are books, so sources such as "essays", "journals", "encyclopedias", "ICD manuals", "studies", catalogs", "experiments", "doctrines", "translations" or "memoirs" are excluded.
+    -   Others that fit in this category include books describing "key facts" or a topic, or "idiot's guides" that are also for the general public.
+    -   Books that were primarily illustrations or coloring
+-   Texts that aren't books but rather journals. This includes "Current Operative Urology", "papers", a report on a double uterus, and "Surgical Clinics of North America"
+-   Excluding books specific to pathology or disease. Other studies have also excluded pathological conditions in their reviews of textbooks (Andrikopoulou et al., 2013; Hayes & Temple-Smith, 2021). The ways in which disease are described depending on genitals beyond the scope of this pilot study.
+    -   Other synonyms visible in books include "morbid", "cancer", "treatment", "gravid uterus", and "disorder".
+-   Excluding pediatric and adolescent gynecology books, and those specific to midwifery.
+-   Other books related to animals, marriage, sociology, philosophy weren't included.
+
+```{r, eval = F}
+dat3<- dat2 %>% 
+    filter(!str_detect(titles, "essay|journ|memoi|ency|icd|cata|studies|experim")) %>%
+  filter(!str_detect(titles, "trans|doctrin|repor|iss|malign|notes|review")) %>%
+  filter(!str_detect(titles, "current operative urology|papers|double uterus|dysfunction")) %>%
+  filter(!str_detect(titles, "key|idiot|illustrated anatomy|colou*r|crash|treatis|cookbook")) %>%
+  filter(str_detect(titles, "anatomy|anatomical|urolog|clinic|surgical clinics of north america")) %>%
+  filter(!str_detect(titles, "patho|disea|morbid|canc|treatm|gravid|midwif")) %>%
+  filter(!str_detect(titles, "restora|pedia|adolescen|private parts")) %>%
+  filter(!str_detect(titles, "marr|achatinidae|cleistogamia|elephant|cow|cestoidea")) %>%
+  filter(!str_detect(titles, "myrmecophaga|snail|equine|omphalina|neniinae|philosoph")) %>%
+  filter(!str_detect(titles, "ariolimax|gaseopoa|horse|sociology|psycho|ants")) %>%
+  filter(!str_detect(titles, "sex|dog|anatomie des menschen|albolabris|disor"))
+```
+
+### Part 4: Downloading Data and Making Metadata
+
+In order to retrieve information on the publication date of each title, I use the internetarchive package. The hyperlink extracted earlier has the identifier that I can use to retrieve information. I found that the internetarchive 'ia_search()' function doesn't return as accurate information just looking up the name of the book. Searching using the identifier of the book only didn't work for one book. I looked it up on the website and I couldn't download the book anyway because of the copyright.
+
+```{r, eval = F}
+dat4<- dat3 %>% 
+  mutate(hrefs = str_extract(hrefs, "(?<=details/).*(?=\\?q=vagina)"),
+         hrefs = str_replace_all(hrefs, c("/.*" = ""))) %>% 
+  mutate(dates = map(hrefs, ~ia_search(c("identifier" = .)) %>% 
+                       ia_get_items %>% 
+                       ia_metadata))
+
+dat5<- dat4 %>% 
+  mutate(hmm = map(dates, ~nrow(.))) %>% 
+  unnest(hmm) %>% 
+  filter(hmm!=0)
+```
+
+I also retrieved information as to the confidence level of the OCR. If there is a confidence level reported, I select a cutoff of \>85%. I also select books with a date reported which is greater than 1875.
+
+```{r, eval = F}
+#reshape data
+dat5<- dat5 %>% 
+  mutate(dates = map(dates, . %>% 
+                       filter(field %in% c("date", "ocr_detected_script_conf")))) %>% 
+  unnest(dates) %>% 
+  pivot_wider(names_from = field, values_from = value ) 
+
+#clean dates
+dat6<- dat5 %>% 
+  rename(dates = date) %>% 
+  mutate(dates = case_when(
+    dates == "[n.d.]" ~ NA_character_,
+    !is.na(dates)~ str_extract(dates, "\\d{4}"),
+    T~ NA_character_
+  )) %>% 
+  mutate(dates = as.numeric(dates))
+  
+#filter
+dat6<- dat6 %>% 
+  filter(ocr_detected_script_conf > 0.85 | is.na(ocr_detected_script_conf)) %>% 
+  select(-ocr_detected_script_conf) %>% 
+  filter(dates > 1875) %>% 
+  filter(!is.na(dates))
+
+```
+
+```{r}
+dat7 %>% select(titles, dates, hrefs) %>% head()
+```
+
+I was originally going to use the internetarchive package to download the text versions of these books. I found that in some cases, I was not able to download some of the books because they contained "due to issues with the item's content" (according to the file that I did receive). When I looked the book up on the IA website, I could access a text version of the book. I webscraped versions of these books but they didn't have delimiters between different pages, which meant that I couldn't reasonably remove headers and footers like the PDF files that I retrieved from the library. I was concerned about the quality of the data for this reason. After review of the IA website, I found out that I could download PDF versions of many of these books. I also found out that the UMass Library had Adobe Acrobat editor. I decided that because this dataset is relatively small I would spend an afternoon editing these PDFs to have better data.
+
+I examined the url structure on the IA website for downloading PDFs. I used the previously-webscraped hyperlink to construct the url I would download PDFs from.
+
+```{r, eval = F}
+dat7<- dat6 %>% 
+  select(titles, dates, hrefs) %>% 
+  mutate(url = paste0("https://archive.org/download/",
+                      hrefs, "/", hrefs, ".pdf"))
+```
+
+I then used download.file() to download iteratively the urls I constructed. This returned for me 68 PDFs. This is approximately the same number of results as webscraping.
+
+```{r, eval = F}
+setwd("/Users/emmanuelmiller/Desktop/dacss697d/forblog/Text_as_Data_Fall_2022/posts/download_pdfs")
+
+temp<- dat7$url
+
+for (url in temp){ 
+  tryCatch({
+    download.file(url, destfile = basename(url), mode = "wb")
+    Sys.sleep(5)
+  }, error = function(e){
+    cat("\n\n", url, "\n\n")
+  })
+}
+```
+
+I reviewed these PDFs to confirm that there were no duplicates and all files could be downloaded. I found that a number were in fact duplicates or did not fit the inclusion criteria (such as being journal articles). There were a total of 44 documents remaining.
+
+```{r, echo = F}
+temp<- tibble(files = list.files(path = "/Volumes/em_2022/good_pdfs/")) %>% 
+  filter(str_detect(files, "\\.pdf$")) %>%
+  filter(!str_detect(files, "^edite*d*_")) %>% 
+  mutate(in_dir = "yes")
+
+dat8<- dat7 %>% 
+  mutate(files = basename(url)) %>% 
+  full_join(., temp)
+
+dat8<- dat8 %>%
+  filter(!is.na(in_dir)) %>% 
+  select(-in_dir)
+```
+
+Below is the distribution of dates of the IA texts. The majority of the books in the dataset are before the 1930s, which makes sense because copyrights expire within this time frame. The lack of titles in 2000s could greatly skew the sample for downstream analysis. I continue with data retrieval from the books I requested through inter-library loan in the same way I do for that of the IA texts in the next sections.
+
+```{r, eval = F}
+temp<- dat8 %>% 
+  select(files, dates) %>% 
+  unique %>% 
+  mutate(after1970 = ifelse(dates > 1970, "after", "before"))
+
+ia_hist<-ggplot(temp, aes(x = dates, fill = after1970))+
+  geom_histogram()
+# save(ia_hist, file = "/Users/emmanuelmiller/Desktop/dacss697d/Text_as_Data_Fall_2022/posts/_data/ia_hist.RData")
+```
+
+```{r}
+ia_hist
+```
+
+# OCR Text Data Acquisition
+
+### Part 1: PDF Header and Footer Removal
+
+I considered a number of options for removing headers/footers. I first tried online tools but they had paywalls. I considered command-line tools like GhostScript, PDFEdit, and Poppler. Unfortunately, the text in the PDFs were not centered consistently so I would have to use a program with a GUI functionality to manually find the edges of the text body. I tried using Fiji (A.k.a. ImageJ) which is a Java-based software used by scientists to edit and analyze images. The perk of this software is that you can edit stacks of images and review them rapidly. Unfortunately, my computer didn't have enough RAM to review at an efficient speed PDFs that were greater than 500 pages with the GUI utility. I considered partitioning these PDFs, but then I learned that UMass has a paid (but free to students) subscription to Adobe Acrobat DC which is made to edit all sorts of PDF files. This software has a functionality that automatically removes headers and footers from PDFs, but this functionality didn't work with my data. I assumed that if AI couldn't detect the headers/footers then it would be easier to take care of this manually using this software by cropping the documents.
+
+Using Adobe Acrobat DC, I removed headers and footers. There were some pages at the end of books that advertised other books or scientific papers. I removed these pages as well. After removing the headers/footers, I exported these to PNGs of 300 DPI, as the OCR software that I am using requires this format. Using higher DPI resulted in much slower exporting and used a lot of storage on my computer.
+
+### Part 2: Preprocessing for OCR
+
+To OCR, I considered two programs. I considered using Adobe Acrobat's built-in OCR functionality which has been used in the literature (related to medical records: Hsu et al., 2022; Nguyen et al., 2020, etc). I also considered the ocr() function from the Tesseract package, a widely used (specific to medical text OCR: Goodrum et al., 2020; Hsu et al., 2022; Liu et al., 2020; Rasmussen et al., 2011; and many more), free, OCR program. Both are used in the literature, but I was more partial to Tesseract because it is more frequently used in the extraction of medical text data. In a larger study, it would be interesting to compare the quality of the OCR of both softwares. I also liked that the Tesseract command-line software would allow me to play with OCR parameters manually unlike Adobe. I decided on use of the Tesseract package as I wanted more control over the OCR conditions and its frequent use in the literature.
+
+The Tesseract vignette recommends a number of procedures for altering images that increase the quality of the OCR. This includes deskewing text, trimming whitespace, removing noise and artifacts, converting images to black and white (binarization), and changing the thickness of the characters (dilation/erosion). All my images were above 10px so I didn't have to resize them. Historical data is notoriously difficult to OCR. Many of my documents are in a serif font, which is problematic because the middle of letters is typically much thinner.
+
+I tried using 2 different programs, Magick and ImageJ2. I didn't use Magick (which is in R) because the software wasn't effective at removing background effects. Using ImageJ2 (v 2.9.0) I did the above preprocessing. To deskew, I used the following code and saved it in plugins/Analyze folder. I took the code from [this user](https://forum.image.sc/t/get-direction-from-directionality-using-an-ij1-macro/11550/6).
+
+```{r, eval = F}
+#@ ImagePlus imp
+#@ ResultsTable rt
+
+import fiji.analyze.directionality.Directionality_
+
+d = new Directionality_()
+
+d.setImagePlus(imp)
+d.setMethod(Directionality_.AnalysisMethod.LOCAL_GRADIENT_ORIENTATION)
+
+d.computeHistograms()
+d.fitHistograms()
+
+result = d.getFitAnalysis()
+
+mainDirection = Math.toDegrees(result[0][0])
+
+rt.incrementCounter()
+rt.addValue("Main Direction", mainDirection)
+rt.show("Results")
+```
+
+I ran the following ImageJ2 macro on my dataset. This script took several hours to run because image processing is a computationally heavy task. In addition to this, I selected time images and used the "erode" feature.
+
+```{r,eval = F}
+input = "/Volumes/em_2022/good_pngs/";
+output = "/Volumes/em_2022/good_tiffs/";
+fileList = getFileList(input);
+
+function action(input, output, filename) {
+    open(input + filename);
+    
+    //clean up
+    run("Sharpen");
+	  run("Despeckle");
+	  run("Gaussian Blur...", "sigma=1");
+    
+	  //make binary
+	  run("Sharpen");
+	  
+		run("Find Maxima...", "prominence=10 exclude light output=Count");
+		x = getResult("Count", 0);
+		if (x > 50){
+		  //for the black and white images that have the black box
+		  if (bitDepth!=24) {
+		    run("Find Maxima...", "prominence=10 exclude light output=[Point Selection]");
+			  run("Fit Rectangle");
+			  run("Enlarge...", "enlarge=60");
+			  run("Crop");
+		  }
+		  
+		  run("Subtract Background...", "rolling=100 light");
+		  run("Sharpen");
+		  run("Smooth");
+	  	run("Convert to Mask");
+		  
+		}
+
+	  //crop
+	  run("Select Bounding Box");
+	  run("Enlarge...", "enlarge=50");
+	  run("Crop");
+
+	
+	  //transform
+	  if (x > 50){
+	    selectWindow(filename);
+  	  	run("Select Bounding Box");
+    	run("Copy");
+    	run("Create Mask");
+    	title_mask = getTitle();
+    	selectWindow(title_mask);
+    	run("Paste");
+    	run("Gaussian Blur...", "sigma=30");
+    	run("Enhance Contrast...", "saturated=0.1");
+    	run("Clear Results");
+    	run("Get Main Direction", "rt=[title=Results, size=1, hdr= \tMain Direction]");
+    	angle = getResult("Main Direction", 0);
+    	angle = angle * -1.0;
+    	if (abs(angle) < 30){
+    	  selectWindow(filename);
+  	    run("Rotate... ", "angle="+ angle+  " grid=1 interpolation=Bilinear fill");
+    	}	
+      	selectWindow(title_mask);
+  	  	close();
+	  }
+  	
+	  //remove results window
+	  selectWindow("Results"); 
+	  run("Clear Results");
+	  run("Close");
+	  
+	  saveAs("Tiff", output + filename);
+    close();
+}
+	
+for (i = 0; i < fileList.length; i++){
+	action(input, output, fileList[i]);      
+}
+```
+
+Below is an example of the clean image.
+
+```{r, fig.show = "hold", out.width = "50%", fig.align = "default"}
+magick::image_read("posts/_data/edited_b2041349x_001_Page_047.png") %>% 
+  print
+magick::image_read("posts/_data/1edited_b2041349x_001_Page_047.tif") %>% 
+  magick::image_background(color = "black") %>% 
+  print
+```
+
+### Part3: Tesseract OCR
+
+It is possible to provide Tesseract with an updated dictionary as well as pages to OCR in its database. Users have to re-render the model after doing this. I tried to add just to the dictionary (using vocabulary I made which I will describe in my next blog post). Unfortunately, my computer crashed. Given greater computational resources, this would be an avenue to follow to improve the accuracy of the OCR. For the purposes of this pilot study, I instead used the following loop to save text to a separate file.
+
+```{r, eval = F}
+setwd("/Users/emmanuelmiller/Desktop/text_ia")
+
+temp<- tibble(files = list.files())
+
+#ocr and save to files
+for(i in 1:nrow(temp)){
+  filename <- temp$files[i]
+  dat <- tesseract::ocr(filename)
+  cat(dat, file = file(paste0(basename(filename), ".txt")), sep = "\n")
+}
+```
+
+Below is an example of some of the raw OCR data. I will demonstrate how I clean it in the next blog post.
+
+```{r, eval = F}
+book_peek<- tibble(files = list.files("/Users/emmanuelmiller/Desktop/text_ia/",
+                                      full.names = T)) %>% 
+  slice(40:50) %>% 
+  mutate(dat = map(files, ~str_c(read_lines(.), collapse = "\n")),
+         dat = str_sub(dat, 0, 250),
+         url = str_extract(files, "(?<=edit\\w{0,3}_).*(?=_Page)"),
+         page = str_extract(files, "(?<=Page_)\\d+")) %>% 
+  select(url, page, dat) %>% 
+  kable %>% 
+  kable_styling()
+  
+# save(book_peek, file = "/Users/emmanuelmiller/Desktop/dacss697d/Text_as_Data_Fall_2022/posts/_data/book_peek.RData")
+```
+
+```{r}
+book_peek
+```
+
+# References
+
+Goodrum H, Roberts K, Bernstam EV. Automatic classification of scanned electronic health record documents. Int J Med Inform. 2020 Dec;144:104302. doi: 10.1016/j.ijmedinf.2020.104302. Epub 2020 Oct 17. PMID: 33091829; PMCID: PMC7731898. https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7731898/
+
+Hsu E, Malagaris I, Kuo YF, Sultana R, Roberts K. Deep learning-based NLP data pipeline for EHR-scanned document information extraction. JAMIA Open. 2022 Jun 11;5(2):ooac045. doi: 10.1093/jamiaopen/ooac045. PMID: 35702624; PMCID: PMC9188320. https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9188320/
+
+Liu X, Meehan J, Tong W, Wu L, Xu X, Xu J. DLI-IT: a deep learning approach to drug label identification through image and text embedding. BMC Med Inform Decis Mak. 2020 Apr 15;20(1):68. doi: 10.1186/s12911-020-1078-3. PMID: 32293428; PMCID: PMC7158001. https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7158001/
+
+Nguyen, A., O'Dwyer, J., Vu, T., Webb, P. M., Johnatty, S. E., & Spurdle, A. B. (2020). Generating high-quality data abstractions from scanned clinical records: text-mining-assisted extraction of endometrial carcinoma pathology features as proof of principle. BMJ open, 10(6), e037740. https://doi.org/10.1136/bmjopen-2020-037740 https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7295399/
+
+Rasmussen LV, Peissig PL, McCarty CA, Starren J. Development of an optical character recognition pipeline for handwritten form fields from an electronic health record. J Am Med Inform Assoc. 2012 Jun;19(e1):e90-5. doi: 10.1136/amiajnl-2011-000182. Epub 2011 Sep 2. PMID: 21890871; PMCID: PMC3392858.https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3392858/
