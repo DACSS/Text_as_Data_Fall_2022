@@ -23,8 +23,6 @@ library(syuzhet)
 library(rvest)
 library(quanteda)
 library(quanteda.textplots)
-library(polite)
-library(cleanNLP)
 
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -101,79 +99,6 @@ red_title_sent <- cbind(red_title_sent, red)
 blue_title_sent <- cbind(blue_title_sent, blue)
 
 ```
-
-## Getting the comments from posts
-
-Right now, I am only taking comments from posts I see on the front page with more than 10 comments, just to test this method. In the future I will have to determine a topic that I can track between both subreddits in order to get a sentiment that is comparable.
-```{r}
-
-blue_url <- c("https://www.reddit.com/r/democrats/comments/ye13dt/the_midterms_are_a_referendum_on_democracy_in/",
-              "https://www.reddit.com/r/democrats/comments/ydqws7/vote_fetterman/",
-              "https://www.reddit.com/r/democrats/comments/ye1vqa/republicans_denounce_inflation_but_few_economists/")
-
-
-comments <- get_thread_content(blue_url)
-
-three_comments <- comments[["comments"]] #this is from the "comments" dataframe
-
-```
-
-```{r}
-
-use get_thread_urls
-
-then use get_thread_content()
-
-
-```
-```{r}
-
-get_nrc_sentiment(three_comments$comment)
-
-```
-## Webscrapping for Reddit Comments
-
-First, I want to check if I can even scrape the website for comments
-```{r}
-
-bow("https://www.reddit.com/r/republicans/")
-
-bow("https://www.reddit.com/r/democrats/")
-
-```
-
-## /r/democrats
-I'm having trouble scraping for comments. When I try to pull all of the comments for one post, my output is NA and I cannot firgure out why. When I pull a single comment though, I get the output I desire no problem.
-```{r}
-# url for the main subreddit
-url <- "https://www.reddit.com/r/democrats/"
-
-com_url <- "https://www.reddit.com/r/democrats/comments/ychxe8/new_battleground_polls_a_boon_for_dems/"
-
-# To pull the comments for this specific post
-css_selector  <- "#t1_itmbw37 > div.Comment.t1_itmbw37.P8SGAKMtRxNwlmLz1zdJu.HZ-cv9q391bm8s7qT54B3._1z5rdmX8TDr6mqwNv7A70U > div._3tw__eCCe7j-epNCKGXUKk"
-
-```
-
-use get thread content
-
-set a specific time frame to look at a particular issue. Setting a time frame would be better
-
-Start doing more interesting stuff
-
-```{r}
-#Here is where I run into an issue trying to get all the comments for one particular post
-reddit_post <- "https://www.reddit.com/r/democrats/comments/ycha3g/supreme_court_puts_hold_on_order_that_graham/"
-css <- "#overlayScrollContainer > div._1npCwF50X2J7Wt82SZi6J0 > div.u35lf2ynn4jHsVUwPmNU.Dx3UxiK86VcfkFQVHNXNi > div.uI_hDmU5GSiudtABRz_37 > div._2M2wOqmeoPVvcSsJ6Po9-V._3287nL7j7epK9JmDC3N1VR"
-
-blue_post <- reddit_post %>% 
-  read_html() %>%
-  html_node(css = css) %>% 
-  html_text()
-  
-
-```
-
 
 ## Notes from other research
 

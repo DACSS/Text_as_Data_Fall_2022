@@ -1,0 +1,532 @@
+---
+title: "Blog Post 3 Text"
+author: "Quinn He"
+desription: "Research project"
+editor: visual
+date: "11/11/2022"
+---
+
+```{r}
+
+#| label: setup
+#| warning: false
+
+library(tidyverse)
+library(RedditExtractoR)
+library(syuzhet)
+library(rvest)
+library(quanteda)
+library(quanteda.textplots)
+library(cleanNLP)
+library(readr)
+library(quanteda.dictionaries)
+library(quanteda.sentiment)
+library(tidytext)
+library(DT)
+library(quanteda.textstats)
+library(text2vec)
+
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+# Data pull from Reddit
+
+```{r}
+top_repub <- find_thread_urls(subreddit = "republicans", sort_by = "top", period = "year")
+
+top_dem <- find_thread_urls(subreddit = "democrats", sort_by = "top", period = "year")
+
+```
+
+## Republican subreddit
+
+```{r}
+
+top_repub <- top_repub[-1,]
+top_repub$type <-"top"
+saveRDS(top_repub, "top_repub.rds")
+top_repub <- read_rds("top_repub.rds")
+
+```
+
+## Democrats subreddit
+
+```{r}
+top_dem <- top_dem[-1,]
+top_dem$type <-"top"
+saveRDS(top_dem, "top_dem.rds")
+top_dem <- read_rds("top_dem.rds")
+```
+
+I try to get the comments for both red and blue subreddits. The first one is for the democrat subreddit while the second is for the republican.
+
+```{r}
+dem_url_content <- get_thread_content(top_dem$url[1:500])$comments$comment
+```
+
+```{r}
+
+url_content <- get_thread_content(top_repub$url[1:500])$comments$comment
+
+saveRDS(url_content, "url_content.rds")
+url_content_top <- read_rds("url_content.rds")
+```
+
+Run below for democrat subreddit to turn it into a cleanable dataset.
+
+```{r}
+
+saveRDS(dem_url_content, "dem_url_content.rds")
+dem_comments <- read_rds("dem_url_content.rds")
+
+write.csv(dem_comments, "dem_comments.csv", col.names = T)
+dem_comments <- read_csv("dem_comments.csv")
+
+dem_content_info <- get_thread_content(top_dem$url[1:500])$comments
+
+saveRDS(dem_content_info, "dem_content_info.rds")
+
+dem_comments_info <- read_rds("dem_content_info.rds")
+
+write.csv(dem_comments_info, "dem_comments_info.csv", col.names = T)
+
+dem_comments_info <- read_csv("dem_comments_info.csv")
+
+```
+
+I rename the republican subreddit comments to an easier name to follow
+
+```{r}
+
+repub_comments <- read_rds("url_content.rds")
+
+```
+
+I convert the rds to a csv for both the republican and democrat subreddits
+
+```{r}
+
+write.csv(repub_comments, "repub_comments.csv", col.names = T)
+red_comments <- read_csv("repub_comments.csv")
+
+
+```
+
+So it looks like I only was able to get solely the comments, but I'd like to get a little more information.
+
+```{r}
+
+url_content_info <- get_thread_content(top_repub$url[1:500])$comments
+```
+
+Above I am attempting to get addition information on reddit comments (user, date, post responding to, upvotes, downvotes). Below I am just reading them in as rds files like Saaradhaa has done because my other way of getting comments with RedditExtractoR has not worked.
+
+```{r}
+saveRDS(url_content_info, "url_content_info.rds")
+
+red_comments_info <- read_rds("url_content_info.rds")
+
+write.csv(red_comments_info, "repub_comments_info.csv", col.names = T)
+
+red_comments_info <- read_csv("repub_comments_info.csv")
+```
+
+I want to next remove any comments that are \[deleted\] or \[removed\] as a user's comment could have been deleted by OP or removed by a moderator. I still need to remove the auto moderator messages from both subreddits since every post will most likely have an automod comment.
+
+```{r}
+
+blue_comments <- dem_comments_info %>%
+  filter(!(comment %in% c("[removed]", "[deleted]"))) %>% 
+  filter(!(author %in% "AutoModerator"))
+
+
+  
+```
+
+```{r}
+
+red_comments <- red_comments_info %>% 
+  filter(!(comment %in% c("[removed]", "[deleted]")))%>% 
+  filter(!(author %in% "AutoModerator"))
+
+```
+
+Yay, finally I have my data! I now have all the comments I wanted to get so far. I'll still have to perform preprocessing techniques on the data. Now is time for preprocessing techniques. Below I turn the blue comments into a corpus, then tokenize it by removing all the excess junk.
+
+## Preprocessing /r/democrats
+
+```{r}
+
+blue_corpus <- corpus(blue_comments$comment)
+
+blue_tokens <- tokens(blue_corpus,
+                      remove_punct = T,
+                      remove_symbols = T,
+                      remove_url = T,
+                      remove_numbers = T)
+
+blue_tokens <- tokens_select(blue_tokens, selection = "remove", pattern = stopwords("en"))
+
+#I remove words that dont have any meaning to me that were in the network cloud.
+
+blue_tokens <- tokens_remove(blue_tokens, c("back", "really", "less", "saying", "look", "like", "get", "every", "said", "anything", "s", "right", "now", "see"))
+```
+
+# Democrats DFM
+
+```{r}
+
+blue_dfm <- blue_tokens%>% 
+  tokens_tolower() %>% 
+  dfm()
+
+  dfm_trim(blue_dfm, min_termfreq = 3)
+```
+
+Lets look at the most used words in the dfm
+
+```{r}
+topfeatures(blue_dfm, 20)
+```
+
+```{r}
+
+blue_fcm <- fcm(blue_dfm)
+
+```
+
+I need to create a smaller fcm for the network plot because the current fcm is just too large.
+
+```{r}
+
+small_fcm_blue <- fcm_select(blue_fcm, pattern = names(topfeatures(blue_fcm, 50)))
+
+textplot_network(small_fcm_blue, min_freq = 0.5, omit_isolated = T)
+```
+
+There are still some words I want to get rid of based off the network plot. The words I see on the outside of the network I would expect to be closer to the inside, but this could be because there are some words I just don't think are relevant.
+
+## Preprocessing on /r/republicans corpus
+
+Below I do the same thing I did with the blue comments on the red comments
+
+```{r}
+
+red_corpus <- corpus(red_comments$comment)
+
+red_tokens <- tokens(red_corpus,
+                      remove_punct = T,
+                      remove_symbols = T,
+                      remove_url = T,
+                      remove_numbers = T)
+
+red_tokens <- tokens_select(red_tokens, selection = "remove", pattern = stopwords("en"))
+
+#I remove words that dont have any meaning to me that were in the network cloud.
+
+red_tokens <- tokens_remove(red_tokens, c("back", "really", "less", "saying", "look", "like", "get", "every", "said", "anything", "s", "right", "now", "see", "anyone", "one", "say", "take", "much", "last", "never", "changed", "just", "questions", "r", "please", "note"))
+```
+
+# Rebublicans DFM
+
+```{r}
+red_dfm <- red_tokens%>% 
+  tokens_tolower() %>% 
+  dfm()
+
+  dfm_trim(red_dfm, min_termfreq = 3)
+
+red_fcm <- fcm(red_dfm)
+```
+
+This is just a simple wordcloud to visually get a gist of some of the most popular words in the subreddit.
+
+```{r}
+
+textplot_wordcloud(red_dfm, min_count = 10, max_words = 100, color = "red")
+```
+
+Again, lets see the top terms in the republican subreddit dfm. I'm unsure of what "t" is, but some stemming may take care of that, or it could have some significant meaning within the subreddit (an inside joke perhaps).
+
+```{r}
+topfeatures(red_dfm, 20)
+```
+
+```{r}
+
+small_fcm_red <- fcm_select(red_fcm, pattern = names(topfeatures(red_fcm, 50)))
+
+textplot_network(small_fcm_red, min_freq = 0.5, omit_isolated = T, edge_color = "orange")
+```
+
+This network plot seems closer to what I am looking for with the /r/democrats network plot. In both network plots, "people" is at the center of the network. The only problem is I don't know how they are using the word and in reference to what. I can solve this with a kwic function using "people" as a keyword.
+
+# Dictionary Methods
+
+### I want to use wordgraphs in the next blog post or final project.
+
+## NRC Dictionary
+
+```{r}
+
+red_nrc_sentiment <- liwcalike(red_corpus, data_dictionary_NRC)
+```
+
+```{r}
+ggplot(red_nrc_sentiment)+
+  geom_histogram(aes(positive), fill = "orange")
+```
+
+```{r}
+
+blue_nrc_sentiment <- liwcalike(blue_corpus, data_dictionary_NRC)
+```
+
+```{r}
+ggplot(blue_nrc_sentiment)+
+  geom_histogram(aes(positive), fill = "blue")
+```
+
+The graphs are very similar in structure, but the democrats subreddit has far more positive posts than the republicans subreddit, by an extreme margin.
+
+## Geninq Dictionary
+
+```{r}
+
+blue_geninq_sentiment <- liwcalike(blue_corpus, data_dictionary_geninqposneg)
+
+names(blue_geninq_sentiment)
+```
+
+```{r}
+ggplot(blue_geninq_sentiment)+
+  geom_histogram(aes(positive))
+```
+
+```{r}
+
+red_geninq_sentiment <- liwcalike(red_corpus, data_dictionary_geninqposneg)
+
+names(data_dictionary_geninqposneg)
+```
+
+```{r}
+ggplot(red_geninq_sentiment)+
+  geom_histogram(aes(positive))
+```
+
+## Polarity measures for Geninq and NRC Dictionary
+
+/r/democrat
+
+NRC Polarity
+
+```{r}
+
+blue_nrc_sentiment$polarity <- blue_nrc_sentiment$positive - blue_nrc_sentiment$negative
+
+ggplot(blue_nrc_sentiment) +
+  geom_histogram(aes(polarity)) +
+  theme_bw()
+
+```
+
+Geninq Polarity
+
+```{r}
+
+blue_geninq_sentiment$polarity <- blue_geninq_sentiment$positive - blue_geninq_sentiment$negative
+
+ggplot(blue_geninq_sentiment)+
+  geom_histogram(aes(polarity))+
+  theme_bw()
+```
+
+/r/republican Polarity
+
+NRC polarity
+
+```{r}
+
+
+red_nrc_sentiment$polarity <- red_nrc_sentiment$positive - red_nrc_sentiment$negative
+
+ggplot(red_nrc_sentiment) +
+  geom_histogram(aes(polarity)) +
+  theme_bw()
+
+```
+
+Geninq polarity
+
+```{r}
+
+red_geninq_sentiment$polarity <- red_geninq_sentiment$positive - red_geninq_sentiment$negative
+
+ggplot(red_geninq_sentiment)+
+  geom_histogram(aes(polarity))+
+  theme_bw()
+```
+
+It appears these two dictionaries in particular are quite similar, I'll have to check this with maybe a third dictionary. The only difference is NRC polarity has a higher count.
+
+## Dictionary Loughran and McDonald
+
+```{r}
+
+blue_loughran_mcdonald <- liwcalike(blue_corpus, data_dictionary_LoughranMcDonald)
+
+red_loughran_mcdonald <- liwcalike(red_corpus, data_dictionary_LoughranMcDonald)
+```
+
+```{r}
+
+ggplot(blue_loughran_mcdonald)+
+  geom_histogram(aes(positive))
+```
+
+```{r}
+ggplot(red_loughran_mcdonald)+
+  geom_histogram(aes(positive), fill = "orange")
+```
+
+Below I implement the polarity measure.
+
+```{r}
+
+red_loughran_mcdonald$polarity <- red_loughran_mcdonald$positive - red_loughran_mcdonald$negative
+
+ggplot(red_loughran_mcdonald)+
+  geom_histogram(aes(polarity))+
+  theme_bw()
+```
+
+## Dictionary Moral Foundations Dictionary
+
+I'll have to find a way to measure or graph these to compare the subreddits from a holistic view. Otherwise, I could find a way to join the data frames together, but I do not think that would benefit me.
+
+```{r}
+
+liwcalike(blue_corpus, data_dictionary_MFD)
+```
+
+```{r}
+summary(liwcalike(red_corpus, data_dictionary_MFD))
+```
+
+If I want to create my own dictionary, which may be worth looking into, use this "https://quanteda.io/reference/dictionary.html"
+
+## Lexicoder Sentiment Dictionary
+
+/r/democrats
+
+I'm having some issues grouping the dfm by date so I can have a timeline at the bottom of the graph. I'll have to trouble shoot this later.
+
+```{r}
+
+midt <- c("walker", "hershel", "warnock", "biden", "desantis", "trump", "vote", "fake", "fraud")
+
+toks_midt_blue <- tokens_keep(blue_tokens, pattern = phrase(midt), window = 10)
+
+data_dictionary_LSD2015_pos_neg <- data_dictionary_LSD2015[1:2] #selects only negative and positive categories
+
+toks_midt_blue_lsd <- tokens_lookup(toks_midt_blue, dictionary = data_dictionary_LSD2015_pos_neg)
+
+dfmat_midt_lsd <- dfm(toks_midt_blue_lsd) %>% 
+  dfm_group(groups = date)
+
+matplot(dfmat_midt_lsd, type = "l", lty = 1, col = 1:2,
+        ylab = "Frequency", xlab = "")
+grid()
+legend("topleft", col = 1:2, legend = colnames(dfmat_midt_lsd), lty = 1, bg = "white")
+
+```
+
+# Dictionary with DFM
+
+Here I create a dfm with the NRC sentiment from the blue comments, then I create a polarity measure for the blue comments using the blue dataframe.
+
+```{r}
+
+blue_dfm_nrc <- blue_dfm %>% 
+  dfm_lookup(data_dictionary_NRC)
+
+blue_df_nrc <- convert(blue_dfm_nrc, to = "data.frame")
+
+blue_df_nrc$polarity <- (blue_df_nrc$positive - blue_df_nrc$negative)/(blue_df_nrc$positive + blue_df_nrc$negative)
+
+blue_df_nrc$polarity[(blue_df_nrc$positive + blue_df_nrc$negative) == 0] <- 0
+
+ggplot(blue_df_nrc) +
+  geom_histogram(aes(x=polarity)) +
+  theme_bw()
+```
+
+So I feel like I did something wrong because the graph is completely symmetrical.
+
+## Creating my own dictionary
+
+```{r}
+
+dictionary()
+```
+
+# Keywords in Context
+
+Here I will fill in one of the top words once the code loads because I want to see how exactly some of these top words are used with the kwic function. I like using this function because I can pick specific words I want to look at in context of a larger sentence. Just by a glance, in the blue_corpus, people use "they" in reference to talking about the President. For example, "they think that biden..." or "they knew biden...". In both subreddits, you will get negative sentiment towards the President because people want to express their grievances, but do republicans tend to talk more negatively about him? I'll check a few other keywords as well to look at discourse at a glance for terms like "ukraine", "midterm", and "Walker".
+
+```{r}
+
+kwic_blue_biden <- kwic(blue_corpus, "biden")
+
+kwic_red_biden <- kwic(red_corpus, "biden")
+```
+
+```{r}
+
+kwic_blue_ukraine <- kwic(blue_corpus, "Ukraine")
+kwic_red_ukraine <- kwic(red_corpus, "Ukraine")
+
+
+kwic_blue_midterm <- kwic(blue_corpus, "midterm")
+kwic_red_midterm <- kwic(red_corpus, "midterm")
+
+
+kwic_blue_walker <- kwic(blue_corpus, "Walker")
+kwic_red_walker <- kwic(red_corpus, "Walker")
+```
+
+# LDA Models for /r/democrats and /r/republicans
+
+```{r}
+
+library(seededlda)
+dem_comments_lda <- textmodel_lda(blue_dfm, k = 10)
+
+dem_terms <- terms(dem_comments_lda, 10)
+dem_terms
+```
+
+```{r}
+gop_comments_lda <- textmodel_lda(red_dfm, k = 10)
+
+gop_terms <- terms(gop_comments_lda, 10)
+gop_terms
+```
+
+I think I'll want to do LDA modelling based on what we learned in Tutorial 10 in my final project or future blog posts because the tutorial seemed more comprehensive and I noticed words were a bit more similar when grouped when the lambda was changed to various numbers between 0.2 and 0.4.
+
+```{r}
+textplot_keyness(textstat_keyness(blue_dfm))
+```
+
+# Writing csv for data
+
+```{r}
+
+write_csv(blue_comments, "blue_comments1")
+
+
+write_csv(red_comments, "red_comments1")
+```
