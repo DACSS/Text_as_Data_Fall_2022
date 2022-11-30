@@ -47,28 +47,28 @@ library(KoNLP)
 library(tidytext)
 library(dplyr)
 
-#전처리
+# preprocessing
 art_pre <- art %>%
   mutate(contents = str_replace_all(contents, "[^가-힣]", " " ),
          contents = str_squish(contents))
 
-#토큰화
+# tokenization
 art_tok <- art_pre %>%
   unnest_tokens(input = contents,
                 output= word,
                 token= extractNoun)
 
-# 불용어 제외
+# remove stopwords
 ko_stopword<-tibble(word=c("서울신문","기자","단독","무단","재배포","페이스북","당신","클릭","전재", "나우뉴스", "재배포금지", "무료만화", "무료", "인기", "나우", "만화", "뉴스","나우"))
 
 art_tok<-art_tok %>%
   filter(!word %in% ko_stopword$word)
 
-# 한글자 단어 제외
+# remove single-letter words
 art_tok<-art_tok %>%
   filter(str_count(word) >1)
 
-# 단어빈도 구하기
+# find out frequency of words
 art_fre<-art_tok %>%
   count(type, word)
 
