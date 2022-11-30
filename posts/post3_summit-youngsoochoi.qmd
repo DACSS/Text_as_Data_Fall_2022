@@ -57,7 +57,7 @@ for (link in n_d_news_links) {
 
 ## Create a imported data as csv file
 
-In order to use later, it was made into a tibble structure and made it to add csv file.I made this way to use this way to use this way.
+In order to use later, it was made into a tibble structure and made it to add csv file.
 
 ```{r}
 #s_e_art<-cbind(titles, contents)
