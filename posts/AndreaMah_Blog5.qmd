@@ -1,0 +1,210 @@
+---
+title: "Blog Post 5: Topic Modeling"
+author: "Andrea Mah"
+desription: "Topic modeling of speeches"
+date: "11/30/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - BlogPost4
+  - Andrea Mah
+
+---
+
+```{r}
+#loading in nececssary libraries
+library(quanteda)
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(text2vec)
+library(stopwords)
+library(RCurl)
+
+
+```
+
+For the next stage in my project, I wanted to use topic modeling. Although I'm not sure I will use it in my final project, since I don't have clear hypotheses about topics and so whatever I find will be purely exploratory and/or descriptive. While I think it would be interesting to see the links between topics and my metadata (climate risk index, year of speech), I don't have strong ideas about a) what the topics will be, given that in my reading of speeches they seem highly similar and b) what topics might relate to in terms of climate risk or year of speech.
+
+```{r}
+
+#load in and check the data
+speech.meta <- read.csv(file = "FINAL_combined_meta-text_dataset.csv")
+
+tail(speech.meta)
+
+names(speech.meta)
+
+#limit the dataset to just text and filenum
+speech.meta <- speech.meta[,c(2,7)]
+head(speech.meta)
+
+speech.meta.ac <- as.character(speech.meta$text)
+
+speech.meta.ac
+```
+
+After getting the data ready, I followed the steps to set up the model as we learned in class. 
+
+```{r}
+#create iterator
+it <-itoken(speech.meta.ac, tolower, word_tokenizer, ids = speech.meta$textnum, n_chunks = 10)
+
+# prints iterator
+it
+
+# build the vocabulary, removing stopwords and some other tokens that are not meaningful
+sw <- stopwords("en", source = "snowball")
+typeof(sw)
+sw
+sw <- c(sw, "must", "can", "c", "mr", 'v', "il", "tt", "ll", "aij", "j", "es", "ul","wi", "q", "el", "tl", "cl", "la", "er", "tt","ul", "fl", "fi", "r", "l", "lo", "tel", "cl", "la", "z", "le", "en", "ch", "ed", "fl", "er", "fi", "co")
+
+#create vocabulary
+v <- create_vocabulary(it, stopwords = sw, doc_proportion_max = .95, doc_proportion_min = .05)
+
+#I want to prune the vocabulary: 
+v <- prune_vocabulary(v, term_count_min = 10)
+
+# creates a closure that helps transform list of tokens into vector space
+vectorizer <- vocab_vectorizer(v)
+
+# creates document term matrix
+dtm <- create_dtm(it, vectorizer, type = "dgTMatrix")
+
+
+```
+
+
+Next I ran a series of models, testing different numbers of topics. I started with 10 since
+that seemeed like a lot of topics to me and I thought it would be informative. As I thought, many topics were not very prevalent in the documents. 
+
+
+```{r}
+
+# create new LDA model with 10 topics
+lda_model <- LDA$new(n_topics = 10, doc_topic_prior = 0.1,
+                     topic_word_prior = 0.01)
+
+
+# fitting the model
+doc_topic_distr <- 
+  lda_model$fit_transform(x = dtm, n_iter = 5000,
+                          convergence_tol = 0.001, n_check_convergence = 25,
+                          progressbar = T)
+
+# View the topics 
+lda_model$get_top_words(n = 20, topic_number = c(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L),
+                        lambda = 0.3)
+
+#What proportion of documents fit different topics? 
+barplot(doc_topic_distr[2, ], xlab = "topic",
+        ylab = "proportion", ylim = c(0,1),
+        names.arg = 1:ncol(doc_topic_distr))
+
+```
+
+Since the percentages were so low, I decided to try a model with a lower number of topics, moving to extraction of 5 topics.
+
+```{r}
+#for some topics, the proportion is very low. 
+
+#now I want to test with 5 topics. 
+lda_model5 <- LDA$new(n_topics = 5, doc_topic_prior = 0.1,
+                     topic_word_prior = 0.01)
+doc_topic_distr5 <- 
+  lda_model5$fit_transform(x = dtm, n_iter = 5000,
+                          convergence_tol = 0.001, n_check_convergence = 25,
+                          progressbar = T)
+
+# View the topics 
+lda_model5$get_top_words(n = 20, topic_number = c(1L, 2L, 3L, 4L, 5L),
+                        lambda = 0.3)
+
+#what proportion of docs fit the topics? 
+barplot(doc_topic_distr5[2, ], xlab = "topic",
+        ylab = "proportion", ylim = c(0,1),
+        names.arg = 1:ncol(doc_topic_distr5))
+```
+
+Less than 20% of documents are of 3 of these topics. Further, there were some topics that I had difficulty interpreting or thinking why they were separate. At this point I was starting to see some consistency in terms of which topics were extracted. For example, there was one topic that seemed to be very "solutions" focused with words like energy, development, technologies...However, I thought that maybe I should use even fewer topics? 
+
+```{r}
+lda_model4 <- LDA$new(n_topics = 4, doc_topic_prior = 0.1,
+                      topic_word_prior = 0.01)
+
+doc_topic_distr4 <- 
+  lda_model4$fit_transform(x = dtm, n_iter = 5000,
+                           convergence_tol = 0.001, n_check_convergence = 25,
+                           progressbar = T)
+
+lda_model4$get_top_words(n = 20, topic_number = c(1L, 2L, 3L, 4L),
+                         lambda = 0.3)
+
+#what proportion of docs fit the topics? 
+barplot(doc_topic_distr4[2, ], xlab = "topic",
+        ylab = "proportion", ylim = c(0,1),
+        names.arg = 1:ncol(doc_topic_distr4))
+
+doc_topic_distr4
+
+```
+
+I think 4 topics look meaningful, and at least each topic has 10% of documents classified as most likely being within that topic. But, to be safe, and to explore the data even more, I also looked at a 3 topic model. 
+
+```{r}
+lda_model3 <- LDA$new(n_topics = 3, doc_topic_prior = 0.1,
+                      topic_word_prior = 0.01)
+
+doc_topic_distr3 <- 
+  lda_model3$fit_transform(x = dtm, n_iter = 5000,
+                           convergence_tol = 0.001, n_check_convergence = 25,
+                           progressbar = T)
+
+lda_model3$get_top_words(n = 20, topic_number = c(1L, 2L, 3L),
+                         lambda = 0.3)
+
+#what proportion of docs fit the topics? 
+barplot(doc_topic_distr3[2, ], xlab = "topic",
+        ylab = "proportion", ylim = c(0,1),
+        names.arg = 1:ncol(doc_topic_distr3))
+
+```
+
+It seems like the 4-topic solution is what I should go with. Now I should try to describe each topic. Because this is completely exploratory, I thought it would be better to use a naming method that simply relies on top words in each topic. 
+
+```{r}
+lda_model4$plot()
+
+```
+
+This resulted in the following four topics. I can speculate about the content of each but want to explore the speeches which are most likely classified under each before doing so...
+
+#topic 1: convention_parties_president_protocol_annex - perhaps this is about the UNFCC itself/the proccess
+#topic 2: us_agreement_need_action_challenge - this also seems sort of process focused, 
+'how will we go about solving the problems'
+#topic 3: energy_development_technologies_projects_sustainable - this seems solution-focused to me, 
+'what should we do about climate change'
+#topic 4: island_people_human_small_sea - this final topic feels different from the others, based on 
+my initial exploration I feel like it is really focused on how people are being impacted
+or the 'human element of climate change'. 
+
+Next steps: Although it would be completely exploratory (and again, maybe not relevant to my key research 
+questions) I was wondering what it would mean to see how the climate risk index relates to topic prevalence?
+As well, I could look at topic probabilities changing over time (i.e., by year of speech)? 
+
+To examine this, I want to save the probabilities for the four topics for each document, and then use my
+metadata to look at correlations/regressions between these and the topics.
+I haven't figured out a clean way to export these probabilities
+and join them with my original data. Because it isn't a priority for me, my plan is to return to topic 
+modeling after completing the other key analyses.
+
+Further, based on my past experience doing similar types of analyses (to me, the concept seems
+highly similar to latent class/profile analysis and factor analysis) I feel like I need to more deeply think
+about what these topics are about, what they represent, and (becaues of my area of interest) what they mean 
+psychologically. It would be fun to rush ahead and look at some of the analyses I'd like to do, but I am still
+uncertain about what I think underlies each of the topics I found, and I want to think about it more before
+I do anlayses, maybe so I can even think of hypotheses to test rather than just testing every possibility...
