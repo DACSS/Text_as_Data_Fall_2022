@@ -1,0 +1,225 @@
+---
+title: "Blog 5"
+desription: "Co-occurrence analysis"
+author: "Young Soo Choi"
+date: "11/29/2022"
+format:
+  html:
+    toc: true
+    code-copy: true
+    code-tools: true
+categories:
+  - Co-occurrence analysis
+---
+
+Until last time, I analyzed whether the contents of the report differed according to the type of disaster, but it was found that there was no noticeable difference. 
+
+This time, I will change the approach and analyze through Co-occurrence analysis whether the attitude of reporting on disasters and accidents varies depending on the newspaper company.
+
+In 2017, when the fires and earthquakes that were analyzed occurred, Korea had a progressive regime. And people usually think that liberal media defend liberal regimes and conservative media criticize liberal ones, and that more so is likely in the event of disasters or accidents.
+
+In order to confirm this hypothesis, the contents of the article will be analyzed by selecting progressive newspapers (Kyunghyang, 경향) and conservative newspapers (Donga, 동아). Using co-occurrence analysis, I will find out what words such as 'government' and 'responsibility' are used in each newspaper.
+
+# Import Data and Preprocessing
+
+The files of articles related to the 2017 Jecheon Fire and Pohang earthquakes of the two newpapers that were previously created were brought and preprocessed.
+
+```{r}
+# Import Data
+
+library(readr)
+
+setwd("~/R/Text_as_Data_Fall_2022/posts")
+
+k_f_art<-read_csv("k_f_art.csv")
+k_e_art<-read_csv("k_e_art.csv")
+d_f_art<-read_csv("d_f_art.csv")
+d_e_art<-read_csv("d_e_art.csv")
+
+art<-rbind(k_f_art, k_e_art, d_f_art, d_e_art)
+
+# Preprocessing
+library(dplyr)
+library(stringr)
+library(textclean)
+
+art_pre<-art %>%
+  mutate(contents = str_replace_all(contents, "[^가-힣]", " "),
+         contents = str_squish(contents),
+         id=row_number())
+
+art_pre
+```
+
+A total of 223 articles, including 108 articles from the Kyunghyang  and 115 articles from the Donga about the Pohang earthquake and Jecheon Fire, were called.
+
+# Tokenization
+
+As previously done, it is tokenized using the unnest_token function, and stopwords and single-letter words are excluded.
+
+Here, the stopwords was newly set by adding new words in advance based on the analysis results several times.
+
+```{r}
+library(multilinguer)
+library(KoNLP)
+library(tidytext)
+
+# Tokenization
+art_tok <- art_pre %>%
+  unnest_tokens(input = contents,
+                output= word,
+                token= extractNoun,
+                drop =F)
+
+ko_stopword<-tibble(word=c("동아일보","경향신문","기자","단독","무단","재배포","페이스북","당신","클릭","전재", "나우뉴스", "재배포금지", "무료만화", "무료", "인기", "나우", "만화", "뉴스","나우","지진","포항","경북","경주", "포항시", "경주시", "경상북도", "화재", "제천", "제천시", "충북", "충청북도", "스포츠센터", "목욕탕", "사우나", "세상", "발생", "지역","경향","신문","동아","트위터","경제","공식","재테크","이슈","방법","들이", "총집결"))
+
+art_tok<-art_tok %>%
+  filter(!word %in% ko_stopword$word)
+
+art_tok<-art_tok %>%
+  filter(str_count(word) >1)
+```
+
+# Find the frequency of concurrent words by newspaper
+
+Using the pairwise_count function of the widyr package, I'll find words that are often used together in each newspaper article.
+
+## a liberal newspaper
+
+Let's take a look at the Kyunghyang first.
+
+```{r}
+library(widyr)
+
+# Separate only Kyunghyang tokens
+k_art_tok <- art_tok %>% 
+  filter(news=="kyunghyang")
+
+# extracting words used in Kyunghyang
+k_pair<-k_art_tok %>%
+  pairwise_count(item=word,
+                 feature = id,
+                 sort = T)
+
+k_pair
+```
+
+It can be seen that words such as safety(안전), buildings(건물), safety(안전) and government(정부) were often used together.
+
+Now I'm going to look at the responsibility(책임) and  the government(정부) that I'm interested in, to see what words were used with.
+
+```{r}
+k_pair %>% filter(item1 == "책임")
+
+k_pair %>% filter(item1 == "정부")
+```
+
+Responsibility(책임) was often used with buildings(건물), doing(하기), safety(안전), but there are no words with particular negative and positive meanings except for the catastrophe(참사) used six times.
+
+The government(정부) has been used with safety(안전), doing(하기), abnormal(이상), countermeasures(대책), and so on, but similarly, there are no words that contain particular values
+
+## a conservative newspaper
+
+This time, we will review the conservative Donga.
+
+```{r}
+# Separate only Donga tokens
+
+d_art_tok <- art_tok %>% 
+  filter(news=="donga")
+
+# Extracting words used in Donga
+
+d_pair<-d_art_tok %>%
+  pairwise_count(item=word,
+                 feature = id,
+                 sort = T)
+
+d_pair
+```
+
+Words such as buildings(건물), afternoon(오후), people(사람), and buildings(건물) were often used together, and it is presumed that many factual reports such as the time of the incident and the damage situation were included.
+
+Then, with what words did Donga often use the words responsibility(책임) and the government(정부)?
+
+```{r}
+d_pair %>% filter(item1 == "책임")
+
+d_pair %>% filter(item1 == "정부")
+
+```
+
+First of all, responsibility(책임) was mainly used with general words such as safety(안전), situation(상황), disaster(재난), response(대응), and countermeasure(대책). To overinterpret it, the government mainly plays a role in managing the situation, responding, and preparing countermeasures, but unlike Kyunghyang, the number is not large, although it is noticeable.
+
+Next, the government(정부) used with safety(안전), disaster(재난), and scale(규모) frequently. But there is no significant difference from the Kyunghyang.
+
+# Find the Pi coefficient
+
+The previous analysis was based on absolute values, so the overall amount of articles was not considered.
+
+This time, I will examine the relative importance through correlation analysis between words.
+
+Let's use the pairwise() function to find the pi coefficient and look at the two words that are highly correlated with the words government(정부) and responsibility(책임). (The minimum number of words appearing after a few trials was set at 10. It's arbitrary.)
+
+
+## Find the coefficient of kyunghyang
+
+```{r}
+k_word_cors<-k_art_tok %>%
+  add_count(word) %>%
+  filter(n>=10) %>%
+  pairwise_cor(item=word,
+               feature= id,
+               sort=T)
+
+k_word_cors
+```
+
+Minerals(광물) and kaolin(고령석) show a relationship of 1.0, but this study is meaningless.
+
+Looks at words with high correlation coefficients related to responsibility and the government.
+
+```{r}
+k_word_cors %>%
+  filter(item1 == "책임")
+
+k_word_cors %>%
+  filter(item1 == "정부")
+```
+
+## Find the coefficient of Donga
+
+```{r}
+d_word_cors<-d_art_tok %>%
+  add_count(word) %>%
+  filter(n>=10) %>%
+  pairwise_cor(item=word,
+               feature= id,
+               sort=T)
+
+d_word_cors
+```
+
+As expected, there are meaningless words.
+
+Let's look at each word of interest.
+
+```{r}
+d_word_cors %>%
+  filter(item1 == "책임")
+
+d_word_cors %>%
+  filter(item1 == "정부")
+```
+
+As with frequency analysis, there is no significant difference in relation to the government(정부).
+
+However, in the case of responsibility(책임), it can be seen that words related to the specific role of the government, such as response(대응), fire fighting(소방) appear more often in the conservative Donga. 
+
+However, this was analyzed with only two accidents, and considering that the pre-processing process of the article can be further improved, it should not be generally accepted, but I think it would be good to use it as a reference for new research and analysis.
+
+# Conclusion
+
+According to a simple text analysis I have done so far, whether it is a human disaster or a natural disaster does not seem to have a significant impact on the attitude of the media reporting the disaster. In addition, the media does not seem to have a significant impact on the content of the report in an urgent situation that has not been long since the disaster occurred.
+
+I don't know if better research will change the conclusion in the future. However, I think that ordinary media companies are calling for the government to show responsibility and respond well to all events and accidents regardless of the type of disaster and the government's tendency.
