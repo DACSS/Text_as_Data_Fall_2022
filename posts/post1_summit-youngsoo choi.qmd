@@ -1,0 +1,59 @@
+---
+title: "Blog 1"
+desription: "Topic and Research Problem"
+author: "Young Soo Choi"
+date: "9/16/2022"
+format:
+  html:
+    toc: true
+    code-copy: true
+    code-tools: true
+categories:
+  - Topic and Research Problem
+---
+
+# Topic: Disaster Management and Public Safety Policy
+
+As a person whose main job is to establish and execute policies related to disaster safety management, the research topic of text analysis, which is this class, was naturally set as disaster accident response and public safety management. 
+
+While working in the field, I encountered and made numerous documents, including daily safety management status reports, precise analysis reports, evaluation reports, and media press releases, but I have never conducted a quantitative analysis with these documents. Through this research activity, I want to get an analysis technique or inspiration related to this.
+
+# Review existing literatures
+
+First, we looked at some existing studies that conducted text analysis in this field.
+
+First of all, text analysis was conducted on disaster recognition and prediction areas using text data such as SNS such as Amir Karami and Vishal Shah et al. (2019), Hyun Jeong Seo and Minji Son et al. (2021), and Graham Neubig and Yuichiroh Matsubayashi (2011).
+
+Next, there are textual analysis studies related to residents, and there were studies to analyze the contents of residents' reports and use them for disaster prediction, and to understand the contents by analyzing disaster-related educational data.
+
+In addition, there is a textual analysis study on political dynamics related to disaster victims, which was also an interesting topic.
+
+Personally, it was more interesting because there were research materials from experts who collaborated and consulted when I was in the job.
+
+Anyway, I found out that text analysis is being conducted in various ways like this, and based on this, I selected several research questions.
+
+# Finding a Research Problem
+
+The first consideration was to examine the correlation between reports and the actual occurrence of an accident through textual analysis of the contents of the safety management report used internally by various safety management agencies. There are many cases of encountering various activity reports within the institution, because I always wondered if there was a way to use these data for their capacity management. However, after reviewing the actual possibilities, I found that it is difficult to obtain safety management reports that are used internally by each institution from the current standpoint. Safety management activities are almost impossible to secure because they may mainly contain information related to the confidentiality of the institutions.
+
+The second is related to the formation of people's perceptions related to disasters, which we usually classify as natural disasters and human disasters (legalized as social disasters in Korea), and in the case of natural disasters, people's voices of criticism will be less than that of social disasters. From the government's point of view, rapid disaster management and recovery are important, and how people's perceptions are formed in this process is an important issue, and if criticism is high, faster response and settlement are important. According to these assumptions, it is important for the government to show actions such as resolving accidents more quickly and announcing related recurrence measures in the event of a social disaster. With this in mind, the research topic I chose is to check whether the contents of major media outlets that greatly affect the formation of public opinions appear differently in the case of social disasters and natural disasters.
+
+Therefore, my research project of this text analysis class is as follows.
+
+Is there a difference in the attitude of media reports between natural and human disasters?
+
+
+# Bibliography
+Twitter speaks: A case of national disaster situational awareness(Amir Karami and Vishal Shah et al., 2019)
+
+Trends in Civic Engagement Disaster Safety Education Research: Systematic Literature Review and Keyword Network Analysis(Hyun Jeong Seo and Minji Son et al.,2021)
+
+Safety Information Mining — What can NLP do in a disaster—(Graham Neubig and Yuichiroh Matsubayashi et al., 2011)
+
+Research Suggestion for Disaster Prediction using Safety Report of Korea Government(Lee, Jun, Shin, Jindong et al., 2019)
+
+Disaster Risk Reduction in Iranian Primary and Secondary School Textbooks: A Content Analysis(Hamed Seddighi, Sepideh Yousefzadeh et al., 2021)
+
+Politicization of a disaster and victim blaming: Analysis of the Sewol ferry case in Korea(Ji-Bum Chung, Eugene Choi et al., 2022)
+
+The Textual Approach: Risk and Blame in Disaster Sensemaking(Robert P. Gephart, Jr., 2017)
