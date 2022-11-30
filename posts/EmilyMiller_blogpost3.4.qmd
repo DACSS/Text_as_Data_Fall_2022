@@ -1,8 +1,8 @@
 ---
 title: "Blog Post 3: Preprocessing Medical Textbooks"
 author: "Emily Miller"
-desription: "Downloading and processing medical textbooks and visuallizing genital-related chapters using word clouds."
-date: "08/02/2022"
+desription: "Processing medical textbooks and visuallizing using word clouds."
+date: "10/16/2022"
 format:
   html:
     toc: true
@@ -17,6 +17,9 @@ categories:
   - internetarchive
   - tidyverse
   - tidytext
+  - stringdist
+  - fuzzyjoin
+  - quanteda
 ---
 
 ```{r, include = F}
