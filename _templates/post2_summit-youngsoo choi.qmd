@@ -1,0 +1,133 @@
+---
+title: "Blog 2"
+desription: "Scrapping the web"
+author: "Young Soo Choi"
+date: "09/30/2022"
+format:
+  html:
+    toc: true
+    code-copy: true
+    code-tools: true
+categories:
+  - blog 2
+---
+
+# Korean or English?
+
+An important choice remains. It is whether to analyze text in English or text in Korean.
+
+Of course, I am currently in the US school curriculum and the members here speak English. But it is more useful for me to use Korean than English. After I get my degree here, I have to return to the position of national disaster management policy officer in Korea, so it is appropriate to carry out my project on Korean rather than conducting a research project in English. If I have the ability, I can proceed with the project necessary for the class in English and the Korean project separately, but I don't think I can do that yet.
+
+So I am sorry to others, but my project will be carried out in Korean. I will interpret important Korean words in this project as English words, but you will not fully understand my entire literature. If you have any questions, please ask me individually, and I would appreciate it if you could interestingly see that various text analysis activities can be conducted in languages other than English.
+
+# Selection of data
+
+In order to review the selected research topic, I will first import data and proceed with a preliminary procedure to analyze text data. The target data are articles of a major earthquake that exceeded 5 on the scale in Korea in 2017.
+
+Since the earthquake occurred on November 15, 2017, articles reported in the pages of the Seoul Newspaper from November 15 to 22 were analyzed.
+
+A week was arbitrarily set to prevent political issues that were unrelated to the disaster itself as many hours passed after the accident occurred.
+
+# Importing data
+
+First, I will load the necessary package and look for the url that I searched on the portal site under the conditions. 8 pages of web page search results are searched. Looking at the url structure, the basic url is attached with changing numbers such as 11, 21, and 31, and continues to the last 71. Using these points, find each url using the conditional statement and store it in n_d_urls.
+ 
+```{r}
+library(tidyverse)
+library(rvest)
+
+# Scraping earthquake-related articles
+
+b_n_url<-"https://search.naver.com/search.naver?where=news&sm=tab_pge&query=%ED%8F%AC%ED%95%AD%20%EC%A7%80%EC%A7%84&sort=0&photo=3&field=0&pd=3&ds=2017.11.15&de=2017.11.25&cluster_rank=10&mynews=1&office_type=1&office_section_code=1&news_office_checked=1081&nso=so:r,p:from20171115to20171125,a:all&start="
+
+
+# Finding URL
+n_d_urls <- NULL
+for (x in 0:7) {
+  n_d_urls <- c(n_d_urls, paste(b_n_url, x*10+1, sep=""))
+}
+n_d_urls
+```
+
+Eight URLs have been saved and I'll look for links to individual articles in each of these URLs. I used the browser's inspection function to find the css of the link, and I used it to find the link of the individual news articles.
+
+```{r}
+# Finding individual news link
+
+n_d_news_links <- NULL
+for (url in n_d_urls) {
+  html <- read_html(url)
+  n_d_news_links <- c(n_d_news_links, html %>%
+                    html_nodes('a.info')%>%
+                    html_attr('href'))
+}
+
+n_d_news_links
+```
+
+However, individual links include the URL address of the newspaper's website. I'll get rid of this.
+
+```{r}
+ # Delete unnecessary parts
+
+n_d_news_links = n_d_news_links[n_d_news_links!="https://www.seoul.co.kr"]
+n_d_news_links
+```
+
+When this was removed, 79 individual news stories were left. Likewise, I will find css containing the text of the article using the inspection function and use it as a conditional sentence to scrap the text of each article.
+
+```{r}
+# Saving Individual Articles
+
+n_d_contents <- NULL
+
+for (link in n_d_news_links) {
+  html <- read_html(link)
+  n_d_contents <- c(n_d_contents, html %>% 
+                  html_nodes("div#dic_area.go_trans._article_content") %>%
+                  html_text())
+}
+
+n_d_contents
+```
+
+I brought the text of all 79 articles.
+
+# Basic Analysis
+
+## Preprocessing
+
+At first glance, the reporter's e-mail address and tag symbol were included, so basic preprocessing was carried out to exclude all Korean characters.
+
+```{r}
+library("stringr")
+
+n_d_contents_pre<-n_d_contents %>%
+  str_replace_all("[^가-힣]", " ") %>%
+  str_squish()
+
+n_d_contents_pre
+```
+
+## Create WordCloud
+
+I made a word cloud with this data.
+
+The necessary package was loaded, preprocessed data was made into corpus, and then data were framed to create a word cloud.
+
+```{r}
+library(quanteda)
+library(quanteda.textplots)
+
+# convert to corpus
+n_d_corpus <- corpus(n_d_contents_pre)
+
+# create a word cloud
+n_d_dfm <- tokens(n_d_corpus, remove_punct=TRUE) %>%
+             dfm()
+
+textplot_wordcloud(n_d_dfm)
+
+```
+
+The biggest word (I'm sorry in Korean) shows Pohang(포항), the area caused by the earthquake, and the type of disaster(지진, earthquake). It includes dependent nouns such as work(일), be(있다),Seoul Newspaper(서울신문), and Facebook(페이스북), and these words appear to be included in the body of the article as they include the newspaper's display and SNS links on the web page. These are meaningless in text analysis, so we should remove them in the preprocessing process next time.
