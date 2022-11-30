@@ -61,7 +61,7 @@ This blog post goes over the steps I take to clean my dataset and visualize my w
 
 I downloaded a number of other books that I couldn't retrieve from the Internet Archive through UMass's Internlibrary Loan system. Most of the metadata (title, dates) are contained in the filenames of the PDFs, so I add this information in the code below.
 
-```{r, eval = F}
+```{r}
 temp<- tibble(raw_files = list.files(path = "/Users/emmanuelmiller/Desktop/dacss697d/Text_as_Data_Fall_2022/posts/_data/unabsorbed_pdfs"))
 #add information about the dates of the files where the file doesn't describe it
 pdfs<- temp %>% 
@@ -111,7 +111,7 @@ pdfs %>% head
 
 Next, I get the names of the files to read into R from my directories. Because I needed to remove the punctuation of the file names for the OCR (it was throwing some errors), I have to also modify the filenames in R so I can join them.
 
-```{r, eval = F}
+```{r}
 pdfs1<- pdfs %>% 
   mutate(temp = str_replace_all(raw_files, c("\\." = "QQQ",
                                          "[[:punct:]]|\\s+" = "",
@@ -149,7 +149,7 @@ pdfs2<-pdfs1 %>%
   fill(matches("edition|volume|part"), .direction = c("updown")) %>% 
   ungroup
 
-pdfs2 %>% head
+pdfs2 %>% head %>% kable
 ```
 
 
@@ -202,26 +202,32 @@ dat<-dat %>%
 
 Finally, I added page numbers and read in the files. I saved this because it takes a long time to load in.
 
-```{r}
+```{r, eval = F}
 dat<- dat %>% 
   mutate(page = str_extract(raw_files, "(?<=Page_)\\d+"),
          page = as.numeric(page)) 
 
 dat<-dat %>% 
   mutate(dat =map(raw_files, ~read_lines(.)))
+
 save(dat, file = "/Users/emmanuelmiller/Desktop/dacss697d/Text_as_Data_Fall_2022/posts/_data/dat.RData")
+```
+
+```{r}
+load("/Users/emmanuelmiller/Desktop/dacss697d/Text_as_Data_Fall_2022/posts/_data/dat.RData")
+dat %>% head 
+# save(dat, file = "dat.RData")
+```
+
+Because the separator was a new line, there are multiple rows for 1 page. I combine them into 1 page here.
+
+```{r}
 dat<- dat %>% 
   select(-raw_files) %>% 
   mutate(dat = map(dat,~str_c(., collapse = "\n"))) %>% 
   unnest_longer(dat)
 
-dat %>% head %>% mutate(dat = str_sub(dat, 0,100))
-# save(dat, file = "dat.RData")
-```
-
-```{r}
-# load("dat.RData")
-dat %>% select(titles, dates, edition, volume, part) %>% unique
+dat %>% tail %>% mutate(dat = str_sub(dat, 1, 100))
 ```
 
 # Cleaning
@@ -234,7 +240,6 @@ dat1<- dat %>%
   mutate(dat = str_remove(dat, "^\\s+$")) %>% 
   na_if("") %>%
   filter(!is.na(dat))
-
 ```
 
 I noticed that there were many whitespaces on each page. I decided to remove whitespaces since I would like to do sentence-level analyses. I also removed extraneous punctuation. Because I plan to tokenize using the Quanteda package, I will keep some essential punctuation.
@@ -263,12 +268,12 @@ dat1<- dat1 %>%
          ))
                      )
 
-temp_dat1<-dat1 %>% 
+dat1 %>% 
   mutate(dat = str_sub(dat, 1, 100)) %>% 
   group_by(titles, dates) %>% 
   slice(1) %>% 
-  ungroup
-temp_dat1 %>% kable
+  ungroup %>% 
+  kable
 ```
 
 I noticed that there are many single characters that are a result of either noise being transcribed or because of images that were transcribed. I remove these single characters and duplicate periods.
@@ -302,12 +307,11 @@ dat1<-dat1 %>%
   na_if("") %>% 
   filter(!is.na(dat))
 
-temp_dat2<-dat1 %>% 
+dat1 %>% 
   mutate(dat = str_sub(dat, 1, 100)) %>% 
   group_by(titles, dates) %>% 
   slice(1) %>% 
-  ungroup
-temp_dat2 %>% 
+  ungroup%>% 
   kable
 ```
 
@@ -328,7 +332,7 @@ For the pre-1970s text, I reviewed project Gutenberg because their books have be
 
 I decided to webscrape the text file from the Project Gutenberg website as this was less trouble than fighting with the gutenbergr R package or Firefox on downloading the text version.
 
-```{r, eval = F}
+```{r}
 #make dictionary -- gutenberg
 polite::bow("https://gutenberg.org/files/64754/64754-0.txt")
 
@@ -521,8 +525,6 @@ oxford3 %>% slice(10:15)
 In order to apply the dictionary, I first tokenize my corpus and save the tokens as a vector. I found that using vectors is faster than using a tibble. 
 
 ```{r}
-load("/Users/emmanuelmiller/Desktop/dacss697d/Text_as_Data_Fall_2022/posts/_data/savepoint.RData")
-
 dat2<- dat1 %>% 
   mutate(dat = strsplit(dat, ".", fixed = T)) %>%
   unnest_longer(dat) %>% 
@@ -530,9 +532,6 @@ dat2<- dat1 %>%
                           token = "words", 
                           format = "text",
                           drop = F) 
-
-
-# save(temp_dat2, temp_dat3, temp_dat4, dat5, file = "blogpost2_snapshot.RData")
 ```
 
 Next I make a separate table where words can be checked against US, Australian, Canadian, and UK English dictionaries. I also make a medical dictionary comprised of the texts from the 2 timepoints and add it to the main dictionary.
