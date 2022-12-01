@@ -1,0 +1,875 @@
+---
+title: "Blog Post 3: Preprocessing Medical Textbooks"
+author: "Emily Miller"
+desription: "Processing medical textbooks and visuallizing using word clouds."
+date: "10/16/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - hw3
+  - blogpost3
+  - Emily Miller
+  - internetarchivebooks
+  - internetarchive
+  - tidyverse
+  - tidytext
+  - stringdist
+  - fuzzyjoin
+  - quanteda
+---
+
+```{r, include = F}
+
+library(tidyverse)
+library(kableExtra)
+library(knitr) 
+library(rvest)
+library(polite)
+library(stringi)
+library(tidytext)
+library(hunspell)
+
+# save(dat1, guten3, moore3, oxford3, file = "/Users/emmanuelmiller/Desktop/dacss697d/Text_as_Data_Fall_2022/posts/_data/savepoint.RData")
+
+
+```
+
+# Recap
+
+**Questions:**
+
+-   Is there a difference in language use between penises and vulvas?
+-   Is there a change in language use over time?
+
+**How:** Compare language use in anatomy textbooks
+
+# Overview
+This blog post goes over the steps I take to clean my dataset and visualize my work. Because I had to go through so many steps for the initial cleaning, I decided to dedicate a blog post to it. I follow generally the following outline:
+
+1. Dataset initial cleaning, where I remove punctuation and extra characters
+2. Cleaning using dictionaries that I build from book indexes
++ Hunspell for identifying mispelled words
+3. Visualizing with a word cloud
+
+# Dataset Initial Cleaning
+
+### PDFs from the Inter-library Loan
+
+I downloaded a number of other books that I couldn't retrieve from the Internet Archive through UMass's Internlibrary Loan system. Most of the metadata (title, dates) are contained in the filenames of the PDFs, so I add this information in the code below.
+
+```{r}
+temp<- tibble(raw_files = list.files(path = "/Users/emmanuelmiller/Desktop/dacss697d/Text_as_Data_Fall_2022/posts/_data/unabsorbed_pdfs"))
+#add information about the dates of the files where the file doesn't describe it
+pdfs<- temp %>% 
+  rowwise %>% 
+  mutate(files = str_remove_all(raw_files, "_"),
+         files = str_replace_all(files, "\\s+", "_"),
+         dates = str_extract(files, "(?<=\\()\\d{4}(?=\\))"),
+         dates = as.numeric(dates)) %>% 
+  mutate(dates = case_when(
+    str_detect(files, "Advances_in_Anatomy,_Embryology") ~ 2004,
+    str_detect(files, "\\(Current_Clinical_Urology")~ 2007,
+    T~dates
+  ))
+
+#clean the titles
+pdfs<- pdfs %>% 
+  mutate(titles = str_extract(files, "(?<=-).*(?=\\,|-.*-|-\\w|\\()"),
+         titles = str_replace_all(titles, "\\." , "_"),
+         titles = str_replace_all( titles, "Evidence-Based", "Evidence_Based"),
+         titles = str_replace(titles, "-|,", " "),
+         titles = ifelse(str_detect(titles, " "), 
+                         str_extract(titles, ".*(?= )"), titles),
+         titles = str_replace_all(titles, "_+" , " "),
+         titles = trimws(titles, which = "both"), 
+         titles = tolower(titles))
+
+pdfs<-pdfs %>% 
+  mutate(titles = case_when(
+    raw_files == "3-540-37363-2.pdf" ~ "applied physiology in intensive care medicine",
+    raw_files == "978-1-59745-142-0.pdf" ~"obstetrics in family medicine",
+    raw_files == "978-1-59745-469-8.pdf" ~ "womens health in clinical practice",
+    raw_files == "b138098.pdf" ~ "scheins common sense emergency abdominal surgery",
+    T ~ titles
+  ), 
+  dates = case_when(
+    raw_files == "b138098.pdf" ~ 2005,
+    raw_files == "978-1-59745-469-8.pdf" ~ 2008,
+    raw_files == "978-1-59745-142-0.pdf" ~ 2006,
+    raw_files == "3-540-37363-2.pdf" ~2006,
+    T~ dates
+  ))
+```
+
+```{r}
+pdfs %>% head
+```
+
+Next, I get the names of the files to read into R from my directories. Because I needed to remove the punctuation of the file names for the OCR (it was throwing some errors), I have to also modify the filenames in R so I can join them.
+
+```{r}
+pdfs1<- pdfs %>% 
+  mutate(temp = str_replace_all(raw_files, c("\\." = "QQQ",
+                                         "[[:punct:]]|\\s+" = "",
+                                         "QQQ" = ".",
+                                         "\\.pdf" = "")),
+         temp2 = str_replace_all(raw_files, c("\\.pdf$" = "")),
+         temp2 =ifelse(str_detect(titles, "clinical anatomy a revision"),
+                       "HaroldEllisClinicalAnatomyARevisionandAppliedAnatomyforClinicalStudents", temp2)) %>% 
+  pivot_longer(matches("temp"), values_to = "files1") %>% 
+  select(titles, dates, files =files1) %>% 
+  unique
+  
+temp<- tibble(raw_files = list.files(path = "/Users/emmanuelmiller/Desktop/thetext",
+                                     full.names = T)) %>% 
+  mutate(files = str_extract(raw_files, "(?<=thetext.).+(?=_Page)"),
+         files = str_remove(files, "edite*d*_*"))
+
+pdfs1<- pdfs1 %>% 
+  full_join(., temp)
+```
+
+```{r}
+pdfs1 %>% head
+```
+
+I made an excel sheet and documented the volume and edition numbers of the books I use. I could extract the metadata using code for this part of the dataset, but for the sake of consistency with the IA dataset, and ensuring correct metadata, I decided to do this portion by hand.
+
+```{r}
+book_metadata <- readxl::read_excel("/Users/emmanuelmiller/Desktop/dacss697d/Text_as_Data_Fall_2022/posts/_data/book_metadata.xlsx") 
+
+pdfs2<-pdfs1 %>% 
+  left_join(., book_metadata %>% select(-titles, -dates, -type), 
+            by = "files") %>% 
+  group_by(titles, dates) %>% 
+  fill(matches("edition|volume|part"), .direction = c("updown")) %>% 
+  ungroup
+
+pdfs2 %>% head %>% kable
+```
+
+
+### Internet Archive Data
+
+Like the inter-library loan dataset, I also needed to extract metadata for the files I downloaded. I decided to do this manually because I had not yet finished cleaning the OCR and I wanted to ensure that I didn't have duplicate books. I found that 4 of the books had incorrect dates and 2 of the books were from before 1875. The only reason why I found metadata for these books was from a note from the library in the back of the book. I decided to carry out metadata-searching manually.
+
+```{r}
+texts<- book_metadata %>% 
+  filter(type == "ia") %>% 
+  select(-type)
+###make sure titles match
+# texts<- dat8 %>% 
+#   select(titles, dates, files=hrefs) %>% 
+#   right
+
+temp<- tibble(raw_files = list.files(path = "/Users/emmanuelmiller/Desktop/text_ia",
+                                     full.names = T)) %>% 
+  mutate(files = str_extract(raw_files, "(?<=text_ia.).+(?=_Page)"),
+         files = str_remove(files, "edits_|edite*d*_*"))
+
+texts<- texts %>% 
+  full_join(., temp)
+```
+
+I combine both the inter-library loan and the internet archive datasets. This will help me 
+
+```{r}
+# texts %>% names
+# pdfs2 %>% names
+
+texts<- texts %>% 
+  mutate(type = "ia")
+
+pdfs2<- pdfs2 %>% 
+  relocate(raw_files, .after= "part") %>% 
+  mutate(type = "ill")
+
+dat<- bind_rows(texts, pdfs2) 
+  
+dat<-dat %>% 
+    select(-files) %>% 
+  filter(!is.na(raw_files))
+
+# bind_rows(texts, pdfs1) %>% 
+#   arrange(type, files) %>% 
+#   select(type, titles, dates, files) %>%unique %>% 
+#   openxlsx::write.xlsx(., file = "temp.xlsx")
+```
+
+Finally, I added page numbers and read in the files. I saved this because it takes a long time to load in.
+
+```{r, eval = F}
+dat<- dat %>% 
+  mutate(page = str_extract(raw_files, "(?<=Page_)\\d+"),
+         page = as.numeric(page)) 
+
+dat<-dat %>% 
+  mutate(dat =map(raw_files, ~read_lines(.)))
+
+save(dat, file = "/Users/emmanuelmiller/Desktop/dacss697d/Text_as_Data_Fall_2022/posts/_data/dat.RData")
+```
+
+```{r}
+load("/Users/emmanuelmiller/Desktop/dacss697d/Text_as_Data_Fall_2022/posts/_data/dat.RData")
+dat %>% head 
+# save(dat, file = "dat.RData")
+```
+
+Because the separator was a new line, there are multiple rows for 1 page. I combine them into 1 page here.
+
+```{r}
+dat<- dat %>% 
+  select(-raw_files) %>% 
+  mutate(dat = map(dat,~str_c(., collapse = "\n"))) %>% 
+  unnest_longer(dat)
+
+dat %>% tail %>% mutate(dat = str_sub(dat, 1, 100))
+```
+
+# Cleaning
+
+Some of the files in the Internet Archive dataset have a notice from google saying that their copyrights have expired. Because these aren't part of the actual dataset, I remove them. I also remove empty pages, which I assume were because of some images being printed on one side. It may also be possible that these were censored, but it is unclear. If this were the case, it may affect the accuracy of the conclusions I draw in this pilot study. In a larger work, I would recommend obtaining all books from interlibrary loan as PDFs.
+
+```{r}
+dat1<- dat %>% 
+  filter(!str_detect(dat, "(?i)google")) %>% 
+  mutate(dat = str_remove(dat, "^\\s+$")) %>% 
+  na_if("") %>%
+  filter(!is.na(dat))
+```
+
+I noticed that there were many whitespaces on each page. I decided to remove whitespaces since I would like to do sentence-level analyses. I also removed extraneous punctuation. Because I plan to tokenize using the Quanteda package, I will keep some essential punctuation.
+
+```{r}
+dat1<- dat1 %>% 
+  mutate(dat = str_replace_all(dat, c(
+                       "\\t" = " ",
+                       "\\n" = " ",
+                       "\\r" = " ",
+                       "\\|" = "",
+                       "\\d+" = " ",
+                       "(?<=\\w)\\s*-\\s*(?=\\w)" = "IWASAHYPHEN",
+                       "'" = "IWASASINGLEQUOTE",
+                       "\\." = "IWASAPERIOD",
+                       "," = "IWASACOMMA",
+                       "[[:punct:]]+" = " ",
+                       "\\s+" = " "
+                       )),
+         dat = str_remove_all(dat, "[^[:alnum:]\\s]"),
+         dat = str_replace_all(dat, c(
+           "IWASAHYPHEN" = "-",
+           "IWASAPERIOD" = ".",
+           "IWASACOMMA" = ",",
+           "IWASASINGLEQUOTE" = "'"
+         ))
+                     )
+
+dat1 %>% 
+  mutate(dat = str_sub(dat, 1, 100)) %>% 
+  group_by(titles, dates) %>% 
+  slice(1) %>% 
+  ungroup %>% 
+  kable
+```
+
+I noticed that there are many single characters that are a result of either noise being transcribed or because of images that were transcribed. I remove these single characters and duplicate periods.
+
+```{r}
+dat1<- dat1 %>% 
+  mutate(dat = stri_replace_all_regex(dat, paste0("(?<=\\.|\\s)", 
+                                                  letters[1:26],
+                                                  "(?=\\.|\\s)"), rep("", 26),
+                                        vectorize_all = F),
+         dat = stri_replace_all_regex(dat, paste0("\\b", 
+                                                  letters[1:26], 
+                                                  "\\b"), rep("", 26),
+                                        vectorize_all = F)) %>% 
+  mutate(dat = stri_replace_all_regex(dat, paste0("(?<=\\.|\\s)", 
+                                            LETTERS[1:26],
+                                            "(?=\\.|\\s)"), rep("", 26),
+                                        vectorize_all = F), 
+         dat = stri_replace_all_regex(dat, paste0("\\b", 
+                                            LETTERS[1:26],
+                                            "\\b"), rep("", 26), 
+                                        vectorize_all = F)) 
+
+dat1<-dat1 %>% 
+  mutate(dat = str_replace_all(dat, c("\\s+" = " ",
+                                          "\\.+" = ".",
+                                          "(\\s?\\.)+" = ".",
+                                      "^\\s+$" = ""
+                                          )
+                                 )) %>% 
+  na_if("") %>% 
+  filter(!is.na(dat))
+
+dat1 %>% 
+  mutate(dat = str_sub(dat, 1, 100)) %>% 
+  group_by(titles, dates) %>% 
+  slice(1) %>% 
+  ungroup%>% 
+  kable
+```
+
+# Cleaning Using Dictionaries
+### Overview
+
+Many pages contain letters that aren't reflective of the text. This is partly a result of attempting to read diagrams with words or places where there was lots of background noise that couldn't be removed. Some of the older texts have words that were misspelled. In order to further remove some of these strings of characters, I will use the Hunspell package to check whether a word is misspelled, and if it is, I remove it from the corpus. I will go into this further in the next section and that I will need to take this into consideration if using certain analytical methods such as machine learning. One issue I noticed with this approach is that some words that are in the medical lexicon are marked as misspelled. In order to counter this, I incorporate words from medical books to help with this process.
+
+I used selection criteria as follows. I decided to choose books that have been OCR'd by a human and therefore are more certainly reflective the original text, or if they already came in a text format like epub. For the quantity of books that I use I had to consider the availability of this high-quality OCR data as well as my research question. I am looking at 2 different time periods, pre-1970s and post-1970s, and my corpus is rather small with roughly 30 books per time period. Unfortunately, there are not many well-OCR'd older medical texts widely available on the internet. After speaking with Dr. Song, I decided that I would use 2 books to build this medical dictionary (so 1 book per time period). 
+
+I also considered 2 different approaches for getting just medical vocabulary. I first considered tokenizing the whole book, removing stopwords, and using the whole thing as a medical dictionary. I found that using this approach, in combination with fuzzy-matching (which I do later), allowed shorter ~3 letter words which were wrongly transcribed to be marked as "good". I then considered using only the index of the book. This automatically selects keywords that are reviewed in the text and are primarily related to anatomy or pathology. I decided on the latter approach as it was more stringent and allowed fewer false-positives.
+
+I review the cleaning and application of this method inn 3 sections.
+
+### Pre-1970's Text Acquisition and Cleaning
+
+For the pre-1970s text, I reviewed project Gutenberg because their books have been transcribed by a submitter. I searched "anatomy" and "gynecology". I considered books only relating to humans and targeted towards the medical profession. I chose "Structure and Functions of The Body" by Annette Fiske, published in 1911. This is one of the few that reviewed vaginal anatomy. Typographical changes were made by the transcriber, which adds a layer of review to this transcriptions.
+
+I decided to webscrape the text file from the Project Gutenberg website as this was less trouble than fighting with the gutenbergr R package or Firefox on downloading the text version.
+
+```{r}
+#make dictionary -- gutenberg
+polite::bow("https://gutenberg.org/files/64754/64754-0.txt")
+
+guten<- rvest::read_html("https://gutenberg.org/files/64754/64754-0.txt") %>% 
+  rvest::html_nodes(.,xpath="/html/body/*") %>% 
+  rvest::html_text()
+```
+
+Next I select only the index portion of the text and remove extraneous punctuation and words (like "et seq" which is a way to reference page numbers). I also made duplicate words which had both "'s" and without.
+
+```{r}
+guten1<-tibble(book = guten) %>% 
+  mutate(index = str_extract(book, "(?<=INDEX\\.)[\\s\\S]*(?=SAUNDERS. BOOKS FOR NURSES)")) %>% 
+  select(-book)
+
+guten2<- guten1 %>% 
+  mutate(index = str_replace_all(index, c(".et seq..|.et seq." = "",
+                                          "\\d+" = "",
+                                          "," = "",
+                                          "æ" = "ae"
+                                          ))) %>% 
+  mutate(other0 = str_extract(index, "\\w+(?='s)"),
+         other = str_remove_all(index, "-"),
+         across(everything(), ~str_replace_all(., c("[:punct:]+"= "")))) %>% 
+  pivot_longer(everything(), values_to = "index") %>% 
+  select(-name) %>% 
+  na_if("") %>% 
+  filter(!is.na(index)) %>% 
+  separate_rows(index, sep = "\\n") %>% 
+  mutate(index = trimws(index, which = "both"),
+         nchar = nchar(index))
+
+guten2 %>% slice(1:20)
+```
+
+After, I tokenize each word in the index and remove stopwords (such as "of") from the corpus. I then reviewed words that were 3-4 characters to confirm that they were medically related. 
+
+```{r}
+guten3<-guten2 %>% 
+  mutate(index = tolower(index),
+         index = str_replace_all(index, c("'s" = "",
+                                          "'" = "",
+                                          '\\"' = ''))) %>% 
+  separate_rows(index, sep = " ") %>% 
+  mutate(index = trimws(index, which = "both"),
+         nchar = nchar(index)) %>% 
+  na_if("") %>% 
+  filter(!is.na(index) & !(index %in% tm::stopwords()) ) %>% 
+  unique
+
+guten3 %>% arrange(nchar) %>% slice(1:20)
+```
+
+### Post 1970's Text Acquisition and Cleaning
+
+To acquire a post-1970's text, I searched "gynecology" and "anatomy" with tags "medical" in the UMass Amherst library catalog. I then searched for "epub" as the format. I chose "Clinically Oriented Anatomy 7th edition" by Keith Moore et al., published in 2014. I converted the epub to a text document using convertio.co (which is a website that I found by googling "epub to txt convert"). I downloaded the converted book and selected only the index.
+
+```{r}
+moore<- read_file("/Users/emmanuelmiller/Desktop/dacss697d/Text_as_Data_Fall_2022/posts/_data/Keith-L.-Moore-PhD-FIAC-FRSM-FAAA_-Anne-M.-R.-Agur-BSc-_OT_-MSc-PhD_-Arthur-F.txt")
+
+moore1<- tibble(book = moore) %>% 
+  mutate(index = str_extract(book, "(?<=Index)\\s+A\\s+[\\s\\S]*$")) %>% 
+  select(-book) %>% 
+  separate_rows(index, sep = "\\n\\n") %>% 
+  na_if("") %>% 
+  filter(!is.na(index))
+```
+
+Like the pre-1970's dictionary, I remove punctuation and make both forms of words with "'s" and without.
+
+```{r}
+moore2<- moore1 %>% 
+  mutate(other0 = str_extract(index, "\\w+(?='s)"),
+         other = str_remove_all(index, "-"),
+         across(everything(), ~str_replace_all(., c("[:punct:]+"= "",
+                                                    "\\d+"= ""))),
+         across(everything(), ~tolower(.))) %>% 
+  pivot_longer(everything(), values_to = "index") %>% 
+  select(-name) %>% 
+  na_if("") %>% 
+  filter(!is.na(index))
+```
+
+Finally, I tokenize the index and remove stopwords. I reviewed words that were 2-3 characters long to confirm they were medically related. I found that there are times when French (such as "Le" for "Le Fort fracture") or acronyms are used (such as "ap" for anteposterior or "pa" posteroanterior). Some were remains of numbering (such as "1st" being "st"). Others were single letters because of being contractions with numbers ("c1", which is the first cervical vertebra, was converted to "c") or because single letters were written at the top of each page. I also noticed roman numerals were included because of the numbering of the cranial nerves.
+
+```{r}
+moore3<- moore2 %>% 
+  separate_rows(index, sep = "\\s+") %>% 
+  na_if("") %>% 
+  unique %>% 
+  mutate(nchar = nchar(index))
+
+moore3 %>% arrange(nchar) %>% slice(1:40)
+```
+
+I ended up removing words which had fewer than 3 characters because these short words would already be removed with earlier cleaning of the corpus, and because they usually co-occur with more substantive nouns within the index (ex. the whole string containing "c1" was "c1 spine" or "l2 vertebra" meaning the second lumbar vertebra). I also found that short strings in a dictionary tended to lead to false-positive words (that were made by Tesseract misreading grainy pictures).
+
+```{r}
+moore3<-moore3 %>% 
+  filter(nchar > 2) %>% 
+  filter(!(index %in% letters) & 
+           !is.na(index) & 
+           !(index %in% tm::stopwords()) &
+           !(index %in% c("vs", tolower(as.roman(1:100)))))
+
+moore3 %>% arrange(nchar) %>% slice(1:10)
+```
+
+I also included a dictionary, the Oxford Concise Color Medical Dictionary, 3rd edition from 2010. I also converted this epub to text using the same converter as above.
+
+```{r}
+oxford<-read_file("/Users/emmanuelmiller/Desktop/dacss697d/Text_as_Data_Fall_2022/posts/_data/Oxford-Quick-Reference-Jonathan.txt")
+```
+
+Like the other 2 examples, words from the index.
+
+```{r}
+oxford1<-tibble(dat = oxford) %>% 
+  mutate(index = str_extract(dat, "A & E medicine[\\s\\S]+zymotic disease(?=\\s{4}OXFORD QUICK)"),#
+         index1 = str_extract(dat, "Affixesabdomin.[\\s\\S]+(?=a- \\(an-\\) prefix)"),
+         index1 = str_replace(dat, "Affixesabdomin", "Affixes \n\nabdomin")) %>% 
+  select(-dat) %>% 
+  pivot_longer(everything(), values_to = "index") %>% 
+  select(-name) %>% 
+  mutate(index = str_split(index, pattern = "\n\n")) %>% 
+  unnest_longer(index) %>% 
+  na_if("") %>% 
+  filter(!is.na(index))
+oxford1<-oxford1 %>% slice(14: nrow(oxford1))
+oxford1 %>% head
+```
+
+I retrieved some affixes and abbreviations included here. I chose to remove them from the subset of words I'll use for the dictionary because with the fuzzy matching they match words that are from white noise on the page.
+
+```{r}
+oxford_affix<- oxford1 %>% 
+  filter(str_detect(index, "^-\\w+$|^\\w+-$"))
+
+oxford_abbrev <- oxford1 %>% 
+  mutate(index2 = str_split(index, "[[:punct:]\\s]+")) %>% 
+  unnest_longer(index2) %>% 
+  filter(str_detect(index2, "^[[:upper:]]{2,}$") & 
+           !(index2 %in% as.roman(1:50)))
+
+oxford2<- oxford1 %>% 
+  left_join(.,oxford_abbrev) %>% 
+  filter(!str_detect(index, "^-\\w+$|^\\w+-$") & 
+           is.na(index2)) %>% 
+  select(-index2)
+oxford2 %>% slice(10:15)
+```
+
+Like previously, I make multiple matching for possesive nouns.
+
+```{r}
+oxford2<- oxford2 %>% 
+  mutate(other0 = str_extract(index, "\\w+(?='s)"),
+         other = str_replace_all(index, "[[:punct:]]", " "),
+         across(everything(), ~str_replace_all(., c("[:punct:]+"= "",
+                                                    "\\d+"= ""))),
+         across(everything(), ~tolower(.))) %>% 
+  pivot_longer(everything(), values_to = "index") %>% 
+  select(-name) %>% 
+  na_if("") %>% 
+  filter(!is.na(index)) %>% unique
+
+oxford2 %>% slice(10:15)
+```
+
+finally I remove stop words and roman numerials and strings shorter than 2 characters (for the same reason as before).
+
+```{r}
+oxford3<- oxford2 %>% 
+  separate_rows(index, sep = "\\s+") %>% 
+  na_if("") %>% 
+  unique %>% 
+  mutate(nchar = nchar(index))
+
+oxford3<-oxford3 %>% 
+  filter(nchar > 2) %>% 
+  filter(!(index %in% letters) & 
+           !is.na(index) & 
+           !(index %in% tm::stopwords()) &
+           !(index %in% c("vs", tolower(as.roman(1:100)))))
+oxford3 %>% slice(10:15)
+```
+
+### Applying Dictionaries
+
+In order to apply the dictionary, I first tokenize my corpus and save the tokens as a vector. I found that using vectors is faster than using a tibble. 
+
+```{r}
+dat2<- dat1 %>% 
+  mutate(dat = strsplit(dat, ".", fixed = T)) %>%
+  unnest_longer(dat) %>% 
+  tidytext::unnest_tokens(., "tokens", dat, 
+                          token = "words", 
+                          format = "text",
+                          drop = F) 
+```
+
+Next I make a separate table where words can be checked against US, Australian, Canadian, and UK English dictionaries. I also make a medical dictionary comprised of the texts from the 2 timepoints and add it to the main dictionary.
+
+```{r}
+temp<- unique(dat2$tokens)
+# hunspell::list_dictionaries()
+
+dicts<- tibble(value = temp,
+              en_us = hunspell_check(temp, 
+                                     dict = hunspell::dictionary("en_US")), 
+              en_au = hunspell_check(temp, dict = 
+                                       hunspell::dictionary("en_AU")),
+              en_ca = hunspell_check(temp, dict = 
+                                       hunspell::dictionary("en_CA")),
+              en_gb = hunspell_check(temp, dict = 
+                                       hunspell::dictionary("en_GB")))
+
+
+med_dict<- rbind(guten3, moore3, oxford3) %>% 
+  select(-nchar, value = index) %>% 
+  unique
+
+dicts1<- dicts %>% 
+  left_join(., med_dict %>% mutate(med ="med"))
+```
+
+I first get a snapshot of the number of words that were marked as "good" by both the medical dictionaries and by hunspell. There are 3x more words that don't match the dictionaries than words that do.
+
+```{r}
+dicts2<- dicts1 %>% 
+  mutate(med = !is.na(med)) %>% 
+  rowid_to_column() %>% 
+  pivot_longer(-c(rowid, value), values_to = "dict_sum") %>% 
+  group_by(value) %>% 
+  mutate(good = ifelse(any(dict_sum), "yes", "no")) %>% 
+  ungroup
+
+dicts2 %>% count(good)
+```
+### Medical Dictionaries: Fuzzy Join
+
+In order to use fuzzy matching, I need to reduce the amount of time the algorithm takes because otherwise my computer crashes. One way I do this is by filtering a certain length of word. I first looked at the overall distribution of character lengths.
+
+```{r}
+library(fuzzyjoin)
+
+foo0<- dicts2 %>% 
+  select(value, good) %>% 
+  unique() %>% 
+  mutate(nchar = nchar(value))
+
+foo0 %>% pull(nchar) %>% log %>% hist(., xlab = "log(letters)", 
+                                      main = "Histogram of log(Letters) per Token")
+```
+
+ I found that some of my words were just strings of characters. After discovering this and reviewing different lengths, I decided on a cutoff of 29 as there seemed to be no real words left in there.
+
+```{r}
+foo0 %>% 
+  filter(nchar >29) %>% 
+  arrange(desc(nchar)) %>% 
+  slice(1:10) %>% 
+  kable
+
+foo<-foo0%>% 
+  filter(good == "no" & nchar <29)
+```
+
+
+In order to join, I used the Longest Common Substring algorithm. this measures the number of characters you would need to add or delete to make 2 strings match. What is special about this algorithm compared to others is that it takes into account the order of the characters matched. This is important because many of my strings will have only 1 character misspelled, and the remainder of the word is the same. I also wanted to extra-penalize substitutions, and this gave a stronger selection than Levenshtein distance. I chose 2 because that gives room for either a substitution, 2 deletions, or 2 additions. I used this to join the medical dictionary.
+
+```{r, eval = F}
+joining <- function(df, dict){
+  df<- df %>% 
+    stringdist_left_join(., dict, 
+                         method = "lcs", 
+                         distance_col = "dist",
+                         max_dist = 2)
+  return(df)
+}
+
+corrections<-foo %>% 
+  filter(nchar >=3) %>% 
+  group_by(nchar) %>% 
+  group_split()
+
+corrections<- map_dfr(corrections, ~joining(.x, med_dict))
+
+# save(corrections, file="/Users/emmanuelmiller/Desktop/dacss697d/Text_as_Data_Fall_2022/posts/_data/medcorrections.RData")
+```
+
+I then counted the number of matches to the original value, and how many matches were at a given distance.
+
+```{r}
+load("/Users/emmanuelmiller/Desktop/dacss697d/Text_as_Data_Fall_2022/posts/_data/medcorrections.RData")
+corrections1<- corrections %>% 
+  add_count(value.x, name = "n_matches") %>%
+  add_count(value.x, dist, name = "n_matches_at_dist")
+  
+corrections1 %>% 
+  count(n_matches, dist, n_matches_at_dist, is.na(value.y)) %>% 
+  slice(1:10) %>% 
+  kable
+```
+
+In order to choose the best replacement word, I chose words with only 1 match, or if there were multiple options, only the word at the shortest distance. I then added these changes to the collection of tokens as "changeme".
+
+```{r}
+corrections2<- corrections1 %>% 
+  mutate(keep = case_when(
+    n_matches == 1 & !is.na(dist) ~ "yes",
+    dist == 1 & n_matches_at_dist == 1 ~ "yes",
+    T~"no"
+  )) %>% 
+  filter(keep == "yes") %>% 
+  select(value = value.x, value.y) %>% 
+  unique
+
+dicts3<- dicts2 %>% 
+  select(value, good) %>% 
+  unique
+
+dicts3<- dicts3 %>% 
+  left_join(., corrections2) %>% 
+  mutate(good = ifelse(!is.na(value.y.y), "changeme", good))
+  
+dicts3 %>% count(good)
+```
+At this point I realized that words above 25 characters weren't actually words so I removed them if they weren't recognized as words in the first place.
+
+```{r}
+dicts4<- dicts3 %>% 
+  mutate(nchar = nchar(value)) %>% 
+  filter(!(nchar > 25 & good == "no"))
+
+dicts4 %>% count(good)
+```
+
+### Hunspell Dictionary: Stringdist
+
+This next part was a lot more difficult because hunspell takes a lot longer than just fuzzy joining. I first looked at the distribution of the remaining mispelled characters.
+
+```{r}
+morefoo<- dicts4 %>% 
+  select(value, good) %>% 
+  unique() %>% 
+  mutate(nchar = nchar(value))
+
+morefoo1<-morefoo%>% 
+  filter(good == "no" & nchar <14 & nchar > 3)
+
+morefoo%>% count(nchar)
+```
+
+As strings get longer, it takes hunspell much longer to parse them. Words under 4 characters were less accurately matched. I decided to use a range from 4-14 for the first round (as this takes a long time to process). I selected the first word from hunspell's recommended words since that was the best estimate of what the word could have meant.
+
+```{r, eval = F}
+
+# this function is taken from https://stackoverflow.com/questions/3318333/split-a-vector-into-chunks
+chunk <- function(x, n) split(x, sort(rank(x) %% n))
+
+temp<- morefoo1 %>% 
+  select(value) %>% 
+  pull(value) %>%  
+  chunk(., n = 84)
+
+hunspell_function<- function(wordlist){
+  wah<- hunspell_suggest(wordlist)
+  wee<- tibble(value = wordlist,
+               sugg = wah) %>% 
+    unnest_longer(sugg) %>% 
+  group_by(value) %>% 
+  slice(1) %>% 
+  ungroup
+  
+  return(wee)
+}
+
+weeha<- map_dfr(temp, ~{
+  cat("hmm")
+  hunspell_function(.x)
+  })
+
+save(weeha, file = "/Users/emmanuelmiller/Desktop/dacss697d/Text_as_Data_Fall_2022/posts/_data/hunspellcorrections.RData")
+```
+
+Next I did values in the upper ranges.
+
+```{r, eval = F}
+morefoo1<-morefoo%>% 
+  filter(good == "no" & nchar > 14 )
+
+temp<- morefoo1 %>% 
+  select(value) %>% 
+  pull(value) %>%  
+  chunk(., n = 2)
+
+upper<- map_dfr(temp, ~{
+  cat("hmm")
+  hunspell_function(.x)
+  })
+
+save(upper, file = "/Users/emmanuelmiller/Desktop/dacss697d/Text_as_Data_Fall_2022/posts/_data/hunspellcorrections_upper.RData")
+```
+
+```{r}
+load("/Users/emmanuelmiller/Desktop/dacss697d/Text_as_Data_Fall_2022/posts/_data/hunspellcorrections_upper.RData")
+load("/Users/emmanuelmiller/Desktop/dacss697d/Text_as_Data_Fall_2022/posts/_data/hunspellcorrections.RData")
+upper %>% head()
+```
+
+I then used stringdist to calculate the LCS distance of each suggestion.
+
+```{r}
+weeha1<- weeha %>% 
+  bind_rows(., upper)
+
+weeha2<- weeha1 %>% 
+  mutate(dist = stringdist::stringdist(value, sugg, 
+                           method = "lcs"
+                           ))
+
+# weeha1 %>% filter(dist == 3) %>% View
+weeha2 %>% count(dist) %>% head
+```
+
+I decided to remain consistent with earlier datasets and only use a distance of 2.
+
+```{r}
+weeha3<- weeha2 %>% 
+  filter(dist <3)
+
+weeha3 %>% arrange(desc(value)) %>% head()
+```
+
+I next added it to the dictionary.
+
+```{r}
+dicts5<-dicts4 %>% 
+  left_join(., weeha3) %>% 
+  mutate(good = ifelse(!is.na(sugg), "changeme1", good))
+
+dicts5 %>% count(good)
+```
+Lastly, I decided to see how many words contained medical affixes that I obtained from the Oxford dictionary. I used regex_join to see if any matched.
+
+```{r, eval = F}
+tempo<- oxford_affix %>% 
+  filter(nchar(index) >4) %>% 
+  mutate(index = trimws(index, which="both"),
+         index = str_replace_all(index, c("^-" = "^",
+                                          "-$" = ".{0,3}$")),
+         matches = "yes") %>% 
+  unique %>% 
+  rename(value = index)
+
+fee<- dicts5 %>% 
+  filter(good == "no") %>% 
+  select(value)
+
+fee1<- regex_left_join(fee, tempo)
+save(fee1, file="/Users/emmanuelmiller/Desktop/dacss697d/Text_as_Data_Fall_2022/posts/_data/affixes.RData")
+```
+
+I use this as a way of stemming and I replace the word with it. I assume that the stem captures part of the meaning of the original word, and stemming will be done anyway for the word cloud. I couldn't use hunspell as a stemmer because it kept producing NAs so this is the only way that I thought I could for these words.
+
+```{r}
+load("/Users/emmanuelmiller/Desktop/dacss697d/Text_as_Data_Fall_2022/posts/_data/affixes.RData")
+fee2<- fee1 %>% 
+  filter(!is.na(matches)) %>% 
+  select(value = value.x, repl = value.y) %>% 
+  mutate(repl = str_remove_all(repl, "^|\\.[[:punct:]]\\d\\,\\d.."))
+
+fee1 %>% filter(!is.na(matches)) %>% slice(10:15)
+```
+
+Next, I add these stems to the dictionary and create a column of replacements. I also remove words that are 2-3 letters long because of reasons I mentioned previosly. Only a few thousand are removed.
+
+```{r}
+dicts6<- dicts5 %>% 
+  left_join(fee2) %>% 
+  mutate(good = ifelse(!is.na(repl), "changeme2", good))
+
+dicts6<-dicts6 %>% 
+  mutate(nchar = nchar(value)) %>% 
+  mutate(change = case_when(
+    good == "yes" ~ value,
+    good == "changeme"~ value.y.y,
+    good == "changeme1" ~ sugg,
+    good == "changeme2" ~ repl,
+    nchar ==2 & !(value %in% tm::stopwords()) ~ NA_character_,
+    T ~ NA_character_
+  )) %>% 
+  rename(tokens = value) %>% 
+  select(tokens, change)
+
+dicts5 %>% 
+  mutate(nchar = nchar(value)) %>%
+  count(foo=(nchar %in% c(2, 3) & good == "no"))
+```
+
+Finally, I use the dictionary I made in order to clean the corpus. Below are examples of cleaned lines.
+
+```{r}
+dat3<- dat2 %>% 
+  inner_join(., dicts6) %>% 
+  filter(!is.na(change)) %>% 
+  group_by(titles, dates, edition, volume, part, type, page, dat) %>%
+  summarize(temp = paste0(na.omit(change), collapse = " ")) %>% 
+  ungroup
+  
+# save(dat3, file = "/Users/emmanuelmiller/Desktop/dacss697d/Text_as_Data_Fall_2022/posts/_data/dat3.RData")
+
+dat3 %>% slice(100:110)
+```
+
+# Word Cloud
+
+In order to visualize my results, I remove stop words and stem.
+
+```{r}
+library(quanteda)
+library(quanteda.textplots)
+
+hmm<- corpus(dat3$temp)
+
+docvars(hmm)<- dat3 %>% select(-dat, -temp)
+
+hmm_tok<- tokens(hmm)
+hmm_tok0<-tokens_remove(hmm_tok, pattern = stopwords("en"))
+hmm_tok0<-tokens_remove(hmm_tok0, pattern = c("fig", "et"))
+hmm_tok1 <- tokens_wordstem(hmm_tok0)
+hmm_dfm<- dfm(hmm_tok1) 
+```
+
+Below is a wordcloud of my whole corpus. I notice that the word "may" is one of the most frequent. This is likely because "may" indicates uncertainty and is frequently used in scientific publications. For this reason, I don't necessarily consider it a stopword.
+
+```{r}
+textplot_wordcloud(hmm_dfm, max_words = 50)
+```
