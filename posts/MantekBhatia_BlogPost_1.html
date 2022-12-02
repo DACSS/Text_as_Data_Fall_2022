@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.0.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Mantek Singh Bhatia">
+<meta name="dcterms.date" content="2022-10-14">
+
+<title>Text-as-Data Fall 2022 - Blog Post 1</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../images/DACSS_Round_Network.png" rel="icon" type="image/png">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+<meta name="twitter:title" content="Text-as-Data Fall 2022 - Blog Post 1">
+<meta name="twitter:description" content="My research objective for this project is to understand how people characterize their avatars in games.">
+<meta name="twitter:creator" content="@UMassDACSS">
+<meta name="twitter:card" content="summary">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <a class="navbar-brand" href="../index.html">
+    <img src="../images/UMass White Wordmark Horiz.png" alt="">
+    <span class="navbar-title">Text-as-Data Fall 2022</span>
+  </a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="https://dacss.github.io/Text_as_Data_Fall_2022/">Fall 2022</a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html">Contributors</a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://umass.edu/sbs/dacss">DACSS</a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/DACSS/Text_as_Data_Fall_2022"><i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+ </a>
+  </li>  
+</ul>
+              <div class="quarto-toggle-container">
+                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+              </div>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#research-objective" id="toc-research-objective" class="nav-link active" data-scroll-target="#research-objective">Research Objective</a></li>
+  <li><a href="#literature-review" id="toc-literature-review" class="nav-link" data-scroll-target="#literature-review">Literature Review</a></li>
+  <li><a href="#questions-and-concerns" id="toc-questions-and-concerns" class="nav-link" data-scroll-target="#questions-and-concerns">Questions and Concerns</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Blog Post 1</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+  <div class="quarto-categories">
+    <div class="quarto-category">Blog Post 1</div>
+    <div class="quarto-category">Mantek Singh Bhatia</div>
+    <div class="quarto-category">Self-Identity</div>
+    <div class="quarto-category">Online Gaming</div>
+    <div class="quarto-category">Avatars</div>
+    <div class="quarto-category">Characterization</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Mantek Singh Bhatia </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">October 14, 2022</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+</header>
+
+<section id="research-objective" class="level2">
+<h2 class="anchored" data-anchor-id="research-objective">Research Objective</h2>
+<p>My research objective for this project is to understand how people characterize their avatars in games.</p>
+<div class="callout-important callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Here I use the term Research Objective because I do not have a specific Research Question in mind right now. This project is merely exploratory for me. It may develop closer to the end of the project.</p>
+</div>
+</div>
+<p>Creating avatars in games gives people the freedom to be creative and cultivate an alternate identity. Now, this identity can be their “ideal self” or something that they just create for fun. To understand this process of creating identities I want to first examine the avatars people have already made. For this context I am thinking of scouring Reddit to find threads that talk about people describing the avatars/characters they have created while playing “Dungeons and Dragons”.</p>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Dungeons and Dragons
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Dungeons &amp; Dragons is a structured, yet open-ended role-playing game. Typically, one player takes on the role of Dungeon Master (DM) while the others each control a single character, representing an individual in a fictional setting. When working together as a group, the player characters (PCs) are often described as a “party” of adventurers, with each member often having their own area of specialty which contributes to the success of the whole. During the course of play, each player directs the actions of their character and their interactions with other characters in the game. This activity is performed through the verbal impersonation of the characters by the players, while employing a variety of social and other useful cognitive skills, such as logic, basic mathematics and imagination. A game often continues over a series of meetings to complete a single adventure, and longer into a series of related gaming adventures, called a “campaign”</p>
+</div>
+</div>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Characterization of Avatars
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Before the game begins, each player creates their player character and records the details on a character sheet. First, a player determines their character’s ability scores, which consist of Strength, Constitution, Dexterity, Intelligence, Wisdom, and Charisma. Each edition of the game has offered differing methods of determining these scores. The player then chooses a race (species) such as human or elf, a character class (occupation) such as fighter or wizard, an alignment (a moral and ethical outlook), and other features to round out the character’s abilities and backstory, which have varied in nature through differing editions.</p>
+</div>
+</div>
+<p>This is what a typical character sheet looks like.</p>
+<p><a href="https://content.instructables.com/ORIG/FYS/E8R6/J8F5STQW/FYSE8R6J8F5STQW.png?auto=webp&amp;frame=1&amp;width=1024&amp;height=1024&amp;fit=bounds&amp;md=65f19fb357f80e959b18bb54eebaaa3e">An example completed charactersheet</a></p>
+<p>&nbsp;<br>
+&nbsp;<br>
+&nbsp;</p>
+</section>
+<section id="literature-review" class="level2">
+<h2 class="anchored" data-anchor-id="literature-review">Literature Review</h2>
+<p><strong>Kim, Hee-Woong and Chan, Hock Chuan, “Why People Pay for Digital Items? Presentation Desire of Online Identity” (2007). PACIS 2007 Proceedings. 7.</strong></p>
+<p><strong>Why People Pay for Digital Items? Presentation Desire of Online Identity</strong></p>
+<p>The authors wanted to study why people on digital platforms, i.e., virtual communities and online games purchase digital items, like avatars, clothes and accessories for their avatar, etc. From a self-presentation lens, using social identity theory, they examine what makes people spend money on digital items to self-present themselves on a digital platform. Self-presentation is motivated by the avoidance of censure and the seeking of positive evaluation or relationships with others. People self-present themselves differently based on whether they are representing their personal identity or their social identity. In the case of presenting their personal identity, people will self-present their own attributes, skills, and beliefs, which influence their behaviors too. In the case of presenting their social identity, people tend to adapt their behavior to the expectations of the group. Group members are motivated to self-present themselves as a prototype of the social identity fostered by the group they belong to. These self-presentations are affected by the degree of involvement of the individual with the group and the group norms.</p>
+<p>They also introduced a concept of online identity, which is different than the people’s personal or social identity. The anonymity and flexibility provided by the internet gives a lot of freedom to the individual for identity exploration. An identity established online is not necessarily tied to the identity of same person established offline. In establishing their online identities, people would want to present a desired impression and image to others online in the form of textual communication and symbolic communication.</p>
+<p>They used cross sectional survey method to collect data from users of an online community that actively purchase digital items to present their online avatars. They found that people are more likely to purchase digital items to self-present their identity in the online context because they provide the users with the advantage of presenting diverse impressions and online images of themselves, from the symbolic communication perspective. Another interesting finding from their study was that people’s presentation desire of their online identity is influenced by the self-concept derived from both their personal and social identities.</p>
+<p>&nbsp;<br>
+&nbsp;<br>
+&nbsp;</p>
+<p><strong>Gong, Xiang; Cheung, Christy M. K.; Zhang, Kem Z. K.; Chen, Chongyang; and Lee, Matthew K. O. (2021) “A Dual-Identity Perspective of Obsessive Online Social Gaming,” Journal of the Association for Information Systems, 22(5), 1245-1284.</strong></p>
+<p><strong>A Dual-Identity Perspective of Obsessive Online Social Gaming</strong></p>
+<p>The authors wanted to understand obsessive technology use in the context of online social gaming. They state that in an online gaming context, gamers engage in two types of groups. First is called the guilds. Guilds are formal social game groups in which a group of users are linked and have specified names and norms. Guild members usually play together with common goals, such as completing collective missions and enjoying team achievements. Second are friends. Friends are informal social game groups without specific names and norms. Users can request to add other users to their friends list, which enables social interaction through a chat function. They contextualized two types of identities based on these two social features, the IT identity, which is a material-based identity, and social identity, which is the human-based identity. Material-based identity is when users self-identify with material objects, such as avatars, robots, and technologies. As a typical form of material-based identity in the IS discipline, IT identity refers to the extent to which users view the use of a technology as integral to their sense of self. Human-based identity focuses on how one’s identity arises from membership in human groups. As a typical form of human-based identity in the IS discipline, social identity refers to the extent to which users identify with their small friendship group in online communities. In their study the authors examined how these contextual identities shape obsessive online social gaming.</p>
+<p>They found that (1) embeddedness, self-efficacy, and instant gratification are important determinants of IT identity, whereas group homogeneity, group familiarity, and intragroup communication are key predictors of social identity, (2) IT identity not only significantly and positively influences the four obsessive online social gaming archetypes but also fully mediates the effects of social identity on obsessive online social gaming, (3) Users’ identification with social game groups does not foster obsessive online social gaming without the formation of an IT identity toward online social games.</p>
+<p>&nbsp;<br>
+&nbsp;<br>
+&nbsp;</p>
+<p><strong>Baldwin, Kai (2018) “Virtual Avatars: Trans Experiences of Ideal Selves Through Gaming,” Markets, Globalization &amp; Development Review: Vol. 3: No.&nbsp;3, Article 4. DOI: 10.23860/MGDR-2018-03-03-04</strong></p>
+<p><strong>Virtual Avatars: Trans Experiences of Ideal Selves Through Gaming</strong></p>
+<p>Games provide a way of escaping to a virtual world that provide people a way to relieve stress, escape unpleasant realities, or simply have fun. However, for some people, gaming becomes much more than that. One of the main characteristics of most games is the creation of an avatar – a digital representation of the gamer’s body in the virtual world. Avatars are often extremely customizable, including things such as the shape of the nose or the size of the feet in addition to the more obvious things like gender and height. This customization allows players to construct a virtual body completely independent from the limitations imposed by physical existence. Consequently, the virtual world itself becomes a site for identity construction, where users are free to experiment with and perform idealized or alternative selves.</p>
+<p>In their paper, the author interviews multiple trans people regarding their fluid identity and examines whether a virtual gaming environment and avatar creation features of these games provide these gamers with an opportunity of creating their ideal self-identity. They found that, “trans gamers can clearly be seen using video game avatars to escape or transcend physical limitations.” (p.&nbsp;20)</p>
+<p>&nbsp;<br>
+&nbsp;<br>
+&nbsp;</p>
+<p><strong>Miller, P. L. (2016). Avatars of Oneself. Sophia and Philosophia, 1(1), 1.</strong></p>
+<p><strong>Avatars of Oneself</strong></p>
+<p>Why—from the infinite variety of avatars available in many of the online games—do gamers create the avatars that they do, manipulating them some ways rather than others? It’s a world of appearances, so perhaps the answer is obvious: the fulfillment of wishes and fantasies. But all these appearances must to some extent reflect their real-world identities where the wishes and fantasies were conceived, otherwise their fulfillment would be hollow. “For virtual reality to be interesting it has to emulate the real,” says one of the players Turkle interviewed, “but you have to be able to do something in the virtual that you couldn’t do in the real.”</p>
+<p>Online games intensify the effects of traditional role-playing in two crucial ways: first, an infinite range of avatars and actions fosters more anonymity and freedom; second, these games can be played continuously for years, giving them a legitimate claim to be alternate worlds. Sometimes second lives, sometimes third or fourth.</p>
+<p>&nbsp;<br>
+&nbsp;<br>
+&nbsp;</p>
+<p><strong>Monem, R. (2015). Metacognition and Self-Scaffolding in MMORPGs: Case Study of an Adolescent Male Gamer. The Qualitative Report, 20(4), 454-465.</strong></p>
+<p><strong>Metacognition and Self-Scaffolding in MMORPGs: Case Study of an Adolescent Male Gamer</strong></p>
+<p>Virtual environments allow individuals to experiment with their identities without the limitations dictated by the real world. Individuals gain independence and assurance over themselves, their role in each situation, and their communication abilities. Formation of a virtual identity provides an individual with the opportunity to project self-selected attributes onto his or her virtual self. Disembodied virtual identity refers to an identity that is independent of the actual self. A disembodied virtual identity is not tied to any particular time and place. It is a dynamic identity that can transform shape, fly, or possess supernatural traits. In reference to virtual identity in MMORPGs, the word “avatar” is used to describe the disembodied representation of the user. The use of disembodied virtual identities allows learners to transcend boundaries of their physicality and physical world. The availability of graphics design programs and web-based tutorials provide individuals with infinite possibilities to create ideal avatars of themselves. Individuals can let go of the imperfections, either accidental or congenital, that delineate their real-life presence. The anonymity of MMORPGs allows users to explore their identity without the fear of real-world repercussions. MMORPGs diminish users’ physical, social, and cognitive limitations and promoted their sense of self and willingness to learn.</p>
+<p>&nbsp;<br>
+&nbsp;<br>
+&nbsp;</p>
+</section>
+<section id="questions-and-concerns" class="level2">
+<h2 class="anchored" data-anchor-id="questions-and-concerns">Questions and Concerns</h2>
+<p>As of right now I have not found any article that employs Text Analysis or Text-as-Data methodology to examine characterization in games. Most used methodology is semi-structured interviews with gamers.</p>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } 
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+<script src="https://giscus.app/client.js" data-repo="DACSS/Text_as_Data_Fall_2022" data-repo-id="R_kgDOH5675w" data-category="Announcements" data-category-id="" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
+</script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb1" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Blog Post 1"</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Mantek Singh Bhatia"</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="an">desription:</span><span class="co"> "First Blog Post - Literature Review"</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "10/14/2022"</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: true</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co">    code-copy: true</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co">  - Blog Post 1</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co">  - Mantek Singh Bhatia</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co">  - Self-Identity</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co">  - Online Gaming</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co">  - Avatars</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co">  - Characterization</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="fu">## Research Objective</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>My research objective for this project is to understand how people characterize their avatars in games.  </span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>:::{.callout-important}</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>Here I use the term Research Objective because I do not have a specific Research Question in mind right now. This project is merely exploratory for me. It may develop closer to the end of the project.</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>Creating avatars in games gives people the freedom to be creative and cultivate an alternate identity. Now, this identity can be their "ideal self" or something that they just create for fun. To understand this process of creating identities I want to first examine the avatars people have already made. For this context I am thinking of scouring Reddit to find threads that talk about people describing the avatars/characters they have created while playing "Dungeons and Dragons". </span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>:::{.callout-note}</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="fu">## Dungeons and Dragons</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>Dungeons &amp; Dragons is a structured, yet open-ended role-playing game.  Typically, one player takes on the role of Dungeon Master (DM) while the others each control a single character, representing an individual in a fictional setting. When working together as a group, the player characters (PCs) are often described as a "party" of adventurers, with each member often having their own area of specialty which contributes to the success of the whole. During the course of play, each player directs the actions of their character and their interactions with other characters in the game. This activity is performed through the verbal impersonation of the characters by the players, while employing a variety of social and other useful cognitive skills, such as logic, basic mathematics and imagination. A game often continues over a series of meetings to complete a single adventure, and longer into a series of related gaming adventures, called a "campaign"</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>:::{.callout-note}</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="fu">## Characterization of Avatars</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>Before the game begins, each player creates their player character and records the details on a character sheet. First, a player determines their character's ability scores, which consist of Strength, Constitution, Dexterity, Intelligence, Wisdom, and Charisma. Each edition of the game has offered differing methods of determining these scores. The player then chooses a race (species) such as human or elf, a character class (occupation) such as fighter or wizard, an alignment (a moral and ethical outlook), and other features to round out the character's abilities and backstory, which have varied in nature through differing editions.</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>This is what a typical character sheet looks like.  </span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">An example completed charactersheet</span><span class="co">](https://content.instructables.com/ORIG/FYS/E8R6/J8F5STQW/FYSE8R6J8F5STQW.png?auto=webp&amp;frame=1&amp;width=1024&amp;height=1024&amp;fit=bounds&amp;md=65f19fb357f80e959b18bb54eebaaa3e)</span>  </span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a><span class="dv">&amp;nbsp;</span>  </span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a><span class="dv">&amp;nbsp;</span>  </span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a><span class="dv">&amp;nbsp;</span>  </span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a><span class="fu">## Literature Review  </span></span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>**Kim, Hee-Woong and Chan, Hock Chuan, "Why People Pay for Digital Items? Presentation Desire of Online Identity" (2007). PACIS 2007 Proceedings. 7.**  </span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>**Why People Pay for Digital Items? Presentation Desire of Online Identity**  </span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>The authors wanted to study why people on digital platforms, i.e., virtual communities and online games purchase digital items, like avatars, clothes and accessories for their avatar, etc. From a self-presentation lens, using social identity theory, they examine what makes people spend money on digital items to self-present themselves on a digital platform. Self-presentation is motivated by the avoidance of censure and the seeking of positive evaluation or relationships with others. People self-present themselves differently based on whether they are representing their personal identity or their social identity. In the case of presenting their personal identity, people will self-present their own attributes, skills, and beliefs, which influence their behaviors too. In the case of presenting their social identity, people tend to adapt their behavior to the expectations of the group. Group members are motivated to self-present themselves as a prototype of the social identity fostered by the group they belong to. These self-presentations are affected by the degree of involvement of the individual with the group and the group norms.  </span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>They also introduced a concept of online identity, which is different than the people’s personal or social identity. The anonymity and flexibility provided by the internet gives a lot of freedom to the individual for identity exploration. An identity established online is not necessarily tied to the identity of same person established offline. In establishing their online identities, people would want to present a desired impression and image to others online in the form of textual communication and symbolic communication.  </span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>They used cross sectional survey method to collect data from users of an online community that actively purchase digital items to present their online avatars. They found that people are more likely to purchase digital items to self-present their identity in the online context because they provide the users with the advantage of presenting diverse impressions and online images of themselves, from the symbolic communication perspective. Another interesting finding from their study was that people’s presentation desire of their online identity is influenced by the self-concept derived from both their personal and social identities.  </span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a><span class="dv">&amp;nbsp;</span>  </span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a><span class="dv">&amp;nbsp;</span>  </span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a><span class="dv">&amp;nbsp;</span>  </span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>**Gong, Xiang; Cheung, Christy M. K.; Zhang, Kem Z. K.; Chen, Chongyang; and Lee, Matthew K. O. (2021) "A Dual-Identity Perspective of Obsessive Online Social Gaming," Journal of the Association for Information Systems, 22(5), 1245-1284.**  </span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>**A Dual-Identity Perspective of Obsessive Online Social Gaming**  </span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>The authors wanted to understand obsessive technology use in the context of online social gaming. They state that in an online gaming context, gamers engage in two types of groups. First is called the guilds. Guilds are formal social game groups in which a group of users are linked and have specified names and norms. Guild members usually play together with common goals, such as completing collective missions and enjoying team achievements. Second are friends. Friends are informal social game groups without specific names and norms. Users can request to add other users to their friends list, which enables social interaction through a chat function. They contextualized two types of identities based on these two social features, the IT identity, which is a material-based identity, and social identity, which is the human-based identity. Material-based identity is when users self-identify with material objects, such as avatars, robots, and technologies. As a typical form of material-based identity in the IS discipline, IT identity refers to the extent to which users view the use of a technology as integral to their sense of self. Human-based identity focuses on how one’s identity arises from membership in human groups. As a typical form of human-based identity in the IS discipline, social identity refers to the extent to which users identify with their small friendship group in online communities. In their study the authors examined how these contextual identities shape obsessive online social gaming.  </span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a>They found that (1) embeddedness, self-efficacy, and instant gratification are important determinants of IT identity, whereas group homogeneity, group familiarity, and intragroup communication are key predictors of social identity, (2) IT identity not only significantly and positively influences the four obsessive online social gaming archetypes but also fully mediates the effects of social identity on obsessive online social gaming, (3) Users’ identification with social game groups does not foster obsessive online social gaming without the formation of an IT identity toward online social games.  </span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a><span class="dv">&amp;nbsp;</span>  </span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a><span class="dv">&amp;nbsp;</span>  </span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a><span class="dv">&amp;nbsp;</span>  </span>
+<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a>**Baldwin, Kai (2018) "Virtual Avatars: Trans Experiences of Ideal Selves Through Gaming," Markets, Globalization &amp; Development Review: Vol. 3: No. 3, Article 4. DOI: 10.23860/MGDR-2018-03-03-04**  </span>
+<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a>**Virtual Avatars: Trans Experiences of Ideal Selves Through Gaming**  </span>
+<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a>Games provide a way of escaping to a virtual world that provide people a way to relieve stress, escape unpleasant realities, or simply have fun. However, for some people, gaming becomes much more than that. One of the main characteristics of most games is the creation of an avatar – a digital representation of the gamer’s body in the virtual world. Avatars are often extremely customizable, including things such as the shape of the nose or the size of the feet in addition to the more obvious things like gender and height. This customization allows players to construct a virtual body completely independent from the limitations imposed by physical existence. Consequently, the virtual world itself becomes a site for identity construction, where users are free to experiment with and perform idealized or alternative selves.  </span>
+<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a>In their paper, the author interviews multiple trans people regarding their fluid identity and examines whether a virtual gaming environment and avatar creation features of these games provide these gamers with an opportunity of creating their ideal self-identity. They found that, “trans gamers can clearly be seen using video game avatars to escape or transcend physical limitations.” (p. 20)  </span>
+<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a><span class="dv">&amp;nbsp;</span>  </span>
+<span id="cb1-88"><a href="#cb1-88" aria-hidden="true" tabindex="-1"></a><span class="dv">&amp;nbsp;</span>  </span>
+<span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a><span class="dv">&amp;nbsp;</span>  </span>
+<span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-91"><a href="#cb1-91" aria-hidden="true" tabindex="-1"></a>**Miller, P. L. (2016). Avatars of Oneself. Sophia and Philosophia, 1(1), 1.**  </span>
+<span id="cb1-92"><a href="#cb1-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-93"><a href="#cb1-93" aria-hidden="true" tabindex="-1"></a>**Avatars of Oneself**  </span>
+<span id="cb1-94"><a href="#cb1-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-95"><a href="#cb1-95" aria-hidden="true" tabindex="-1"></a>Why—from the infinite variety of avatars available in many of the online games—do gamers create the avatars that they do, manipulating them some ways rather than others? It’s a world of appearances, so perhaps the answer is obvious: the fulfillment of wishes and fantasies. But all these appearances must to some extent reflect their real-world identities where the wishes and fantasies were conceived, otherwise their fulfillment would be hollow. “For virtual reality to be interesting it has to emulate the real,” says one of the players Turkle interviewed, “but you have to be able to do something in the virtual that you couldn’t do in the real.”  </span>
+<span id="cb1-96"><a href="#cb1-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-97"><a href="#cb1-97" aria-hidden="true" tabindex="-1"></a>Online games intensify the effects of traditional role-playing in two crucial ways: first, an infinite range of avatars and actions fosters more anonymity and freedom; second, these games can be played continuously for years, giving them a legitimate claim to be alternate worlds. Sometimes second lives, sometimes third or fourth.  </span>
+<span id="cb1-98"><a href="#cb1-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-99"><a href="#cb1-99" aria-hidden="true" tabindex="-1"></a><span class="dv">&amp;nbsp;</span>  </span>
+<span id="cb1-100"><a href="#cb1-100" aria-hidden="true" tabindex="-1"></a><span class="dv">&amp;nbsp;</span>  </span>
+<span id="cb1-101"><a href="#cb1-101" aria-hidden="true" tabindex="-1"></a><span class="dv">&amp;nbsp;</span>  </span>
+<span id="cb1-102"><a href="#cb1-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-103"><a href="#cb1-103" aria-hidden="true" tabindex="-1"></a>**Monem, R. (2015). Metacognition and Self-Scaffolding in MMORPGs: Case Study of an Adolescent Male Gamer. The Qualitative Report, 20(4), 454-465.**  </span>
+<span id="cb1-104"><a href="#cb1-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-105"><a href="#cb1-105" aria-hidden="true" tabindex="-1"></a>**Metacognition and Self-Scaffolding in MMORPGs: Case Study of an Adolescent Male Gamer**  </span>
+<span id="cb1-106"><a href="#cb1-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-107"><a href="#cb1-107" aria-hidden="true" tabindex="-1"></a>Virtual environments allow individuals to experiment with their identities without the limitations dictated by the real world. Individuals gain independence and assurance over themselves, their role in each situation, and their communication abilities. Formation of a virtual identity provides an individual with the opportunity to project self-selected attributes onto his or her virtual self. Disembodied virtual identity refers to an identity that is independent of the actual self. A disembodied virtual identity is not tied to any particular time and place. It is a dynamic identity that can transform shape, fly, or possess supernatural traits. In reference to virtual identity in MMORPGs, the word “avatar” is used to describe the disembodied representation of the user. The use of disembodied virtual identities allows learners to transcend boundaries of their physicality and physical world. The availability of graphics design programs and web-based tutorials provide individuals with infinite possibilities to create ideal avatars of themselves. Individuals can let go of the imperfections, either accidental or congenital, that delineate their real-life presence. The anonymity of MMORPGs allows users to explore their identity without the fear of real-world repercussions. MMORPGs diminish users’ physical, social, and cognitive limitations and promoted their sense of self and willingness to learn.  </span>
+<span id="cb1-108"><a href="#cb1-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-109"><a href="#cb1-109" aria-hidden="true" tabindex="-1"></a><span class="dv">&amp;nbsp;</span>  </span>
+<span id="cb1-110"><a href="#cb1-110" aria-hidden="true" tabindex="-1"></a><span class="dv">&amp;nbsp;</span>  </span>
+<span id="cb1-111"><a href="#cb1-111" aria-hidden="true" tabindex="-1"></a><span class="dv">&amp;nbsp;</span>  </span>
+<span id="cb1-112"><a href="#cb1-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-113"><a href="#cb1-113" aria-hidden="true" tabindex="-1"></a><span class="fu">## Questions and Concerns  </span></span>
+<span id="cb1-114"><a href="#cb1-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-115"><a href="#cb1-115" aria-hidden="true" tabindex="-1"></a>As of right now I have not found any article that employs Text Analysis or Text-as-Data methodology to examine characterization in games. Most used methodology is semi-structured interviews with gamers.  </span>
+<span id="cb1-116"><a href="#cb1-116" aria-hidden="true" tabindex="-1"></a></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+</body></html>
