@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.0.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Alexis Gamez">
+<meta name="dcterms.date" content="2022-11-03">
+
+<title>Text-as-Data Fall 2022 - Blog Post #2: Gathering Data</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../images/DACSS_Round_Network.png" rel="icon" type="image/png">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+<meta name="twitter:title" content="Text-as-Data Fall 2022 - Blog Post #2: Gathering Data">
+<meta name="twitter:description" content="For this assignment, I gathered the data for my corpus from the Twitter social media platform. The ‘rtweet’ R package was used heavily in the gathering and preliminary analysis of the data I used.">
+<meta name="twitter:creator" content="@UMassDACSS">
+<meta name="twitter:card" content="summary">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <a class="navbar-brand" href="../index.html">
+    <img src="../images/UMass White Wordmark Horiz.png" alt="">
+    <span class="navbar-title">Text-as-Data Fall 2022</span>
+  </a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="https://dacss.github.io/Text_as_Data_Fall_2022/">Fall 2022</a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html">Contributors</a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://umass.edu/sbs/dacss">DACSS</a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/DACSS/Text_as_Data_Fall_2022"><i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+ </a>
+  </li>  
+</ul>
+              <div class="quarto-toggle-container">
+                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+              </div>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#setup" id="toc-setup" class="nav-link active" data-scroll-target="#setup">Setup</a></li>
+  <li><a href="#data-sources" id="toc-data-sources" class="nav-link" data-scroll-target="#data-sources"><strong>Data Sources</strong></a></li>
+  <li><a href="#gathering-data" id="toc-gathering-data" class="nav-link" data-scroll-target="#gathering-data"><strong>Gathering Data</strong></a></li>
+  <li><a href="#creating-a-corpus" id="toc-creating-a-corpus" class="nav-link" data-scroll-target="#creating-a-corpus"><strong>Creating a Corpus</strong></a></li>
+  <li><a href="#preliminary-analysis" id="toc-preliminary-analysis" class="nav-link" data-scroll-target="#preliminary-analysis"><strong>Preliminary Analysis</strong></a>
+  <ul class="collapse">
+  <li><a href="#tokens" id="toc-tokens" class="nav-link" data-scroll-target="#tokens"><em>Tokens</em></a></li>
+  <li><a href="#word-cloud" id="toc-word-cloud" class="nav-link" data-scroll-target="#word-cloud"><em>Word Cloud</em></a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Blog Post #2: Gathering Data</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+  <div class="quarto-categories">
+    <div class="quarto-category">blogpost2</div>
+    <div class="quarto-category">Alexis Gamez</div>
+    <div class="quarto-category">research</div>
+    <div class="quarto-category">academic articles</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Alexis Gamez </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">November 3, 2022</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+</header>
+
+<section id="setup" class="level1">
+<h1>Setup</h1>
+<details>
+<summary>
+View Code
+</summary>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>✔ ggplot2 3.3.6     ✔ purrr   0.3.4
+✔ tibble  3.1.7     ✔ dplyr   1.0.9
+✔ tidyr   1.2.0     ✔ stringr 1.4.1
+✔ readr   2.1.2     ✔ forcats 0.5.1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidytext)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(devtools)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: usethis</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>------------------------------------------------------------------------------</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>You have loaded plyr after dplyr - this is likely to cause problems.
+If you need functions from both plyr and dplyr, please load plyr first, then dplyr:
+library(plyr); library(dplyr)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>------------------------------------------------------------------------------</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'plyr'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:dplyr':
+
+    arrange, count, desc, failwith, id, mutate, rename, summarise,
+    summarize</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:purrr':
+
+    compact</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rvest)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'rvest'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:readr':
+
+    guess_encoding</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rtweet)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'rtweet'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:purrr':
+
+    flatten</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(twitteR)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'twitteR'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:rtweet':
+
+    lookup_statuses</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:plyr':
+
+    id</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:dplyr':
+
+    id, location</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: NLP</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'NLP'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:ggplot2':
+
+    annotate</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'lubridate'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    date, intersect, setdiff, union</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in .recacheSubclasses(def@className, def, env): undefined subclass
+"unpackedMatrix" of class "mMatrix"; definition not updated</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in .recacheSubclasses(def@className, def, env): undefined subclass
+"unpackedMatrix" of class "replValueSp"; definition not updated</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Package version: 3.2.3
+Unicode version: 13.0
+ICU version: 69.1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Parallel computing: 6 of 6 threads used.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>See https://quanteda.io for tutorials and examples.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'quanteda'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:tm':
+
+    stopwords</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:NLP':
+
+    meta, meta&lt;-</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda.textplots)</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">echo =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</details>
+</section>
+<section id="data-sources" class="level1">
+<h1><strong>Data Sources</strong></h1>
+<p>For this assignment, I gathered the data for my corpus from the Twitter social media platform. The ‘rtweet’ R package was used heavily in the gathering and preliminary analysis of the data I used. In order to extract twitter data to R, I needed to first create a developer account to gain the appropriate permissions. Once the account was made, I was able to create a new project through the developer app and connect it to R. From there, I was able to begin gathering data and conducting a preliminary analysis of what I could find so far.</p>
+</section>
+<section id="gathering-data" class="level1">
+<h1><strong>Gathering Data</strong></h1>
+<p>The first step in data analysis, is gathering the data you intend to analyze! I started by gathering as many tweets as possible related to the subject of my project. At this point, the goal of my project is to conduct a sentiment analysis surrounding the perception of eating insects among twitter users. So, I pulled tweets containing the keywords <code>eating</code> and <code>bugs/insects</code>. Finding it unnecessary, I excluded re-tweets and chose to restrict source language to only those in English.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Pull together tweets containing keywords 'eating` and `bugs/insects`.</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>tweet_bugs <span class="ot">&lt;-</span> <span class="fu">search_tweets</span>(<span class="st">"eating bugs OR insects"</span>, <span class="at">n =</span> <span class="dv">10000</span>,</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>                             <span class="at">type =</span> <span class="st">"mixed"</span>,</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>                             <span class="at">include_rts =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>                             <span class="at">lang =</span> <span class="st">"en"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="creating-a-corpus" class="level1">
+<h1><strong>Creating a Corpus</strong></h1>
+<p>From the previous chunk, I was able to gather a total of 1,533 tweets along with their metadata. The following chunk is dedicated toward cleaning up the data a bit and pulling out the information I need in order to conduct the analysis. First I extracted the <code>full_text</code> column from the <code>tweet_bugs</code> object I created and stored it as <code>tweet_text</code>. From there, I converted the text object to a corpus, i.e.&nbsp;<code>tweet_corpus</code>. Lastly, I used the <code>summary</code> function to summarize corpus information like sentence and token count per tweet (for some reason, the summary function limited itself to only 100 out of the 1,533 entries. A goal for the future is to figure out how to extend it so that I can summarize the full corpus data).</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Separate out the text from tweet_bugs and build the corpus.</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>tweet_text <span class="ot">&lt;-</span> <span class="fu">as.vector.data.frame</span>(tweet_bugs<span class="sc">$</span>full_text, <span class="at">mode =</span> <span class="st">"any"</span>)</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>tweet_corpus <span class="ot">&lt;-</span> <span class="fu">corpus</span>(tweet_text)</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>tweet_summary <span class="ot">&lt;-</span> <span class="fu">summary</span>(tweet_corpus)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>While not entirely useful, I also decided to add in a tweet count indicator to number the tweets. Once again, the count only extended up to the first 100 entries. Hopefully, there is a workaround to include the remainder of the entries, but ultimately it isn’t crucial when conducting sentiment analysis.</p>
+<details>
+<summary>
+View Code
+</summary>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Creating tweet count indicator (i.e. Count).</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>tweet_summary<span class="sc">$</span>Count <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">str_extract</span>(tweet_summary<span class="sc">$</span>Text,<span class="st">"[0-9]+"</span>))</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>tweet_summary</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Corpus consisting of 957 documents, showing 100 documents:
+
+    Text Types Tokens Sentences Count
+   text1    14     14         1     1
+   text2    43     51         3     2
+   text3    41     52         1     3
+   text4    47     55         2     4
+   text5    48     56         4     5
+   text6    29     32         1     6
+   text7    17     24         2     7
+   text8    48     60         4     8
+   text9    14     16         2     9
+  text10    44     53         7    10
+  text11    28     29         3    11
+  text12    20     22         1    12
+  text13    54     65         3    13
+  text14    13     13         1    14
+  text15    29     32         1    15
+  text16    42     45         1    16
+  text17    49     59         3    17
+  text18    13     13         1    18
+  text19    32     38         1    19
+  text20    13     14         1    20
+  text21    45     65         7    21
+  text22    24     27         2    22
+  text23    31     41         4    23
+  text24    42     48         3    24
+  text25    15     15         1    25
+  text26    31     36         4    26
+  text27    45     57         3    27
+  text28    57     61         4    28
+  text29     8      9         1    29
+  text30    38     48         3    30
+  text31    15     15         1    31
+  text32    14     14         1    32
+  text33    22     24         3    33
+  text34     9      9         1    34
+  text35     5      5         1    35
+  text36    47     52         6    36
+  text37    15     15         1    37
+  text38    26     30         3    38
+  text39    21     21         1    39
+  text40    21     22         1    40
+  text41     9     13         1    41
+  text42    23     29         3    42
+  text43    28     37         1    43
+  text44    15     16         1    44
+  text45    40     48         1    45
+  text46    28     35         3    46
+  text47    18     26         4    47
+  text48    28     29         1    48
+  text49    17     18         1    49
+  text50    43     58         1    50
+  text51    25     28         1    51
+  text52    39     49         1    52
+  text53    14     17         4    53
+  text54    39     51         3    54
+  text55    48     58         2    55
+  text56    22     28         1    56
+  text57    46     53         4    57
+  text58    17     21         1    58
+  text59    12     12         1    59
+  text60    41     45         3    60
+  text61    11     11         1    61
+  text62    25     26         2    62
+  text63    32     34         4    63
+  text64    13     14         1    64
+  text65     9     12         3    65
+  text66     7      7         1    66
+  text67    27     32         1    67
+  text68    38     42         3    68
+  text69    34     36         2    69
+  text70    10     10         1    70
+  text71    28     30         1    71
+  text72    13     13         1    72
+  text73    56     61         4    73
+  text74    34     41         4    74
+  text75    43     59         5    75
+  text76    22     24         2    76
+  text77    29     33         2    77
+  text78    32     34         1    78
+  text79     9      9         1    79
+  text80    33     39         1    80
+  text81    41     46         3    81
+  text82    11     12         2    82
+  text83    20     21         1    83
+  text84    42     46         3    84
+  text85    30     34         2    85
+  text86    21     31         3    86
+  text87    22     28         2    87
+  text88    10     10         1    88
+  text89    21     24         4    89
+  text90    37     52         3    90
+  text91     7      7         1    91
+  text92    26     29         1    92
+  text93     9      9         1    93
+  text94    41     50         4    94
+  text95    12     13         1    95
+  text96    44     48         2    96
+  text97    41     45         3    97
+  text98    10     10         1    98
+  text99     8      8         1    99
+ text100    37     43         3   100</code></pre>
+</div>
+</div>
+</details>
+<p>Additionally, because Twitter’s base developer guidelines only allow me to extract tweets created within the last 6-9 days, I tried to pull as many within this time frame as possible and write them to a csv document for storage. My hope is that as my project progresses, I can accumulate and append additional tweets to my existing corpus so that by the end I have a larger data frame to work with.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Creating a new document to store existing corpus and hopefully add more over time.</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(tweet_corpus, <span class="at">file =</span> <span class="st">"eating_bugs_tweets_11_3_22.csv"</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="preliminary-analysis" class="level1">
+<h1><strong>Preliminary Analysis</strong></h1>
+<p>Beginning my analysis of the data, I decided to run the <code>docvars</code> function to check for metadata (which after extracting the text column from the the initial <code>tweet_bugs</code> object, I figured would no longer include any).</p>
+<details>
+<summary>
+View Code
+</summary>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Trying to pull metadata, but there no longer is any.</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="fu">docvars</span>(tweet_corpus)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>data frame with 0 columns and 957 rows</code></pre>
+</div>
+</div>
+</details>
+<p>Afterwards, I decided to split the corpus down into sentence level documents. I thought that by doing this, I would be able to call back to this object eventually and analyze sentiment within each individual sentence, but I realized and felt as though this spread my data a bit too thin and thought that it would be better to split it down to the tweet level (<code>documents</code>) instead. That way, I can consolidate the data a bit and effectively analyze the sentiment of the person behind each individual tweet.</p>
+<details>
+<summary>
+View Code
+</summary>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="co">#These lines of code separate out each sentence within the tweet corpus. Only problem was, many tweets contained multiple sentences and this spreads the data very thin.</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ndoc</span>(tweet_corpus)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 957</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>tweet_corpus_sentences <span class="ot">&lt;-</span> <span class="fu">corpus_reshape</span>(tweet_corpus, <span class="at">to =</span> <span class="st">"sentences"</span>)</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ndoc</span>(tweet_corpus_sentences)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2051</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="co">#From there, I instead decided to separate them by tweet, i.e. document, to get a better idea of each individuals writing style and opinion. I felt as though 'sentences' was spreading it too thin.</span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>tweet_corpus_document <span class="ot">&lt;-</span> <span class="fu">corpus_reshape</span>(tweet_corpus, <span class="at">to =</span> <span class="st">"documents"</span>)</span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ndoc</span>(tweet_corpus_document)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 957</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(tweet_corpus_document, <span class="at">n=</span><span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Corpus consisting of 957 documents, showing 5 documents:
+
+  Text Types Tokens Sentences
+ text1    14     14         1
+ text2    43     51         3
+ text3    41     52         1
+ text4    47     55         2
+ text5    48     56         4</code></pre>
+</div>
+</div>
+</details>
+<section id="tokens" class="level2">
+<h2 class="anchored" data-anchor-id="tokens"><em>Tokens</em></h2>
+<p>Next I decided break the corpus down to the token level and conduct a surface level analysis on the use of certain keywords. The following code chunk is indicative of my thought process when creating the <code>tweet_token</code> object. First, I created the base object, then removed any punctuation, and finally removed all numbers.</p>
+<details>
+<summary>
+View Code
+</summary>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="co">#My next step was to tokenize the corpus. The initial 'token' code uses the base tokenizer which breaks on white space.  </span></span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>tweet_tokens <span class="ot">&lt;-</span> <span class="fu">tokens</span>(tweet_corpus)</span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(tweet_tokens)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Tokens consisting of 957 documents.
+text1 :
+ [1] "Surging"      "populations"  "of"           "plant-eating" "insects"     
+ [6] "are"          "disrupting"   "farms"        "and"          "the"         
+[11] "food"         "supply"      
+[ ... and 2 more ]
+
+text2 :
+ [1] "If"       "he"       "had"      "any"      "respect"  "for"     
+ [7] "bereaved" "families" ","        "he"       "would"    "be"      
+[ ... and 39 more ]
+
+text3 :
+ [1] "Covid-19"     "Bereaved"     "Families"     "for"          "Justice"     
+ [6] "says"         "Matt"         "Hancock"      "should"       "be"          
+[11] "co-operating" "with"        
+[ ... and 40 more ]
+
+text4 :
+ [1] "Entertainment" "show"          "with"          "so"           
+ [5] "called"        "celebrities"   "A"             "gov"          
+ [9] "minister"      "whos"          "gov"           "is"           
+[ ... and 43 more ]
+
+text5 :
+ [1] "@Joshua_Griffing" "@Bulletsnbrains"  "@runninvsthewind" "@iluminatibot"   
+ [5] "Dude"             "."                "."                "."               
+ [9] "Those"            "are"              "tweets"           "from"            
+[ ... and 44 more ]
+
+text6 :
+ [1] "Most"     "people"   "think"    "that"     "eating"   "insects" 
+ [7] "and"      "eating"   "crabs"    "/"        "lobsters" "is"      
+[ ... and 20 more ]
+
+[ reached max_ndoc ... 951 more documents ]</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="co">#This line of code drops punctuation along with the default space breaks.</span></span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>tweet_tokens <span class="ot">&lt;-</span> <span class="fu">tokens</span>(tweet_corpus,</span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">remove_punct =</span> T)</span>
+<span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(tweet_tokens)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Tokens consisting of 957 documents.
+text1 :
+ [1] "Surging"      "populations"  "of"           "plant-eating" "insects"     
+ [6] "are"          "disrupting"   "farms"        "and"          "the"         
+[11] "food"         "supply"      
+[ ... and 2 more ]
+
+text2 :
+ [1] "If"       "he"       "had"      "any"      "respect"  "for"     
+ [7] "bereaved" "families" "he"       "would"    "be"       "sharing" 
+[ ... and 33 more ]
+
+text3 :
+ [1] "Covid-19"     "Bereaved"     "Families"     "for"          "Justice"     
+ [6] "says"         "Matt"         "Hancock"      "should"       "be"          
+[11] "co-operating" "with"        
+[ ... and 33 more ]
+
+text4 :
+ [1] "Entertainment" "show"          "with"          "so"           
+ [5] "called"        "celebrities"   "A"             "gov"          
+ [9] "minister"      "whos"          "gov"           "is"           
+[ ... and 40 more ]
+
+text5 :
+ [1] "@Joshua_Griffing" "@Bulletsnbrains"  "@runninvsthewind" "@iluminatibot"   
+ [5] "Dude"             "Those"            "are"              "tweets"          
+ [9] "from"             "officials"        "there"            "There"           
+[ ... and 35 more ]
+
+text6 :
+ [1] "Most"     "people"   "think"    "that"     "eating"   "insects" 
+ [7] "and"      "eating"   "crabs"    "lobsters" "is"       "a"       
+[ ... and 16 more ]
+
+[ reached max_ndoc ... 951 more documents ]</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="co">#This last line of code drops numbers within the token corpus as well.</span></span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>tweet_tokens <span class="ot">&lt;-</span> <span class="fu">tokens</span>(tweet_corpus,</span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">remove_punct =</span> T,</span>
+<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">remove_numbers =</span> T)</span>
+<span id="cb61-5"><a href="#cb61-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(tweet_tokens)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Tokens consisting of 957 documents.
+text1 :
+ [1] "Surging"      "populations"  "of"           "plant-eating" "insects"     
+ [6] "are"          "disrupting"   "farms"        "and"          "the"         
+[11] "food"         "supply"      
+[ ... and 2 more ]
+
+text2 :
+ [1] "If"       "he"       "had"      "any"      "respect"  "for"     
+ [7] "bereaved" "families" "he"       "would"    "be"       "sharing" 
+[ ... and 31 more ]
+
+text3 :
+ [1] "Covid-19"     "Bereaved"     "Families"     "for"          "Justice"     
+ [6] "says"         "Matt"         "Hancock"      "should"       "be"          
+[11] "co-operating" "with"        
+[ ... and 33 more ]
+
+text4 :
+ [1] "Entertainment" "show"          "with"          "so"           
+ [5] "called"        "celebrities"   "A"             "gov"          
+ [9] "minister"      "whos"          "gov"           "is"           
+[ ... and 40 more ]
+
+text5 :
+ [1] "@Joshua_Griffing" "@Bulletsnbrains"  "@runninvsthewind" "@iluminatibot"   
+ [5] "Dude"             "Those"            "are"              "tweets"          
+ [9] "from"             "officials"        "there"            "There"           
+[ ... and 35 more ]
+
+text6 :
+ [1] "Most"     "people"   "think"    "that"     "eating"   "insects" 
+ [7] "and"      "eating"   "crabs"    "lobsters" "is"       "a"       
+[ ... and 14 more ]
+
+[ reached max_ndoc ... 951 more documents ]</code></pre>
+</div>
+</div>
+</details>
+<p>After creating the <code>tweet_tokens</code> object, I searched through the corpus for the keywords using the <code>kwic</code> function. The first use of the function in the chunk below searched for the use of the keywords <code>bug</code> &amp; <code>bugs</code>, while the second analyzes the words <code>insect</code> &amp; <code>insects</code>. I decided to open up the window to 20 words surrounding the keywords (i.e.&nbsp;patterns). I felt this gave me a sufficient window to, at a glance, gauge sentiment within the use of the words.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="co">#These lines of code are dedicated toward the analysis of tokens on a more granular level. This first blurb is analyzing the use of the keywords 'bug' &amp; 'bugs' within the corpus.</span></span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>kwic_bugs <span class="ot">&lt;-</span> <span class="fu">kwic</span>(tweet_tokens,</span>
+<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">pattern =</span> <span class="fu">c</span>(<span class="st">"bug"</span>, <span class="st">"bugs"</span>),</span>
+<span id="cb63-4"><a href="#cb63-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">window =</span> <span class="dv">20</span>)</span>
+<span id="cb63-5"><a href="#cb63-5" aria-hidden="true" tabindex="-1"></a><span class="fu">view</span>(kwic_bugs)</span>
+<span id="cb63-6"><a href="#cb63-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb63-7"><a href="#cb63-7" aria-hidden="true" tabindex="-1"></a><span class="co">#This second blurb analyzes the use of the keywords 'insect' &amp; 'insects' instead.</span></span>
+<span id="cb63-8"><a href="#cb63-8" aria-hidden="true" tabindex="-1"></a>kwic_insects <span class="ot">&lt;-</span> <span class="fu">kwic</span>(tweet_tokens, </span>
+<span id="cb63-9"><a href="#cb63-9" aria-hidden="true" tabindex="-1"></a>                   <span class="at">pattern =</span> <span class="fu">c</span>(<span class="st">"insect"</span>, <span class="st">"insects"</span>),</span>
+<span id="cb63-10"><a href="#cb63-10" aria-hidden="true" tabindex="-1"></a>                   <span class="at">window =</span> <span class="dv">20</span>)</span>
+<span id="cb63-11"><a href="#cb63-11" aria-hidden="true" tabindex="-1"></a><span class="fu">view</span>(kwic_insects)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>I noticed throughout the corpus that the specified keywords were often surrounded by argument and context provided by the individual tweeting them. This is what eventually led me to open the window to 20 words. I also noticed that there were a lot of advertisement campaigns based upon the concept of promoting ones channel/profile by eating bugs. Similarly, there were also some occurrences where the topic of eating bugs was brought up as it relates to nature (for example, bats eating insects and other animal diets) and not according to human dietary habits. I hope that I will be able to further clean up the corpus in future iterations of my project and blog post, consolidating the information further will definitely help me get better results.</p>
+<p>With that said, there were plenty of entries relating to the perspective surrounding humans eating bugs. Many were in relation to political ideologies as well and from a bird’s eye view, I noticed a relatively even dispersion of positive and negative opinions surrounding the topic (although, I feel like the average leaned a bit more toward the negative). My goal in the future would be to use dictionary functions to conduct a legitimate sentiment analysis and see how the use of the keywords appear in proportionality of positive vs.&nbsp;negative uses.</p>
+</section>
+<section id="word-cloud" class="level2">
+<h2 class="anchored" data-anchor-id="word-cloud"><em>Word Cloud</em></h2>
+<p>That last thing I attempted was creating a word cloud using the basis of tokenization that I presented in the previous subsection. Please note, effectively, I could have just used the <code>tweet_token</code> object here instead <code>tweet_corpus</code>, but I wanted to show the thought process of creating a word cloud and practice the syntax behind the relevant functions.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Creating a dfm that we'll use to create a wordcloud to try and obtain a birds eye view of word usage throughout our corpus.</span></span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>tweet_dfm <span class="ot">&lt;-</span> <span class="fu">tokens</span>(tweet_corpus, </span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">remove_punct =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">remove_numbers =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a>                     <span class="at">remove_symbols =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb64-6"><a href="#cb64-6" aria-hidden="true" tabindex="-1"></a>                     <span class="at">remove_url =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb64-7"><a href="#cb64-7" aria-hidden="true" tabindex="-1"></a>                             <span class="fu">tokens_select</span>(<span class="at">pattern =</span> <span class="fu">stopwords</span>(<span class="st">"en"</span>),</span>
+<span id="cb64-8"><a href="#cb64-8" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">selection =</span> <span class="st">"remove"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb64-9"><a href="#cb64-9" aria-hidden="true" tabindex="-1"></a>                             <span class="fu">dfm</span>()</span>
+<span id="cb64-10"><a href="#cb64-10" aria-hidden="true" tabindex="-1"></a><span class="fu">textplot_wordcloud</span>(tweet_dfm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="AlexisGamez_hw2_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Unfortunately, I couldn’t take away much from creating the wordcloud. Observably, ‘eating’, ‘insects’ and ‘bugs’ were the most common words, but nothing else in the cloud stood out much or held any real significance. I also noticed that twitter handles and other ‘<span class="citation" data-cites="s">@s</span>’ still appeared even though I thought I cut them out with the ‘remove_symbols’ function. A goal in the future will be to cut down further language that might be considered disruptive to the analysis.</p>
+
+
+<!-- -->
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } 
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+<script src="https://giscus.app/client.js" data-repo="DACSS/Text_as_Data_Fall_2022" data-repo-id="R_kgDOH5675w" data-category="Announcements" data-category-id="" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
+</script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb65" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Blog Post #2: Gathering Data"</span></span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Alexis Gamez"</span></span>
+<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a><span class="an">desription:</span><span class="co"> "Studying text-as-data as it relates to eating bugs"</span></span>
+<span id="cb65-5"><a href="#cb65-5" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "11/03/2022"</span></span>
+<span id="cb65-6"><a href="#cb65-6" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb65-7"><a href="#cb65-7" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb65-8"><a href="#cb65-8" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb65-9"><a href="#cb65-9" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: true</span></span>
+<span id="cb65-10"><a href="#cb65-10" aria-hidden="true" tabindex="-1"></a><span class="co">    code-copy: true</span></span>
+<span id="cb65-11"><a href="#cb65-11" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb65-12"><a href="#cb65-12" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span></span>
+<span id="cb65-13"><a href="#cb65-13" aria-hidden="true" tabindex="-1"></a><span class="co">  - blogpost2</span></span>
+<span id="cb65-14"><a href="#cb65-14" aria-hidden="true" tabindex="-1"></a><span class="co">  - Alexis Gamez</span></span>
+<span id="cb65-15"><a href="#cb65-15" aria-hidden="true" tabindex="-1"></a><span class="co">  - research</span></span>
+<span id="cb65-16"><a href="#cb65-16" aria-hidden="true" tabindex="-1"></a><span class="co">  - academic articles</span></span>
+<span id="cb65-17"><a href="#cb65-17" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb65-18"><a href="#cb65-18" aria-hidden="true" tabindex="-1"></a><span class="fu"># Setup</span></span>
+<span id="cb65-19"><a href="#cb65-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-20"><a href="#cb65-20" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;details&gt;</span></span>
+<span id="cb65-21"><a href="#cb65-21" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&lt;summary&gt;</span> View Code<span class="kw">&lt;/summary&gt;</span></span>
+<span id="cb65-22"><a href="#cb65-22" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb65-23"><a href="#cb65-23" aria-hidden="true" tabindex="-1"></a><span class="in">```{r setup, include=TRUE}</span></span>
+<span id="cb65-24"><a href="#cb65-24" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb65-25"><a href="#cb65-25" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidytext)</span>
+<span id="cb65-26"><a href="#cb65-26" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb65-27"><a href="#cb65-27" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(devtools)</span>
+<span id="cb65-28"><a href="#cb65-28" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plyr)</span>
+<span id="cb65-29"><a href="#cb65-29" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
+<span id="cb65-30"><a href="#cb65-30" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rvest)</span>
+<span id="cb65-31"><a href="#cb65-31" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rtweet)</span>
+<span id="cb65-32"><a href="#cb65-32" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(twitteR)</span>
+<span id="cb65-33"><a href="#cb65-33" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tm)</span>
+<span id="cb65-34"><a href="#cb65-34" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span>
+<span id="cb65-35"><a href="#cb65-35" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda)</span>
+<span id="cb65-36"><a href="#cb65-36" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda.textplots)</span>
+<span id="cb65-37"><a href="#cb65-37" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">echo =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb65-38"><a href="#cb65-38" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-39"><a href="#cb65-39" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;/details&gt;</span></span>
+<span id="cb65-40"><a href="#cb65-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-41"><a href="#cb65-41" aria-hidden="true" tabindex="-1"></a><span class="fu"># **Data Sources**</span></span>
+<span id="cb65-42"><a href="#cb65-42" aria-hidden="true" tabindex="-1"></a>For this assignment, I gathered the data for my corpus from the Twitter social media platform. The 'rtweet' R package was used heavily in the gathering and preliminary analysis of the data I used. In order to extract twitter data to R, I needed to first create a developer account to gain the appropriate permissions. Once the account was made, I was able to create a new project through the developer app and connect it to R. From there, I was able to begin gathering data and conducting a preliminary analysis of what I could find so far.</span>
+<span id="cb65-43"><a href="#cb65-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-44"><a href="#cb65-44" aria-hidden="true" tabindex="-1"></a><span class="fu"># **Gathering Data**</span></span>
+<span id="cb65-45"><a href="#cb65-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-46"><a href="#cb65-46" aria-hidden="true" tabindex="-1"></a>The first step in data analysis, is gathering the data you intend to analyze! I started by gathering as many tweets as possible related to the subject of my project. At this point, the goal of my project is to conduct a sentiment analysis surrounding the perception of eating insects among twitter users. So, I pulled tweets containing the keywords <span class="in">`eating`</span> and <span class="in">`bugs/insects`</span>. Finding it unnecessary, I excluded re-tweets and chose to restrict source language to only those in English. </span>
+<span id="cb65-47"><a href="#cb65-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-48"><a href="#cb65-48" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE}</span></span>
+<span id="cb65-49"><a href="#cb65-49" aria-hidden="true" tabindex="-1"></a><span class="co">#Pull together tweets containing keywords 'eating` and `bugs/insects`.</span></span>
+<span id="cb65-50"><a href="#cb65-50" aria-hidden="true" tabindex="-1"></a>tweet_bugs <span class="ot">&lt;-</span> <span class="fu">search_tweets</span>(<span class="st">"eating bugs OR insects"</span>, <span class="at">n =</span> <span class="dv">10000</span>,</span>
+<span id="cb65-51"><a href="#cb65-51" aria-hidden="true" tabindex="-1"></a>                             <span class="at">type =</span> <span class="st">"mixed"</span>,</span>
+<span id="cb65-52"><a href="#cb65-52" aria-hidden="true" tabindex="-1"></a>                             <span class="at">include_rts =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb65-53"><a href="#cb65-53" aria-hidden="true" tabindex="-1"></a>                             <span class="at">lang =</span> <span class="st">"en"</span>)</span>
+<span id="cb65-54"><a href="#cb65-54" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-55"><a href="#cb65-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-56"><a href="#cb65-56" aria-hidden="true" tabindex="-1"></a><span class="fu"># **Creating a Corpus**</span></span>
+<span id="cb65-57"><a href="#cb65-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-58"><a href="#cb65-58" aria-hidden="true" tabindex="-1"></a>From the previous chunk, I was able to gather a total of 1,533 tweets along with their metadata. The following chunk is dedicated toward cleaning up the data a bit and pulling out the information I need in order to conduct the analysis. First I extracted the <span class="in">`full_text`</span> column from the <span class="in">`tweet_bugs`</span> object I created and stored it as <span class="in">`tweet_text`</span>. From there, I converted the text object to a corpus, i.e. <span class="in">`tweet_corpus`</span>. Lastly, I used the <span class="in">`summary`</span> function to summarize corpus information like sentence and token count per tweet (for some reason, the summary function limited itself to only 100 out of the 1,533 entries. A goal for the future is to figure out how to extend it so that I can summarize the full corpus data).</span>
+<span id="cb65-59"><a href="#cb65-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-60"><a href="#cb65-60" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE}</span></span>
+<span id="cb65-61"><a href="#cb65-61" aria-hidden="true" tabindex="-1"></a><span class="co">#Separate out the text from tweet_bugs and build the corpus.</span></span>
+<span id="cb65-62"><a href="#cb65-62" aria-hidden="true" tabindex="-1"></a>tweet_text <span class="ot">&lt;-</span> <span class="fu">as.vector.data.frame</span>(tweet_bugs<span class="sc">$</span>full_text, <span class="at">mode =</span> <span class="st">"any"</span>)</span>
+<span id="cb65-63"><a href="#cb65-63" aria-hidden="true" tabindex="-1"></a>tweet_corpus <span class="ot">&lt;-</span> <span class="fu">corpus</span>(tweet_text)</span>
+<span id="cb65-64"><a href="#cb65-64" aria-hidden="true" tabindex="-1"></a>tweet_summary <span class="ot">&lt;-</span> <span class="fu">summary</span>(tweet_corpus)</span>
+<span id="cb65-65"><a href="#cb65-65" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-66"><a href="#cb65-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-67"><a href="#cb65-67" aria-hidden="true" tabindex="-1"></a>While not entirely useful, I also decided to add in a tweet count indicator to number the tweets. Once again, the count only extended up to the first 100 entries. Hopefully, there is a workaround to include the remainder of the entries, but ultimately it isn't crucial when conducting sentiment analysis.</span>
+<span id="cb65-68"><a href="#cb65-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-69"><a href="#cb65-69" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;details&gt;</span></span>
+<span id="cb65-70"><a href="#cb65-70" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&lt;summary&gt;</span> View Code<span class="kw">&lt;/summary&gt;</span></span>
+<span id="cb65-71"><a href="#cb65-71" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb65-72"><a href="#cb65-72" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE, message=FALSE}</span></span>
+<span id="cb65-73"><a href="#cb65-73" aria-hidden="true" tabindex="-1"></a><span class="co">#Creating tweet count indicator (i.e. Count).</span></span>
+<span id="cb65-74"><a href="#cb65-74" aria-hidden="true" tabindex="-1"></a>tweet_summary<span class="sc">$</span>Count <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">str_extract</span>(tweet_summary<span class="sc">$</span>Text,<span class="st">"[0-9]+"</span>))</span>
+<span id="cb65-75"><a href="#cb65-75" aria-hidden="true" tabindex="-1"></a>tweet_summary</span>
+<span id="cb65-76"><a href="#cb65-76" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-77"><a href="#cb65-77" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;/details&gt;</span></span>
+<span id="cb65-78"><a href="#cb65-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-79"><a href="#cb65-79" aria-hidden="true" tabindex="-1"></a>Additionally, because Twitter's base developer guidelines only allow me to extract tweets created within the last 6-9 days, I tried to pull as many within this time frame as possible and write them to a csv document for storage. My hope is that as my project progresses, I can accumulate and append additional tweets to my existing corpus so that by the end I have a larger data frame to work with.</span>
+<span id="cb65-80"><a href="#cb65-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-81"><a href="#cb65-81" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE}</span></span>
+<span id="cb65-82"><a href="#cb65-82" aria-hidden="true" tabindex="-1"></a><span class="co">#Creating a new document to store existing corpus and hopefully add more over time.</span></span>
+<span id="cb65-83"><a href="#cb65-83" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(tweet_corpus, <span class="at">file =</span> <span class="st">"eating_bugs_tweets_11_3_22.csv"</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb65-84"><a href="#cb65-84" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-85"><a href="#cb65-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-86"><a href="#cb65-86" aria-hidden="true" tabindex="-1"></a><span class="fu"># **Preliminary Analysis**</span></span>
+<span id="cb65-87"><a href="#cb65-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-88"><a href="#cb65-88" aria-hidden="true" tabindex="-1"></a>Beginning my analysis of the data, I decided to run the <span class="in">`docvars`</span> function to check for metadata (which after extracting the text column from the the initial <span class="in">`tweet_bugs`</span> object, I figured would no longer include any).</span>
+<span id="cb65-89"><a href="#cb65-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-90"><a href="#cb65-90" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;details&gt;</span></span>
+<span id="cb65-91"><a href="#cb65-91" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&lt;summary&gt;</span> View Code<span class="kw">&lt;/summary&gt;</span></span>
+<span id="cb65-92"><a href="#cb65-92" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb65-93"><a href="#cb65-93" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE, message=FALSE}</span></span>
+<span id="cb65-94"><a href="#cb65-94" aria-hidden="true" tabindex="-1"></a><span class="co">#Trying to pull metadata, but there no longer is any.</span></span>
+<span id="cb65-95"><a href="#cb65-95" aria-hidden="true" tabindex="-1"></a><span class="fu">docvars</span>(tweet_corpus)</span>
+<span id="cb65-96"><a href="#cb65-96" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-97"><a href="#cb65-97" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;/details&gt;</span></span>
+<span id="cb65-98"><a href="#cb65-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-99"><a href="#cb65-99" aria-hidden="true" tabindex="-1"></a>Afterwards, I decided to split the corpus down into sentence level documents. I thought that by doing this, I would be able to call back to this object eventually and analyze sentiment within each individual sentence, but I realized and felt as though this spread my data a bit too thin and thought that it would be better to split it down to the tweet level (<span class="in">`documents`</span>) instead. That way, I can consolidate the data a bit and effectively analyze the sentiment of the person behind each individual tweet. </span>
+<span id="cb65-100"><a href="#cb65-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-101"><a href="#cb65-101" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;details&gt;</span></span>
+<span id="cb65-102"><a href="#cb65-102" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&lt;summary&gt;</span> View Code<span class="kw">&lt;/summary&gt;</span></span>
+<span id="cb65-103"><a href="#cb65-103" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb65-104"><a href="#cb65-104" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE, message=FALSE}</span></span>
+<span id="cb65-105"><a href="#cb65-105" aria-hidden="true" tabindex="-1"></a><span class="co">#These lines of code separate out each sentence within the tweet corpus. Only problem was, many tweets contained multiple sentences and this spreads the data very thin.</span></span>
+<span id="cb65-106"><a href="#cb65-106" aria-hidden="true" tabindex="-1"></a><span class="fu">ndoc</span>(tweet_corpus)</span>
+<span id="cb65-107"><a href="#cb65-107" aria-hidden="true" tabindex="-1"></a>tweet_corpus_sentences <span class="ot">&lt;-</span> <span class="fu">corpus_reshape</span>(tweet_corpus, <span class="at">to =</span> <span class="st">"sentences"</span>)</span>
+<span id="cb65-108"><a href="#cb65-108" aria-hidden="true" tabindex="-1"></a><span class="fu">ndoc</span>(tweet_corpus_sentences)</span>
+<span id="cb65-109"><a href="#cb65-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-110"><a href="#cb65-110" aria-hidden="true" tabindex="-1"></a><span class="co">#From there, I instead decided to separate them by tweet, i.e. document, to get a better idea of each individuals writing style and opinion. I felt as though 'sentences' was spreading it too thin.</span></span>
+<span id="cb65-111"><a href="#cb65-111" aria-hidden="true" tabindex="-1"></a>tweet_corpus_document <span class="ot">&lt;-</span> <span class="fu">corpus_reshape</span>(tweet_corpus, <span class="at">to =</span> <span class="st">"documents"</span>)</span>
+<span id="cb65-112"><a href="#cb65-112" aria-hidden="true" tabindex="-1"></a><span class="fu">ndoc</span>(tweet_corpus_document)</span>
+<span id="cb65-113"><a href="#cb65-113" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(tweet_corpus_document, <span class="at">n=</span><span class="dv">5</span>)</span>
+<span id="cb65-114"><a href="#cb65-114" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-115"><a href="#cb65-115" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;/details&gt;</span></span>
+<span id="cb65-116"><a href="#cb65-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-117"><a href="#cb65-117" aria-hidden="true" tabindex="-1"></a><span class="fu">## *Tokens*</span></span>
+<span id="cb65-118"><a href="#cb65-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-119"><a href="#cb65-119" aria-hidden="true" tabindex="-1"></a>Next I decided break the corpus down to the token level and conduct a surface level analysis on the use of certain keywords. The following code chunk is indicative of my thought process when creating the <span class="in">`tweet_token`</span> object. First, I created the base object, then removed any punctuation, and finally removed all numbers.  </span>
+<span id="cb65-120"><a href="#cb65-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-121"><a href="#cb65-121" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;details&gt;</span></span>
+<span id="cb65-122"><a href="#cb65-122" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&lt;summary&gt;</span> View Code<span class="kw">&lt;/summary&gt;</span></span>
+<span id="cb65-123"><a href="#cb65-123" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb65-124"><a href="#cb65-124" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE, message=FALSE}</span></span>
+<span id="cb65-125"><a href="#cb65-125" aria-hidden="true" tabindex="-1"></a><span class="co">#My next step was to tokenize the corpus. The initial 'token' code uses the base tokenizer which breaks on white space.  </span></span>
+<span id="cb65-126"><a href="#cb65-126" aria-hidden="true" tabindex="-1"></a>tweet_tokens <span class="ot">&lt;-</span> <span class="fu">tokens</span>(tweet_corpus)</span>
+<span id="cb65-127"><a href="#cb65-127" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(tweet_tokens)</span>
+<span id="cb65-128"><a href="#cb65-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-129"><a href="#cb65-129" aria-hidden="true" tabindex="-1"></a><span class="co">#This line of code drops punctuation along with the default space breaks.</span></span>
+<span id="cb65-130"><a href="#cb65-130" aria-hidden="true" tabindex="-1"></a>tweet_tokens <span class="ot">&lt;-</span> <span class="fu">tokens</span>(tweet_corpus,</span>
+<span id="cb65-131"><a href="#cb65-131" aria-hidden="true" tabindex="-1"></a>                        <span class="at">remove_punct =</span> T)</span>
+<span id="cb65-132"><a href="#cb65-132" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(tweet_tokens)</span>
+<span id="cb65-133"><a href="#cb65-133" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-134"><a href="#cb65-134" aria-hidden="true" tabindex="-1"></a><span class="co">#This last line of code drops numbers within the token corpus as well.</span></span>
+<span id="cb65-135"><a href="#cb65-135" aria-hidden="true" tabindex="-1"></a>tweet_tokens <span class="ot">&lt;-</span> <span class="fu">tokens</span>(tweet_corpus,</span>
+<span id="cb65-136"><a href="#cb65-136" aria-hidden="true" tabindex="-1"></a>                        <span class="at">remove_punct =</span> T,</span>
+<span id="cb65-137"><a href="#cb65-137" aria-hidden="true" tabindex="-1"></a>                        <span class="at">remove_numbers =</span> T)</span>
+<span id="cb65-138"><a href="#cb65-138" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(tweet_tokens)</span>
+<span id="cb65-139"><a href="#cb65-139" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-140"><a href="#cb65-140" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;/details&gt;</span></span>
+<span id="cb65-141"><a href="#cb65-141" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-142"><a href="#cb65-142" aria-hidden="true" tabindex="-1"></a>After creating the <span class="in">`tweet_tokens`</span> object, I searched through the corpus for the keywords using the <span class="in">`kwic`</span> function. The first use of the function in the chunk below searched for the use of the keywords <span class="in">`bug`</span> &amp; <span class="in">`bugs`</span>, while the second analyzes the words <span class="in">`insect`</span> &amp; <span class="in">`insects`</span>. I decided to open up the window to 20 words surrounding the keywords (i.e. patterns). I felt this gave me a sufficient window to, at a glance, gauge sentiment within the use of the words.</span>
+<span id="cb65-143"><a href="#cb65-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-144"><a href="#cb65-144" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE}</span></span>
+<span id="cb65-145"><a href="#cb65-145" aria-hidden="true" tabindex="-1"></a><span class="co">#These lines of code are dedicated toward the analysis of tokens on a more granular level. This first blurb is analyzing the use of the keywords 'bug' &amp; 'bugs' within the corpus.</span></span>
+<span id="cb65-146"><a href="#cb65-146" aria-hidden="true" tabindex="-1"></a>kwic_bugs <span class="ot">&lt;-</span> <span class="fu">kwic</span>(tweet_tokens,</span>
+<span id="cb65-147"><a href="#cb65-147" aria-hidden="true" tabindex="-1"></a>                   <span class="at">pattern =</span> <span class="fu">c</span>(<span class="st">"bug"</span>, <span class="st">"bugs"</span>),</span>
+<span id="cb65-148"><a href="#cb65-148" aria-hidden="true" tabindex="-1"></a>                   <span class="at">window =</span> <span class="dv">20</span>)</span>
+<span id="cb65-149"><a href="#cb65-149" aria-hidden="true" tabindex="-1"></a><span class="fu">view</span>(kwic_bugs)</span>
+<span id="cb65-150"><a href="#cb65-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-151"><a href="#cb65-151" aria-hidden="true" tabindex="-1"></a><span class="co">#This second blurb analyzes the use of the keywords 'insect' &amp; 'insects' instead.</span></span>
+<span id="cb65-152"><a href="#cb65-152" aria-hidden="true" tabindex="-1"></a>kwic_insects <span class="ot">&lt;-</span> <span class="fu">kwic</span>(tweet_tokens, </span>
+<span id="cb65-153"><a href="#cb65-153" aria-hidden="true" tabindex="-1"></a>                   <span class="at">pattern =</span> <span class="fu">c</span>(<span class="st">"insect"</span>, <span class="st">"insects"</span>),</span>
+<span id="cb65-154"><a href="#cb65-154" aria-hidden="true" tabindex="-1"></a>                   <span class="at">window =</span> <span class="dv">20</span>)</span>
+<span id="cb65-155"><a href="#cb65-155" aria-hidden="true" tabindex="-1"></a><span class="fu">view</span>(kwic_insects)</span>
+<span id="cb65-156"><a href="#cb65-156" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-157"><a href="#cb65-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-158"><a href="#cb65-158" aria-hidden="true" tabindex="-1"></a>I noticed throughout the corpus that the specified keywords were often surrounded by argument and context provided by the individual tweeting them. This is what eventually led me to open the window to 20 words. I also noticed that there were a lot of advertisement campaigns based upon the concept of promoting ones channel/profile by eating bugs. Similarly, there were also some occurrences where the topic of eating bugs was brought up as it relates to nature (for example, bats eating insects and other animal diets) and not according to human dietary habits. I hope that I will be able to further clean up the corpus in future iterations of my project and blog post, consolidating the information further will definitely help me get better results.</span>
+<span id="cb65-159"><a href="#cb65-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-160"><a href="#cb65-160" aria-hidden="true" tabindex="-1"></a>With that said, there were plenty of entries relating to the perspective surrounding humans eating bugs. Many were in relation to political ideologies as well and from a bird's eye view, I noticed a relatively even dispersion of positive and negative opinions surrounding the topic (although, I feel like the average leaned a bit more toward the negative). My goal in the future would be to use dictionary functions to conduct a legitimate sentiment analysis and see how the use of the keywords appear in proportionality of positive vs. negative uses.</span>
+<span id="cb65-161"><a href="#cb65-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-162"><a href="#cb65-162" aria-hidden="true" tabindex="-1"></a><span class="fu">## *Word Cloud*</span></span>
+<span id="cb65-163"><a href="#cb65-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-164"><a href="#cb65-164" aria-hidden="true" tabindex="-1"></a>That last thing I attempted was creating a word cloud using the basis of tokenization that I presented in the previous subsection. Please note, effectively, I could have just used the <span class="in">`tweet_token`</span> object here instead <span class="in">`tweet_corpus`</span>, but I wanted to show the thought process of creating a word cloud and practice the syntax behind the relevant functions.</span>
+<span id="cb65-165"><a href="#cb65-165" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-166"><a href="#cb65-166" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE}</span></span>
+<span id="cb65-167"><a href="#cb65-167" aria-hidden="true" tabindex="-1"></a><span class="co">#Creating a dfm that we'll use to create a wordcloud to try and obtain a birds eye view of word usage throughout our corpus.</span></span>
+<span id="cb65-168"><a href="#cb65-168" aria-hidden="true" tabindex="-1"></a>tweet_dfm <span class="ot">&lt;-</span> <span class="fu">tokens</span>(tweet_corpus, </span>
+<span id="cb65-169"><a href="#cb65-169" aria-hidden="true" tabindex="-1"></a>                     <span class="at">remove_punct =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb65-170"><a href="#cb65-170" aria-hidden="true" tabindex="-1"></a>                     <span class="at">remove_numbers =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb65-171"><a href="#cb65-171" aria-hidden="true" tabindex="-1"></a>                     <span class="at">remove_symbols =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb65-172"><a href="#cb65-172" aria-hidden="true" tabindex="-1"></a>                     <span class="at">remove_url =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb65-173"><a href="#cb65-173" aria-hidden="true" tabindex="-1"></a>                             <span class="fu">tokens_select</span>(<span class="at">pattern =</span> <span class="fu">stopwords</span>(<span class="st">"en"</span>),</span>
+<span id="cb65-174"><a href="#cb65-174" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">selection =</span> <span class="st">"remove"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb65-175"><a href="#cb65-175" aria-hidden="true" tabindex="-1"></a>                             <span class="fu">dfm</span>()</span>
+<span id="cb65-176"><a href="#cb65-176" aria-hidden="true" tabindex="-1"></a><span class="fu">textplot_wordcloud</span>(tweet_dfm)</span>
+<span id="cb65-177"><a href="#cb65-177" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-178"><a href="#cb65-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-179"><a href="#cb65-179" aria-hidden="true" tabindex="-1"></a>Unfortunately, I couldn't take away much from creating the wordcloud. Observably, 'eating', 'insects' and 'bugs' were the most common words, but nothing else in the cloud stood out much or held any real significance. I also noticed that twitter handles and other '@s' still appeared even though I thought I cut them out with the 'remove_symbols' function. A goal in the future will be to cut down further language that might be considered disruptive to the analysis.</span>
+<span id="cb65-180"><a href="#cb65-180" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-181"><a href="#cb65-181" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-182"><a href="#cb65-182" aria-hidden="true" tabindex="-1"></a></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+</body></html>

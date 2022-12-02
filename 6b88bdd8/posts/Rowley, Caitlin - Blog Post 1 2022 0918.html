@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.0.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Caitlin Rowley">
+<meta name="dcterms.date" content="2022-09-18">
+
+<title>Text-as-Data Fall 2022 - Blog Post Template</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../images/DACSS_Round_Network.png" rel="icon" type="image/png">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+<meta name="twitter:title" content="Text-as-Data Fall 2022 - Blog Post Template">
+<meta name="twitter:description" content="While I am still working on narrowing the scope of a potential research question, I would like to study public perception of farm animal welfare laws, and whether there is a correlation between…">
+<meta name="twitter:creator" content="@UMassDACSS">
+<meta name="twitter:card" content="summary">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <a class="navbar-brand" href="../index.html">
+    <img src="../images/UMass White Wordmark Horiz.png" alt="">
+    <span class="navbar-title">Text-as-Data Fall 2022</span>
+  </a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="https://dacss.github.io/Text_as_Data_Fall_2022/">Fall 2022</a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html">Contributors</a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://umass.edu/sbs/dacss">DACSS</a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/DACSS/Text_as_Data_Fall_2022"><i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+ </a>
+  </li>  
+</ul>
+              <div class="quarto-toggle-container">
+                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+              </div>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#what-research-questions-do-you-want-to-study-using-computational-text-analysis" id="toc-what-research-questions-do-you-want-to-study-using-computational-text-analysis" class="nav-link active" data-scroll-target="#what-research-questions-do-you-want-to-study-using-computational-text-analysis">What research questions do you want to study using computational text analysis?</a></li>
+  <li><a href="#academic-article-1" id="toc-academic-article-1" class="nav-link" data-scroll-target="#academic-article-1">Academic article 1:</a></li>
+  <li><a href="#what-is-the-research-question" id="toc-what-is-the-research-question" class="nav-link" data-scroll-target="#what-is-the-research-question">What is the research question?</a></li>
+  <li><a href="#what-data-are-used" id="toc-what-data-are-used" class="nav-link" data-scroll-target="#what-data-are-used">What data are used?</a></li>
+  <li><a href="#how-are-the-data-collected" id="toc-how-are-the-data-collected" class="nav-link" data-scroll-target="#how-are-the-data-collected">How are the data collected?</a></li>
+  <li><a href="#hypotheses" id="toc-hypotheses" class="nav-link" data-scroll-target="#hypotheses">Hypotheses?</a></li>
+  <li><a href="#what-methods-are-used" id="toc-what-methods-are-used" class="nav-link" data-scroll-target="#what-methods-are-used">What methods are used?</a></li>
+  <li><a href="#what-are-the-findings" id="toc-what-are-the-findings" class="nav-link" data-scroll-target="#what-are-the-findings">What are the findings?</a></li>
+  <li><a href="#whats-my-take-on-this" id="toc-whats-my-take-on-this" class="nav-link" data-scroll-target="#whats-my-take-on-this">What’s my take on this?</a></li>
+  <li><a href="#my-research-questions-and-potential-data-sources" id="toc-my-research-questions-and-potential-data-sources" class="nav-link" data-scroll-target="#my-research-questions-and-potential-data-sources">My research questions and potential data sources:</a></li>
+  <li><a href="#remaining-questions" id="toc-remaining-questions" class="nav-link" data-scroll-target="#remaining-questions">Remaining questions:</a></li>
+  <li><a href="#academic-article-2" id="toc-academic-article-2" class="nav-link" data-scroll-target="#academic-article-2">Academic article 2:</a></li>
+  <li><a href="#what-is-the-research-question-1" id="toc-what-is-the-research-question-1" class="nav-link" data-scroll-target="#what-is-the-research-question-1">What is the research question?</a></li>
+  <li><a href="#what-data-are-used-1" id="toc-what-data-are-used-1" class="nav-link" data-scroll-target="#what-data-are-used-1">What data are used?</a></li>
+  <li><a href="#how-are-the-data-collected-1" id="toc-how-are-the-data-collected-1" class="nav-link" data-scroll-target="#how-are-the-data-collected-1">How are the data collected?</a></li>
+  <li><a href="#hypotheses-1" id="toc-hypotheses-1" class="nav-link" data-scroll-target="#hypotheses-1">Hypotheses?</a></li>
+  <li><a href="#what-methods-are-used-1" id="toc-what-methods-are-used-1" class="nav-link" data-scroll-target="#what-methods-are-used-1">What methods are used?</a></li>
+  <li><a href="#what-are-the-findings-1" id="toc-what-are-the-findings-1" class="nav-link" data-scroll-target="#what-are-the-findings-1">What are the findings?</a></li>
+  <li><a href="#whats-my-take-on-this-1" id="toc-whats-my-take-on-this-1" class="nav-link" data-scroll-target="#whats-my-take-on-this-1">What’s my take on this?</a></li>
+  <li><a href="#my-research-questions-and-potential-data-sources-1" id="toc-my-research-questions-and-potential-data-sources-1" class="nav-link" data-scroll-target="#my-research-questions-and-potential-data-sources-1">My research questions and potential data sources:</a></li>
+  <li><a href="#remaining-questions-1" id="toc-remaining-questions-1" class="nav-link" data-scroll-target="#remaining-questions-1">Remaining questions:</a>
+  <ul class="collapse">
+  <li><a href="#instructions" id="toc-instructions" class="nav-link" data-scroll-target="#instructions">Instructions</a></li>
+  <li><a href="#rendering-your-post" id="toc-rendering-your-post" class="nav-link" data-scroll-target="#rendering-your-post">Rendering your post</a></li>
+  <li><a href="#reading-in-data-files" id="toc-reading-in-data-files" class="nav-link" data-scroll-target="#reading-in-data-files">Reading in data files</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Blog Post Template</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+  <div class="quarto-categories">
+    <div class="quarto-category">blog post</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Caitlin Rowley </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">September 18, 2022</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+</header>
+
+<section id="what-research-questions-do-you-want-to-study-using-computational-text-analysis" class="level1">
+<h1>What research questions do you want to study using computational text analysis?</h1>
+<p>While I am still working on narrowing the scope of a potential research question, I would like to study public perception of farm animal welfare laws, and whether there is a correlation between perception and regulatory change.</p>
+</section>
+<section id="academic-article-1" class="level1">
+<h1>Academic article 1:</h1>
+<p>A Sytematic Review of Public Attitudes, Perceptions, and Behaviours Towards Production Diseases Associated with Farm Animal Welfare (https://link.springer.com/article/10.1007/s10806-016-9615-x)</p>
+</section>
+<section id="what-is-the-research-question" class="level1">
+<h1>What is the research question?</h1>
+<p>This research was designed to (1) establish the public’s attitudes toward farm animal welfare and (2) determine the public’s attitudes towards interventions related to reducing production-related diseases that are prevalent in intensive farming environments.</p>
+</section>
+<section id="what-data-are-used" class="level1">
+<h1>What data are used?</h1>
+<p>The data referenced in this article come from four databases: (1) Scopus, (2) ISI Web of Knowledge, (3) AgEcon Search, and (4) Google Scholar.</p>
+</section>
+<section id="how-are-the-data-collected" class="level1">
+<h1>How are the data collected?</h1>
+<p>Data from these sources were selected using combinations of search terms and strings specific to each database. Authors within the field were also contacted for insight regarding ‘grey literature’ or unpublished works. Only studies conducted within the past 20 years were included; those within that pool were further screened based on predetermined selection criteria. 80 studies in total were used, 62 of which were quantitative. Among these, 43 were surveys, 17 were studies relative to consumers’ willingness to pay (WTP), 1 was based on modelling existing data, and 1 was a display matrix. Among the 9 qualitative study, 4 were focus groups, 4 were interviews, and 1 was a citizens’ panel. The remaining 9 studies applied mixed methods research.</p>
+</section>
+<section id="hypotheses" class="level1">
+<h1>Hypotheses?</h1>
+<p>The authors indicated that data illustrates a disconnect between citizens’ concern for farm animal welfare and consumers’ willingness to pay for products that meet or exceed minimum welfare standards.</p>
+</section>
+<section id="what-methods-are-used" class="level1">
+<h1>What methods are used?</h1>
+<p>Researchers used open-coding analysis in NVivo, as well as a separate tool that was developed to analyze both qualitative and quantitative studies. This tool considered construct validity, internal and external validity, and the reliability of included studies.</p>
+</section>
+<section id="what-are-the-findings" class="level1">
+<h1>What are the findings?</h1>
+<p>Findings from this study indicated that despite the majority of respondents expressing concern for farm animal welfare (46%-86%), this was not considered to be a priority within the context of consumerism. This was largely due to barriers such as the cost and availability of such products. There was also minimal concerns associated with animal diseases, other than discontent regarding the use of antibiotics.</p>
+</section>
+<section id="whats-my-take-on-this" class="level1">
+<h1>What’s my take on this?</h1>
+<p>I am not particularly surprised by these findings, having conducted an extensive research project on the topic of farm animal welfare policy several years ago. However, I’d be interested to see if there has been a shift in public opinion by referencing more recent and widespread survey data. I’d also like apply some of the research methods used in this study to a more local context (the majority of the data came studies conducted in Europe).</p>
+</section>
+<section id="my-research-questions-and-potential-data-sources" class="level1">
+<h1>My research questions and potential data sources:</h1>
+<p>This study has helped inform potential revisions in my research question, specifically in terms of narrowing the scope so that I can identify pertinent data sources. For example, I will consider factors that may contribute to public perception relative to farm animal welfare, such as knowledge/awareness, health concerns, economic concerns, and concerns about human treatment. Similar to this study, I could use AgEcon Search as a reference, as well as the NIH’s National Library of Medicine, which contains a variety of resources (both qualitative and quantitative) used to inform literature on public perceptions of farm animal welfare (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5126776/).</p>
+</section>
+<section id="remaining-questions" class="level1">
+<h1>Remaining questions:</h1>
+<p>I would like to learn more about alternative forms of qualitative coding. I am familiar with NVivo and manual open-coding, but I’d like to familiarize myself with more exact methods.</p>
+</section>
+<section id="academic-article-2" class="level1">
+<h1>Academic article 2:</h1>
+<p>Ag-Gag Laws: A Shift in the Wrong Direction for Animal Welfare on Farms - https://digitalcommons.law.ggu.edu/cgi/viewcontent.cgi?article=2126&amp;context=ggulrev</p>
+</section>
+<section id="what-is-the-research-question-1" class="level1">
+<h1>What is the research question?</h1>
+<p>This study seeks to establish that despite increased awareness and concern for farm animal welfare in Western society, variation in terms of perception of farm animal welfare is largely dependent on citizens’ involvement with agriculture and livestock production.</p>
+</section>
+<section id="what-data-are-used-1" class="level1">
+<h1>What data are used?</h1>
+<p>This study uses survey data comprising 459 respondents.</p>
+</section>
+<section id="how-are-the-data-collected-1" class="level1">
+<h1>How are the data collected?</h1>
+<p>These data were collected through self-administered questionnaires. A quota sampling procedure was applied, using gender, age, living environment, and province as control characteristics. Respondents were first selected through a series of web-based questionnaires which were then supplemented by a more targeted distribution of paper questionnaires.</p>
+</section>
+<section id="hypotheses-1" class="level1">
+<h1>Hypotheses?</h1>
+<p>The authors indicate that there is a disconnect between the livestock production industry and the general public related to animal welfare, specifically in terms of (1) convictions, (2) values, (3) norms, (4) knowledge, and (5) interests.</p>
+</section>
+<section id="what-methods-are-used-1" class="level1">
+<h1>What methods are used?</h1>
+<p>In addition to establishing selection criteria, the authors utilized SPSS for running segmentation analyses. Specifically, the authors used hierarchical clustering using Ward’s Method, and conducted K-means cluster analyses to obtain segments. They also conducted bivariate analyses including cross tabulations with Chi^2-statistics, Independent Samples T-test and One-Way ANOVA comparison of means.</p>
+</section>
+<section id="what-are-the-findings-1" class="level1">
+<h1>What are the findings?</h1>
+<p>The findings of this study were based on six clusters of respondents that were categorized based on their perceptions of the following determinants: (1) structural determinants of animal welfare, (2) consumption frequency of meat and meat substitutes, (3) knowledge about animal welfare, and (4) attitudes toward information about animal welfare. Results were largely in line with the authors’ hypothesis; there was a significant link between respondents’ interpretations, and thus their perceptions, on farm animal welfare and their level of involvement with animal welfare (e.g., those involved with agriculture and livestock production). Additionally, the authors also evaluated the efficacy of marketing opportunities based on clusters’ perceptions and willingness to pay for ethically-sourced products.</p>
+</section>
+<section id="whats-my-take-on-this-1" class="level1">
+<h1>What’s my take on this?</h1>
+<p>I was very intrigued by the multi-pronged approach to this research question, as well as the identified determinants used as a foundation for the segmentation of survey results. I also appreciated that the ways in which the authors clustered respondents provided a path for further research, such as marketing opportunities.</p>
+</section>
+<section id="my-research-questions-and-potential-data-sources-1" class="level1">
+<h1>My research questions and potential data sources:</h1>
+<p>This study provides a framework that I think will help refine my research question, specifically in terms of established literature on the topic of farm animal welfare (e.g., the established determinants). In terms of data sources, because this study referenced data from the authors’ own survey, I would seek out data from public surveys through resources such as Pew Research Center, the Journal of the American Veterinary Medical Association, and Johns Hopkins Bloomberg School of Public Health.</p>
+</section>
+<section id="remaining-questions-1" class="level1">
+<h1>Remaining questions:</h1>
+<p>I would like to understand the best analyses to run in terms of closed-ended survey questions. Are the bivariate analyses listed above considered best practice?</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">echo =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="instructions" class="level2">
+<h2 class="anchored" data-anchor-id="instructions">Instructions</h2>
+<p>This document provides yaml header inforamtion you will need to replicate each week to submit your homework or other blog posts. Please observe the following conventions:</p>
+<ul>
+<li>Save your own copy of this template as a blog post in the <code>posts</code> folder, naming it <code>FirstLast_hwX.qmd</code></li>
+<li>Edit the yaml header to change your author name - use the same name each week</li>
+<li>include a <em>description</em> that is reader friendly</li>
+<li>update the <em>category</em> list to indicate the type of submission, the data used, the main packages or techniques, your name, or any thing else to make your document easy to find</li>
+<li>edit as a normal qmd/rmd file</li>
+</ul>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3.5</code></pre>
+</div>
+</div>
+</section>
+<section id="rendering-your-post" class="level2">
+<h2 class="anchored" data-anchor-id="rendering-your-post">Rendering your post</h2>
+<p>When you click the <strong>Render</strong> button a document will be generated that includes both content and the output of embedded code.</p>
+<div class="callout-warning callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Be sure that you have moved your <code>*.qmd</code> file into the <code>posts</code> folder <strong>BEFORE</strong> you render it, so that all files are stored in the correct location.</p>
+</div>
+</div>
+<div class="callout-important callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Only render a single file - don’t try to render the whole website!</p>
+</div>
+</div>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Pilot Student Blogs
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>We are piloting a workflow including individual student websites with direted and limited pull requests back to course blogs. Please let us know if you would like to participate.</p>
+</div>
+</div>
+</section>
+<section id="reading-in-data-files" class="level2">
+<h2 class="anchored" data-anchor-id="reading-in-data-files">Reading in data files</h2>
+<p>The easiest data source to use - at least initially - is to choose something easily accessible, either from our <code>_data</code> folder provided, or from an online source that is publicly available.</p>
+<div class="callout-tip callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Using Other Data
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If you would like to use a source that you have access to and it is small enough and you don’t mind making it public, you can copy it into the <code>_data</code> file and include in your <em>commit</em> and <em>pull request</em>.</p>
+</div>
+</div>
+<div class="callout-tip callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Using Private Data
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If you would like to use a proprietary source of data, that should be possible using the same process outlined above. There may initially be a few issues. We hope to have this feature working smoothly soon!</p>
+</div>
+</div>
+
+
+<!-- -->
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } 
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+<script src="https://giscus.app/client.js" data-repo="DACSS/Text_as_Data_Fall_2022" data-repo-id="R_kgDOH5675w" data-category="Announcements" data-category-id="" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
+</script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb4" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Blog Post Template"</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Caitlin Rowley"</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="an">desription:</span><span class="co"> "Blog Post 1"</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "09/18/2022"</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: true</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">    code-copy: true</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co">  - blog post</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="fu"># What research questions do you want to study using computational text analysis?</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>While I am still working on narrowing the scope of a potential research question, I would like to study public perception of farm animal welfare laws, and whether there is a correlation between perception and regulatory change.</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="fu"># Academic article 1:</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>A Sytematic Review of Public Attitudes, Perceptions, and Behaviours Towards Production Diseases Associated with Farm Animal Welfare (https://link.springer.com/article/10.1007/s10806-016-9615-x)</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="fu"># What is the research question?</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>This research was designed to (1) establish the public's attitudes toward farm animal welfare and (2) determine the public's attitudes towards interventions related to reducing production-related diseases that are prevalent in intensive farming environments.</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="fu"># What data are used?</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>The data referenced in this article come from four databases: (1) Scopus, (2) ISI Web of Knowledge, (3) AgEcon Search, and (4) Google Scholar.</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a><span class="fu"># How are the data collected?</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>Data from these sources were selected using combinations of search terms and strings specific to each database. Authors within the field were also contacted for insight regarding 'grey literature' or unpublished works. Only studies conducted within the past 20 years were included; those within that pool were further screened based on predetermined selection criteria. </span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>80 studies in total were used, 62 of which were quantitative. Among these, 43 were surveys, 17 were studies relative to consumers' willingness to pay (WTP), 1 was based on modelling existing data, and 1 was a display matrix. Among the 9 qualitative study, 4 were focus groups, 4 were interviews, and 1 was a citizens' panel. The remaining 9 studies applied mixed methods research.</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a><span class="fu"># Hypotheses?</span></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>The authors indicated that data illustrates a disconnect between citizens' concern for farm animal welfare and consumers' willingness to pay for products that meet or exceed minimum welfare standards.</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a><span class="fu"># What methods are used?</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>Researchers used open-coding analysis in NVivo, as well as a separate tool that was developed to analyze both qualitative and quantitative studies. This tool considered construct validity, internal and external validity, and the reliability of included studies.</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a><span class="fu"># What are the findings?</span></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>Findings from this study indicated that despite the majority of respondents expressing concern for farm animal welfare (46%-86%), this was not considered to be a priority within the context of consumerism. This was largely due to barriers such as the cost and availability of such products. There was also minimal concerns associated with animal diseases, other than discontent regarding the use of antibiotics. </span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a><span class="fu"># What's my take on this?</span></span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>I am not particularly surprised by these findings, having conducted an extensive research project on the topic of farm animal welfare policy several years ago. However, I'd be interested to see if there has been a shift in public opinion by referencing more recent and widespread survey data. I'd also like apply some of the research methods used in this study to a more local context (the majority of the data came studies conducted in Europe).</span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a><span class="fu"># My research questions and potential data sources:</span></span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>This study has helped inform potential revisions in my research question, specifically in terms of narrowing the scope so that I can identify pertinent data sources. For example, I will consider factors that may contribute to public perception relative to farm animal welfare, such as knowledge/awareness, health concerns, economic concerns, and concerns about human treatment. Similar to this study, I could use AgEcon Search as a reference, as well as the NIH's National Library of Medicine, which contains a variety of resources (both qualitative and quantitative) used to inform literature on public perceptions of farm animal welfare (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5126776/).</span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a><span class="fu"># Remaining questions:</span></span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>I would like to learn more about alternative forms of qualitative coding. I am familiar with NVivo and manual open-coding, but I'd like to familiarize myself with more exact methods.</span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a><span class="fu"># Academic article 2:</span></span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>Ag-Gag Laws: A Shift in the Wrong Direction for Animal Welfare on Farms - https://digitalcommons.law.ggu.edu/cgi/viewcontent.cgi?article=2126&amp;context=ggulrev</span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a><span class="fu"># What is the research question?</span></span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a>This study seeks to establish that despite increased awareness and concern for farm animal welfare in Western society, variation in terms of perception of farm animal welfare is largely dependent on citizens' involvement with agriculture and livestock production.</span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a><span class="fu"># What data are used?</span></span>
+<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a>This study uses survey data comprising 459 respondents.</span>
+<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a><span class="fu"># How are the data collected?</span></span>
+<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a>These data were collected through self-administered questionnaires. A quota sampling procedure was applied, using gender, age, living environment, and province as control characteristics. Respondents were first selected through a series of web-based questionnaires which were then supplemented by a more targeted distribution of paper questionnaires.</span>
+<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a><span class="fu"># Hypotheses?</span></span>
+<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-78"><a href="#cb4-78" aria-hidden="true" tabindex="-1"></a>The authors indicate that there is a disconnect between the livestock production industry and the general public related to animal welfare, specifically in terms of (1) convictions, (2) values, (3) norms, (4) knowledge, and (5) interests.</span>
+<span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-80"><a href="#cb4-80" aria-hidden="true" tabindex="-1"></a><span class="fu"># What methods are used?</span></span>
+<span id="cb4-81"><a href="#cb4-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-82"><a href="#cb4-82" aria-hidden="true" tabindex="-1"></a>In addition to establishing selection criteria, the authors utilized SPSS for running segmentation analyses. Specifically, the authors used hierarchical clustering using Ward's Method, and conducted K-means cluster analyses to obtain segments. They also conducted bivariate analyses including cross tabulations with Chi^2-statistics, Independent Samples T-test and One-Way ANOVA comparison of means. </span>
+<span id="cb4-83"><a href="#cb4-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-84"><a href="#cb4-84" aria-hidden="true" tabindex="-1"></a><span class="fu"># What are the findings?</span></span>
+<span id="cb4-85"><a href="#cb4-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-86"><a href="#cb4-86" aria-hidden="true" tabindex="-1"></a>The findings of this study were based on six clusters of respondents that were categorized based on their perceptions of the following determinants: (1) structural determinants of animal welfare, (2) consumption frequency of meat and meat substitutes, (3) knowledge about animal welfare, and (4) attitudes toward information about animal welfare. Results were largely in line with the authors' hypothesis; there was a significant link between respondents' interpretations, and thus their perceptions, on farm animal welfare and their level of involvement with animal welfare (e.g., those involved with agriculture and livestock production). Additionally, the authors also evaluated the efficacy of marketing opportunities based on clusters' perceptions and willingness to pay for ethically-sourced products.</span>
+<span id="cb4-87"><a href="#cb4-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-88"><a href="#cb4-88" aria-hidden="true" tabindex="-1"></a><span class="fu"># What's my take on this?</span></span>
+<span id="cb4-89"><a href="#cb4-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-90"><a href="#cb4-90" aria-hidden="true" tabindex="-1"></a>I was very intrigued by the multi-pronged approach to this research question, as well as the identified determinants used as a foundation for the segmentation of survey results. I also appreciated that the ways in which the authors clustered respondents provided a path for further research, such as marketing opportunities.</span>
+<span id="cb4-91"><a href="#cb4-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-92"><a href="#cb4-92" aria-hidden="true" tabindex="-1"></a><span class="fu"># My research questions and potential data sources:</span></span>
+<span id="cb4-93"><a href="#cb4-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-94"><a href="#cb4-94" aria-hidden="true" tabindex="-1"></a>This study provides a framework that I think will help refine my research question, specifically in terms of established literature on the topic of farm animal welfare (e.g., the established determinants). In terms of data sources, because this study referenced data from the authors' own survey, I would seek out data from public surveys through resources such as Pew Research Center, the Journal of the American Veterinary Medical Association, and Johns Hopkins Bloomberg School of Public Health.</span>
+<span id="cb4-95"><a href="#cb4-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-96"><a href="#cb4-96" aria-hidden="true" tabindex="-1"></a><span class="fu"># Remaining questions:</span></span>
+<span id="cb4-97"><a href="#cb4-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-98"><a href="#cb4-98" aria-hidden="true" tabindex="-1"></a>I would like to understand the best analyses to run in terms of closed-ended survey questions. Are the bivariate analyses listed above considered best practice?</span>
+<span id="cb4-99"><a href="#cb4-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-102"><a href="#cb4-102" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb4-103"><a href="#cb4-103" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: setup</span></span>
+<span id="cb4-104"><a href="#cb4-104" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb4-105"><a href="#cb4-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-106"><a href="#cb4-106" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb4-107"><a href="#cb4-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-108"><a href="#cb4-108" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">echo =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-109"><a href="#cb4-109" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb4-110"><a href="#cb4-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-111"><a href="#cb4-111" aria-hidden="true" tabindex="-1"></a><span class="fu">## Instructions</span></span>
+<span id="cb4-112"><a href="#cb4-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-113"><a href="#cb4-113" aria-hidden="true" tabindex="-1"></a>This document provides yaml header inforamtion you will need to replicate each week to submit your homework or other blog posts. Please observe the following conventions:</span>
+<span id="cb4-114"><a href="#cb4-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-115"><a href="#cb4-115" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Save your own copy of this template as a blog post in the <span class="in">`posts`</span> folder, naming it <span class="in">`FirstLast_hwX.qmd`</span></span>
+<span id="cb4-116"><a href="#cb4-116" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Edit the yaml header to change your author name - use the same name each week</span>
+<span id="cb4-117"><a href="#cb4-117" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>include a *description* that is reader friendly</span>
+<span id="cb4-118"><a href="#cb4-118" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>update the *category* list to indicate the type of submission, the data used, the main packages or techniques, your name, or any thing else to make your document easy to find</span>
+<span id="cb4-119"><a href="#cb4-119" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>edit as a normal qmd/rmd file</span>
+<span id="cb4-120"><a href="#cb4-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-121"><a href="#cb4-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-124"><a href="#cb4-124" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb4-125"><a href="#cb4-125" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>)</span>
+<span id="cb4-126"><a href="#cb4-126" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(x)</span>
+<span id="cb4-127"><a href="#cb4-127" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb4-128"><a href="#cb4-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-129"><a href="#cb4-129" aria-hidden="true" tabindex="-1"></a><span class="fu">## Rendering your post</span></span>
+<span id="cb4-130"><a href="#cb4-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-131"><a href="#cb4-131" aria-hidden="true" tabindex="-1"></a>When you click the **Render** button a document will be generated that includes both content and the output of embedded code. </span>
+<span id="cb4-132"><a href="#cb4-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-133"><a href="#cb4-133" aria-hidden="true" tabindex="-1"></a>:::{.callout-warning}</span>
+<span id="cb4-134"><a href="#cb4-134" aria-hidden="true" tabindex="-1"></a>Be sure that you have moved your <span class="in">`*.qmd`</span> file into the <span class="in">`posts`</span> folder **BEFORE** you render it, so that all files are stored in the correct location.</span>
+<span id="cb4-135"><a href="#cb4-135" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb4-136"><a href="#cb4-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-137"><a href="#cb4-137" aria-hidden="true" tabindex="-1"></a>:::{.callout-important}</span>
+<span id="cb4-138"><a href="#cb4-138" aria-hidden="true" tabindex="-1"></a>Only render a single file - don't try to render the whole website!</span>
+<span id="cb4-139"><a href="#cb4-139" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb4-140"><a href="#cb4-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-141"><a href="#cb4-141" aria-hidden="true" tabindex="-1"></a>:::{.callout-note}</span>
+<span id="cb4-142"><a href="#cb4-142" aria-hidden="true" tabindex="-1"></a><span class="fu">## Pilot Student Blogs</span></span>
+<span id="cb4-143"><a href="#cb4-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-144"><a href="#cb4-144" aria-hidden="true" tabindex="-1"></a>We are piloting a workflow including individual student websites with direted and limited pull requests back to course blogs. Please let us know if you would like to participate.</span>
+<span id="cb4-145"><a href="#cb4-145" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb4-146"><a href="#cb4-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-147"><a href="#cb4-147" aria-hidden="true" tabindex="-1"></a><span class="fu">## Reading in data files</span></span>
+<span id="cb4-148"><a href="#cb4-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-149"><a href="#cb4-149" aria-hidden="true" tabindex="-1"></a>The easiest data source to use - at least initially - is to choose something easily accessible, either from our <span class="in">`_data`</span> folder provided, or from an online source that is publicly available.</span>
+<span id="cb4-150"><a href="#cb4-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-151"><a href="#cb4-151" aria-hidden="true" tabindex="-1"></a>:::{.callout-tip}</span>
+<span id="cb4-152"><a href="#cb4-152" aria-hidden="true" tabindex="-1"></a><span class="fu">## Using Other Data</span></span>
+<span id="cb4-153"><a href="#cb4-153" aria-hidden="true" tabindex="-1"></a>If you would like to use a source that you have access to and it is small enough and you don't mind making it public, you can copy it into the <span class="in">`_data`</span> file and include in your *commit* and *pull request*.</span>
+<span id="cb4-154"><a href="#cb4-154" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb4-155"><a href="#cb4-155" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-156"><a href="#cb4-156" aria-hidden="true" tabindex="-1"></a>:::{.callout-tip}</span>
+<span id="cb4-157"><a href="#cb4-157" aria-hidden="true" tabindex="-1"></a><span class="fu">## Using Private Data</span></span>
+<span id="cb4-158"><a href="#cb4-158" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-159"><a href="#cb4-159" aria-hidden="true" tabindex="-1"></a>If you would like to use a proprietary source of data, that should be possible using the same process outlined above. There may initially be a few issues. We hope to have this feature working smoothly soon!</span>
+<span id="cb4-160"><a href="#cb4-160" aria-hidden="true" tabindex="-1"></a>:::</span>
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+</body></html>
