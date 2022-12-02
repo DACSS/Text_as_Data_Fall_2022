@@ -1,1 +1,0 @@
-Sitemap: https://DACSS.github.io/Text_as_Data_Fall_2022/sitemap.xml
