@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.0.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Andrea Mah">
+<meta name="dcterms.date" content="2022-10-24">
+
+<title>Text-as-Data Fall 2022 - Blog Post 3: Pre-processing</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../images/DACSS_Round_Network.png" rel="icon" type="image/png">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+<meta name="twitter:title" content="Text-as-Data Fall 2022 - Blog Post 3: Pre-processing">
+<meta name="twitter:description" content="For my project, I plan to analyze speeches given by world leaders at the UN Climate conferences. My goal for the past week was to get my data into good shape.">
+<meta name="twitter:creator" content="@UMassDACSS">
+<meta name="twitter:card" content="summary">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <a class="navbar-brand" href="../index.html">
+    <img src="../images/UMass White Wordmark Horiz.png" alt="">
+    <span class="navbar-title">Text-as-Data Fall 2022</span>
+  </a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="https://dacss.github.io/Text_as_Data_Fall_2022/">Fall 2022</a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html">Contributors</a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://umass.edu/sbs/dacss">DACSS</a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/DACSS/Text_as_Data_Fall_2022"><i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+ </a>
+  </li>  
+</ul>
+              <div class="quarto-toggle-container">
+                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+              </div>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Blog Post 3: Pre-processing</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+  <div class="quarto-categories">
+    <div class="quarto-category">BlogPost3</div>
+    <div class="quarto-category">Andrea Mah</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Andrea Mah </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">October 24, 2022</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+</header>
+
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">echo =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>For my project, I plan to analyze speeches given by world leaders at the UN Climate conferences. My goal for the past week was to get my data into good shape. Previously, I was able to import all the pdfs into R. However, I did not have metadata associated with those documents, many speeches were not in english, and the data needed to be cleaned.</p>
+<p>My first step was to detect the language of the speeches and to subset my corpus to only include english texts. Fortunately, there were multiple packages which I could use to detect language. Ultimately I chose “cld2” which was reported to have high accuracy. After importing the files, I used the detect_language() command to create a vector representing the language of each document. Then I subsetted the data and saved a new file with only the english texts.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(cleanNLP)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidytext)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>------------------------------------------------------------------------------</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>You have loaded plyr after dplyr - this is likely to cause problems.
+If you need functions from both plyr and dplyr, please load plyr first, then dplyr:
+library(plyr); library(dplyr)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>------------------------------------------------------------------------------</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'plyr'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:dplyr':
+
+    arrange, count, desc, failwith, id, mutate, rename, summarise,
+    summarize</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:purrr':
+
+    compact</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>Package version: 3.2.3
+Unicode version: 13.0
+ICU version: 69.1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Parallel computing: 8 of 8 threads used.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>See https://quanteda.io for tutorials and examples.</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pdftools)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>Using poppler version 22.04.0</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda.textmodels)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda.textplots)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda.textstats)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co">#creating list of names of files to read in</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>file_list <span class="ot">&lt;-</span> <span class="fu">list.files</span>(<span class="at">pattern=</span><span class="st">"*.pdf"</span>)</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>all_files <span class="ot">&lt;-</span> <span class="fu">lapply</span>(file_list, <span class="cf">function</span>(file){</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  txt <span class="ot">&lt;-</span> <span class="fu">pdf_text</span>(file)</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>  txt <span class="ot">&lt;-</span> <span class="fu">str_c</span>(txt, <span class="at">collapse =</span> <span class="st">" "</span>)</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">File =</span> file,<span class="at">text =</span> txt)</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="co">#bind</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">do.call</span>(<span class="st">"rbind"</span>, all_files)</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a><span class="co">#checking import worked</span></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a><span class="fu">View</span>(result)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in View(result): invalid 'x' argument</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">#detecting language? </span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(cld2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: cld2</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>t_start <span class="ot">=</span> <span class="fu">proc.time</span>()</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>cld2_vec <span class="ot">=</span> cld2<span class="sc">::</span><span class="fu">detect_language</span>(<span class="at">text =</span> result<span class="sc">$</span>text, <span class="at">plain_text =</span> <span class="cn">TRUE</span>, <span class="at">lang_code =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as_string(text): Parameter 'text' must be a connection or character vector</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co">#bind result with data</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>result<span class="sc">$</span>language <span class="ot">&lt;-</span> cld2_vec</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'cld2_vec' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co">#create subset data with only english language speeches</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>en.result <span class="ot">&lt;-</span>result[<span class="fu">which</span>(result<span class="sc">$</span>language <span class="sc">==</span> <span class="st">"en"</span>),]</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="co">#Save as dataframe</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(en.result, <span class="at">file =</span> <span class="st">"speeches.RData"</span>)</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"speeches.RData"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>My next step was to get some metadata (‘docvars’) that I could use with my documents. The filenames in the downloaded speeches contained a lot of useful information. They had which conference the speech was from, the date the speech was delivered, and the speaker (in most cases, a country). I couldn’t find anything in R to help me use the filename to extract that information (although I’m sure something exists.) What I ended up doing was exporting the list of file names from my english speeches dataframe, importing that into excel, and using a series of “TEXTBEFORE” and “TEXTAFTER” functions to isolate the information I wanted. I manually added in the year of each speech, which was easy to do after sorting the files in alphabetical order. I saved this ‘metadata’ as a csv.</p>
+<p>After importing the csv into R, I used left_join to merge the speeches with the metadata by file name. Now when I made the speech dataframe into a corpus I was able to see my metadata.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co">#remove the "language" column</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>en.result <span class="ot">&lt;-</span> en.result[,<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>)]</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="co">#isolate only the filename column to export</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>en.result.names <span class="ot">&lt;-</span> en.result[,<span class="dv">1</span>]</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="co">#Here I exported a csv</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(en.result.names, <span class="st">"en.result.csv"</span>)</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a><span class="co">#using excel "=textbefore()" and "=textafter()" commands, I was able to isolate</span></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a><span class="co">#Year and Speaker(country) using the file names. I saved this as a csv to import as my corpus metadata.</span></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a><span class="co">#importing metadata file</span></span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>metadata <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"metadata_docs.csv"</span>, <span class="at">header =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in file(file, "rt"): cannot open file 'metadata_docs.csv': No such file
+or directory</code></pre>
+</div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in file(file, "rt"): cannot open the connection</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co">#renaming column to match</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>metadata<span class="sc">$</span>File <span class="ot">&lt;-</span> metadata<span class="sc">$</span>filename</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'metadata' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co">#joining my speeches with my metadata</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>speech.meta <span class="ot">&lt;-</span> <span class="fu">left_join</span>(metadata, en.result, <span class="at">by =</span> <span class="st">"File"</span>, <span class="at">all.x =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in left_join(metadata, en.result, by = "File", all.x = T): object 'metadata' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co">#saving this dataframe...</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(<span class="at">file =</span>  <span class="st">"speech.meta.RData"</span>, speech.meta)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in save(file = "speech.meta.RData", speech.meta): object 'speech.meta' not found</code></pre>
+</div>
+</div>
+<p>Next, I needed to clean up the text and do some pre-processing. I didn’t have much success using built in commands to remove numbers or other things, but a different approach using gsub() seemed to work. I’m sure the code I’m using could be simplified a lot. But at least this ended up with the result I wanted. After getting rid of things that I didn’t want, I created a dfm, where I also removed stopwords and only included features which appeared a minimum of 10 times.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Cleaning up the speeches</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"speech.meta.RData"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in readChar(con, 5L, useBytes = TRUE): cannot open compressed file
+'speech.meta.RData', probable reason 'No such file or directory'</code></pre>
+</div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in readChar(con, 5L, useBytes = TRUE): cannot open the connection</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> speech.meta<span class="sc">$</span>text</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'speech.meta' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"$"</span>, <span class="st">" "</span>, text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as.character(x): cannot coerce type 'closure' to vector of type 'character'</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"~"</span>, <span class="st">" "</span>, text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as.character(x): cannot coerce type 'closure' to vector of type 'character'</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"&lt;"</span>, <span class="st">" "</span>, text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as.character(x): cannot coerce type 'closure' to vector of type 'character'</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"&gt;"</span>, <span class="st">" "</span>, text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as.character(x): cannot coerce type 'closure' to vector of type 'character'</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"1st"</span>, <span class="st">" "</span>, text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as.character(x): cannot coerce type 'closure' to vector of type 'character'</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"2nd"</span>, <span class="st">" "</span>, text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as.character(x): cannot coerce type 'closure' to vector of type 'character'</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"3rd"</span>, <span class="st">" "</span>, text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as.character(x): cannot coerce type 'closure' to vector of type 'character'</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"4th"</span>, <span class="st">" "</span>, text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as.character(x): cannot coerce type 'closure' to vector of type 'character'</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"5th"</span>, <span class="st">" "</span>, text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as.character(x): cannot coerce type 'closure' to vector of type 'character'</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"6th"</span>, <span class="st">" "</span>, text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as.character(x): cannot coerce type 'closure' to vector of type 'character'</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"7th"</span>, <span class="st">" "</span>, text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as.character(x): cannot coerce type 'closure' to vector of type 'character'</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"8th"</span>, <span class="st">" "</span>, text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as.character(x): cannot coerce type 'closure' to vector of type 'character'</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"9th"</span>, <span class="st">" "</span>, text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as.character(x): cannot coerce type 'closure' to vector of type 'character'</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"0th"</span>, <span class="st">" "</span>, text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as.character(x): cannot coerce type 'closure' to vector of type 'character'</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"1"</span>, <span class="st">" "</span>, text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as.character(x): cannot coerce type 'closure' to vector of type 'character'</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"2"</span>, <span class="st">" "</span>, text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as.character(x): cannot coerce type 'closure' to vector of type 'character'</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"3"</span>, <span class="st">" "</span>, text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as.character(x): cannot coerce type 'closure' to vector of type 'character'</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"4"</span>, <span class="st">" "</span>, text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as.character(x): cannot coerce type 'closure' to vector of type 'character'</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"5"</span>, <span class="st">" "</span>, text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as.character(x): cannot coerce type 'closure' to vector of type 'character'</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"6"</span>, <span class="st">" "</span>, text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as.character(x): cannot coerce type 'closure' to vector of type 'character'</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"7"</span>, <span class="st">" "</span>, text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as.character(x): cannot coerce type 'closure' to vector of type 'character'</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"8"</span>, <span class="st">" "</span>, text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as.character(x): cannot coerce type 'closure' to vector of type 'character'</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"9"</span>, <span class="st">" "</span>, text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as.character(x): cannot coerce type 'closure' to vector of type 'character'</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb84"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"0"</span>, <span class="st">" "</span>, text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as.character(x): cannot coerce type 'closure' to vector of type 'character'</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb86"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"%"</span>, <span class="st">" "</span>, text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as.character(x): cannot coerce type 'closure' to vector of type 'character'</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"#"</span>, <span class="st">" "</span>, text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as.character(x): cannot coerce type 'closure' to vector of type 'character'</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span><span class="fu">gsub</span>(<span class="st">" th "</span>, <span class="st">" "</span>, text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as.character(x): cannot coerce type 'closure' to vector of type 'character'</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span><span class="fu">gsub</span>(<span class="st">" t "</span>, <span class="st">" "</span>, text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as.character(x): cannot coerce type 'closure' to vector of type 'character'</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span><span class="fu">gsub</span>(<span class="st">" l "</span>, <span class="st">" "</span>, text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as.character(x): cannot coerce type 'closure' to vector of type 'character'</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb96"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span><span class="fu">gsub</span>(<span class="st">" d "</span>, <span class="st">" "</span>, text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as.character(x): cannot coerce type 'closure' to vector of type 'character'</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb98"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">" mr. "</span>, <span class="st">" "</span>, text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as.character(x): cannot coerce type 'closure' to vector of type 'character'</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb100"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a href="#cb100-1" aria-hidden="true" tabindex="-1"></a>speech.meta<span class="sc">$</span>text <span class="ot">&lt;-</span> text</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in speech.meta$text &lt;- text: object 'speech.meta' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb102"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a href="#cb102-1" aria-hidden="true" tabindex="-1"></a>speech.meta<span class="sc">$</span>text_field <span class="ot">&lt;-</span> speech.meta<span class="sc">$</span>text</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'speech.meta' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb104"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a>speech.meta<span class="sc">$</span>docid_field <span class="ot">&lt;-</span> speech.meta<span class="sc">$</span>File</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'speech.meta' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb106"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Make this into a corpus</span></span>
+<span id="cb106-2"><a href="#cb106-2" aria-hidden="true" tabindex="-1"></a>speech_corpus <span class="ot">&lt;-</span> <span class="fu">corpus</span>(speech.meta)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in corpus(speech.meta): object 'speech.meta' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb108"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true" tabindex="-1"></a>speech_tokens <span class="ot">&lt;-</span> <span class="fu">tokens</span>(speech_corpus, <span class="at">remove_punc =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in tokens(speech_corpus, remove_punc = T): object 'speech_corpus' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb110"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb110-1"><a href="#cb110-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Create a DFM without punctuation or stopwords</span></span>
+<span id="cb110-2"><a href="#cb110-2" aria-hidden="true" tabindex="-1"></a>dfm_speech <span class="ot">&lt;-</span> <span class="fu">dfm</span>(speech_tokens)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in dfm(speech_tokens): object 'speech_tokens' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb112"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb112-1"><a href="#cb112-1" aria-hidden="true" tabindex="-1"></a>dfm_speech <span class="ot">&lt;-</span> <span class="fu">dfm_remove</span>(dfm_speech, <span class="fu">stopwords</span>(<span class="st">"english"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb112-2"><a href="#cb112-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dfm_trim</span>(<span class="at">min_termfreq =</span> <span class="dv">10</span>, <span class="at">verbose =</span> F)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in dfm_select(x, ..., selection = "remove"): object 'dfm_speech' not found</code></pre>
+</div>
+</div>
+<p>Next I was excited to just explore the dfm.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb114"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb114-1"><a href="#cb114-1" aria-hidden="true" tabindex="-1"></a><span class="co">#get some information about the dfm</span></span>
+<span id="cb114-2"><a href="#cb114-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ndoc</span>(dfm_speech)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in ndoc(dfm_speech): object 'dfm_speech' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb116"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb116-1"><a href="#cb116-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">featnames</span>(dfm_speech), <span class="dv">25</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in featnames(dfm_speech): object 'dfm_speech' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb118"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb118-1"><a href="#cb118-1" aria-hidden="true" tabindex="-1"></a><span class="co">#See what's common</span></span>
+<span id="cb118-2"><a href="#cb118-2" aria-hidden="true" tabindex="-1"></a><span class="fu">topfeatures</span>(dfm_speech, <span class="dv">50</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in topfeatures(dfm_speech, 50): object 'dfm_speech' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb120"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb120-1"><a href="#cb120-1" aria-hidden="true" tabindex="-1"></a><span class="co">#see what's common within each year</span></span>
+<span id="cb120-2"><a href="#cb120-2" aria-hidden="true" tabindex="-1"></a><span class="fu">topfeatures</span>(dfm_speech, <span class="dv">5</span>, <span class="at">groups =</span> year)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in topfeatures(dfm_speech, 5, groups = year): object 'dfm_speech' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb122"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb122-1"><a href="#cb122-1" aria-hidden="true" tabindex="-1"></a><span class="co">#make a wordcloud </span></span>
+<span id="cb122-2"><a href="#cb122-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2222</span>)</span>
+<span id="cb122-3"><a href="#cb122-3" aria-hidden="true" tabindex="-1"></a><span class="fu">textplot_wordcloud</span>(dfm_speech, <span class="at">min_count =</span> <span class="dv">100</span>, <span class="at">random_order =</span> F)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in textplot_wordcloud(dfm_speech, min_count = 100, random_order = F): object 'dfm_speech' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb124"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb124-1"><a href="#cb124-1" aria-hidden="true" tabindex="-1"></a>dfm<span class="fl">.1995</span> <span class="ot">&lt;-</span> <span class="fu">subset</span>(dfm_speech, year <span class="sc">==</span> <span class="st">"1995"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in subset(dfm_speech, year == "1995"): object 'dfm_speech' not found</code></pre>
+</div>
+</div>
+<p>Finally, since I now had some metadata, I wanted to see if I could actually use it. I found some code online which was showing how to plot frequency of terms using ggplot(). I did this for the overall corpus, but could not figure out how to select specific terms and plot them by year…</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb126"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb126-1"><a href="#cb126-1" aria-hidden="true" tabindex="-1"></a><span class="co">#trying out some frequencies? gets the top 10 features overall</span></span>
+<span id="cb126-2"><a href="#cb126-2" aria-hidden="true" tabindex="-1"></a>ts_freq <span class="ot">&lt;-</span> <span class="fu">textstat_frequency</span>(dfm_speech, <span class="at">n =</span> <span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in textstat_frequency(dfm_speech, n = 20): object 'dfm_speech' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb128"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb128-1"><a href="#cb128-1" aria-hidden="true" tabindex="-1"></a>ts_freq</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'ts_freq' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb130"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb130-1"><a href="#cb130-1" aria-hidden="true" tabindex="-1"></a><span class="co">#what about top features by year? </span></span>
+<span id="cb130-2"><a href="#cb130-2" aria-hidden="true" tabindex="-1"></a>ts_freq_byyear <span class="ot">&lt;-</span> <span class="fu">textstat_frequency</span>(dfm_speech, <span class="at">n =</span> <span class="dv">10</span>, <span class="at">group =</span> year)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in textstat_frequency(dfm_speech, n = 10, group = year): object 'dfm_speech' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb132"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb132-1"><a href="#cb132-1" aria-hidden="true" tabindex="-1"></a>ts_freq_byyear</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'ts_freq_byyear' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb134"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb134-1"><a href="#cb134-1" aria-hidden="true" tabindex="-1"></a>ts_freq_byspeaker <span class="ot">&lt;-</span> <span class="fu">textstat_frequency</span>(dfm_speech, <span class="at">n =</span> <span class="dv">10</span>, <span class="at">group =</span> speaker)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in textstat_frequency(dfm_speech, n = 10, group = speaker): object 'dfm_speech' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb136"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb136-1"><a href="#cb136-1" aria-hidden="true" tabindex="-1"></a>ts_freq_byspeaker</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'ts_freq_byspeaker' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb138"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb138-1"><a href="#cb138-1" aria-hidden="true" tabindex="-1"></a>topterms <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> ts_freq, <span class="fu">aes</span>(<span class="at">x =</span> feature)) <span class="sc">+</span></span>
+<span id="cb138-2"><a href="#cb138-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="fu">aes</span>(<span class="at">y =</span> frequency), <span class="at">stat =</span> <span class="st">"identity"</span>) <span class="sc">+</span></span>
+<span id="cb138-3"><a href="#cb138-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="st">"white"</span>), </span>
+<span id="cb138-4"><a href="#cb138-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.line =</span> <span class="fu">element_line</span>(<span class="at">colour =</span> <span class="st">"black"</span>),</span>
+<span id="cb138-5"><a href="#cb138-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>),</span>
+<span id="cb138-6"><a href="#cb138-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title.x =</span> <span class="fu">element_text</span>(<span class="at">size =</span><span class="dv">12</span>, <span class="at">vjust =</span> <span class="sc">-</span><span class="dv">1</span>),</span>
+<span id="cb138-7"><a href="#cb138-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span><span class="dv">12</span>),</span>
+<span id="cb138-8"><a href="#cb138-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.key =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb138-9"><a href="#cb138-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.position =</span> <span class="st">"top"</span>,</span>
+<span id="cb138-10"><a href="#cb138-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>),</span>
+<span id="cb138-11"><a href="#cb138-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.title =</span> <span class="fu">element_blank</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in ggplot(data = ts_freq, aes(x = feature)): object 'ts_freq' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb140"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb140-1"><a href="#cb140-1" aria-hidden="true" tabindex="-1"></a>topterms</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'topterms' not found</code></pre>
+</div>
+</div>
+<p>Now that my dataset is actually clean and ready to be analyzed, I’m excited to try topic modelling, to learn more about what types of stats I can calculate using the dfm, and figuring our more interesting ways to visualize the data.</p>
+
+
+<!-- -->
+
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } 
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+<script src="https://giscus.app/client.js" data-repo="DACSS/Text_as_Data_Fall_2022" data-repo-id="R_kgDOH5675w" data-category="Announcements" data-category-id="" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
+</script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb142" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb142-1"><a href="#cb142-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb142-2"><a href="#cb142-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Blog Post 3: Pre-processing"</span></span>
+<span id="cb142-3"><a href="#cb142-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Andrea Mah"</span></span>
+<span id="cb142-4"><a href="#cb142-4" aria-hidden="true" tabindex="-1"></a><span class="an">desription:</span><span class="co"> "Initial data exploration"</span></span>
+<span id="cb142-5"><a href="#cb142-5" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "10/24/2022"</span></span>
+<span id="cb142-6"><a href="#cb142-6" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb142-7"><a href="#cb142-7" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb142-8"><a href="#cb142-8" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb142-9"><a href="#cb142-9" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: true</span></span>
+<span id="cb142-10"><a href="#cb142-10" aria-hidden="true" tabindex="-1"></a><span class="co">    code-copy: true</span></span>
+<span id="cb142-11"><a href="#cb142-11" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb142-12"><a href="#cb142-12" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span></span>
+<span id="cb142-13"><a href="#cb142-13" aria-hidden="true" tabindex="-1"></a><span class="co">  - BlogPost3</span></span>
+<span id="cb142-14"><a href="#cb142-14" aria-hidden="true" tabindex="-1"></a><span class="co">  - Andrea Mah</span></span>
+<span id="cb142-15"><a href="#cb142-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-16"><a href="#cb142-16" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb142-17"><a href="#cb142-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-20"><a href="#cb142-20" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb142-21"><a href="#cb142-21" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: setup</span></span>
+<span id="cb142-22"><a href="#cb142-22" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb142-23"><a href="#cb142-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-24"><a href="#cb142-24" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb142-25"><a href="#cb142-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-26"><a href="#cb142-26" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">echo =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb142-27"><a href="#cb142-27" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb142-28"><a href="#cb142-28" aria-hidden="true" tabindex="-1"></a>For my project, I plan to analyze speeches given by world leaders at the UN Climate conferences. My goal for the past week was to get my data into good shape. Previously, I was able to import all the pdfs into R. However, I did not have metadata associated with those documents, many speeches were not in english, and the data needed to be cleaned.</span>
+<span id="cb142-29"><a href="#cb142-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-30"><a href="#cb142-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-31"><a href="#cb142-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-32"><a href="#cb142-32" aria-hidden="true" tabindex="-1"></a>My first step was to detect the language of the speeches and to subset my corpus to only include english texts. Fortunately, there were multiple packages which I could use to detect language. Ultimately I chose "cld2" which was reported to have high accuracy. After importing the files, I used the detect_language() command to create a vector representing the language of each document. Then I subsetted the data and saved a new file with only the english texts.</span>
+<span id="cb142-33"><a href="#cb142-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-34"><a href="#cb142-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-35"><a href="#cb142-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-38"><a href="#cb142-38" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb142-39"><a href="#cb142-39" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(cleanNLP)</span>
+<span id="cb142-40"><a href="#cb142-40" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidytext)</span>
+<span id="cb142-41"><a href="#cb142-41" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plyr)</span>
+<span id="cb142-42"><a href="#cb142-42" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb142-43"><a href="#cb142-43" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda)</span>
+<span id="cb142-44"><a href="#cb142-44" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pdftools)</span>
+<span id="cb142-45"><a href="#cb142-45" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda.textmodels)</span>
+<span id="cb142-46"><a href="#cb142-46" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda.textplots)</span>
+<span id="cb142-47"><a href="#cb142-47" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda.textstats)</span>
+<span id="cb142-48"><a href="#cb142-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-49"><a href="#cb142-49" aria-hidden="true" tabindex="-1"></a><span class="co">#creating list of names of files to read in</span></span>
+<span id="cb142-50"><a href="#cb142-50" aria-hidden="true" tabindex="-1"></a>file_list <span class="ot">&lt;-</span> <span class="fu">list.files</span>(<span class="at">pattern=</span><span class="st">"*.pdf"</span>)</span>
+<span id="cb142-51"><a href="#cb142-51" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb142-52"><a href="#cb142-52" aria-hidden="true" tabindex="-1"></a>all_files <span class="ot">&lt;-</span> <span class="fu">lapply</span>(file_list, <span class="cf">function</span>(file){</span>
+<span id="cb142-53"><a href="#cb142-53" aria-hidden="true" tabindex="-1"></a>  txt <span class="ot">&lt;-</span> <span class="fu">pdf_text</span>(file)</span>
+<span id="cb142-54"><a href="#cb142-54" aria-hidden="true" tabindex="-1"></a>  txt <span class="ot">&lt;-</span> <span class="fu">str_c</span>(txt, <span class="at">collapse =</span> <span class="st">" "</span>)</span>
+<span id="cb142-55"><a href="#cb142-55" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">File =</span> file,<span class="at">text =</span> txt)</span>
+<span id="cb142-56"><a href="#cb142-56" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb142-57"><a href="#cb142-57" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb142-58"><a href="#cb142-58" aria-hidden="true" tabindex="-1"></a><span class="co">#bind</span></span>
+<span id="cb142-59"><a href="#cb142-59" aria-hidden="true" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">do.call</span>(<span class="st">"rbind"</span>, all_files)</span>
+<span id="cb142-60"><a href="#cb142-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-61"><a href="#cb142-61" aria-hidden="true" tabindex="-1"></a><span class="co">#checking import worked</span></span>
+<span id="cb142-62"><a href="#cb142-62" aria-hidden="true" tabindex="-1"></a><span class="fu">View</span>(result)</span>
+<span id="cb142-63"><a href="#cb142-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-64"><a href="#cb142-64" aria-hidden="true" tabindex="-1"></a><span class="co">#detecting language? </span></span>
+<span id="cb142-65"><a href="#cb142-65" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(cld2)</span>
+<span id="cb142-66"><a href="#cb142-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-67"><a href="#cb142-67" aria-hidden="true" tabindex="-1"></a>t_start <span class="ot">=</span> <span class="fu">proc.time</span>()</span>
+<span id="cb142-68"><a href="#cb142-68" aria-hidden="true" tabindex="-1"></a>cld2_vec <span class="ot">=</span> cld2<span class="sc">::</span><span class="fu">detect_language</span>(<span class="at">text =</span> result<span class="sc">$</span>text, <span class="at">plain_text =</span> <span class="cn">TRUE</span>, <span class="at">lang_code =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb142-69"><a href="#cb142-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-70"><a href="#cb142-70" aria-hidden="true" tabindex="-1"></a><span class="co">#bind result with data</span></span>
+<span id="cb142-71"><a href="#cb142-71" aria-hidden="true" tabindex="-1"></a>result<span class="sc">$</span>language <span class="ot">&lt;-</span> cld2_vec</span>
+<span id="cb142-72"><a href="#cb142-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-73"><a href="#cb142-73" aria-hidden="true" tabindex="-1"></a><span class="co">#create subset data with only english language speeches</span></span>
+<span id="cb142-74"><a href="#cb142-74" aria-hidden="true" tabindex="-1"></a>en.result <span class="ot">&lt;-</span>result[<span class="fu">which</span>(result<span class="sc">$</span>language <span class="sc">==</span> <span class="st">"en"</span>),]</span>
+<span id="cb142-75"><a href="#cb142-75" aria-hidden="true" tabindex="-1"></a><span class="co">#Save as dataframe</span></span>
+<span id="cb142-76"><a href="#cb142-76" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(en.result, <span class="at">file =</span> <span class="st">"speeches.RData"</span>)</span>
+<span id="cb142-77"><a href="#cb142-77" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"speeches.RData"</span>)</span>
+<span id="cb142-78"><a href="#cb142-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-79"><a href="#cb142-79" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb142-80"><a href="#cb142-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-81"><a href="#cb142-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-82"><a href="#cb142-82" aria-hidden="true" tabindex="-1"></a>My next step was to get some metadata ('docvars') that I could use with my documents. The filenames in the downloaded speeches contained a lot of useful information. They had which conference the speech was from, the date the speech was delivered, and the speaker (in most cases, a country). I couldn't find anything in R to help me use the filename to extract that information (although I'm sure something exists.) What I ended up doing was exporting the list of file names from my english speeches dataframe, importing that into excel, and using a series of "TEXTBEFORE" and "TEXTAFTER" functions to isolate the information I wanted. I manually added in the year of each speech, which was easy to do after sorting the files in alphabetical order. I saved this 'metadata' as a csv. </span>
+<span id="cb142-83"><a href="#cb142-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-84"><a href="#cb142-84" aria-hidden="true" tabindex="-1"></a>After importing the csv into R, I used left_join to merge the speeches with the metadata by file name. Now when I made the speech dataframe into a corpus I was able to see my metadata. </span>
+<span id="cb142-85"><a href="#cb142-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-88"><a href="#cb142-88" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb142-89"><a href="#cb142-89" aria-hidden="true" tabindex="-1"></a><span class="co">#remove the "language" column</span></span>
+<span id="cb142-90"><a href="#cb142-90" aria-hidden="true" tabindex="-1"></a>en.result <span class="ot">&lt;-</span> en.result[,<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>)]</span>
+<span id="cb142-91"><a href="#cb142-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-92"><a href="#cb142-92" aria-hidden="true" tabindex="-1"></a><span class="co">#isolate only the filename column to export</span></span>
+<span id="cb142-93"><a href="#cb142-93" aria-hidden="true" tabindex="-1"></a>en.result.names <span class="ot">&lt;-</span> en.result[,<span class="dv">1</span>]</span>
+<span id="cb142-94"><a href="#cb142-94" aria-hidden="true" tabindex="-1"></a><span class="co">#Here I exported a csv</span></span>
+<span id="cb142-95"><a href="#cb142-95" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(en.result.names, <span class="st">"en.result.csv"</span>)</span>
+<span id="cb142-96"><a href="#cb142-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-97"><a href="#cb142-97" aria-hidden="true" tabindex="-1"></a><span class="co">#using excel "=textbefore()" and "=textafter()" commands, I was able to isolate</span></span>
+<span id="cb142-98"><a href="#cb142-98" aria-hidden="true" tabindex="-1"></a><span class="co">#Year and Speaker(country) using the file names. I saved this as a csv to import as my corpus metadata.</span></span>
+<span id="cb142-99"><a href="#cb142-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-100"><a href="#cb142-100" aria-hidden="true" tabindex="-1"></a><span class="co">#importing metadata file</span></span>
+<span id="cb142-101"><a href="#cb142-101" aria-hidden="true" tabindex="-1"></a>metadata <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"metadata_docs.csv"</span>, <span class="at">header =</span> T)</span>
+<span id="cb142-102"><a href="#cb142-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-103"><a href="#cb142-103" aria-hidden="true" tabindex="-1"></a><span class="co">#renaming column to match</span></span>
+<span id="cb142-104"><a href="#cb142-104" aria-hidden="true" tabindex="-1"></a>metadata<span class="sc">$</span>File <span class="ot">&lt;-</span> metadata<span class="sc">$</span>filename</span>
+<span id="cb142-105"><a href="#cb142-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-106"><a href="#cb142-106" aria-hidden="true" tabindex="-1"></a><span class="co">#joining my speeches with my metadata</span></span>
+<span id="cb142-107"><a href="#cb142-107" aria-hidden="true" tabindex="-1"></a>speech.meta <span class="ot">&lt;-</span> <span class="fu">left_join</span>(metadata, en.result, <span class="at">by =</span> <span class="st">"File"</span>, <span class="at">all.x =</span> T)</span>
+<span id="cb142-108"><a href="#cb142-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-109"><a href="#cb142-109" aria-hidden="true" tabindex="-1"></a><span class="co">#saving this dataframe...</span></span>
+<span id="cb142-110"><a href="#cb142-110" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(<span class="at">file =</span>  <span class="st">"speech.meta.RData"</span>, speech.meta)</span>
+<span id="cb142-111"><a href="#cb142-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-112"><a href="#cb142-112" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb142-113"><a href="#cb142-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-114"><a href="#cb142-114" aria-hidden="true" tabindex="-1"></a>Next, I needed to clean up the text and do some pre-processing. I didn't have much success using built in commands to remove numbers or other things, but a different approach using gsub() seemed to work. I'm sure the code I'm using could be simplified a lot. But at least this ended up with the result I wanted. After getting rid of things that I didn't want, I created a dfm, where I also removed stopwords and only included features which appeared a minimum of 10 times.</span>
+<span id="cb142-115"><a href="#cb142-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-118"><a href="#cb142-118" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb142-119"><a href="#cb142-119" aria-hidden="true" tabindex="-1"></a><span class="co">#Cleaning up the speeches</span></span>
+<span id="cb142-120"><a href="#cb142-120" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"speech.meta.RData"</span>)</span>
+<span id="cb142-121"><a href="#cb142-121" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> speech.meta<span class="sc">$</span>text</span>
+<span id="cb142-122"><a href="#cb142-122" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"$"</span>, <span class="st">" "</span>, text)</span>
+<span id="cb142-123"><a href="#cb142-123" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"~"</span>, <span class="st">" "</span>, text)</span>
+<span id="cb142-124"><a href="#cb142-124" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"&lt;"</span>, <span class="st">" "</span>, text)</span>
+<span id="cb142-125"><a href="#cb142-125" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"&gt;"</span>, <span class="st">" "</span>, text)</span>
+<span id="cb142-126"><a href="#cb142-126" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"1st"</span>, <span class="st">" "</span>, text)</span>
+<span id="cb142-127"><a href="#cb142-127" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"2nd"</span>, <span class="st">" "</span>, text)</span>
+<span id="cb142-128"><a href="#cb142-128" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"3rd"</span>, <span class="st">" "</span>, text)</span>
+<span id="cb142-129"><a href="#cb142-129" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"4th"</span>, <span class="st">" "</span>, text)</span>
+<span id="cb142-130"><a href="#cb142-130" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"5th"</span>, <span class="st">" "</span>, text)</span>
+<span id="cb142-131"><a href="#cb142-131" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"6th"</span>, <span class="st">" "</span>, text)</span>
+<span id="cb142-132"><a href="#cb142-132" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"7th"</span>, <span class="st">" "</span>, text)</span>
+<span id="cb142-133"><a href="#cb142-133" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"8th"</span>, <span class="st">" "</span>, text)</span>
+<span id="cb142-134"><a href="#cb142-134" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"9th"</span>, <span class="st">" "</span>, text)</span>
+<span id="cb142-135"><a href="#cb142-135" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"0th"</span>, <span class="st">" "</span>, text)</span>
+<span id="cb142-136"><a href="#cb142-136" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"1"</span>, <span class="st">" "</span>, text)</span>
+<span id="cb142-137"><a href="#cb142-137" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"2"</span>, <span class="st">" "</span>, text)</span>
+<span id="cb142-138"><a href="#cb142-138" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"3"</span>, <span class="st">" "</span>, text)</span>
+<span id="cb142-139"><a href="#cb142-139" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"4"</span>, <span class="st">" "</span>, text)</span>
+<span id="cb142-140"><a href="#cb142-140" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"5"</span>, <span class="st">" "</span>, text)</span>
+<span id="cb142-141"><a href="#cb142-141" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"6"</span>, <span class="st">" "</span>, text)</span>
+<span id="cb142-142"><a href="#cb142-142" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"7"</span>, <span class="st">" "</span>, text)</span>
+<span id="cb142-143"><a href="#cb142-143" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"8"</span>, <span class="st">" "</span>, text)</span>
+<span id="cb142-144"><a href="#cb142-144" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"9"</span>, <span class="st">" "</span>, text)</span>
+<span id="cb142-145"><a href="#cb142-145" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"0"</span>, <span class="st">" "</span>, text)</span>
+<span id="cb142-146"><a href="#cb142-146" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"%"</span>, <span class="st">" "</span>, text)</span>
+<span id="cb142-147"><a href="#cb142-147" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"#"</span>, <span class="st">" "</span>, text)</span>
+<span id="cb142-148"><a href="#cb142-148" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span><span class="fu">gsub</span>(<span class="st">" th "</span>, <span class="st">" "</span>, text)</span>
+<span id="cb142-149"><a href="#cb142-149" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span><span class="fu">gsub</span>(<span class="st">" t "</span>, <span class="st">" "</span>, text)</span>
+<span id="cb142-150"><a href="#cb142-150" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span><span class="fu">gsub</span>(<span class="st">" l "</span>, <span class="st">" "</span>, text)</span>
+<span id="cb142-151"><a href="#cb142-151" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span><span class="fu">gsub</span>(<span class="st">" d "</span>, <span class="st">" "</span>, text)</span>
+<span id="cb142-152"><a href="#cb142-152" aria-hidden="true" tabindex="-1"></a>text <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">" mr. "</span>, <span class="st">" "</span>, text)</span>
+<span id="cb142-153"><a href="#cb142-153" aria-hidden="true" tabindex="-1"></a>speech.meta<span class="sc">$</span>text <span class="ot">&lt;-</span> text</span>
+<span id="cb142-154"><a href="#cb142-154" aria-hidden="true" tabindex="-1"></a>speech.meta<span class="sc">$</span>text_field <span class="ot">&lt;-</span> speech.meta<span class="sc">$</span>text</span>
+<span id="cb142-155"><a href="#cb142-155" aria-hidden="true" tabindex="-1"></a>speech.meta<span class="sc">$</span>docid_field <span class="ot">&lt;-</span> speech.meta<span class="sc">$</span>File</span>
+<span id="cb142-156"><a href="#cb142-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-157"><a href="#cb142-157" aria-hidden="true" tabindex="-1"></a><span class="co">#Make this into a corpus</span></span>
+<span id="cb142-158"><a href="#cb142-158" aria-hidden="true" tabindex="-1"></a>speech_corpus <span class="ot">&lt;-</span> <span class="fu">corpus</span>(speech.meta)</span>
+<span id="cb142-159"><a href="#cb142-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-160"><a href="#cb142-160" aria-hidden="true" tabindex="-1"></a>speech_tokens <span class="ot">&lt;-</span> <span class="fu">tokens</span>(speech_corpus, <span class="at">remove_punc =</span> T)</span>
+<span id="cb142-161"><a href="#cb142-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-162"><a href="#cb142-162" aria-hidden="true" tabindex="-1"></a><span class="co">#Create a DFM without punctuation or stopwords</span></span>
+<span id="cb142-163"><a href="#cb142-163" aria-hidden="true" tabindex="-1"></a>dfm_speech <span class="ot">&lt;-</span> <span class="fu">dfm</span>(speech_tokens)</span>
+<span id="cb142-164"><a href="#cb142-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-165"><a href="#cb142-165" aria-hidden="true" tabindex="-1"></a>dfm_speech <span class="ot">&lt;-</span> <span class="fu">dfm_remove</span>(dfm_speech, <span class="fu">stopwords</span>(<span class="st">"english"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb142-166"><a href="#cb142-166" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dfm_trim</span>(<span class="at">min_termfreq =</span> <span class="dv">10</span>, <span class="at">verbose =</span> F)</span>
+<span id="cb142-167"><a href="#cb142-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-168"><a href="#cb142-168" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb142-169"><a href="#cb142-169" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-170"><a href="#cb142-170" aria-hidden="true" tabindex="-1"></a>Next I was excited to just explore the dfm. </span>
+<span id="cb142-173"><a href="#cb142-173" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb142-174"><a href="#cb142-174" aria-hidden="true" tabindex="-1"></a><span class="co">#get some information about the dfm</span></span>
+<span id="cb142-175"><a href="#cb142-175" aria-hidden="true" tabindex="-1"></a><span class="fu">ndoc</span>(dfm_speech)</span>
+<span id="cb142-176"><a href="#cb142-176" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">featnames</span>(dfm_speech), <span class="dv">25</span>)</span>
+<span id="cb142-177"><a href="#cb142-177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-178"><a href="#cb142-178" aria-hidden="true" tabindex="-1"></a><span class="co">#See what's common</span></span>
+<span id="cb142-179"><a href="#cb142-179" aria-hidden="true" tabindex="-1"></a><span class="fu">topfeatures</span>(dfm_speech, <span class="dv">50</span>)</span>
+<span id="cb142-180"><a href="#cb142-180" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-181"><a href="#cb142-181" aria-hidden="true" tabindex="-1"></a><span class="co">#see what's common within each year</span></span>
+<span id="cb142-182"><a href="#cb142-182" aria-hidden="true" tabindex="-1"></a><span class="fu">topfeatures</span>(dfm_speech, <span class="dv">5</span>, <span class="at">groups =</span> year)</span>
+<span id="cb142-183"><a href="#cb142-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-184"><a href="#cb142-184" aria-hidden="true" tabindex="-1"></a><span class="co">#make a wordcloud </span></span>
+<span id="cb142-185"><a href="#cb142-185" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2222</span>)</span>
+<span id="cb142-186"><a href="#cb142-186" aria-hidden="true" tabindex="-1"></a><span class="fu">textplot_wordcloud</span>(dfm_speech, <span class="at">min_count =</span> <span class="dv">100</span>, <span class="at">random_order =</span> F)</span>
+<span id="cb142-187"><a href="#cb142-187" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-188"><a href="#cb142-188" aria-hidden="true" tabindex="-1"></a>dfm<span class="fl">.1995</span> <span class="ot">&lt;-</span> <span class="fu">subset</span>(dfm_speech, year <span class="sc">==</span> <span class="st">"1995"</span>)</span>
+<span id="cb142-189"><a href="#cb142-189" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb142-190"><a href="#cb142-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-191"><a href="#cb142-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-192"><a href="#cb142-192" aria-hidden="true" tabindex="-1"></a>Finally, since I now had some metadata, I wanted to see if I could actually use it. I found some code online which was showing how to plot frequency of terms using ggplot(). I did this for the overall corpus, but could not figure out how to select specific terms and plot them by year... </span>
+<span id="cb142-193"><a href="#cb142-193" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-196"><a href="#cb142-196" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb142-197"><a href="#cb142-197" aria-hidden="true" tabindex="-1"></a><span class="co">#trying out some frequencies? gets the top 10 features overall</span></span>
+<span id="cb142-198"><a href="#cb142-198" aria-hidden="true" tabindex="-1"></a>ts_freq <span class="ot">&lt;-</span> <span class="fu">textstat_frequency</span>(dfm_speech, <span class="at">n =</span> <span class="dv">20</span>)</span>
+<span id="cb142-199"><a href="#cb142-199" aria-hidden="true" tabindex="-1"></a>ts_freq</span>
+<span id="cb142-200"><a href="#cb142-200" aria-hidden="true" tabindex="-1"></a><span class="co">#what about top features by year? </span></span>
+<span id="cb142-201"><a href="#cb142-201" aria-hidden="true" tabindex="-1"></a>ts_freq_byyear <span class="ot">&lt;-</span> <span class="fu">textstat_frequency</span>(dfm_speech, <span class="at">n =</span> <span class="dv">10</span>, <span class="at">group =</span> year)</span>
+<span id="cb142-202"><a href="#cb142-202" aria-hidden="true" tabindex="-1"></a>ts_freq_byyear</span>
+<span id="cb142-203"><a href="#cb142-203" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-204"><a href="#cb142-204" aria-hidden="true" tabindex="-1"></a>ts_freq_byspeaker <span class="ot">&lt;-</span> <span class="fu">textstat_frequency</span>(dfm_speech, <span class="at">n =</span> <span class="dv">10</span>, <span class="at">group =</span> speaker)</span>
+<span id="cb142-205"><a href="#cb142-205" aria-hidden="true" tabindex="-1"></a>ts_freq_byspeaker</span>
+<span id="cb142-206"><a href="#cb142-206" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-207"><a href="#cb142-207" aria-hidden="true" tabindex="-1"></a>topterms <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> ts_freq, <span class="fu">aes</span>(<span class="at">x =</span> feature)) <span class="sc">+</span></span>
+<span id="cb142-208"><a href="#cb142-208" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="fu">aes</span>(<span class="at">y =</span> frequency), <span class="at">stat =</span> <span class="st">"identity"</span>) <span class="sc">+</span></span>
+<span id="cb142-209"><a href="#cb142-209" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="st">"white"</span>), </span>
+<span id="cb142-210"><a href="#cb142-210" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.line =</span> <span class="fu">element_line</span>(<span class="at">colour =</span> <span class="st">"black"</span>),</span>
+<span id="cb142-211"><a href="#cb142-211" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>),</span>
+<span id="cb142-212"><a href="#cb142-212" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title.x =</span> <span class="fu">element_text</span>(<span class="at">size =</span><span class="dv">12</span>, <span class="at">vjust =</span> <span class="sc">-</span><span class="dv">1</span>),</span>
+<span id="cb142-213"><a href="#cb142-213" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span><span class="dv">12</span>),</span>
+<span id="cb142-214"><a href="#cb142-214" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.key =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb142-215"><a href="#cb142-215" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.position =</span> <span class="st">"top"</span>,</span>
+<span id="cb142-216"><a href="#cb142-216" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>),</span>
+<span id="cb142-217"><a href="#cb142-217" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.title =</span> <span class="fu">element_blank</span>())</span>
+<span id="cb142-218"><a href="#cb142-218" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-219"><a href="#cb142-219" aria-hidden="true" tabindex="-1"></a>topterms</span>
+<span id="cb142-220"><a href="#cb142-220" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb142-221"><a href="#cb142-221" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb142-222"><a href="#cb142-222" aria-hidden="true" tabindex="-1"></a>Now that my dataset is actually clean and ready to be analyzed, I'm excited to try topic modelling, to learn more about what types of stats I can calculate using the dfm, and figuring our more interesting ways to visualize the data. </span>
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+</body></html>

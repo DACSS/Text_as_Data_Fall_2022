@@ -1,0 +1,2037 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.0.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Alexis Gamez">
+<meta name="dcterms.date" content="2022-11-20">
+
+<title>Text-as-Data Fall 2022 - Blog Post #4: Word Embedding &amp; Dictionaries</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../images/DACSS_Round_Network.png" rel="icon" type="image/png">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+<meta name="twitter:title" content="Text-as-Data Fall 2022 - Blog Post #4: Word Embedding &amp; Dictionaries">
+<meta name="twitter:description" content="As with previous blog posts, I will be continuing to use the corpus I’ve built from pulling tweets from the social media platform Twitter.">
+<meta name="twitter:creator" content="@UMassDACSS">
+<meta name="twitter:card" content="summary">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <a class="navbar-brand" href="../index.html">
+    <img src="../images/UMass White Wordmark Horiz.png" alt="">
+    <span class="navbar-title">Text-as-Data Fall 2022</span>
+  </a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="https://dacss.github.io/Text_as_Data_Fall_2022/">Fall 2022</a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html">Contributors</a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://umass.edu/sbs/dacss">DACSS</a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/DACSS/Text_as_Data_Fall_2022"><i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+ </a>
+  </li>  
+</ul>
+              <div class="quarto-toggle-container">
+                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+              </div>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#setup" id="toc-setup" class="nav-link active" data-scroll-target="#setup">Setup</a></li>
+  <li><a href="#data-source" id="toc-data-source" class="nav-link" data-scroll-target="#data-source"><strong>Data Source</strong></a></li>
+  <li><a href="#goals" id="toc-goals" class="nav-link" data-scroll-target="#goals"><strong>Goals</strong></a></li>
+  <li><a href="#word-embeddings" id="toc-word-embeddings" class="nav-link" data-scroll-target="#word-embeddings"><strong>Word Embeddings</strong></a>
+  <ul class="collapse">
+  <li><a href="#pre-analysis" id="toc-pre-analysis" class="nav-link" data-scroll-target="#pre-analysis"><em>Pre-Analysis</em></a>
+  <ul class="collapse">
+  <li><a href="#tokenizing-vectorizing" id="toc-tokenizing-vectorizing" class="nav-link" data-scroll-target="#tokenizing-vectorizing">Tokenizing &amp; Vectorizing</a></li>
+  <li><a href="#fitting-out-a-glove-model" id="toc-fitting-out-a-glove-model" class="nav-link" data-scroll-target="#fitting-out-a-glove-model">Fitting out a GloVe Model</a></li>
+  </ul></li>
+  <li><a href="#cosine-similarity" id="toc-cosine-similarity" class="nav-link" data-scroll-target="#cosine-similarity"><em>Cosine Similarity</em></a></li>
+  </ul></li>
+  <li><a href="#dictionaries" id="toc-dictionaries" class="nav-link" data-scroll-target="#dictionaries"><strong>Dictionaries</strong></a>
+  <ul class="collapse">
+  <li><a href="#dictionary-analysis" id="toc-dictionary-analysis" class="nav-link" data-scroll-target="#dictionary-analysis"><em>Dictionary Analysis</em></a></li>
+  <li><a href="#dictionaries-with-dfms" id="toc-dictionaries-with-dfms" class="nav-link" data-scroll-target="#dictionaries-with-dfms"><em>Dictionaries with DFMs</em></a></li>
+  <li><a href="#using-different-dictionaries" id="toc-using-different-dictionaries" class="nav-link" data-scroll-target="#using-different-dictionaries"><em>Using Different Dictionaries</em></a></li>
+  <li><a href="#dictionaries-within-contexts" id="toc-dictionaries-within-contexts" class="nav-link" data-scroll-target="#dictionaries-within-contexts"><em>Dictionaries within Contexts</em></a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Blog Post #4: Word Embedding &amp; Dictionaries</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+  <div class="quarto-categories">
+    <div class="quarto-category">Alexis Gamez</div>
+    <div class="quarto-category">blogpost4</div>
+    <div class="quarto-category">Word Embedding</div>
+    <div class="quarto-category">Dictionary Analysis</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Alexis Gamez </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">November 20, 2022</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+</header>
+
+<section id="setup" class="level1">
+<h1>Setup</h1>
+<details>
+<summary>
+View Code
+</summary>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">warning =</span> <span class="cn">FALSE</span>, <span class="at">message =</span> <span class="cn">FALSE</span>, <span class="at">echo =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plyr)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
+✔ ggplot2 3.4.0      ✔ purrr   0.3.5 
+✔ tibble  3.1.8      ✔ dplyr   1.0.10
+✔ tidyr   1.2.1      ✔ stringr 1.4.1 
+✔ readr   2.1.3      ✔ forcats 0.5.2 </code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'ggplot2' was built under R version 4.2.2</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::arrange()   masks plyr::arrange()
+✖ purrr::compact()   masks plyr::compact()
+✖ dplyr::count()     masks plyr::count()
+✖ dplyr::failwith()  masks plyr::failwith()
+✖ dplyr::filter()    masks stats::filter()
+✖ dplyr::id()        masks plyr::id()
+✖ dplyr::lag()       masks stats::lag()
+✖ dplyr::mutate()    masks plyr::mutate()
+✖ dplyr::rename()    masks plyr::rename()
+✖ dplyr::summarise() masks plyr::summarise()
+✖ dplyr::summarize() masks plyr::summarize()</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidytext)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(devtools)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: usethis</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'data.table'
+
+The following objects are masked from 'package:dplyr':
+
+    between, first, last
+
+The following object is masked from 'package:purrr':
+
+    transpose</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rvest)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'rvest' was built under R version 4.2.2</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'rvest'
+
+The following object is masked from 'package:readr':
+
+    guess_encoding</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rtweet)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'rtweet'
+
+The following object is masked from 'package:purrr':
+
+    flatten</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(twitteR)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'twitteR'
+
+The following object is masked from 'package:rtweet':
+
+    lookup_statuses
+
+The following objects are masked from 'package:dplyr':
+
+    id, location
+
+The following object is masked from 'package:plyr':
+
+    id</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: NLP
+
+Attaching package: 'NLP'
+
+The following object is masked from 'package:ggplot2':
+
+    annotate</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'lubridate'
+
+The following objects are masked from 'package:data.table':
+
+    hour, isoweek, mday, minute, month, quarter, second, wday, week,
+    yday, year
+
+The following objects are masked from 'package:base':
+
+    date, intersect, setdiff, union</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>Package version: 3.2.3
+Unicode version: 13.0
+ICU version: 69.1
+Parallel computing: 8 of 8 threads used.
+See https://quanteda.io for tutorials and examples.
+
+Attaching package: 'quanteda'
+
+The following object is masked from 'package:tm':
+
+    stopwords
+
+The following objects are masked from 'package:NLP':
+
+    meta, meta&lt;-</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda.textplots)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda.textstats)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'quanteda.textstats' was built under R version 4.2.2</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(wordcloud)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: RColorBrewer</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(text2vec)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'text2vec' was built under R version 4.2.2</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(devtools)</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="co"># devtools::install_github("kbenoit/quanteda.dictionaries")</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda.dictionaries)</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="co"># remotes::install_github("quanteda/quanteda.sentiment")</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda.sentiment)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'quanteda.sentiment'
+
+The following object is masked from 'package:quanteda':
+
+    data_dictionary_LSD2015</code></pre>
+</div>
+</div>
+</details>
+</section>
+<section id="data-source" class="level1">
+<h1><strong>Data Source</strong></h1>
+<p>As with previous blog posts, I will be continuing to use the corpus I’ve built from pulling tweets from the social media platform Twitter. All tweets have been pulled with relevance to the key words and phrases of <code>eating bugs</code> and <code>eating insects</code>. The CSV file we will eventually read in is a compilation of such tweets extracted between the dates of November 3rd and November 13th.</p>
+</section>
+<section id="goals" class="level1">
+<h1><strong>Goals</strong></h1>
+<p>For this post, I’m going to be exploring the use of word embedding, &amp; dictionary methods within my corpus. I will exclusively be utilizing the techniques found within tutorials 7 &amp; 8. As to whether each technique is effectively useful to our analysis is to be determined by our experimentation.</p>
+</section>
+<section id="word-embeddings" class="level1">
+<h1><strong>Word Embeddings</strong></h1>
+<section id="pre-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="pre-analysis"><em>Pre-Analysis</em></h2>
+<p>I start off by reading in my corpus as the <code>bug_tweets</code> object. Then, we’ll work to tokenize and vectorize the corpus. We’ll be using the <code>text2vec</code> package heavily in this section.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># First we're going to read in our existing corpus, calling to the csv file we created in blog post #2</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>bug_tweets <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"eating_bugs_tweets_11_13_22.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in file(file, "rt"): cannot open the connection</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(bug_tweets, <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in head(bug_tweets, 10): object 'bug_tweets' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(bug_tweets)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'bug_tweets' not found</code></pre>
+</div>
+</div>
+<section id="tokenizing-vectorizing" class="level3">
+<h3 class="anchored" data-anchor-id="tokenizing-vectorizing">Tokenizing &amp; Vectorizing</h3>
+<p>Now that we’ve read in our <code>bug_tweets</code> object, we’ll be using <code>word_tokenizer</code> to tokenize our documents into a new object, <code>bug_tokens</code>.</p>
+<details>
+<summary>
+View Code
+</summary>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Tokenizing the corpus</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>bug_tokens <span class="ot">&lt;-</span> <span class="fu">word_tokenizer</span>(bug_tweets)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in stringi::stri_split_boundaries(strings, type = "word", skip_word_none = TRUE): object 'bug_tweets' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(bug_tokens, <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in head(bug_tokens, 5): object 'bug_tokens' not found</code></pre>
+</div>
+</div>
+</details>
+<p>With the token object created, we can move to creating an iterator object and begin building the vocabulary we’re going to be using in this section.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create an iterator</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>it <span class="ot">&lt;-</span> <span class="fu">itoken</span>(bug_tokens, <span class="at">progressbar =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in itoken(bug_tokens, progressbar = FALSE): object 'bug_tokens' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Then we're going to build the vocabulary</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>vocab <span class="ot">&lt;-</span> <span class="fu">create_vocabulary</span>(it)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in create_vocabulary(it): object 'it' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calling the vocab object</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>vocab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'vocab' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calling for the dimensions of our vocabulary object</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(vocab)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'vocab' not found</code></pre>
+</div>
+</div>
+<p>With the <code>vocab</code> object created, we can now prune and vectorize it. While vectorizing is pretty self explanatory (coercing our vocab object into a vector), pruning simply trims down our object and removes words that aren’t mentioned above a certain number of times. In this case, that threshold is a minimum of 5 times. All tokens not mentioned at least 5 times will be dropped from our object.</p>
+<details>
+<summary>
+View Code
+</summary>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Now we're going to prune the vocabulary</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>vocab <span class="ot">&lt;-</span> <span class="fu">prune_vocabulary</span>(vocab, <span class="at">term_count_min =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in prune_vocabulary(vocab, term_count_min = 5): object 'vocab' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Checking the dimensions of the vocab list again shows how much we were able to cut down the original list</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(vocab)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'vocab' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Now we're going to vectorize our vocab</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>vectorizer <span class="ot">&lt;-</span> <span class="fu">vocab_vectorizer</span>(vocab)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in force(vocabulary): object 'vocab' not found</code></pre>
+</div>
+</div>
+</details>
+<p>Finally, we’re going to create a term co-occurrence matrix. We’re going to be sticking to a skip gram window of 5 considering we don’t have a massive corpus.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating a term co-occurrence matrix</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>tcm <span class="ot">&lt;-</span> <span class="fu">create_tcm</span>(it, vectorizer, <span class="at">skip_grams_window =</span> 5L)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in create_tcm(it, vectorizer, skip_grams_window = 5L): object 'it' not found</code></pre>
+</div>
+</div>
+</section>
+<section id="fitting-out-a-glove-model" class="level3">
+<h3 class="anchored" data-anchor-id="fitting-out-a-glove-model">Fitting out a GloVe Model</h3>
+<p>We have a Term Co-Occurrence Matrix! With our TCM created, let’s move to creating a GloVe model and fitting it to objectively fit our analysis.</p>
+<details>
+<summary>
+View Code
+</summary>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating GloVe model</span></span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>bug_glove <span class="ot">&lt;-</span> GlobalVectors<span class="sc">$</span><span class="fu">new</span>(<span class="at">rank =</span> <span class="dv">50</span>, <span class="at">x_max =</span> <span class="dv">10</span>)</span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>bug_glove</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;GloVe&gt;
+  Public:
+    bias_i: NULL
+    bias_j: NULL
+    clone: function (deep = FALSE) 
+    components: NULL
+    fit_transform: function (x, n_iter = 10L, convergence_tol = -1, n_threads = getOption("rsparse_omp_threads", 
+    get_history: function () 
+    initialize: function (rank, x_max, learning_rate = 0.15, alpha = 0.75, lambda = 0, 
+    shuffle: FALSE
+  Private:
+    alpha: 0.75
+    b_i: NULL
+    b_j: NULL
+    cost_history: 
+    fitted: FALSE
+    glove_fitter: NULL
+    initial: NULL
+    lambda: 0
+    learning_rate: 0.15
+    rank: 50
+    w_i: NULL
+    w_j: NULL
+    x_max: 10</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating the fitting model here</span></span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>bug_main <span class="ot">&lt;-</span> bug_glove<span class="sc">$</span><span class="fu">fit_transform</span>(tcm, <span class="at">n_iter=</span> <span class="dv">10</span>, </span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>                                <span class="at">convergence_tol =</span> <span class="fl">0.01</span>,</span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a>                                <span class="at">n_threads =</span> <span class="dv">8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in .class1(object): object 'tcm' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(bug_main)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'bug_main' not found</code></pre>
+</div>
+</div>
+</details>
+<p>We’ve now created our <code>target</code> word vector. As stated in tutorial 7, the <code>target</code> word vector can be thought of as the words of interest we seek within our corpus, while all other words would be considered to be a part of the <code>context</code> word vector. We’ll be creating the <code>context</code> vector now.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Since we've created the `main` target vector, we're going to create a context vector now</span></span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>bug_context <span class="ot">&lt;-</span> bug_glove<span class="sc">$</span>components</span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(bug_context)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>NULL</code></pre>
+</div>
+</div>
+<p>With the <code>target</code> and <code>context</code> vectors made, we can create a word vector matrix by taking the sum of both.</p>
+<details>
+<summary>
+View Code
+</summary>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating vector matrix</span></span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>bug_vectors <span class="ot">&lt;-</span> bug_main <span class="sc">+</span> <span class="fu">t</span>(bug_context)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'bug_main' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>bug_vectors</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'bug_vectors' not found</code></pre>
+</div>
+</div>
+</details>
+<p>Now that the word vector matrix has been created, we’re free to begin our analysis using Cosine Similarity.</p>
+</section>
+</section>
+<section id="cosine-similarity" class="level2">
+<h2 class="anchored" data-anchor-id="cosine-similarity"><em>Cosine Similarity</em></h2>
+<p>The logic behind Cosine Similarity looks to find the correlation between two vectors (i.e.&nbsp;our <code>target</code> and <code>context</code> vectors).The functions below are fed our word vector matrix and a token of our selection in an attempt to find any correlation with said token and others within our corpus. I decided to start off by testing the word “cricket” as it seemed the most direct (aside from “eating”, “bugs” and “insects”) while maintaining an air of objectivity.</p>
+<details>
+<summary>
+View Code
+</summary>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="co"># We're going to test out Cosine Similarity now by running the following functions.</span></span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a>cricket <span class="ot">&lt;-</span> bug_vectors[<span class="st">"Cricket"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'bug_vectors' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>cricket_cos_sim <span class="ot">&lt;-</span> <span class="fu">sim2</span>(<span class="at">x =</span> bug_vectors, <span class="at">y =</span> cricket, </span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a>                       <span class="at">method =</span> <span class="st">"cosine"</span>, <span class="at">norm =</span> <span class="st">"l2"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in stopifnot(inherits(x, "matrix") || inherits(x, "Matrix")): object 'bug_vectors' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>cricket_cos_sim</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'cricket_cos_sim' not found</code></pre>
+</div>
+</div>
+</details>
+<p>We can see some interesting results here, mostly that the most similar words (other than the word “cricket” itself), according to cosine similarity, are an assortment of seemingly negative ones. I say seemingly here because, without proper context, there’s no way of definitively understanding the intended sentiment behind it. With that said, we can still take some educated guessed. In this case, we see objectively negative words such as “nope”, “crap”, “mandatory”, “nobody”, and “bother” near the top. Let’s run a couple more tests and see what else pops up.</p>
+<details>
+<summary>
+View Code
+</summary>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>right_wing <span class="ot">&lt;-</span> bug_vectors[<span class="st">"POTUS"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>] <span class="sc">-</span></span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a>     bug_vectors[<span class="st">"liberals"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>] <span class="sc">+</span></span>
+<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a>     bug_vectors[<span class="st">"Conservative"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'bug_vectors' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>right_wing_cos_sim <span class="ot">=</span> <span class="fu">sim2</span>(<span class="at">x =</span> bug_vectors, <span class="at">y =</span> right_wing, <span class="at">method =</span> <span class="st">"cosine"</span>, <span class="at">norm =</span> <span class="st">"l2"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in stopifnot(inherits(x, "matrix") || inherits(x, "Matrix")): object 'bug_vectors' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>right_wing_cos_sim</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'right_wing_cos_sim' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a>conservative <span class="ot">&lt;-</span> bug_vectors[<span class="st">"POTUS"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>] <span class="sc">-</span></span>
+<span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a>     bug_vectors[<span class="st">"JoeBiden"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>] <span class="sc">+</span></span>
+<span id="cb80-3"><a href="#cb80-3" aria-hidden="true" tabindex="-1"></a>     bug_vectors[<span class="st">"Trump"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'bug_vectors' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a>conservative_cos_sim <span class="ot">=</span> <span class="fu">sim2</span>(<span class="at">x =</span> bug_vectors, <span class="at">y =</span> conservative, <span class="at">method =</span> <span class="st">"cosine"</span>, <span class="at">norm =</span> <span class="st">"l2"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in stopifnot(inherits(x, "matrix") || inherits(x, "Matrix")): object 'bug_vectors' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb84"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a>conservative_cos_sim</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'conservative_cos_sim' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb86"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a>liberal <span class="ot">&lt;-</span> bug_vectors[<span class="st">"POTUS"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>] <span class="sc">-</span></span>
+<span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a>     bug_vectors[<span class="st">"Trump"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>] <span class="sc">+</span></span>
+<span id="cb86-3"><a href="#cb86-3" aria-hidden="true" tabindex="-1"></a>     bug_vectors[<span class="st">"JoeBiden"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'bug_vectors' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a>liberal_cos_sim <span class="ot">=</span> <span class="fu">sim2</span>(<span class="at">x =</span> bug_vectors, <span class="at">y =</span> liberal, <span class="at">method =</span> <span class="st">"cosine"</span>, <span class="at">norm =</span> <span class="st">"l2"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in stopifnot(inherits(x, "matrix") || inherits(x, "Matrix")): object 'bug_vectors' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a>liberal_cos_sim</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'liberal_cos_sim' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a>eating_bugs <span class="ot">&lt;-</span> bug_vectors[<span class="st">"eating"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>] <span class="sc">-</span></span>
+<span id="cb92-2"><a href="#cb92-2" aria-hidden="true" tabindex="-1"></a>     bug_vectors[<span class="st">"meat"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>] <span class="sc">+</span></span>
+<span id="cb92-3"><a href="#cb92-3" aria-hidden="true" tabindex="-1"></a>     bug_vectors[<span class="st">"insects"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>] <span class="sc">+</span></span>
+<span id="cb92-4"><a href="#cb92-4" aria-hidden="true" tabindex="-1"></a>     bug_vectors[<span class="st">"bugs"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'bug_vectors' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a>eating_bugs_cos_sim <span class="ot">=</span> <span class="fu">sim2</span>(<span class="at">x =</span> bug_vectors, <span class="at">y =</span> eating_bugs, <span class="at">method =</span> <span class="st">"cosine"</span>, <span class="at">norm =</span> <span class="st">"l2"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in stopifnot(inherits(x, "matrix") || inherits(x, "Matrix")): object 'bug_vectors' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb96"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a>eating_bugs_cos_sim</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'eating_bugs_cos_sim' not found</code></pre>
+</div>
+</div>
+</details>
+<p>There are some interesting results here, primarily those cosine similarities that are politically oriented. We see in the results for the last <code>eating_bugs</code> chunk of code that there’s a bit of obstruction per many stop words that our pruning didn’t seem to eliminate. Either that or the code we did write needs a little work. Either way, we can effectively see some sentiment behind the previous code and key words, let’s see if we can rework the last bit of coding just a bit before we move on from cosine similarities.</p>
+<details>
+<summary>
+View Code
+</summary>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb98"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a>eating_insects <span class="ot">&lt;-</span> bug_vectors[<span class="st">"eating"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>] <span class="sc">-</span></span>
+<span id="cb98-2"><a href="#cb98-2" aria-hidden="true" tabindex="-1"></a>     bug_vectors[<span class="st">"meat"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>] <span class="sc">+</span></span>
+<span id="cb98-3"><a href="#cb98-3" aria-hidden="true" tabindex="-1"></a>     bug_vectors[<span class="st">"insects"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'bug_vectors' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb100"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a href="#cb100-1" aria-hidden="true" tabindex="-1"></a>eating_insects_cos_sim <span class="ot">=</span> <span class="fu">sim2</span>(<span class="at">x =</span> bug_vectors, <span class="at">y =</span> eating_bugs, <span class="at">method =</span> <span class="st">"cosine"</span>, <span class="at">norm =</span> <span class="st">"l2"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in stopifnot(inherits(x, "matrix") || inherits(x, "Matrix")): object 'bug_vectors' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb102"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a href="#cb102-1" aria-hidden="true" tabindex="-1"></a>eating_bugs <span class="ot">&lt;-</span> bug_vectors[<span class="st">"eating"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>] <span class="sc">-</span></span>
+<span id="cb102-2"><a href="#cb102-2" aria-hidden="true" tabindex="-1"></a>     bug_vectors[<span class="st">"meat"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>] <span class="sc">+</span></span>
+<span id="cb102-3"><a href="#cb102-3" aria-hidden="true" tabindex="-1"></a>     bug_vectors[<span class="st">"bugs"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'bug_vectors' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb104"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a>eating_bugs_cos_sim <span class="ot">=</span> <span class="fu">sim2</span>(<span class="at">x =</span> bug_vectors, <span class="at">y =</span> eating_bugs, <span class="at">method =</span> <span class="st">"cosine"</span>, <span class="at">norm =</span> <span class="st">"l2"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in stopifnot(inherits(x, "matrix") || inherits(x, "Matrix")): object 'bug_vectors' not found</code></pre>
+</div>
+</div>
+</details>
+<p>We still see the same skewing of results, even after simplifying our code. What we’ll have to decide from here, is whether it’s worth returning to the pre-processing stage and filtering out stop words from our corpus or whether we should include word embedding in our analysis at all. For now, we’ll move on from cosine similarity tests.</p>
+</section>
+</section>
+<section id="dictionaries" class="level1">
+<h1><strong>Dictionaries</strong></h1>
+<p>Next we’re going to make use of quanteda’s dictionary package. We’re going to start by reading in our data set again to reset it’s properties and convert it into a <code>corpus</code>.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb106"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a>bug_tweets <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"eating_bugs_tweets_11_13_22.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in file(file, "rt"): cannot open the connection</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb108"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true" tabindex="-1"></a>bug_corpus <span class="ot">&lt;-</span> <span class="fu">corpus</span>(bug_tweets<span class="sc">$</span>x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in corpus(bug_tweets$x): object 'bug_tweets' not found</code></pre>
+</div>
+</div>
+<section id="dictionary-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="dictionary-analysis"><em>Dictionary Analysis</em></h2>
+<p>With our corpus loaded in, we can begin taking a stab at different dictionary analysis methods. In this case, we’re going to start by using the NRC dictionary which will attempt to calculate a percentage of the the documents within our corpus that reflect certain emotional characteristics. The NRC dictionary refers to the NRC Emotion Lexicon which associates words with certain emotions.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb110"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb110-1"><a href="#cb110-1" aria-hidden="true" tabindex="-1"></a>bug_sentiment_nrc <span class="ot">&lt;-</span> <span class="fu">liwcalike</span>(bug_corpus, data_dictionary_NRC)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in liwcalike(bug_corpus, data_dictionary_NRC): object 'bug_corpus' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb112"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb112-1"><a href="#cb112-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The function below provides us with the column names within our new `bug_sentiment_nrc` object</span></span>
+<span id="cb112-2"><a href="#cb112-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(bug_sentiment_nrc)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'bug_sentiment_nrc' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb114"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb114-1"><a href="#cb114-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(bug_sentiment_nrc) <span class="sc">+</span></span>
+<span id="cb114-2"><a href="#cb114-2" aria-hidden="true" tabindex="-1"></a>     <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">x =</span> positive), <span class="at">binwidth =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb114-3"><a href="#cb114-3" aria-hidden="true" tabindex="-1"></a>     <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in ggplot(bug_sentiment_nrc): object 'bug_sentiment_nrc' not found</code></pre>
+</div>
+</div>
+<p>We see some interesting results here after plotting our data, specifically, a lack of positive documents within our corpus. Additionally, according to our analysis, a majority of the documents are appearing as neutral sitting at a 0 “positive” score. First, let’s take a look at some positive texts to see what we’re dealing with.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb116"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb116-1"><a href="#cb116-1" aria-hidden="true" tabindex="-1"></a>bug_corpus[<span class="fu">which</span>(bug_sentiment_nrc<span class="sc">$</span>positive <span class="sc">&gt;</span> <span class="dv">15</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'bug_corpus' not found</code></pre>
+</div>
+</div>
+<p>Something we can immediately see is that, while there are some positive sentiments referring to our eating bugs corpus, our code can’t seem to pick up on all nuances of twitter based dialect. Let’s look at this selection more thoroughly.</p>
+<details>
+<summary>
+View Code
+</summary>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb118"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb118-1"><a href="#cb118-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(bug_corpus[<span class="fu">which</span>(bug_sentiment_nrc<span class="sc">$</span>positive <span class="sc">&gt;</span> <span class="dv">15</span>)])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in table(bug_corpus[which(bug_sentiment_nrc$positive &gt; 15)]): object 'bug_corpus' not found</code></pre>
+</div>
+</div>
+</details>
+<p>Even at a glance, I think is alright to assume that a majority of there “positive” reviews contain heavy sarcasm and satirical language. I think this is something we can remedy through the use of different dictionaries. For now, we’re going to continue with the NRC dictionary and take a look at the most negative documents.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb120"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb120-1"><a href="#cb120-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(bug_sentiment_nrc) <span class="sc">+</span></span>
+<span id="cb120-2"><a href="#cb120-2" aria-hidden="true" tabindex="-1"></a>     <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">x =</span> negative), <span class="at">binwidth =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb120-3"><a href="#cb120-3" aria-hidden="true" tabindex="-1"></a>     <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in ggplot(bug_sentiment_nrc): object 'bug_sentiment_nrc' not found</code></pre>
+</div>
+</div>
+<p>Right off the bat, we see that there is a higher spread of negative values from our plot. While the positive results were more concentrated toward the lower values of positivity, the negative values are more diverse in negative values. Also I noticed that, for some reason, there are more documents valued as neutral in the negative plot than the positive one. Let’s take a deeper look into the negative documents as we did with the positive ones.</p>
+<details>
+<summary>
+View Code
+</summary>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb122"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb122-1"><a href="#cb122-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(bug_corpus[<span class="fu">which</span>(bug_sentiment_nrc<span class="sc">$</span>negative <span class="sc">&gt;</span> <span class="dv">15</span>)])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in table(bug_corpus[which(bug_sentiment_nrc$negative &gt; 15)]): object 'bug_corpus' not found</code></pre>
+</div>
+</div>
+</details>
+<p>Noticeably, I can see that a majority of the documents presented from this function are indeed negative! There are still some language nuances that NRC can’t seem to pick up on, but it’s interesting to see the quantity and intensity of the negative documents within our corpus.</p>
+<p>Having isolated both positive and negative results, let’s try analyzing our corpus by incorporating both sides of the proverbial coin.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb124"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb124-1"><a href="#cb124-1" aria-hidden="true" tabindex="-1"></a>bug_sentiment_nrc<span class="sc">$</span>polarity <span class="ot">&lt;-</span> bug_sentiment_nrc<span class="sc">$</span>positive <span class="sc">-</span> bug_sentiment_nrc<span class="sc">$</span>negative</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'bug_sentiment_nrc' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb126"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb126-1"><a href="#cb126-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(bug_sentiment_nrc) <span class="sc">+</span></span>
+<span id="cb126-2"><a href="#cb126-2" aria-hidden="true" tabindex="-1"></a>     <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(polarity), <span class="at">binwidth =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb126-3"><a href="#cb126-3" aria-hidden="true" tabindex="-1"></a>     <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in ggplot(bug_sentiment_nrc): object 'bug_sentiment_nrc' not found</code></pre>
+</div>
+</div>
+<p>It seems that our previous observations are still consistent here. There isn’t much else to take away other than the fact that there seems to be a higher concentration of positive documents than negative, which is unexpected. I suspect that the NRC dictionary we’re using is heavily skewing the results. The fact that there are so many neutral valued documents further fortifies my suspicions.</p>
+</section>
+<section id="dictionaries-with-dfms" class="level2">
+<h2 class="anchored" data-anchor-id="dictionaries-with-dfms"><em>Dictionaries with DFMs</em></h2>
+<p>Next, we’re going to be utilizing dictionary analysis methods that utilize DFMs as opposed to the corpus.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb128"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb128-1"><a href="#cb128-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Here we are coercing our corpus into a dfm without using the NRC dictionary. </span></span>
+<span id="cb128-2"><a href="#cb128-2" aria-hidden="true" tabindex="-1"></a>bug_dfm <span class="ot">&lt;-</span> <span class="fu">tokens</span>(bug_corpus,</span>
+<span id="cb128-3"><a href="#cb128-3" aria-hidden="true" tabindex="-1"></a>                         <span class="at">remove_punct =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb128-4"><a href="#cb128-4" aria-hidden="true" tabindex="-1"></a>                         <span class="at">remove_symbols =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb128-5"><a href="#cb128-5" aria-hidden="true" tabindex="-1"></a>                         <span class="at">remove_numbers =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb128-6"><a href="#cb128-6" aria-hidden="true" tabindex="-1"></a>                         <span class="at">remove_url =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb128-7"><a href="#cb128-7" aria-hidden="true" tabindex="-1"></a>                         <span class="at">split_hyphens =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb128-8"><a href="#cb128-8" aria-hidden="true" tabindex="-1"></a>                         <span class="at">include_docvars =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb128-9"><a href="#cb128-9" aria-hidden="true" tabindex="-1"></a>                         <span class="fu">tokens_tolower</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb128-10"><a href="#cb128-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dfm</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in tokens(bug_corpus, remove_punct = TRUE, remove_symbols = TRUE, : object 'bug_corpus' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb130"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb130-1"><a href="#cb130-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Now we'll coerce our corpus to a dfm using the NRC dictionary</span></span>
+<span id="cb130-2"><a href="#cb130-2" aria-hidden="true" tabindex="-1"></a>bug_dfm_nrc <span class="ot">&lt;-</span> <span class="fu">tokens</span>(bug_corpus,</span>
+<span id="cb130-3"><a href="#cb130-3" aria-hidden="true" tabindex="-1"></a>                         <span class="at">remove_punct =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb130-4"><a href="#cb130-4" aria-hidden="true" tabindex="-1"></a>                         <span class="at">remove_symbols =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb130-5"><a href="#cb130-5" aria-hidden="true" tabindex="-1"></a>                         <span class="at">remove_numbers =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb130-6"><a href="#cb130-6" aria-hidden="true" tabindex="-1"></a>                         <span class="at">remove_url =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb130-7"><a href="#cb130-7" aria-hidden="true" tabindex="-1"></a>                         <span class="at">split_hyphens =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb130-8"><a href="#cb130-8" aria-hidden="true" tabindex="-1"></a>                         <span class="at">include_docvars =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb130-9"><a href="#cb130-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tokens_tolower</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb130-10"><a href="#cb130-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dfm</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb130-11"><a href="#cb130-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dfm_lookup</span>(data_dictionary_NRC)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in tokens(bug_corpus, remove_punct = TRUE, remove_symbols = TRUE, : object 'bug_corpus' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb132"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb132-1"><a href="#cb132-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(bug_dfm_nrc, <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in head(bug_dfm_nrc, 10): object 'bug_dfm_nrc' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb134"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb134-1"><a href="#cb134-1" aria-hidden="true" tabindex="-1"></a><span class="co"># These functions can be run to provide some more details behind our new bug_dfm_nrc object</span></span>
+<span id="cb134-2"><a href="#cb134-2" aria-hidden="true" tabindex="-1"></a><span class="co"># dim(bug_dfm_nrc)</span></span>
+<span id="cb134-3"><a href="#cb134-3" aria-hidden="true" tabindex="-1"></a><span class="co"># class(bug_dfm_nrc)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Compared to the standard dfm (w/o dictionaries) we can see there’s a bit more diversity in terms of polarity measures. Instead of counts for each token we analyze, we can categorize all tokens into different sentiments which may serve us some good. Next, we’re going to be converting the dictionary dfm into a dataframe. From there, we can create a polarity measure and attempt to visualize the data similarly to how we did prior to converting to dfm.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb135"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb135-1"><a href="#cb135-1" aria-hidden="true" tabindex="-1"></a>bug_df_nrc <span class="ot">&lt;-</span> <span class="fu">convert</span>(bug_dfm_nrc, <span class="at">to =</span> <span class="st">"data.frame"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in convert(bug_dfm_nrc, to = "data.frame"): object 'bug_dfm_nrc' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb137"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb137-1"><a href="#cb137-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Again, these provide the sentiment categories to which we'll be arranging our data</span></span>
+<span id="cb137-2"><a href="#cb137-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(bug_df_nrc)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'bug_df_nrc' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb139"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb139-1"><a href="#cb139-1" aria-hidden="true" tabindex="-1"></a>bug_df_nrc<span class="sc">$</span>polarity <span class="ot">&lt;-</span> (bug_df_nrc<span class="sc">$</span>positive <span class="sc">-</span> bug_df_nrc<span class="sc">$</span>negative)<span class="sc">/</span>(bug_df_nrc<span class="sc">$</span>positive <span class="sc">+</span> bug_df_nrc<span class="sc">$</span>negative)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'bug_df_nrc' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb141"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb141-1"><a href="#cb141-1" aria-hidden="true" tabindex="-1"></a>bug_df_nrc<span class="sc">$</span>polarity[(bug_df_nrc<span class="sc">$</span>positive <span class="sc">+</span> bug_df_nrc<span class="sc">$</span>negative) <span class="sc">==</span> <span class="dv">0</span>] <span class="ot">&lt;-</span> <span class="dv">0</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in bug_df_nrc$polarity[(bug_df_nrc$positive + bug_df_nrc$negative) == : object 'bug_df_nrc' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb143"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb143-1"><a href="#cb143-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(bug_df_nrc) <span class="sc">+</span></span>
+<span id="cb143-2"><a href="#cb143-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">x=</span>polarity), <span class="at">binwidth =</span> .<span class="dv">25</span>) <span class="sc">+</span></span>
+<span id="cb143-3"><a href="#cb143-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in ggplot(bug_df_nrc): object 'bug_df_nrc' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb145"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb145-1"><a href="#cb145-1" aria-hidden="true" tabindex="-1"></a><span class="co"># This function provides us with the most positive reviews ranked at a value of 1</span></span>
+<span id="cb145-2"><a href="#cb145-2" aria-hidden="true" tabindex="-1"></a><span class="fu">writeLines</span>(<span class="fu">head</span>(bug_corpus[<span class="fu">which</span>(bug_df_nrc<span class="sc">$</span>polarity <span class="sc">==</span> <span class="dv">1</span>)]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in head(bug_corpus[which(bug_df_nrc$polarity == 1)]): object 'bug_corpus' not found</code></pre>
+</div>
+</div>
+<p>Interestingly, we receive very similar results to those we received when using dictionaries without coercing to dfm. While not surprised, our operations are still struggling to define what is positive and negative accurately according to our <code>writeLines</code> function.</p>
+</section>
+<section id="using-different-dictionaries" class="level2">
+<h2 class="anchored" data-anchor-id="using-different-dictionaries"><em>Using Different Dictionaries</em></h2>
+<p>Seeing as the NRC dictionary didn’t exactly give us what we wanted to see, we’re going to test drive a few other options we have. We’ll start with the General Inquirer dictionary.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb147"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb147-1"><a href="#cb147-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Here we're re-converting our corpus to a dfm using the general inquirer dictionary</span></span>
+<span id="cb147-2"><a href="#cb147-2" aria-hidden="true" tabindex="-1"></a>bug_dfm_geninq <span class="ot">&lt;-</span> bug_dfm <span class="sc">%&gt;%</span></span>
+<span id="cb147-3"><a href="#cb147-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dfm_lookup</span>(data_dictionary_geninqposneg)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in dfm_lookup(., data_dictionary_geninqposneg): object 'bug_dfm' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb149"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb149-1"><a href="#cb149-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(bug_dfm_geninq, <span class="dv">6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in head(bug_dfm_geninq, 6): object 'bug_dfm_geninq' not found</code></pre>
+</div>
+</div>
+<p>We can see here that the general inquirer dictionary, as opposed NRC, splits sentiments into only 2 categories. Positive and Negative. From the surface, it already looks like we’re going to be getting a majority positive. Let’s continue.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb151"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb151-1"><a href="#cb151-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create polarity measure for `geninq`</span></span>
+<span id="cb151-2"><a href="#cb151-2" aria-hidden="true" tabindex="-1"></a>bug_df_geninq <span class="ot">&lt;-</span> <span class="fu">convert</span>(bug_dfm_geninq, <span class="at">to =</span> <span class="st">"data.frame"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in convert(bug_dfm_geninq, to = "data.frame"): object 'bug_dfm_geninq' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb153"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb153-1"><a href="#cb153-1" aria-hidden="true" tabindex="-1"></a>bug_df_geninq<span class="sc">$</span>polarity <span class="ot">&lt;-</span> (bug_df_geninq<span class="sc">$</span>positive <span class="sc">-</span> bug_df_geninq<span class="sc">$</span>negative)<span class="sc">/</span>(bug_df_geninq<span class="sc">$</span>positive <span class="sc">+</span> bug_df_geninq<span class="sc">$</span>negative)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'bug_df_geninq' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb155"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb155-1"><a href="#cb155-1" aria-hidden="true" tabindex="-1"></a>bug_df_geninq<span class="sc">$</span>polarity[<span class="fu">which</span>((bug_df_geninq<span class="sc">$</span>positive <span class="sc">+</span> bug_df_geninq<span class="sc">$</span>negative) <span class="sc">==</span> <span class="dv">0</span>)] <span class="ot">&lt;-</span> <span class="dv">0</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in bug_df_geninq$polarity[which((bug_df_geninq$positive + bug_df_geninq$negative) == : object 'bug_df_geninq' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb157"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb157-1"><a href="#cb157-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(bug_df_geninq)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in head(bug_df_geninq): object 'bug_df_geninq' not found</code></pre>
+</div>
+</div>
+<p>Here we can see a bit of the logic behind the polarity scaling. We can also see that tokens of opposite polarities nullify each other, making it so that the documents are rated as a neutral 0. Interesting, but I’m not sure if it’s all that useful toward our analysis.</p>
+<details>
+<summary>
+View Code
+</summary>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb159"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb159-1"><a href="#cb159-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Let's create unique names for each data frame</span></span>
+<span id="cb159-2"><a href="#cb159-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(bug_df_nrc) <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="st">"nrc"</span>, <span class="fu">colnames</span>(bug_df_nrc), <span class="at">sep =</span> <span class="st">"_"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in is.data.frame(x): object 'bug_df_nrc' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb161"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb161-1"><a href="#cb161-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(bug_df_geninq) <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="st">"geninq"</span>, <span class="fu">colnames</span>(bug_df_geninq), <span class="at">sep =</span> <span class="st">"_"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in is.data.frame(x): object 'bug_df_geninq' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb163"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb163-1"><a href="#cb163-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Now let's compare our estimates</span></span>
+<span id="cb163-2"><a href="#cb163-2" aria-hidden="true" tabindex="-1"></a>sent_df <span class="ot">&lt;-</span> <span class="fu">merge</span>(bug_df_nrc, bug_df_geninq, <span class="at">by.x =</span> <span class="st">"nrc_doc_id"</span>, <span class="at">by.y =</span> <span class="st">"geninq_doc_id"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in merge(bug_df_nrc, bug_df_geninq, by.x = "nrc_doc_id", by.y = "geninq_doc_id"): object 'bug_df_nrc' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb165"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb165-1"><a href="#cb165-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(sent_df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in head(sent_df): object 'sent_df' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb167"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb167-1"><a href="#cb167-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(sent_df<span class="sc">$</span>nrc_polarity, sent_df<span class="sc">$</span>geninq_polarity)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in is.data.frame(y): object 'sent_df' not found</code></pre>
+</div>
+</div>
+</details>
+<p>With the functions used above, we’ve now successfully built a correlation model according to the results we received while using the General Inquirer and NRC dictionaries! Now, lets try and plot it.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb169"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb169-1"><a href="#cb169-1" aria-hidden="true" tabindex="-1"></a><span class="co">#  Now we'll plot them out</span></span>
+<span id="cb169-2"><a href="#cb169-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sent_df, <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> nrc_polarity,</span>
+<span id="cb169-3"><a href="#cb169-3" aria-hidden="true" tabindex="-1"></a>                              <span class="at">y =</span> geninq_polarity)) <span class="sc">+</span></span>
+<span id="cb169-4"><a href="#cb169-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
+<span id="cb169-5"><a href="#cb169-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>() <span class="sc">+</span></span>
+<span id="cb169-6"><a href="#cb169-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">slope =</span> <span class="dv">1</span>, <span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb169-7"><a href="#cb169-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in ggplot(sent_df, mapping = aes(x = nrc_polarity, y = geninq_polarity)): object 'sent_df' not found</code></pre>
+</div>
+</div>
+<p>While there was some correlation between both models, we can see from our visual that there is a clear distinction between them as well. The NRC dictionary seems to rank polarity in an extremely linear fashion while the General Inquirer rankings are much more fluid and varying. The variance between both show us that it’s going to come down to what better serves our analysis. What other options could we benefit from? Next, we’re going to experiment a bit with applying dictionaries within contexts.</p>
+</section>
+<section id="dictionaries-within-contexts" class="level2">
+<h2 class="anchored" data-anchor-id="dictionaries-within-contexts"><em>Dictionaries within Contexts</em></h2>
+<p>Using contexts within dictionary analysis essentially let us prompt our functions with “context vectors” that provide the data with key words to use in its associations. We start by isolating the tokens we wish to use as context.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb171"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb171-1"><a href="#cb171-1" aria-hidden="true" tabindex="-1"></a><span class="co"># tokenize corpus</span></span>
+<span id="cb171-2"><a href="#cb171-2" aria-hidden="true" tabindex="-1"></a>bug_tokens <span class="ot">&lt;-</span> <span class="fu">tokens</span>(bug_corpus, <span class="at">remove_punct =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in tokens(bug_corpus, remove_punct = TRUE): object 'bug_corpus' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb173"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb173-1"><a href="#cb173-1" aria-hidden="true" tabindex="-1"></a><span class="co"># what are the context (target) words or phrases</span></span>
+<span id="cb173-2"><a href="#cb173-2" aria-hidden="true" tabindex="-1"></a>bug_words <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"eating bugs"</span>, <span class="st">"eating insects"</span>, <span class="st">"bug"</span>, <span class="st">"bugs"</span>, <span class="st">"insect"</span>, <span class="st">"insects"</span>)</span>
+<span id="cb173-3"><a href="#cb173-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb173-4"><a href="#cb173-4" aria-hidden="true" tabindex="-1"></a><span class="co"># retain only our tokens and their context</span></span>
+<span id="cb173-5"><a href="#cb173-5" aria-hidden="true" tabindex="-1"></a>tokens_bugs <span class="ot">&lt;-</span> <span class="fu">tokens_keep</span>(bug_tokens, <span class="at">pattern =</span> <span class="fu">phrase</span>(bug_words), <span class="at">window =</span> <span class="dv">40</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in tokens_select(x, ..., selection = "keep"): object 'bug_tokens' not found</code></pre>
+</div>
+</div>
+<p>Next, within those token sets, we can pull out the positive and negative dictionaries to get an inside look at what we’re working with. In this case we’ll be using the Lexicoder Sentiment Dictionary or <code>LSD</code> as it’s denoted in the functions below. Once we’ve done that, we’ll coerce our token object into a DFM.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb175"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb175-1"><a href="#cb175-1" aria-hidden="true" tabindex="-1"></a>data_dictionary_LSD2015_pos_neg <span class="ot">&lt;-</span> data_dictionary_LSD2015[<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>]</span>
+<span id="cb175-2"><a href="#cb175-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb175-3"><a href="#cb175-3" aria-hidden="true" tabindex="-1"></a>tokens_bugs_lsd <span class="ot">&lt;-</span> <span class="fu">tokens_lookup</span>(tokens_bugs,</span>
+<span id="cb175-4"><a href="#cb175-4" aria-hidden="true" tabindex="-1"></a>                                <span class="at">dictionary =</span> data_dictionary_LSD2015_pos_neg)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in tokens_lookup(tokens_bugs, dictionary = data_dictionary_LSD2015_pos_neg): object 'tokens_bugs' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb177"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb177-1"><a href="#cb177-1" aria-hidden="true" tabindex="-1"></a>dfm_bugs <span class="ot">&lt;-</span> <span class="fu">dfm</span>(tokens_bugs_lsd)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in dfm(tokens_bugs_lsd): object 'tokens_bugs_lsd' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb179"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb179-1"><a href="#cb179-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(dfm_bugs, <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in head(dfm_bugs, 10): object 'dfm_bugs' not found</code></pre>
+</div>
+</div>
+<p>Finally, we’ll use the objects we’ve created thus far to; create a data frame, drop any features that contain only 0 values (have neither negative nor positive tokens within the document), print a summary sentence to tell us exactly how many tweets mention positive or negative tokens in the context of eating bugs, and finally create &amp; plot the resulting polarity scores</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb181"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb181-1"><a href="#cb181-1" aria-hidden="true" tabindex="-1"></a><span class="co"># convert to data frame</span></span>
+<span id="cb181-2"><a href="#cb181-2" aria-hidden="true" tabindex="-1"></a>mat_bugs <span class="ot">&lt;-</span> <span class="fu">convert</span>(dfm_bugs, <span class="at">to =</span> <span class="st">"data.frame"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in convert(dfm_bugs, to = "data.frame"): object 'dfm_bugs' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb183"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb183-1"><a href="#cb183-1" aria-hidden="true" tabindex="-1"></a><span class="co"># drop if both features are 0</span></span>
+<span id="cb183-2"><a href="#cb183-2" aria-hidden="true" tabindex="-1"></a>mat_bugs <span class="ot">&lt;-</span> mat_bugs[<span class="sc">-</span><span class="fu">which</span>((mat_bugs<span class="sc">$</span>negative <span class="sc">+</span> mat_bugs<span class="sc">$</span>positive)<span class="sc">==</span><span class="dv">0</span>),]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'mat_bugs' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb185"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb185-1"><a href="#cb185-1" aria-hidden="true" tabindex="-1"></a><span class="co"># print a little summary info</span></span>
+<span id="cb185-2"><a href="#cb185-2" aria-hidden="true" tabindex="-1"></a><span class="fu">paste</span>(<span class="st">"We have "</span>,<span class="fu">nrow</span>(mat_bugs),<span class="st">" tweets that mention positive or negative words in the context of eating bugs or insects."</span>, <span class="at">sep=</span><span class="st">""</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in nrow(mat_bugs): object 'mat_bugs' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb187"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb187-1"><a href="#cb187-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create polarity scores</span></span>
+<span id="cb187-2"><a href="#cb187-2" aria-hidden="true" tabindex="-1"></a>mat_bugs<span class="sc">$</span>polarity <span class="ot">&lt;-</span> (mat_bugs<span class="sc">$</span>positive <span class="sc">-</span> mat_bugs<span class="sc">$</span>negative)<span class="sc">/</span>(mat_bugs<span class="sc">$</span>positive <span class="sc">+</span> mat_bugs<span class="sc">$</span>negative)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'mat_bugs' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb189"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb189-1"><a href="#cb189-1" aria-hidden="true" tabindex="-1"></a><span class="co"># summary</span></span>
+<span id="cb189-2"><a href="#cb189-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mat_bugs<span class="sc">$</span>polarity)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in summary(mat_bugs$polarity): object 'mat_bugs' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb191"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb191-1"><a href="#cb191-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot</span></span>
+<span id="cb191-2"><a href="#cb191-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mat_bugs) <span class="sc">+</span> </span>
+<span id="cb191-3"><a href="#cb191-3" aria-hidden="true" tabindex="-1"></a>     <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">x=</span>polarity), <span class="at">binwidth =</span> .<span class="dv">25</span>) <span class="sc">+</span> </span>
+<span id="cb191-4"><a href="#cb191-4" aria-hidden="true" tabindex="-1"></a>     <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in ggplot(mat_bugs): object 'mat_bugs' not found</code></pre>
+</div>
+</div>
+<p>Look at those results! Out of all the data we’ve pulled and created thus far, I believe the Lexicoder Sentiment Dictionary (<code>LSD</code>) has provided us with the most accurate results. If we were to use the <code>view(mat_bugs)</code> function, we could see the breakdown of the polarity scores and how each individual document received it’s ranking. The one problem I still notice is the relevance of certain tweets in the context of humans eating bugs, but I believe our pre-processing work assists with filtering those down enough so that they don’t skew our final results. With that, we’ll close out our post for today. Thank you for reading! :)</p>
+
+
+<!-- -->
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } 
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+<script src="https://giscus.app/client.js" data-repo="DACSS/Text_as_Data_Fall_2022" data-repo-id="R_kgDOH5675w" data-category="Announcements" data-category-id="" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
+</script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb193" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb193-1"><a href="#cb193-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb193-2"><a href="#cb193-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Blog Post #4: Word Embedding &amp; Dictionaries"</span></span>
+<span id="cb193-3"><a href="#cb193-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Alexis Gamez"</span></span>
+<span id="cb193-4"><a href="#cb193-4" aria-hidden="true" tabindex="-1"></a><span class="an">desription:</span><span class="co"> "Studying text-as-data as it relates to eating bugs"</span></span>
+<span id="cb193-5"><a href="#cb193-5" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "11/20/2022"</span></span>
+<span id="cb193-6"><a href="#cb193-6" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb193-7"><a href="#cb193-7" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb193-8"><a href="#cb193-8" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb193-9"><a href="#cb193-9" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: true</span></span>
+<span id="cb193-10"><a href="#cb193-10" aria-hidden="true" tabindex="-1"></a><span class="co">    code-copy: true</span></span>
+<span id="cb193-11"><a href="#cb193-11" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb193-12"><a href="#cb193-12" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span></span>
+<span id="cb193-13"><a href="#cb193-13" aria-hidden="true" tabindex="-1"></a><span class="co">  - Alexis Gamez </span></span>
+<span id="cb193-14"><a href="#cb193-14" aria-hidden="true" tabindex="-1"></a><span class="co">  - blogpost4</span></span>
+<span id="cb193-15"><a href="#cb193-15" aria-hidden="true" tabindex="-1"></a><span class="co">  - Word Embedding</span></span>
+<span id="cb193-16"><a href="#cb193-16" aria-hidden="true" tabindex="-1"></a><span class="co">  - Dictionary Analysis</span></span>
+<span id="cb193-17"><a href="#cb193-17" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb193-18"><a href="#cb193-18" aria-hidden="true" tabindex="-1"></a><span class="fu"># Setup</span></span>
+<span id="cb193-19"><a href="#cb193-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-20"><a href="#cb193-20" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;details&gt;</span></span>
+<span id="cb193-21"><a href="#cb193-21" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&lt;summary&gt;</span> View Code<span class="kw">&lt;/summary&gt;</span></span>
+<span id="cb193-22"><a href="#cb193-22" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb193-23"><a href="#cb193-23" aria-hidden="true" tabindex="-1"></a><span class="in">```{r setup, include=TRUE}</span></span>
+<span id="cb193-24"><a href="#cb193-24" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">warning =</span> <span class="cn">FALSE</span>, <span class="at">message =</span> <span class="cn">FALSE</span>, <span class="at">echo =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb193-25"><a href="#cb193-25" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plyr)</span>
+<span id="cb193-26"><a href="#cb193-26" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb193-27"><a href="#cb193-27" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidytext)</span>
+<span id="cb193-28"><a href="#cb193-28" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb193-29"><a href="#cb193-29" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(devtools)</span>
+<span id="cb193-30"><a href="#cb193-30" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
+<span id="cb193-31"><a href="#cb193-31" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
+<span id="cb193-32"><a href="#cb193-32" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rvest)</span>
+<span id="cb193-33"><a href="#cb193-33" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rtweet)</span>
+<span id="cb193-34"><a href="#cb193-34" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(twitteR)</span>
+<span id="cb193-35"><a href="#cb193-35" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tm)</span>
+<span id="cb193-36"><a href="#cb193-36" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span>
+<span id="cb193-37"><a href="#cb193-37" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda)</span>
+<span id="cb193-38"><a href="#cb193-38" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda.textplots)</span>
+<span id="cb193-39"><a href="#cb193-39" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda.textstats)</span>
+<span id="cb193-40"><a href="#cb193-40" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(wordcloud)</span>
+<span id="cb193-41"><a href="#cb193-41" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(text2vec)</span>
+<span id="cb193-42"><a href="#cb193-42" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb193-43"><a href="#cb193-43" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(devtools)</span>
+<span id="cb193-44"><a href="#cb193-44" aria-hidden="true" tabindex="-1"></a><span class="co"># devtools::install_github("kbenoit/quanteda.dictionaries")</span></span>
+<span id="cb193-45"><a href="#cb193-45" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda.dictionaries)</span>
+<span id="cb193-46"><a href="#cb193-46" aria-hidden="true" tabindex="-1"></a><span class="co"># remotes::install_github("quanteda/quanteda.sentiment")</span></span>
+<span id="cb193-47"><a href="#cb193-47" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda.sentiment)</span>
+<span id="cb193-48"><a href="#cb193-48" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb193-49"><a href="#cb193-49" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;/details&gt;</span></span>
+<span id="cb193-50"><a href="#cb193-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-51"><a href="#cb193-51" aria-hidden="true" tabindex="-1"></a><span class="fu"># **Data Source**</span></span>
+<span id="cb193-52"><a href="#cb193-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-53"><a href="#cb193-53" aria-hidden="true" tabindex="-1"></a>As with previous blog posts, I will be continuing to use the corpus I've built from pulling tweets from the social media platform Twitter. All tweets have been pulled with relevance to the key words and phrases of <span class="in">`eating bugs`</span> and <span class="in">`eating insects`</span>. The CSV file we will eventually read in is a compilation of such tweets extracted between the dates of November 3rd and November 13th. </span>
+<span id="cb193-54"><a href="#cb193-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-55"><a href="#cb193-55" aria-hidden="true" tabindex="-1"></a><span class="fu"># **Goals**</span></span>
+<span id="cb193-56"><a href="#cb193-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-57"><a href="#cb193-57" aria-hidden="true" tabindex="-1"></a>For this post, I'm going to be exploring the use of word embedding, &amp; dictionary methods within my corpus. I will exclusively be utilizing the techniques found within tutorials 7 &amp; 8. As to whether each technique is effectively useful to our analysis is to be determined by our experimentation. </span>
+<span id="cb193-58"><a href="#cb193-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-59"><a href="#cb193-59" aria-hidden="true" tabindex="-1"></a><span class="fu"># **Word Embeddings**</span></span>
+<span id="cb193-60"><a href="#cb193-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-61"><a href="#cb193-61" aria-hidden="true" tabindex="-1"></a><span class="fu">## *Pre-Analysis*</span></span>
+<span id="cb193-62"><a href="#cb193-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-63"><a href="#cb193-63" aria-hidden="true" tabindex="-1"></a>I start off by reading in my corpus as the <span class="in">`bug_tweets`</span> object. Then, we'll work to tokenize and vectorize the corpus. We'll be using the <span class="in">`text2vec`</span> package heavily in this section.</span>
+<span id="cb193-64"><a href="#cb193-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-65"><a href="#cb193-65" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE}</span></span>
+<span id="cb193-66"><a href="#cb193-66" aria-hidden="true" tabindex="-1"></a><span class="co"># First we're going to read in our existing corpus, calling to the csv file we created in blog post #2</span></span>
+<span id="cb193-67"><a href="#cb193-67" aria-hidden="true" tabindex="-1"></a>bug_tweets <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"eating_bugs_tweets_11_13_22.csv"</span>)</span>
+<span id="cb193-68"><a href="#cb193-68" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(bug_tweets, <span class="dv">10</span>)</span>
+<span id="cb193-69"><a href="#cb193-69" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(bug_tweets)</span>
+<span id="cb193-70"><a href="#cb193-70" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb193-71"><a href="#cb193-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-72"><a href="#cb193-72" aria-hidden="true" tabindex="-1"></a><span class="fu">### Tokenizing &amp; Vectorizing</span></span>
+<span id="cb193-73"><a href="#cb193-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-74"><a href="#cb193-74" aria-hidden="true" tabindex="-1"></a>Now that we've read in our <span class="in">`bug_tweets`</span> object, we'll be using <span class="in">`word_tokenizer`</span> to tokenize our documents into a new object, <span class="in">`bug_tokens`</span>.</span>
+<span id="cb193-75"><a href="#cb193-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-76"><a href="#cb193-76" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;details&gt;</span></span>
+<span id="cb193-77"><a href="#cb193-77" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&lt;summary&gt;</span> View Code<span class="kw">&lt;/summary&gt;</span></span>
+<span id="cb193-78"><a href="#cb193-78" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb193-79"><a href="#cb193-79" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE}</span></span>
+<span id="cb193-80"><a href="#cb193-80" aria-hidden="true" tabindex="-1"></a><span class="co"># Tokenizing the corpus</span></span>
+<span id="cb193-81"><a href="#cb193-81" aria-hidden="true" tabindex="-1"></a>bug_tokens <span class="ot">&lt;-</span> <span class="fu">word_tokenizer</span>(bug_tweets)</span>
+<span id="cb193-82"><a href="#cb193-82" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(bug_tokens, <span class="dv">5</span>)</span>
+<span id="cb193-83"><a href="#cb193-83" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb193-84"><a href="#cb193-84" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;/details&gt;</span></span>
+<span id="cb193-85"><a href="#cb193-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-86"><a href="#cb193-86" aria-hidden="true" tabindex="-1"></a>With the token object created, we can move to creating an iterator object and begin building the vocabulary we're going to be using in this section.</span>
+<span id="cb193-87"><a href="#cb193-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-88"><a href="#cb193-88" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE}</span></span>
+<span id="cb193-89"><a href="#cb193-89" aria-hidden="true" tabindex="-1"></a><span class="co"># Create an iterator</span></span>
+<span id="cb193-90"><a href="#cb193-90" aria-hidden="true" tabindex="-1"></a>it <span class="ot">&lt;-</span> <span class="fu">itoken</span>(bug_tokens, <span class="at">progressbar =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb193-91"><a href="#cb193-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-92"><a href="#cb193-92" aria-hidden="true" tabindex="-1"></a><span class="co"># Then we're going to build the vocabulary</span></span>
+<span id="cb193-93"><a href="#cb193-93" aria-hidden="true" tabindex="-1"></a>vocab <span class="ot">&lt;-</span> <span class="fu">create_vocabulary</span>(it)</span>
+<span id="cb193-94"><a href="#cb193-94" aria-hidden="true" tabindex="-1"></a><span class="co"># Calling the vocab object</span></span>
+<span id="cb193-95"><a href="#cb193-95" aria-hidden="true" tabindex="-1"></a>vocab</span>
+<span id="cb193-96"><a href="#cb193-96" aria-hidden="true" tabindex="-1"></a><span class="co"># Calling for the dimensions of our vocabulary object</span></span>
+<span id="cb193-97"><a href="#cb193-97" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(vocab)</span>
+<span id="cb193-98"><a href="#cb193-98" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb193-99"><a href="#cb193-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-100"><a href="#cb193-100" aria-hidden="true" tabindex="-1"></a>With the <span class="in">`vocab`</span> object created, we can now prune and vectorize it. While vectorizing is pretty self explanatory (coercing our vocab object into a vector), pruning simply trims down our object and removes words that aren't mentioned above a certain number of times. In this case, that threshold is a minimum of 5 times. All tokens not mentioned at least 5 times will be dropped from our object.</span>
+<span id="cb193-101"><a href="#cb193-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-102"><a href="#cb193-102" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;details&gt;</span></span>
+<span id="cb193-103"><a href="#cb193-103" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&lt;summary&gt;</span> View Code<span class="kw">&lt;/summary&gt;</span></span>
+<span id="cb193-104"><a href="#cb193-104" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb193-105"><a href="#cb193-105" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE}</span></span>
+<span id="cb193-106"><a href="#cb193-106" aria-hidden="true" tabindex="-1"></a><span class="co"># Now we're going to prune the vocabulary</span></span>
+<span id="cb193-107"><a href="#cb193-107" aria-hidden="true" tabindex="-1"></a>vocab <span class="ot">&lt;-</span> <span class="fu">prune_vocabulary</span>(vocab, <span class="at">term_count_min =</span> <span class="dv">5</span>)</span>
+<span id="cb193-108"><a href="#cb193-108" aria-hidden="true" tabindex="-1"></a><span class="co"># Checking the dimensions of the vocab list again shows how much we were able to cut down the original list</span></span>
+<span id="cb193-109"><a href="#cb193-109" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(vocab)</span>
+<span id="cb193-110"><a href="#cb193-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-111"><a href="#cb193-111" aria-hidden="true" tabindex="-1"></a><span class="co"># Now we're going to vectorize our vocab</span></span>
+<span id="cb193-112"><a href="#cb193-112" aria-hidden="true" tabindex="-1"></a>vectorizer <span class="ot">&lt;-</span> <span class="fu">vocab_vectorizer</span>(vocab)</span>
+<span id="cb193-113"><a href="#cb193-113" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb193-114"><a href="#cb193-114" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;/details&gt;</span></span>
+<span id="cb193-115"><a href="#cb193-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-116"><a href="#cb193-116" aria-hidden="true" tabindex="-1"></a>Finally, we're going to create a term co-occurrence matrix. We're going to be sticking to a skip gram window of 5 considering we don't have a massive corpus.</span>
+<span id="cb193-117"><a href="#cb193-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-118"><a href="#cb193-118" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE}</span></span>
+<span id="cb193-119"><a href="#cb193-119" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating a term co-occurrence matrix</span></span>
+<span id="cb193-120"><a href="#cb193-120" aria-hidden="true" tabindex="-1"></a>tcm <span class="ot">&lt;-</span> <span class="fu">create_tcm</span>(it, vectorizer, <span class="at">skip_grams_window =</span> 5L)</span>
+<span id="cb193-121"><a href="#cb193-121" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb193-122"><a href="#cb193-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-123"><a href="#cb193-123" aria-hidden="true" tabindex="-1"></a><span class="fu">### Fitting out a GloVe Model</span></span>
+<span id="cb193-124"><a href="#cb193-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-125"><a href="#cb193-125" aria-hidden="true" tabindex="-1"></a>We have a Term Co-Occurrence Matrix! With our TCM created, let's move to creating a GloVe model and fitting it to objectively fit our analysis.</span>
+<span id="cb193-126"><a href="#cb193-126" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-127"><a href="#cb193-127" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;details&gt;</span></span>
+<span id="cb193-128"><a href="#cb193-128" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&lt;summary&gt;</span> View Code<span class="kw">&lt;/summary&gt;</span></span>
+<span id="cb193-129"><a href="#cb193-129" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb193-130"><a href="#cb193-130" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE}</span></span>
+<span id="cb193-131"><a href="#cb193-131" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating GloVe model</span></span>
+<span id="cb193-132"><a href="#cb193-132" aria-hidden="true" tabindex="-1"></a>bug_glove <span class="ot">&lt;-</span> GlobalVectors<span class="sc">$</span><span class="fu">new</span>(<span class="at">rank =</span> <span class="dv">50</span>, <span class="at">x_max =</span> <span class="dv">10</span>)</span>
+<span id="cb193-133"><a href="#cb193-133" aria-hidden="true" tabindex="-1"></a>bug_glove</span>
+<span id="cb193-134"><a href="#cb193-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-135"><a href="#cb193-135" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating the fitting model here</span></span>
+<span id="cb193-136"><a href="#cb193-136" aria-hidden="true" tabindex="-1"></a>bug_main <span class="ot">&lt;-</span> bug_glove<span class="sc">$</span><span class="fu">fit_transform</span>(tcm, <span class="at">n_iter=</span> <span class="dv">10</span>, </span>
+<span id="cb193-137"><a href="#cb193-137" aria-hidden="true" tabindex="-1"></a>                                <span class="at">convergence_tol =</span> <span class="fl">0.01</span>,</span>
+<span id="cb193-138"><a href="#cb193-138" aria-hidden="true" tabindex="-1"></a>                                <span class="at">n_threads =</span> <span class="dv">8</span>)</span>
+<span id="cb193-139"><a href="#cb193-139" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(bug_main)</span>
+<span id="cb193-140"><a href="#cb193-140" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb193-141"><a href="#cb193-141" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;/details&gt;</span></span>
+<span id="cb193-142"><a href="#cb193-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-143"><a href="#cb193-143" aria-hidden="true" tabindex="-1"></a>We've now created our <span class="in">`target`</span> word vector. As stated in tutorial 7, the <span class="in">`target`</span> word vector can be thought of as the words of interest we seek within our corpus, while all other words would be considered to be a part of the <span class="in">`context`</span> word vector. We'll be creating the <span class="in">`context`</span> vector now.</span>
+<span id="cb193-144"><a href="#cb193-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-145"><a href="#cb193-145" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE}</span></span>
+<span id="cb193-146"><a href="#cb193-146" aria-hidden="true" tabindex="-1"></a><span class="co"># Since we've created the `main` target vector, we're going to create a context vector now</span></span>
+<span id="cb193-147"><a href="#cb193-147" aria-hidden="true" tabindex="-1"></a>bug_context <span class="ot">&lt;-</span> bug_glove<span class="sc">$</span>components</span>
+<span id="cb193-148"><a href="#cb193-148" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(bug_context)</span>
+<span id="cb193-149"><a href="#cb193-149" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb193-150"><a href="#cb193-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-151"><a href="#cb193-151" aria-hidden="true" tabindex="-1"></a>With the <span class="in">`target`</span> and <span class="in">`context`</span> vectors made, we can create a word vector matrix by taking the sum of both.</span>
+<span id="cb193-152"><a href="#cb193-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-153"><a href="#cb193-153" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;details&gt;</span></span>
+<span id="cb193-154"><a href="#cb193-154" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&lt;summary&gt;</span> View Code<span class="kw">&lt;/summary&gt;</span></span>
+<span id="cb193-155"><a href="#cb193-155" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb193-156"><a href="#cb193-156" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE}</span></span>
+<span id="cb193-157"><a href="#cb193-157" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating vector matrix</span></span>
+<span id="cb193-158"><a href="#cb193-158" aria-hidden="true" tabindex="-1"></a>bug_vectors <span class="ot">&lt;-</span> bug_main <span class="sc">+</span> <span class="fu">t</span>(bug_context)</span>
+<span id="cb193-159"><a href="#cb193-159" aria-hidden="true" tabindex="-1"></a>bug_vectors</span>
+<span id="cb193-160"><a href="#cb193-160" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb193-161"><a href="#cb193-161" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;/details&gt;</span></span>
+<span id="cb193-162"><a href="#cb193-162" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-163"><a href="#cb193-163" aria-hidden="true" tabindex="-1"></a>Now that the word vector matrix has been created, we're free to begin our analysis using Cosine Similarity.</span>
+<span id="cb193-164"><a href="#cb193-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-165"><a href="#cb193-165" aria-hidden="true" tabindex="-1"></a><span class="fu">## *Cosine Similarity*</span></span>
+<span id="cb193-166"><a href="#cb193-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-167"><a href="#cb193-167" aria-hidden="true" tabindex="-1"></a>The logic behind Cosine Similarity looks to find the correlation between two vectors (i.e. our <span class="in">`target`</span> and <span class="in">`context`</span> vectors).The functions below are fed our word vector matrix and a token of our selection in an attempt to find any correlation with said token and others within our corpus. I decided to start off by testing the word "cricket" as it seemed the most direct (aside from "eating", "bugs" and "insects") while maintaining an air of objectivity.</span>
+<span id="cb193-168"><a href="#cb193-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-169"><a href="#cb193-169" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;details&gt;</span></span>
+<span id="cb193-170"><a href="#cb193-170" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&lt;summary&gt;</span> View Code<span class="kw">&lt;/summary&gt;</span></span>
+<span id="cb193-171"><a href="#cb193-171" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb193-172"><a href="#cb193-172" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE}</span></span>
+<span id="cb193-173"><a href="#cb193-173" aria-hidden="true" tabindex="-1"></a><span class="co"># We're going to test out Cosine Similarity now by running the following functions.</span></span>
+<span id="cb193-174"><a href="#cb193-174" aria-hidden="true" tabindex="-1"></a>cricket <span class="ot">&lt;-</span> bug_vectors[<span class="st">"Cricket"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb193-175"><a href="#cb193-175" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-176"><a href="#cb193-176" aria-hidden="true" tabindex="-1"></a>cricket_cos_sim <span class="ot">&lt;-</span> <span class="fu">sim2</span>(<span class="at">x =</span> bug_vectors, <span class="at">y =</span> cricket, </span>
+<span id="cb193-177"><a href="#cb193-177" aria-hidden="true" tabindex="-1"></a>                       <span class="at">method =</span> <span class="st">"cosine"</span>, <span class="at">norm =</span> <span class="st">"l2"</span>)</span>
+<span id="cb193-178"><a href="#cb193-178" aria-hidden="true" tabindex="-1"></a>cricket_cos_sim</span>
+<span id="cb193-179"><a href="#cb193-179" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb193-180"><a href="#cb193-180" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;/details&gt;</span></span>
+<span id="cb193-181"><a href="#cb193-181" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-182"><a href="#cb193-182" aria-hidden="true" tabindex="-1"></a>We can see some interesting results here, mostly that the most similar words (other than the word "cricket" itself), according to cosine similarity, are an assortment of seemingly negative ones. I say seemingly here because, without proper context, there's no way of definitively understanding the intended sentiment behind it. With that said, we can still take some educated guessed. In this case, we see objectively negative words such as "nope", "crap", "mandatory", "nobody", and "bother" near the top. Let's run a couple more tests and see what else pops up.</span>
+<span id="cb193-183"><a href="#cb193-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-184"><a href="#cb193-184" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;details&gt;</span></span>
+<span id="cb193-185"><a href="#cb193-185" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&lt;summary&gt;</span> View Code<span class="kw">&lt;/summary&gt;</span></span>
+<span id="cb193-186"><a href="#cb193-186" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb193-187"><a href="#cb193-187" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE}</span></span>
+<span id="cb193-188"><a href="#cb193-188" aria-hidden="true" tabindex="-1"></a>right_wing <span class="ot">&lt;-</span> bug_vectors[<span class="st">"POTUS"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>] <span class="sc">-</span></span>
+<span id="cb193-189"><a href="#cb193-189" aria-hidden="true" tabindex="-1"></a>     bug_vectors[<span class="st">"liberals"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>] <span class="sc">+</span></span>
+<span id="cb193-190"><a href="#cb193-190" aria-hidden="true" tabindex="-1"></a>     bug_vectors[<span class="st">"Conservative"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb193-191"><a href="#cb193-191" aria-hidden="true" tabindex="-1"></a>right_wing_cos_sim <span class="ot">=</span> <span class="fu">sim2</span>(<span class="at">x =</span> bug_vectors, <span class="at">y =</span> right_wing, <span class="at">method =</span> <span class="st">"cosine"</span>, <span class="at">norm =</span> <span class="st">"l2"</span>)</span>
+<span id="cb193-192"><a href="#cb193-192" aria-hidden="true" tabindex="-1"></a>right_wing_cos_sim</span>
+<span id="cb193-193"><a href="#cb193-193" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-194"><a href="#cb193-194" aria-hidden="true" tabindex="-1"></a>conservative <span class="ot">&lt;-</span> bug_vectors[<span class="st">"POTUS"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>] <span class="sc">-</span></span>
+<span id="cb193-195"><a href="#cb193-195" aria-hidden="true" tabindex="-1"></a>     bug_vectors[<span class="st">"JoeBiden"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>] <span class="sc">+</span></span>
+<span id="cb193-196"><a href="#cb193-196" aria-hidden="true" tabindex="-1"></a>     bug_vectors[<span class="st">"Trump"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb193-197"><a href="#cb193-197" aria-hidden="true" tabindex="-1"></a>conservative_cos_sim <span class="ot">=</span> <span class="fu">sim2</span>(<span class="at">x =</span> bug_vectors, <span class="at">y =</span> conservative, <span class="at">method =</span> <span class="st">"cosine"</span>, <span class="at">norm =</span> <span class="st">"l2"</span>)</span>
+<span id="cb193-198"><a href="#cb193-198" aria-hidden="true" tabindex="-1"></a>conservative_cos_sim</span>
+<span id="cb193-199"><a href="#cb193-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-200"><a href="#cb193-200" aria-hidden="true" tabindex="-1"></a>liberal <span class="ot">&lt;-</span> bug_vectors[<span class="st">"POTUS"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>] <span class="sc">-</span></span>
+<span id="cb193-201"><a href="#cb193-201" aria-hidden="true" tabindex="-1"></a>     bug_vectors[<span class="st">"Trump"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>] <span class="sc">+</span></span>
+<span id="cb193-202"><a href="#cb193-202" aria-hidden="true" tabindex="-1"></a>     bug_vectors[<span class="st">"JoeBiden"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb193-203"><a href="#cb193-203" aria-hidden="true" tabindex="-1"></a>liberal_cos_sim <span class="ot">=</span> <span class="fu">sim2</span>(<span class="at">x =</span> bug_vectors, <span class="at">y =</span> liberal, <span class="at">method =</span> <span class="st">"cosine"</span>, <span class="at">norm =</span> <span class="st">"l2"</span>)</span>
+<span id="cb193-204"><a href="#cb193-204" aria-hidden="true" tabindex="-1"></a>liberal_cos_sim</span>
+<span id="cb193-205"><a href="#cb193-205" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-206"><a href="#cb193-206" aria-hidden="true" tabindex="-1"></a>eating_bugs <span class="ot">&lt;-</span> bug_vectors[<span class="st">"eating"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>] <span class="sc">-</span></span>
+<span id="cb193-207"><a href="#cb193-207" aria-hidden="true" tabindex="-1"></a>     bug_vectors[<span class="st">"meat"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>] <span class="sc">+</span></span>
+<span id="cb193-208"><a href="#cb193-208" aria-hidden="true" tabindex="-1"></a>     bug_vectors[<span class="st">"insects"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>] <span class="sc">+</span></span>
+<span id="cb193-209"><a href="#cb193-209" aria-hidden="true" tabindex="-1"></a>     bug_vectors[<span class="st">"bugs"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb193-210"><a href="#cb193-210" aria-hidden="true" tabindex="-1"></a>eating_bugs_cos_sim <span class="ot">=</span> <span class="fu">sim2</span>(<span class="at">x =</span> bug_vectors, <span class="at">y =</span> eating_bugs, <span class="at">method =</span> <span class="st">"cosine"</span>, <span class="at">norm =</span> <span class="st">"l2"</span>)</span>
+<span id="cb193-211"><a href="#cb193-211" aria-hidden="true" tabindex="-1"></a>eating_bugs_cos_sim</span>
+<span id="cb193-212"><a href="#cb193-212" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb193-213"><a href="#cb193-213" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;/details&gt;</span></span>
+<span id="cb193-214"><a href="#cb193-214" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-215"><a href="#cb193-215" aria-hidden="true" tabindex="-1"></a>There are some interesting results here, primarily those cosine similarities that are politically oriented. We see in the results for the last <span class="in">`eating_bugs`</span> chunk of code that there's a bit of obstruction per many stop words that our pruning didn't seem to eliminate. Either that or the code we did write needs a little work. Either way, we can effectively see some sentiment behind the previous code and key words, let's see if we can rework the last bit of coding just a bit before we move on from cosine similarities.</span>
+<span id="cb193-216"><a href="#cb193-216" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-217"><a href="#cb193-217" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;details&gt;</span></span>
+<span id="cb193-218"><a href="#cb193-218" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&lt;summary&gt;</span> View Code<span class="kw">&lt;/summary&gt;</span></span>
+<span id="cb193-219"><a href="#cb193-219" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb193-220"><a href="#cb193-220" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE}</span></span>
+<span id="cb193-221"><a href="#cb193-221" aria-hidden="true" tabindex="-1"></a>eating_insects <span class="ot">&lt;-</span> bug_vectors[<span class="st">"eating"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>] <span class="sc">-</span></span>
+<span id="cb193-222"><a href="#cb193-222" aria-hidden="true" tabindex="-1"></a>     bug_vectors[<span class="st">"meat"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>] <span class="sc">+</span></span>
+<span id="cb193-223"><a href="#cb193-223" aria-hidden="true" tabindex="-1"></a>     bug_vectors[<span class="st">"insects"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb193-224"><a href="#cb193-224" aria-hidden="true" tabindex="-1"></a>eating_insects_cos_sim <span class="ot">=</span> <span class="fu">sim2</span>(<span class="at">x =</span> bug_vectors, <span class="at">y =</span> eating_bugs, <span class="at">method =</span> <span class="st">"cosine"</span>, <span class="at">norm =</span> <span class="st">"l2"</span>)</span>
+<span id="cb193-225"><a href="#cb193-225" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-226"><a href="#cb193-226" aria-hidden="true" tabindex="-1"></a>eating_bugs <span class="ot">&lt;-</span> bug_vectors[<span class="st">"eating"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>] <span class="sc">-</span></span>
+<span id="cb193-227"><a href="#cb193-227" aria-hidden="true" tabindex="-1"></a>     bug_vectors[<span class="st">"meat"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>] <span class="sc">+</span></span>
+<span id="cb193-228"><a href="#cb193-228" aria-hidden="true" tabindex="-1"></a>     bug_vectors[<span class="st">"bugs"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb193-229"><a href="#cb193-229" aria-hidden="true" tabindex="-1"></a>eating_bugs_cos_sim <span class="ot">=</span> <span class="fu">sim2</span>(<span class="at">x =</span> bug_vectors, <span class="at">y =</span> eating_bugs, <span class="at">method =</span> <span class="st">"cosine"</span>, <span class="at">norm =</span> <span class="st">"l2"</span>)</span>
+<span id="cb193-230"><a href="#cb193-230" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb193-231"><a href="#cb193-231" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;/details&gt;</span></span>
+<span id="cb193-232"><a href="#cb193-232" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-233"><a href="#cb193-233" aria-hidden="true" tabindex="-1"></a>We still see the same skewing of results, even after simplifying our code. What we'll have to decide from here, is whether it's worth returning to the pre-processing stage and filtering out stop words from our corpus or whether we should include word embedding in our analysis at all. For now, we'll move on from cosine similarity tests.</span>
+<span id="cb193-234"><a href="#cb193-234" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-235"><a href="#cb193-235" aria-hidden="true" tabindex="-1"></a><span class="fu"># **Dictionaries**</span></span>
+<span id="cb193-236"><a href="#cb193-236" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-237"><a href="#cb193-237" aria-hidden="true" tabindex="-1"></a>Next we're going to make use of quanteda's dictionary package. We're going to start by reading in our data set again to reset it's properties and convert it into a <span class="in">`corpus`</span>.</span>
+<span id="cb193-238"><a href="#cb193-238" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-239"><a href="#cb193-239" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE}</span></span>
+<span id="cb193-240"><a href="#cb193-240" aria-hidden="true" tabindex="-1"></a>bug_tweets <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"eating_bugs_tweets_11_13_22.csv"</span>)</span>
+<span id="cb193-241"><a href="#cb193-241" aria-hidden="true" tabindex="-1"></a>bug_corpus <span class="ot">&lt;-</span> <span class="fu">corpus</span>(bug_tweets<span class="sc">$</span>x)</span>
+<span id="cb193-242"><a href="#cb193-242" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb193-243"><a href="#cb193-243" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-244"><a href="#cb193-244" aria-hidden="true" tabindex="-1"></a><span class="fu">## *Dictionary Analysis*</span></span>
+<span id="cb193-245"><a href="#cb193-245" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-246"><a href="#cb193-246" aria-hidden="true" tabindex="-1"></a>With our corpus loaded in, we can begin taking a stab at different dictionary analysis methods. In this case, we're going to start by using the NRC dictionary which will attempt to calculate a percentage of the the documents within our corpus that reflect certain emotional characteristics. The NRC dictionary refers to the NRC Emotion Lexicon which associates words with certain emotions.</span>
+<span id="cb193-247"><a href="#cb193-247" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-248"><a href="#cb193-248" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE}</span></span>
+<span id="cb193-249"><a href="#cb193-249" aria-hidden="true" tabindex="-1"></a>bug_sentiment_nrc <span class="ot">&lt;-</span> <span class="fu">liwcalike</span>(bug_corpus, data_dictionary_NRC)</span>
+<span id="cb193-250"><a href="#cb193-250" aria-hidden="true" tabindex="-1"></a><span class="co"># The function below provides us with the column names within our new `bug_sentiment_nrc` object</span></span>
+<span id="cb193-251"><a href="#cb193-251" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(bug_sentiment_nrc)</span>
+<span id="cb193-252"><a href="#cb193-252" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-253"><a href="#cb193-253" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(bug_sentiment_nrc) <span class="sc">+</span></span>
+<span id="cb193-254"><a href="#cb193-254" aria-hidden="true" tabindex="-1"></a>     <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">x =</span> positive), <span class="at">binwidth =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb193-255"><a href="#cb193-255" aria-hidden="true" tabindex="-1"></a>     <span class="fu">theme_bw</span>()</span>
+<span id="cb193-256"><a href="#cb193-256" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb193-257"><a href="#cb193-257" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-258"><a href="#cb193-258" aria-hidden="true" tabindex="-1"></a>We see some interesting results here after plotting our data, specifically, a lack of positive documents within our corpus. Additionally, according to our analysis, a majority of the documents are appearing as neutral sitting at a 0 "positive" score. First, let's take a look at some positive texts to see what we're dealing with.</span>
+<span id="cb193-259"><a href="#cb193-259" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb193-260"><a href="#cb193-260" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE}</span></span>
+<span id="cb193-261"><a href="#cb193-261" aria-hidden="true" tabindex="-1"></a>bug_corpus[<span class="fu">which</span>(bug_sentiment_nrc<span class="sc">$</span>positive <span class="sc">&gt;</span> <span class="dv">15</span>)]</span>
+<span id="cb193-262"><a href="#cb193-262" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb193-263"><a href="#cb193-263" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-264"><a href="#cb193-264" aria-hidden="true" tabindex="-1"></a>Something we can immediately see is that, while there are some positive sentiments referring to our eating bugs corpus, our code can't seem to pick up on all nuances of twitter based dialect. Let's look at this selection more thoroughly. </span>
+<span id="cb193-265"><a href="#cb193-265" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-266"><a href="#cb193-266" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;details&gt;</span></span>
+<span id="cb193-267"><a href="#cb193-267" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&lt;summary&gt;</span> View Code<span class="kw">&lt;/summary&gt;</span></span>
+<span id="cb193-268"><a href="#cb193-268" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb193-269"><a href="#cb193-269" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE}</span></span>
+<span id="cb193-270"><a href="#cb193-270" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(bug_corpus[<span class="fu">which</span>(bug_sentiment_nrc<span class="sc">$</span>positive <span class="sc">&gt;</span> <span class="dv">15</span>)])</span>
+<span id="cb193-271"><a href="#cb193-271" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb193-272"><a href="#cb193-272" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;/details&gt;</span></span>
+<span id="cb193-273"><a href="#cb193-273" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-274"><a href="#cb193-274" aria-hidden="true" tabindex="-1"></a>Even at a glance, I think is alright to assume that a majority of there "positive" reviews contain heavy sarcasm and satirical language. I think this is something we can remedy through the use of different dictionaries. For now, we're going to continue with the NRC dictionary and take a look at the most negative documents.</span>
+<span id="cb193-275"><a href="#cb193-275" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-276"><a href="#cb193-276" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE}</span></span>
+<span id="cb193-277"><a href="#cb193-277" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(bug_sentiment_nrc) <span class="sc">+</span></span>
+<span id="cb193-278"><a href="#cb193-278" aria-hidden="true" tabindex="-1"></a>     <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">x =</span> negative), <span class="at">binwidth =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb193-279"><a href="#cb193-279" aria-hidden="true" tabindex="-1"></a>     <span class="fu">theme_bw</span>()</span>
+<span id="cb193-280"><a href="#cb193-280" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb193-281"><a href="#cb193-281" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-282"><a href="#cb193-282" aria-hidden="true" tabindex="-1"></a>Right off the bat, we see that there is a higher spread of negative values from our plot. While the positive results were more concentrated toward the lower values of positivity, the negative values are more diverse in negative values. Also I noticed that, for some reason, there are more documents valued as neutral in the negative plot than the positive one. Let's take a deeper look into the negative documents as we did with the positive ones.</span>
+<span id="cb193-283"><a href="#cb193-283" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-284"><a href="#cb193-284" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;details&gt;</span></span>
+<span id="cb193-285"><a href="#cb193-285" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&lt;summary&gt;</span> View Code<span class="kw">&lt;/summary&gt;</span></span>
+<span id="cb193-286"><a href="#cb193-286" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb193-287"><a href="#cb193-287" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE}</span></span>
+<span id="cb193-288"><a href="#cb193-288" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(bug_corpus[<span class="fu">which</span>(bug_sentiment_nrc<span class="sc">$</span>negative <span class="sc">&gt;</span> <span class="dv">15</span>)])</span>
+<span id="cb193-289"><a href="#cb193-289" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb193-290"><a href="#cb193-290" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;/details&gt;</span></span>
+<span id="cb193-291"><a href="#cb193-291" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-292"><a href="#cb193-292" aria-hidden="true" tabindex="-1"></a>Noticeably, I can see that a majority of the documents presented from this function are indeed negative! There are still some language nuances that NRC can't seem to pick up on, but it's interesting to see the quantity and intensity of the negative documents within our corpus.</span>
+<span id="cb193-293"><a href="#cb193-293" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-294"><a href="#cb193-294" aria-hidden="true" tabindex="-1"></a>Having isolated both positive and negative results, let's try analyzing our corpus by incorporating both sides of the proverbial coin. </span>
+<span id="cb193-295"><a href="#cb193-295" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-296"><a href="#cb193-296" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE}</span></span>
+<span id="cb193-297"><a href="#cb193-297" aria-hidden="true" tabindex="-1"></a>bug_sentiment_nrc<span class="sc">$</span>polarity <span class="ot">&lt;-</span> bug_sentiment_nrc<span class="sc">$</span>positive <span class="sc">-</span> bug_sentiment_nrc<span class="sc">$</span>negative</span>
+<span id="cb193-298"><a href="#cb193-298" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-299"><a href="#cb193-299" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(bug_sentiment_nrc) <span class="sc">+</span></span>
+<span id="cb193-300"><a href="#cb193-300" aria-hidden="true" tabindex="-1"></a>     <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(polarity), <span class="at">binwidth =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb193-301"><a href="#cb193-301" aria-hidden="true" tabindex="-1"></a>     <span class="fu">theme_bw</span>()</span>
+<span id="cb193-302"><a href="#cb193-302" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb193-303"><a href="#cb193-303" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-304"><a href="#cb193-304" aria-hidden="true" tabindex="-1"></a>It seems that our previous observations are still consistent here. There isn't much else to take away other than the fact that there seems to be a higher concentration of positive documents than negative, which is unexpected. I suspect that the NRC dictionary we're using is heavily skewing the results. The fact that there are so many neutral valued documents further fortifies my suspicions.</span>
+<span id="cb193-305"><a href="#cb193-305" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-306"><a href="#cb193-306" aria-hidden="true" tabindex="-1"></a><span class="fu">## *Dictionaries with DFMs*</span></span>
+<span id="cb193-307"><a href="#cb193-307" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-308"><a href="#cb193-308" aria-hidden="true" tabindex="-1"></a>Next, we're going to be utilizing dictionary analysis methods that utilize DFMs as opposed to the corpus.</span>
+<span id="cb193-309"><a href="#cb193-309" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-310"><a href="#cb193-310" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE}</span></span>
+<span id="cb193-311"><a href="#cb193-311" aria-hidden="true" tabindex="-1"></a><span class="co"># Here we are coercing our corpus into a dfm without using the NRC dictionary. </span></span>
+<span id="cb193-312"><a href="#cb193-312" aria-hidden="true" tabindex="-1"></a>bug_dfm <span class="ot">&lt;-</span> <span class="fu">tokens</span>(bug_corpus,</span>
+<span id="cb193-313"><a href="#cb193-313" aria-hidden="true" tabindex="-1"></a>                         <span class="at">remove_punct =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb193-314"><a href="#cb193-314" aria-hidden="true" tabindex="-1"></a>                         <span class="at">remove_symbols =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb193-315"><a href="#cb193-315" aria-hidden="true" tabindex="-1"></a>                         <span class="at">remove_numbers =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb193-316"><a href="#cb193-316" aria-hidden="true" tabindex="-1"></a>                         <span class="at">remove_url =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb193-317"><a href="#cb193-317" aria-hidden="true" tabindex="-1"></a>                         <span class="at">split_hyphens =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb193-318"><a href="#cb193-318" aria-hidden="true" tabindex="-1"></a>                         <span class="at">include_docvars =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb193-319"><a href="#cb193-319" aria-hidden="true" tabindex="-1"></a>                         <span class="fu">tokens_tolower</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb193-320"><a href="#cb193-320" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dfm</span>()</span>
+<span id="cb193-321"><a href="#cb193-321" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-322"><a href="#cb193-322" aria-hidden="true" tabindex="-1"></a><span class="co"># Now we'll coerce our corpus to a dfm using the NRC dictionary</span></span>
+<span id="cb193-323"><a href="#cb193-323" aria-hidden="true" tabindex="-1"></a>bug_dfm_nrc <span class="ot">&lt;-</span> <span class="fu">tokens</span>(bug_corpus,</span>
+<span id="cb193-324"><a href="#cb193-324" aria-hidden="true" tabindex="-1"></a>                         <span class="at">remove_punct =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb193-325"><a href="#cb193-325" aria-hidden="true" tabindex="-1"></a>                         <span class="at">remove_symbols =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb193-326"><a href="#cb193-326" aria-hidden="true" tabindex="-1"></a>                         <span class="at">remove_numbers =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb193-327"><a href="#cb193-327" aria-hidden="true" tabindex="-1"></a>                         <span class="at">remove_url =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb193-328"><a href="#cb193-328" aria-hidden="true" tabindex="-1"></a>                         <span class="at">split_hyphens =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb193-329"><a href="#cb193-329" aria-hidden="true" tabindex="-1"></a>                         <span class="at">include_docvars =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb193-330"><a href="#cb193-330" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tokens_tolower</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb193-331"><a href="#cb193-331" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dfm</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb193-332"><a href="#cb193-332" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dfm_lookup</span>(data_dictionary_NRC)</span>
+<span id="cb193-333"><a href="#cb193-333" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-334"><a href="#cb193-334" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(bug_dfm_nrc, <span class="dv">10</span>)</span>
+<span id="cb193-335"><a href="#cb193-335" aria-hidden="true" tabindex="-1"></a><span class="co"># These functions can be run to provide some more details behind our new bug_dfm_nrc object</span></span>
+<span id="cb193-336"><a href="#cb193-336" aria-hidden="true" tabindex="-1"></a><span class="co"># dim(bug_dfm_nrc)</span></span>
+<span id="cb193-337"><a href="#cb193-337" aria-hidden="true" tabindex="-1"></a><span class="co"># class(bug_dfm_nrc)</span></span>
+<span id="cb193-338"><a href="#cb193-338" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb193-339"><a href="#cb193-339" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-340"><a href="#cb193-340" aria-hidden="true" tabindex="-1"></a>Compared to the standard dfm (w/o dictionaries) we can see there's a bit more diversity in terms of polarity measures. Instead of counts for each token we analyze, we can categorize all tokens into different sentiments which may serve us some good. Next, we're going to be converting the dictionary dfm into a dataframe. From there, we can create a  polarity measure and attempt to visualize the data similarly to how we did prior to converting to dfm. </span>
+<span id="cb193-341"><a href="#cb193-341" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-342"><a href="#cb193-342" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE}</span></span>
+<span id="cb193-343"><a href="#cb193-343" aria-hidden="true" tabindex="-1"></a>bug_df_nrc <span class="ot">&lt;-</span> <span class="fu">convert</span>(bug_dfm_nrc, <span class="at">to =</span> <span class="st">"data.frame"</span>)</span>
+<span id="cb193-344"><a href="#cb193-344" aria-hidden="true" tabindex="-1"></a><span class="co"># Again, these provide the sentiment categories to which we'll be arranging our data</span></span>
+<span id="cb193-345"><a href="#cb193-345" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(bug_df_nrc)</span>
+<span id="cb193-346"><a href="#cb193-346" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-347"><a href="#cb193-347" aria-hidden="true" tabindex="-1"></a>bug_df_nrc<span class="sc">$</span>polarity <span class="ot">&lt;-</span> (bug_df_nrc<span class="sc">$</span>positive <span class="sc">-</span> bug_df_nrc<span class="sc">$</span>negative)<span class="sc">/</span>(bug_df_nrc<span class="sc">$</span>positive <span class="sc">+</span> bug_df_nrc<span class="sc">$</span>negative)</span>
+<span id="cb193-348"><a href="#cb193-348" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-349"><a href="#cb193-349" aria-hidden="true" tabindex="-1"></a>bug_df_nrc<span class="sc">$</span>polarity[(bug_df_nrc<span class="sc">$</span>positive <span class="sc">+</span> bug_df_nrc<span class="sc">$</span>negative) <span class="sc">==</span> <span class="dv">0</span>] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb193-350"><a href="#cb193-350" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-351"><a href="#cb193-351" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(bug_df_nrc) <span class="sc">+</span></span>
+<span id="cb193-352"><a href="#cb193-352" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">x=</span>polarity), <span class="at">binwidth =</span> .<span class="dv">25</span>) <span class="sc">+</span></span>
+<span id="cb193-353"><a href="#cb193-353" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
+<span id="cb193-354"><a href="#cb193-354" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-355"><a href="#cb193-355" aria-hidden="true" tabindex="-1"></a><span class="co"># This function provides us with the most positive reviews ranked at a value of 1</span></span>
+<span id="cb193-356"><a href="#cb193-356" aria-hidden="true" tabindex="-1"></a><span class="fu">writeLines</span>(<span class="fu">head</span>(bug_corpus[<span class="fu">which</span>(bug_df_nrc<span class="sc">$</span>polarity <span class="sc">==</span> <span class="dv">1</span>)]))</span>
+<span id="cb193-357"><a href="#cb193-357" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb193-358"><a href="#cb193-358" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-359"><a href="#cb193-359" aria-hidden="true" tabindex="-1"></a>Interestingly, we receive very similar results to those we received when using dictionaries without coercing to dfm. While not surprised, our operations are still struggling to define what is positive and negative accurately according to our <span class="in">`writeLines`</span> function.</span>
+<span id="cb193-360"><a href="#cb193-360" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-361"><a href="#cb193-361" aria-hidden="true" tabindex="-1"></a><span class="fu">## *Using Different Dictionaries*</span></span>
+<span id="cb193-362"><a href="#cb193-362" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-363"><a href="#cb193-363" aria-hidden="true" tabindex="-1"></a>Seeing as the NRC dictionary didn't exactly give us what we wanted to see, we're going to test drive a few other options we have. We'll start with the General Inquirer dictionary.</span>
+<span id="cb193-364"><a href="#cb193-364" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-365"><a href="#cb193-365" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE}</span></span>
+<span id="cb193-366"><a href="#cb193-366" aria-hidden="true" tabindex="-1"></a><span class="co"># Here we're re-converting our corpus to a dfm using the general inquirer dictionary</span></span>
+<span id="cb193-367"><a href="#cb193-367" aria-hidden="true" tabindex="-1"></a>bug_dfm_geninq <span class="ot">&lt;-</span> bug_dfm <span class="sc">%&gt;%</span></span>
+<span id="cb193-368"><a href="#cb193-368" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dfm_lookup</span>(data_dictionary_geninqposneg)</span>
+<span id="cb193-369"><a href="#cb193-369" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-370"><a href="#cb193-370" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(bug_dfm_geninq, <span class="dv">6</span>)</span>
+<span id="cb193-371"><a href="#cb193-371" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb193-372"><a href="#cb193-372" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-373"><a href="#cb193-373" aria-hidden="true" tabindex="-1"></a>We can see here that the general inquirer dictionary, as opposed NRC, splits sentiments into only 2 categories. Positive and Negative. From the surface, it already looks like we're going to be getting a majority positive. Let's continue.</span>
+<span id="cb193-374"><a href="#cb193-374" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-375"><a href="#cb193-375" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE}</span></span>
+<span id="cb193-376"><a href="#cb193-376" aria-hidden="true" tabindex="-1"></a><span class="co"># Create polarity measure for `geninq`</span></span>
+<span id="cb193-377"><a href="#cb193-377" aria-hidden="true" tabindex="-1"></a>bug_df_geninq <span class="ot">&lt;-</span> <span class="fu">convert</span>(bug_dfm_geninq, <span class="at">to =</span> <span class="st">"data.frame"</span>)</span>
+<span id="cb193-378"><a href="#cb193-378" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-379"><a href="#cb193-379" aria-hidden="true" tabindex="-1"></a>bug_df_geninq<span class="sc">$</span>polarity <span class="ot">&lt;-</span> (bug_df_geninq<span class="sc">$</span>positive <span class="sc">-</span> bug_df_geninq<span class="sc">$</span>negative)<span class="sc">/</span>(bug_df_geninq<span class="sc">$</span>positive <span class="sc">+</span> bug_df_geninq<span class="sc">$</span>negative)</span>
+<span id="cb193-380"><a href="#cb193-380" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-381"><a href="#cb193-381" aria-hidden="true" tabindex="-1"></a>bug_df_geninq<span class="sc">$</span>polarity[<span class="fu">which</span>((bug_df_geninq<span class="sc">$</span>positive <span class="sc">+</span> bug_df_geninq<span class="sc">$</span>negative) <span class="sc">==</span> <span class="dv">0</span>)] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb193-382"><a href="#cb193-382" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-383"><a href="#cb193-383" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(bug_df_geninq)</span>
+<span id="cb193-384"><a href="#cb193-384" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb193-385"><a href="#cb193-385" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-386"><a href="#cb193-386" aria-hidden="true" tabindex="-1"></a>Here we can see a bit of the logic behind the polarity scaling. We can also see that tokens of opposite polarities nullify each other, making it so that the documents are rated as a neutral 0. Interesting, but I'm not sure if it's all that useful toward our analysis.</span>
+<span id="cb193-387"><a href="#cb193-387" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-388"><a href="#cb193-388" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;details&gt;</span></span>
+<span id="cb193-389"><a href="#cb193-389" aria-hidden="true" tabindex="-1"></a>  <span class="kw">&lt;summary&gt;</span> View Code<span class="kw">&lt;/summary&gt;</span></span>
+<span id="cb193-390"><a href="#cb193-390" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb193-391"><a href="#cb193-391" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE}</span></span>
+<span id="cb193-392"><a href="#cb193-392" aria-hidden="true" tabindex="-1"></a><span class="co"># Let's create unique names for each data frame</span></span>
+<span id="cb193-393"><a href="#cb193-393" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(bug_df_nrc) <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="st">"nrc"</span>, <span class="fu">colnames</span>(bug_df_nrc), <span class="at">sep =</span> <span class="st">"_"</span>)</span>
+<span id="cb193-394"><a href="#cb193-394" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(bug_df_geninq) <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="st">"geninq"</span>, <span class="fu">colnames</span>(bug_df_geninq), <span class="at">sep =</span> <span class="st">"_"</span>)</span>
+<span id="cb193-395"><a href="#cb193-395" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-396"><a href="#cb193-396" aria-hidden="true" tabindex="-1"></a><span class="co"># Now let's compare our estimates</span></span>
+<span id="cb193-397"><a href="#cb193-397" aria-hidden="true" tabindex="-1"></a>sent_df <span class="ot">&lt;-</span> <span class="fu">merge</span>(bug_df_nrc, bug_df_geninq, <span class="at">by.x =</span> <span class="st">"nrc_doc_id"</span>, <span class="at">by.y =</span> <span class="st">"geninq_doc_id"</span>)</span>
+<span id="cb193-398"><a href="#cb193-398" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-399"><a href="#cb193-399" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(sent_df)</span>
+<span id="cb193-400"><a href="#cb193-400" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-401"><a href="#cb193-401" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(sent_df<span class="sc">$</span>nrc_polarity, sent_df<span class="sc">$</span>geninq_polarity)</span>
+<span id="cb193-402"><a href="#cb193-402" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb193-403"><a href="#cb193-403" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;/details&gt;</span></span>
+<span id="cb193-404"><a href="#cb193-404" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-405"><a href="#cb193-405" aria-hidden="true" tabindex="-1"></a>With the functions used above, we've now successfully built a correlation model according to the results we received while using the General Inquirer and NRC dictionaries! Now, lets try and plot it.</span>
+<span id="cb193-406"><a href="#cb193-406" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-407"><a href="#cb193-407" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE}</span></span>
+<span id="cb193-408"><a href="#cb193-408" aria-hidden="true" tabindex="-1"></a><span class="co">#  Now we'll plot them out</span></span>
+<span id="cb193-409"><a href="#cb193-409" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sent_df, <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> nrc_polarity,</span>
+<span id="cb193-410"><a href="#cb193-410" aria-hidden="true" tabindex="-1"></a>                              <span class="at">y =</span> geninq_polarity)) <span class="sc">+</span></span>
+<span id="cb193-411"><a href="#cb193-411" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
+<span id="cb193-412"><a href="#cb193-412" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>() <span class="sc">+</span></span>
+<span id="cb193-413"><a href="#cb193-413" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">slope =</span> <span class="dv">1</span>, <span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb193-414"><a href="#cb193-414" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
+<span id="cb193-415"><a href="#cb193-415" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb193-416"><a href="#cb193-416" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-417"><a href="#cb193-417" aria-hidden="true" tabindex="-1"></a>While there was some correlation between both models, we can see from our visual that there is a clear distinction between them as well. The NRC dictionary seems to rank polarity in an extremely linear fashion while the General Inquirer rankings are much more fluid and varying. The variance between both show us that it's going to come down to what better serves our analysis. What other options could we benefit from? Next, we're going to experiment a bit with applying dictionaries within contexts.</span>
+<span id="cb193-418"><a href="#cb193-418" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-419"><a href="#cb193-419" aria-hidden="true" tabindex="-1"></a><span class="fu">## *Dictionaries within Contexts*</span></span>
+<span id="cb193-420"><a href="#cb193-420" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-421"><a href="#cb193-421" aria-hidden="true" tabindex="-1"></a>Using contexts within dictionary analysis essentially let us prompt our functions with "context vectors" that provide the data with key words to use in its associations. We start by isolating the tokens we wish to use as context.</span>
+<span id="cb193-422"><a href="#cb193-422" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-423"><a href="#cb193-423" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE}</span></span>
+<span id="cb193-424"><a href="#cb193-424" aria-hidden="true" tabindex="-1"></a><span class="co"># tokenize corpus</span></span>
+<span id="cb193-425"><a href="#cb193-425" aria-hidden="true" tabindex="-1"></a>bug_tokens <span class="ot">&lt;-</span> <span class="fu">tokens</span>(bug_corpus, <span class="at">remove_punct =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb193-426"><a href="#cb193-426" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-427"><a href="#cb193-427" aria-hidden="true" tabindex="-1"></a><span class="co"># what are the context (target) words or phrases</span></span>
+<span id="cb193-428"><a href="#cb193-428" aria-hidden="true" tabindex="-1"></a>bug_words <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"eating bugs"</span>, <span class="st">"eating insects"</span>, <span class="st">"bug"</span>, <span class="st">"bugs"</span>, <span class="st">"insect"</span>, <span class="st">"insects"</span>)</span>
+<span id="cb193-429"><a href="#cb193-429" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-430"><a href="#cb193-430" aria-hidden="true" tabindex="-1"></a><span class="co"># retain only our tokens and their context</span></span>
+<span id="cb193-431"><a href="#cb193-431" aria-hidden="true" tabindex="-1"></a>tokens_bugs <span class="ot">&lt;-</span> <span class="fu">tokens_keep</span>(bug_tokens, <span class="at">pattern =</span> <span class="fu">phrase</span>(bug_words), <span class="at">window =</span> <span class="dv">40</span>)</span>
+<span id="cb193-432"><a href="#cb193-432" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb193-433"><a href="#cb193-433" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-434"><a href="#cb193-434" aria-hidden="true" tabindex="-1"></a>Next, within those token sets, we can pull out the positive and negative dictionaries to get an inside look at what we're working with. In this case we'll be using the Lexicoder Sentiment Dictionary or <span class="in">`LSD`</span> as it's denoted in the functions below. Once we've done that, we'll coerce our token object into a DFM.</span>
+<span id="cb193-435"><a href="#cb193-435" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-436"><a href="#cb193-436" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE}</span></span>
+<span id="cb193-437"><a href="#cb193-437" aria-hidden="true" tabindex="-1"></a>data_dictionary_LSD2015_pos_neg <span class="ot">&lt;-</span> data_dictionary_LSD2015[<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>]</span>
+<span id="cb193-438"><a href="#cb193-438" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-439"><a href="#cb193-439" aria-hidden="true" tabindex="-1"></a>tokens_bugs_lsd <span class="ot">&lt;-</span> <span class="fu">tokens_lookup</span>(tokens_bugs,</span>
+<span id="cb193-440"><a href="#cb193-440" aria-hidden="true" tabindex="-1"></a>                                <span class="at">dictionary =</span> data_dictionary_LSD2015_pos_neg)</span>
+<span id="cb193-441"><a href="#cb193-441" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-442"><a href="#cb193-442" aria-hidden="true" tabindex="-1"></a>dfm_bugs <span class="ot">&lt;-</span> <span class="fu">dfm</span>(tokens_bugs_lsd)</span>
+<span id="cb193-443"><a href="#cb193-443" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(dfm_bugs, <span class="dv">10</span>)</span>
+<span id="cb193-444"><a href="#cb193-444" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb193-445"><a href="#cb193-445" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-446"><a href="#cb193-446" aria-hidden="true" tabindex="-1"></a>Finally, we'll use the objects we've created thus far to; create a data frame, drop any features that contain only 0 values (have neither negative nor positive tokens within the document), print a summary sentence to tell us exactly how many tweets mention positive or negative tokens in the context of eating bugs, and finally create &amp; plot the resulting polarity scores</span>
+<span id="cb193-447"><a href="#cb193-447" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-448"><a href="#cb193-448" aria-hidden="true" tabindex="-1"></a><span class="in">```{r, echo=TRUE}</span></span>
+<span id="cb193-449"><a href="#cb193-449" aria-hidden="true" tabindex="-1"></a><span class="co"># convert to data frame</span></span>
+<span id="cb193-450"><a href="#cb193-450" aria-hidden="true" tabindex="-1"></a>mat_bugs <span class="ot">&lt;-</span> <span class="fu">convert</span>(dfm_bugs, <span class="at">to =</span> <span class="st">"data.frame"</span>)</span>
+<span id="cb193-451"><a href="#cb193-451" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-452"><a href="#cb193-452" aria-hidden="true" tabindex="-1"></a><span class="co"># drop if both features are 0</span></span>
+<span id="cb193-453"><a href="#cb193-453" aria-hidden="true" tabindex="-1"></a>mat_bugs <span class="ot">&lt;-</span> mat_bugs[<span class="sc">-</span><span class="fu">which</span>((mat_bugs<span class="sc">$</span>negative <span class="sc">+</span> mat_bugs<span class="sc">$</span>positive)<span class="sc">==</span><span class="dv">0</span>),]</span>
+<span id="cb193-454"><a href="#cb193-454" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-455"><a href="#cb193-455" aria-hidden="true" tabindex="-1"></a><span class="co"># print a little summary info</span></span>
+<span id="cb193-456"><a href="#cb193-456" aria-hidden="true" tabindex="-1"></a><span class="fu">paste</span>(<span class="st">"We have "</span>,<span class="fu">nrow</span>(mat_bugs),<span class="st">" tweets that mention positive or negative words in the context of eating bugs or insects."</span>, <span class="at">sep=</span><span class="st">""</span>)</span>
+<span id="cb193-457"><a href="#cb193-457" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-458"><a href="#cb193-458" aria-hidden="true" tabindex="-1"></a><span class="co"># create polarity scores</span></span>
+<span id="cb193-459"><a href="#cb193-459" aria-hidden="true" tabindex="-1"></a>mat_bugs<span class="sc">$</span>polarity <span class="ot">&lt;-</span> (mat_bugs<span class="sc">$</span>positive <span class="sc">-</span> mat_bugs<span class="sc">$</span>negative)<span class="sc">/</span>(mat_bugs<span class="sc">$</span>positive <span class="sc">+</span> mat_bugs<span class="sc">$</span>negative)</span>
+<span id="cb193-460"><a href="#cb193-460" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-461"><a href="#cb193-461" aria-hidden="true" tabindex="-1"></a><span class="co"># summary</span></span>
+<span id="cb193-462"><a href="#cb193-462" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mat_bugs<span class="sc">$</span>polarity)</span>
+<span id="cb193-463"><a href="#cb193-463" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-464"><a href="#cb193-464" aria-hidden="true" tabindex="-1"></a><span class="co"># plot</span></span>
+<span id="cb193-465"><a href="#cb193-465" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mat_bugs) <span class="sc">+</span> </span>
+<span id="cb193-466"><a href="#cb193-466" aria-hidden="true" tabindex="-1"></a>     <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">x=</span>polarity), <span class="at">binwidth =</span> .<span class="dv">25</span>) <span class="sc">+</span> </span>
+<span id="cb193-467"><a href="#cb193-467" aria-hidden="true" tabindex="-1"></a>     <span class="fu">theme_bw</span>()</span>
+<span id="cb193-468"><a href="#cb193-468" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb193-469"><a href="#cb193-469" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb193-470"><a href="#cb193-470" aria-hidden="true" tabindex="-1"></a>Look at those results! Out of all the data we've pulled and created thus far, I believe the Lexicoder Sentiment Dictionary (<span class="in">`LSD`</span>) has provided us with the most accurate results. If we were to use the <span class="in">`view(mat_bugs)`</span> function, we could see the breakdown of the polarity scores and how each individual document received it's ranking. The one problem I still notice is the relevance of certain tweets in the context of humans eating bugs, but I believe our pre-processing work assists with filtering those down enough so that they don't skew our final results. With that, we'll close out our post for today. Thank you for reading! :)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+</body></html>
