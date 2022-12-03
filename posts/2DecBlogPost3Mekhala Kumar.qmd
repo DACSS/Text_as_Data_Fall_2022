@@ -1,0 +1,209 @@
+---
+title: "Blog Post 3 "
+author: "Mekhala Kumar"
+description: "Further Preprocessing"
+date: "11/29/2022"
+format:
+  html:
+    toc: true
+    code-copy: true
+    code-tools: true
+categories:
+  - MekhalaKumar
+  - Olympics2020
+  - GenderandSports
+  - BlogPost3
+---
+
+In this post, I focused on fixing the issues I faced while preprocessing the data in the previous blog post. 
+```{r}
+#| label: setup
+#| warning: false
+#| message: false
+library(tidyverse)
+library(quanteda)
+#devtools::install_github("quanteda/readtext") 
+library(readtext)
+library(striprtf)
+#library(LexisNexisTools)
+library(corpus)
+library(quanteda.textplots)
+library(readr)
+```
+
+
+## The dataset
+I was able to save the files, that were read in, as an R object. So that fixed the problem where it was taking a large amount of time to load all the files. 
+```{r}
+#saveRDS(df, file = "Data/All12Files.rds")
+df_All<-readRDS(file = "D:/Text as Data/All12Files.rds")
+df1<-df_All
+
+```
+
+## Modification of the files that were read in
+Before moving to the preprocessing steps, I had to clean the data since there were many white spaces and terms present that were not required.\
+I was able to extract and separate the newspaper name, date and main text of the article successfully after following the suggestions of Professor Song.\
+This was done by removing leading and trailing whitespaces as well as finding common words used that could help separate the text into the columns required. 
+
+## Cleaning up the name of newspapers and the dates
+The rows of text which did not have the names of the newspapers were removed. 
+```{r}
+df1$Newspaper_Date <- str_squish(df1$Newspaper_Date)
+df2 <- df1 %>%
+  filter(Newspaper_Date != "")
+df2_cleaning2 <- df2 %>%
+  separate(Newspaper_Date, into = c("newspaper", "date"),
+         sep = "(?=(August|July))")
+glimpse(df2_cleaning2)
+
+df2_cleaning2$newspaper <- str_squish(df2_cleaning2$newspaper)
+
+df2_cleaning2<-df2_cleaning2%>%separate(date, into=c("date", "Delete"), sep="Copyright")%>%select(-Delete)
+
+df2_cleaning2 <- df2_cleaning2 %>%
+  separate(date, into = c("date", "delete"),
+           sep = "(?=(Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday))")%>%select(-delete)
+```
+
+## Cleaning up the main information of the article
+I found that there were two formats in which the main information was saved; hence there were two approaches taken to clean the same. \
+I also checked a few rows of data to see if the information extracted was in the format that I wanted it to be in. 
+```{r}
+df2_cleaning2$Body <- str_squish(df2_cleaning2$Body)
+df2_cleaning2$Body <- gsub("^(.{4})(.*)$",
+                           "\\1-\\2",
+                           df2_cleaning2$Body)
+df2_cleaning_reg <- df2_cleaning2 %>%
+ separate(Body, into = c("delete", "body"),
+  sep = "[\\d+] --")
+
+df2_cleaning4 <- df2_cleaning_reg %>%
+  filter(is.na(body))
+
+df2_cleaning_remaining <- df2_cleaning_reg %>%
+  filter(!is.na(body))
+
+df2_cleaning5 <- df2_cleaning4 %>%
+  separate(delete, into = c("delete2", "body2"),
+           sep = "Body- ") %>%
+  select(-delete2, -body)
+
+glimpse(df2_cleaning4)
+glimpse(df2_cleaning_remaining)
+
+df2_cleaning_remaining <- df2_cleaning_remaining %>%
+  select(-delete)
+df2_cleaning5 <- df2_cleaning5 %>%
+  rename(body = body2)
+
+df2_cleaned_all <- rbind(df2_cleaning_remaining,
+                         df2_cleaning5)
+
+df2_cleaned_all%>%select(body)%>%filter(row_number() %in% c(1))
+df2_cleaned_all%>%select(body)%>%filter(row_number() %in% c(60))
+
+
+df2_cleaned_all_more<-df2_cleaned_all%>%separate(body, into = c("body", "delete"),sep = "Published|Classification")
+df2_cleaned_all_more <- df2_cleaned_all_more %>%
+  select(-delete)
+
+df2_cleaned_all_more%>%select(body)%>%filter(row_number() %in% c(1))
+df2_cleaned_all_more%>%select(body)%>%filter(row_number() %in% c(8))
+df2_cleaned_all_more%>%select(body)%>%filter(row_number() %in% c(166))
+
+
+df2_cleaned_all_more$Tags <- str_squish(df2_cleaned_all_more$Tags)
+```
+
+ 
+
+```{r}
+#saveRDS(df2_cleaned_all_more, file = "Data/CleanData.rds")
+```
+# Preprocessing
+Once the data was cleaned, I followed the same preprocessing steps as in the previous post but checked if there were any significant differences by comparing the word clouds obtained in the previous post and the current post. 
+
+# Creating the corpus and looking at the number of tokens in each document
+```{r}
+newspaper_corpus <- corpus(df2_cleaned_all_more,text_field = "body")
+
+newspaper_corpus_summary <- summary(newspaper_corpus)
+head(newspaper_corpus_summary)
+
+newspaper_corpus_summary$Tokens
+ndoc(newspaper_corpus)
+```
+
+# Checking for metadata
+There was metadata but too many pages were being printed so I commented out the line. 
+```{r}
+#docvars(newspaper_corpus)
+```
+
+# Creating tokens
+```{r}
+newspaper_tokens <- tokens(newspaper_corpus)
+head(newspaper_tokens)
+#print(newspaper_tokens)
+#sprintf(as.character(newspaper_tokens[1]))
+```
+
+# Removing punctuation
+```{r}
+newspaper_tokens <- tokens(newspaper_tokens ,
+                                    remove_punct = T)
+head(newspaper_tokens)
+```
+
+# Removing stopwords
+```{r}
+withoutstopwords_news<- tokens_select(newspaper_tokens, 
+                    pattern = stopwords("en"),
+                    select = "remove")
+print(withoutstopwords_news)
+head(withoutstopwords_news)
+#as.character(withoutstopwords_news)
+
+```
+
+```{r}
+#saveRDS(withoutstopwords_news, file = "Data/PreprocessedData.rds")
+```
+
+# Keyword in context
+```{r}
+kwic_women<- kwic(withoutstopwords_news,
+                        pattern = c("women"))
+kwic_men<-kwic(withoutstopwords_news,
+                        pattern = c("men"))
+head(kwic_women)
+head(kwic_men)
+```
+
+# Creating a tokens object with bigrams and trigrams 
+
+```{r}
+news_ngrams <- tokens_ngrams(withoutstopwords_news, n=2:3)
+head(news_ngrams)
+tail(news_ngrams)
+```
+
+# Word Cloud
+I created a word cloud to check if there are any words other than the stopwords to be removed.\
+This time the words classification, publication-type and body did not appear so the preprocessing was successful.
+```{r}
+news_dfm <- dfm(tokens(withoutstopwords_news))
+news_dfm
+textplot_wordcloud(news_dfm, min_count = 50, random_order = FALSE)
+```
+
+```{r}
+#saveRDS(news_dfm, file = "Data/News_DFM.rds")
+```
+
+Questions:
+1. How can I use the data of the classification tags and newspaper names in my analysis?
+2. Is the word cloud accurate because some of the words were omitted from the image?\
+
+In my next blog post, I will begin the process of topic modelling. 
