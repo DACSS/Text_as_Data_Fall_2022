@@ -21,9 +21,9 @@ categories:
 #| warning: false
 #| message: false
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
-```
 
-```{r}
+load("post3_saaradhaa.rdata")
+
 library(tidyverse)
 library(stringr)
 library(quanteda)
@@ -60,8 +60,7 @@ In this post, I will focus on cleaning and pre-processing my data into a format 
 
 ```{r}
 # list out files.
-file_list <- dir("~/Desktop/2022_Fall/GitHub/Text_as_Data_Fall_2022/posts/Transcripts", 
-             full.names = TRUE, pattern = "*.txt")
+file_list <- dir("~/Desktop/2022_Fall/GitHub/Text_as_Data_Fall_2022/posts/Transcripts", full.names = TRUE, pattern = "*.txt")
 
 # create list of text files.
 transcripts <- readtext(paste0(file_list), docvarnames = c("transcript", "text"))
@@ -130,6 +129,8 @@ I want to test out n-grams with the first transcript to get a sense of what kind
 documents <- transcripts$text[1]
 phrases <- phrasemachine(documents, minimum_ngram_length = 2, maximum_ngram_length = 4, return_phrase_vectors = TRUE, return_tag_sequences = TRUE)
 phrases[[1]]$phrases[1:100]
+
+# save.image("post3_saaradhaa.RData")
 ```
 
 Just from the above phrases, it seems like my leaning towards topic modelling might be good for the transcripts. We can see references to South Asia (Mahatma Gandhi, Bombay, East Indians) and the US (Tufts, Massachusetts). There are also references to WW2, which could potentially come up as a topic.
