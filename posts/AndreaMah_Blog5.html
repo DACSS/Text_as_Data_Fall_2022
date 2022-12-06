@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.0.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Andrea Mah">
+<meta name="dcterms.date" content="2022-11-30">
+
+<title>Text-as-Data Fall 2022 - Blog Post 5: Topic Modeling</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../images/DACSS_Round_Network.png" rel="icon" type="image/png">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+<meta name="twitter:title" content="Text-as-Data Fall 2022 - Blog Post 5: Topic Modeling">
+<meta name="twitter:description" content="For the next stage in my project, I wanted to use topic modeling.">
+<meta name="twitter:creator" content="@UMassDACSS">
+<meta name="twitter:card" content="summary">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <a class="navbar-brand" href="../index.html">
+    <img src="../images/UMass White Wordmark Horiz.png" alt="">
+    <span class="navbar-title">Text-as-Data Fall 2022</span>
+  </a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="https://dacss.github.io/Text_as_Data_Fall_2022/">Fall 2022</a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html">Contributors</a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://umass.edu/sbs/dacss">DACSS</a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/DACSS/Text_as_Data_Fall_2022"><i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+ </a>
+  </li>  
+</ul>
+              <div class="quarto-toggle-container">
+                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+              </div>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Blog Post 5: Topic Modeling</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+  <div class="quarto-categories">
+    <div class="quarto-category">BlogPost4</div>
+    <div class="quarto-category">Andrea Mah</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Andrea Mah </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">November 30, 2022</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+</header>
+
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#loading in nececssary libraries</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>Package version: 3.2.3
+Unicode version: 13.0
+ICU version: 69.1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Parallel computing: 8 of 8 threads used.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>See https://quanteda.io for tutorials and examples.</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'dplyr'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:stats':
+
+    filter, lag</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'ggplot2' was built under R version 4.2.2</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(text2vec)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'text2vec' was built under R version 4.2.2</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stopwords)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RCurl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'RCurl'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:tidyr':
+
+    complete</code></pre>
+</div>
+</div>
+<p>For the next stage in my project, I wanted to use topic modeling. Although I’m not sure I will use it in my final project, since I don’t have clear hypotheses about topics and so whatever I find will be purely exploratory and/or descriptive. While I think it would be interesting to see the links between topics and my metadata (climate risk index, year of speech), I don’t have strong ideas about a) what the topics will be, given that in my reading of speeches they seem highly similar and b) what topics might relate to in terms of climate risk or year of speech.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">#load in and check the data</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>speech.meta <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="at">file =</span> <span class="st">"FINAL_combined_meta-text_dataset.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in file(file, "rt"): cannot open file 'FINAL_combined_meta-
+text_dataset.csv': No such file or directory</code></pre>
+</div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in file(file, "rt"): cannot open the connection</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span>(speech.meta)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in tail(speech.meta): object 'speech.meta' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(speech.meta)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'speech.meta' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co">#limit the dataset to just text and filenum</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>speech.meta <span class="ot">&lt;-</span> speech.meta[,<span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">7</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'speech.meta' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(speech.meta)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in head(speech.meta): object 'speech.meta' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>speech.meta.ac <span class="ot">&lt;-</span> <span class="fu">as.character</span>(speech.meta<span class="sc">$</span>text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'speech.meta' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>speech.meta.ac</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'speech.meta.ac' not found</code></pre>
+</div>
+</div>
+<p>After getting the data ready, I followed the steps to set up the model as we learned in class.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co">#create iterator</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>it <span class="ot">&lt;-</span><span class="fu">itoken</span>(speech.meta.ac, tolower, word_tokenizer, <span class="at">ids =</span> speech.meta<span class="sc">$</span>textnum, <span class="at">n_chunks =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in itoken(speech.meta.ac, tolower, word_tokenizer, ids = speech.meta$textnum, : object 'speech.meta.ac' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># prints iterator</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>it</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'it' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># build the vocabulary, removing stopwords and some other tokens that are not meaningful</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>sw <span class="ot">&lt;-</span> <span class="fu">stopwords</span>(<span class="st">"en"</span>, <span class="at">source =</span> <span class="st">"snowball"</span>)</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="fu">typeof</span>(sw)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "character"</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>sw</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  [1] "i"          "me"         "my"         "myself"     "we"        
+  [6] "our"        "ours"       "ourselves"  "you"        "your"      
+ [11] "yours"      "yourself"   "yourselves" "he"         "him"       
+ [16] "his"        "himself"    "she"        "her"        "hers"      
+ [21] "herself"    "it"         "its"        "itself"     "they"      
+ [26] "them"       "their"      "theirs"     "themselves" "what"      
+ [31] "which"      "who"        "whom"       "this"       "that"      
+ [36] "these"      "those"      "am"         "is"         "are"       
+ [41] "was"        "were"       "be"         "been"       "being"     
+ [46] "have"       "has"        "had"        "having"     "do"        
+ [51] "does"       "did"        "doing"      "would"      "should"    
+ [56] "could"      "ought"      "i'm"        "you're"     "he's"      
+ [61] "she's"      "it's"       "we're"      "they're"    "i've"      
+ [66] "you've"     "we've"      "they've"    "i'd"        "you'd"     
+ [71] "he'd"       "she'd"      "we'd"       "they'd"     "i'll"      
+ [76] "you'll"     "he'll"      "she'll"     "we'll"      "they'll"   
+ [81] "isn't"      "aren't"     "wasn't"     "weren't"    "hasn't"    
+ [86] "haven't"    "hadn't"     "doesn't"    "don't"      "didn't"    
+ [91] "won't"      "wouldn't"   "shan't"     "shouldn't"  "can't"     
+ [96] "cannot"     "couldn't"   "mustn't"    "let's"      "that's"    
+[101] "who's"      "what's"     "here's"     "there's"    "when's"    
+[106] "where's"    "why's"      "how's"      "a"          "an"        
+[111] "the"        "and"        "but"        "if"         "or"        
+[116] "because"    "as"         "until"      "while"      "of"        
+[121] "at"         "by"         "for"        "with"       "about"     
+[126] "against"    "between"    "into"       "through"    "during"    
+[131] "before"     "after"      "above"      "below"      "to"        
+[136] "from"       "up"         "down"       "in"         "out"       
+[141] "on"         "off"        "over"       "under"      "again"     
+[146] "further"    "then"       "once"       "here"       "there"     
+[151] "when"       "where"      "why"        "how"        "all"       
+[156] "any"        "both"       "each"       "few"        "more"      
+[161] "most"       "other"      "some"       "such"       "no"        
+[166] "nor"        "not"        "only"       "own"        "same"      
+[171] "so"         "than"       "too"        "very"       "will"      </code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>sw <span class="ot">&lt;-</span> <span class="fu">c</span>(sw, <span class="st">"must"</span>, <span class="st">"can"</span>, <span class="st">"c"</span>, <span class="st">"mr"</span>, <span class="st">'v'</span>, <span class="st">"il"</span>, <span class="st">"tt"</span>, <span class="st">"ll"</span>, <span class="st">"aij"</span>, <span class="st">"j"</span>, <span class="st">"es"</span>, <span class="st">"ul"</span>,<span class="st">"wi"</span>, <span class="st">"q"</span>, <span class="st">"el"</span>, <span class="st">"tl"</span>, <span class="st">"cl"</span>, <span class="st">"la"</span>, <span class="st">"er"</span>, <span class="st">"tt"</span>,<span class="st">"ul"</span>, <span class="st">"fl"</span>, <span class="st">"fi"</span>, <span class="st">"r"</span>, <span class="st">"l"</span>, <span class="st">"lo"</span>, <span class="st">"tel"</span>, <span class="st">"cl"</span>, <span class="st">"la"</span>, <span class="st">"z"</span>, <span class="st">"le"</span>, <span class="st">"en"</span>, <span class="st">"ch"</span>, <span class="st">"ed"</span>, <span class="st">"fl"</span>, <span class="st">"er"</span>, <span class="st">"fi"</span>, <span class="st">"co"</span>)</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="co">#create vocabulary</span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>v <span class="ot">&lt;-</span> <span class="fu">create_vocabulary</span>(it, <span class="at">stopwords =</span> sw, <span class="at">doc_proportion_max =</span> .<span class="dv">95</span>, <span class="at">doc_proportion_min =</span> .<span class="dv">05</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in create_vocabulary(it, stopwords = sw, doc_proportion_max = 0.95, : object 'it' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co">#I want to prune the vocabulary: </span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>v <span class="ot">&lt;-</span> <span class="fu">prune_vocabulary</span>(v, <span class="at">term_count_min =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in prune_vocabulary(v, term_count_min = 10): object 'v' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co"># creates a closure that helps transform list of tokens into vector space</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>vectorizer <span class="ot">&lt;-</span> <span class="fu">vocab_vectorizer</span>(v)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in force(vocabulary): object 'v' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co"># creates document term matrix</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>dtm <span class="ot">&lt;-</span> <span class="fu">create_dtm</span>(it, vectorizer, <span class="at">type =</span> <span class="st">"dgTMatrix"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in create_dtm(it, vectorizer, type = "dgTMatrix"): object 'it' not found</code></pre>
+</div>
+</div>
+<p>Next I ran a series of models, testing different numbers of topics. I started with 10 since that seemeed like a lot of topics to me and I thought it would be informative. As I thought, many topics were not very prevalent in the documents.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create new LDA model with 10 topics</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>lda_model <span class="ot">&lt;-</span> LDA<span class="sc">$</span><span class="fu">new</span>(<span class="at">n_topics =</span> <span class="dv">10</span>, <span class="at">doc_topic_prior =</span> <span class="fl">0.1</span>,</span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">topic_word_prior =</span> <span class="fl">0.01</span>)</span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a><span class="co"># fitting the model</span></span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a>doc_topic_distr <span class="ot">&lt;-</span> </span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a>  lda_model<span class="sc">$</span><span class="fu">fit_transform</span>(<span class="at">x =</span> dtm, <span class="at">n_iter =</span> <span class="dv">5000</span>,</span>
+<span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a>                          <span class="at">convergence_tol =</span> <span class="fl">0.001</span>, <span class="at">n_check_convergence =</span> <span class="dv">25</span>,</span>
+<span id="cb47-10"><a href="#cb47-10" aria-hidden="true" tabindex="-1"></a>                          <span class="at">progressbar =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'rowSums': object 'dtm' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="co"># View the topics </span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>lda_model<span class="sc">$</span><span class="fu">get_top_words</span>(<span class="at">n =</span> <span class="dv">20</span>, <span class="at">topic_number =</span> <span class="fu">c</span>(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L),</span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">lambda =</span> <span class="fl">0.3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in lda_model$get_top_words(n = 20, topic_number = c(1L, 2L, 3L, : n &gt;= 1 &amp;&amp; n &lt;= length(private$vocabulary) is not TRUE</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="co">#What proportion of documents fit different topics? </span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="fu">barplot</span>(doc_topic_distr[<span class="dv">2</span>, ], <span class="at">xlab =</span> <span class="st">"topic"</span>,</span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">ylab =</span> <span class="st">"proportion"</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),</span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">names.arg =</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">ncol</span>(doc_topic_distr))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in barplot(doc_topic_distr[2, ], xlab = "topic", ylab = "proportion", : object 'doc_topic_distr' not found</code></pre>
+</div>
+</div>
+<p>Since the percentages were so low, I decided to try a model with a lower number of topics, moving to extraction of 5 topics.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="co">#for some topics, the proportion is very low. </span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a><span class="co">#now I want to test with 5 topics. </span></span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>lda_model5 <span class="ot">&lt;-</span> LDA<span class="sc">$</span><span class="fu">new</span>(<span class="at">n_topics =</span> <span class="dv">5</span>, <span class="at">doc_topic_prior =</span> <span class="fl">0.1</span>,</span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a>                     <span class="at">topic_word_prior =</span> <span class="fl">0.01</span>)</span>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a>doc_topic_distr5 <span class="ot">&lt;-</span> </span>
+<span id="cb53-7"><a href="#cb53-7" aria-hidden="true" tabindex="-1"></a>  lda_model5<span class="sc">$</span><span class="fu">fit_transform</span>(<span class="at">x =</span> dtm, <span class="at">n_iter =</span> <span class="dv">5000</span>,</span>
+<span id="cb53-8"><a href="#cb53-8" aria-hidden="true" tabindex="-1"></a>                          <span class="at">convergence_tol =</span> <span class="fl">0.001</span>, <span class="at">n_check_convergence =</span> <span class="dv">25</span>,</span>
+<span id="cb53-9"><a href="#cb53-9" aria-hidden="true" tabindex="-1"></a>                          <span class="at">progressbar =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'rowSums': object 'dtm' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="co"># View the topics </span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>lda_model5<span class="sc">$</span><span class="fu">get_top_words</span>(<span class="at">n =</span> <span class="dv">20</span>, <span class="at">topic_number =</span> <span class="fu">c</span>(1L, 2L, 3L, 4L, 5L),</span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">lambda =</span> <span class="fl">0.3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in lda_model5$get_top_words(n = 20, topic_number = c(1L, 2L, 3L, : n &gt;= 1 &amp;&amp; n &lt;= length(private$vocabulary) is not TRUE</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="co">#what proportion of docs fit the topics? </span></span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a><span class="fu">barplot</span>(doc_topic_distr5[<span class="dv">2</span>, ], <span class="at">xlab =</span> <span class="st">"topic"</span>,</span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">ylab =</span> <span class="st">"proportion"</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),</span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">names.arg =</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">ncol</span>(doc_topic_distr5))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in barplot(doc_topic_distr5[2, ], xlab = "topic", ylab = "proportion", : object 'doc_topic_distr5' not found</code></pre>
+</div>
+</div>
+<p>Less than 20% of documents are of 3 of these topics. Further, there were some topics that I had difficulty interpreting or thinking why they were separate. At this point I was starting to see some consistency in terms of which topics were extracted. For example, there was one topic that seemed to be very “solutions” focused with words like energy, development, technologies…However, I thought that maybe I should use even fewer topics?</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>lda_model4 <span class="ot">&lt;-</span> LDA<span class="sc">$</span><span class="fu">new</span>(<span class="at">n_topics =</span> <span class="dv">4</span>, <span class="at">doc_topic_prior =</span> <span class="fl">0.1</span>,</span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">topic_word_prior =</span> <span class="fl">0.01</span>)</span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a>doc_topic_distr4 <span class="ot">&lt;-</span> </span>
+<span id="cb59-5"><a href="#cb59-5" aria-hidden="true" tabindex="-1"></a>  lda_model4<span class="sc">$</span><span class="fu">fit_transform</span>(<span class="at">x =</span> dtm, <span class="at">n_iter =</span> <span class="dv">5000</span>,</span>
+<span id="cb59-6"><a href="#cb59-6" aria-hidden="true" tabindex="-1"></a>                           <span class="at">convergence_tol =</span> <span class="fl">0.001</span>, <span class="at">n_check_convergence =</span> <span class="dv">25</span>,</span>
+<span id="cb59-7"><a href="#cb59-7" aria-hidden="true" tabindex="-1"></a>                           <span class="at">progressbar =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'rowSums': object 'dtm' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>lda_model4<span class="sc">$</span><span class="fu">get_top_words</span>(<span class="at">n =</span> <span class="dv">20</span>, <span class="at">topic_number =</span> <span class="fu">c</span>(1L, 2L, 3L, 4L),</span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>                         <span class="at">lambda =</span> <span class="fl">0.3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in lda_model4$get_top_words(n = 20, topic_number = c(1L, 2L, 3L, : n &gt;= 1 &amp;&amp; n &lt;= length(private$vocabulary) is not TRUE</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="co">#what proportion of docs fit the topics? </span></span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a><span class="fu">barplot</span>(doc_topic_distr4[<span class="dv">2</span>, ], <span class="at">xlab =</span> <span class="st">"topic"</span>,</span>
+<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">ylab =</span> <span class="st">"proportion"</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),</span>
+<span id="cb63-4"><a href="#cb63-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">names.arg =</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">ncol</span>(doc_topic_distr4))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in barplot(doc_topic_distr4[2, ], xlab = "topic", ylab = "proportion", : object 'doc_topic_distr4' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>doc_topic_distr4</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'doc_topic_distr4' not found</code></pre>
+</div>
+</div>
+<p>I think 4 topics look meaningful, and at least each topic has 10% of documents classified as most likely being within that topic. But, to be safe, and to explore the data even more, I also looked at a 3 topic model.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>lda_model3 <span class="ot">&lt;-</span> LDA<span class="sc">$</span><span class="fu">new</span>(<span class="at">n_topics =</span> <span class="dv">3</span>, <span class="at">doc_topic_prior =</span> <span class="fl">0.1</span>,</span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">topic_word_prior =</span> <span class="fl">0.01</span>)</span>
+<span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb67-4"><a href="#cb67-4" aria-hidden="true" tabindex="-1"></a>doc_topic_distr3 <span class="ot">&lt;-</span> </span>
+<span id="cb67-5"><a href="#cb67-5" aria-hidden="true" tabindex="-1"></a>  lda_model3<span class="sc">$</span><span class="fu">fit_transform</span>(<span class="at">x =</span> dtm, <span class="at">n_iter =</span> <span class="dv">5000</span>,</span>
+<span id="cb67-6"><a href="#cb67-6" aria-hidden="true" tabindex="-1"></a>                           <span class="at">convergence_tol =</span> <span class="fl">0.001</span>, <span class="at">n_check_convergence =</span> <span class="dv">25</span>,</span>
+<span id="cb67-7"><a href="#cb67-7" aria-hidden="true" tabindex="-1"></a>                           <span class="at">progressbar =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'rowSums': object 'dtm' not found</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a>lda_model3<span class="sc">$</span><span class="fu">get_top_words</span>(<span class="at">n =</span> <span class="dv">20</span>, <span class="at">topic_number =</span> <span class="fu">c</span>(1L, 2L, 3L),</span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>                         <span class="at">lambda =</span> <span class="fl">0.3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in lda_model3$get_top_words(n = 20, topic_number = c(1L, 2L, 3L), : n &gt;= 1 &amp;&amp; n &lt;= length(private$vocabulary) is not TRUE</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="co">#what proportion of docs fit the topics? </span></span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a><span class="fu">barplot</span>(doc_topic_distr3[<span class="dv">2</span>, ], <span class="at">xlab =</span> <span class="st">"topic"</span>,</span>
+<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">ylab =</span> <span class="st">"proportion"</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),</span>
+<span id="cb71-4"><a href="#cb71-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">names.arg =</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">ncol</span>(doc_topic_distr3))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in barplot(doc_topic_distr3[2, ], xlab = "topic", ylab = "proportion", : object 'doc_topic_distr3' not found</code></pre>
+</div>
+</div>
+<p>It seems like the 4-topic solution is what I should go with. Now I should try to describe each topic. Because this is completely exploratory, I thought it would be better to use a naming method that simply relies on top words in each topic.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>lda_model4<span class="sc">$</span><span class="fu">plot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-error">
+<pre><code>Error in lda_model4$plot(): To use visualisation, please install 'LDAvis' package first.</code></pre>
+</div>
+</div>
+<p>This resulted in the following four topics. I can speculate about the content of each but want to explore the speeches which are most likely classified under each before doing so…</p>
+<p>#topic 1: convention_parties_president_protocol_annex - perhaps this is about the UNFCC itself/the proccess #topic 2: us_agreement_need_action_challenge - this also seems sort of process focused, ‘how will we go about solving the problems’ #topic 3: energy_development_technologies_projects_sustainable - this seems solution-focused to me, ‘what should we do about climate change’ #topic 4: island_people_human_small_sea - this final topic feels different from the others, based on my initial exploration I feel like it is really focused on how people are being impacted or the ‘human element of climate change’.</p>
+<p>Next steps: Although it would be completely exploratory (and again, maybe not relevant to my key research questions) I was wondering what it would mean to see how the climate risk index relates to topic prevalence? As well, I could look at topic probabilities changing over time (i.e., by year of speech)?</p>
+<p>To examine this, I want to save the probabilities for the four topics for each document, and then use my metadata to look at correlations/regressions between these and the topics. I haven’t figured out a clean way to export these probabilities and join them with my original data. Because it isn’t a priority for me, my plan is to return to topic modeling after completing the other key analyses.</p>
+<p>Further, based on my past experience doing similar types of analyses (to me, the concept seems highly similar to latent class/profile analysis and factor analysis) I feel like I need to more deeply think about what these topics are about, what they represent, and (becaues of my area of interest) what they mean psychologically. It would be fun to rush ahead and look at some of the analyses I’d like to do, but I am still uncertain about what I think underlies each of the topics I found, and I want to think about it more before I do anlayses, maybe so I can even think of hypotheses to test rather than just testing every possibility…</p>
+
+
+<!-- -->
+
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } 
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+<script src="https://giscus.app/client.js" data-repo="DACSS/Text_as_Data_Fall_2022" data-repo-id="R_kgDOH5675w" data-category="Announcements" data-category-id="" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
+</script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb75" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Blog Post 5: Topic Modeling"</span></span>
+<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Andrea Mah"</span></span>
+<span id="cb75-4"><a href="#cb75-4" aria-hidden="true" tabindex="-1"></a><span class="an">desription:</span><span class="co"> "Topic modeling of speeches"</span></span>
+<span id="cb75-5"><a href="#cb75-5" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "11/30/2022"</span></span>
+<span id="cb75-6"><a href="#cb75-6" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb75-7"><a href="#cb75-7" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb75-8"><a href="#cb75-8" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb75-9"><a href="#cb75-9" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: true</span></span>
+<span id="cb75-10"><a href="#cb75-10" aria-hidden="true" tabindex="-1"></a><span class="co">    code-copy: true</span></span>
+<span id="cb75-11"><a href="#cb75-11" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb75-12"><a href="#cb75-12" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span></span>
+<span id="cb75-13"><a href="#cb75-13" aria-hidden="true" tabindex="-1"></a><span class="co">  - BlogPost4</span></span>
+<span id="cb75-14"><a href="#cb75-14" aria-hidden="true" tabindex="-1"></a><span class="co">  - Andrea Mah</span></span>
+<span id="cb75-15"><a href="#cb75-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-16"><a href="#cb75-16" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb75-17"><a href="#cb75-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-20"><a href="#cb75-20" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb75-21"><a href="#cb75-21" aria-hidden="true" tabindex="-1"></a><span class="co">#loading in nececssary libraries</span></span>
+<span id="cb75-22"><a href="#cb75-22" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda)</span>
+<span id="cb75-23"><a href="#cb75-23" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb75-24"><a href="#cb75-24" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb75-25"><a href="#cb75-25" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb75-26"><a href="#cb75-26" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(text2vec)</span>
+<span id="cb75-27"><a href="#cb75-27" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stopwords)</span>
+<span id="cb75-28"><a href="#cb75-28" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RCurl)</span>
+<span id="cb75-29"><a href="#cb75-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-30"><a href="#cb75-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-31"><a href="#cb75-31" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb75-32"><a href="#cb75-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-33"><a href="#cb75-33" aria-hidden="true" tabindex="-1"></a>For the next stage in my project, I wanted to use topic modeling. Although I'm not sure I will use it in my final project, since I don't have clear hypotheses about topics and so whatever I find will be purely exploratory and/or descriptive. While I think it would be interesting to see the links between topics and my metadata (climate risk index, year of speech), I don't have strong ideas about a) what the topics will be, given that in my reading of speeches they seem highly similar and b) what topics might relate to in terms of climate risk or year of speech.</span>
+<span id="cb75-34"><a href="#cb75-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-37"><a href="#cb75-37" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb75-38"><a href="#cb75-38" aria-hidden="true" tabindex="-1"></a><span class="co">#load in and check the data</span></span>
+<span id="cb75-39"><a href="#cb75-39" aria-hidden="true" tabindex="-1"></a>speech.meta <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="at">file =</span> <span class="st">"FINAL_combined_meta-text_dataset.csv"</span>)</span>
+<span id="cb75-40"><a href="#cb75-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-41"><a href="#cb75-41" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span>(speech.meta)</span>
+<span id="cb75-42"><a href="#cb75-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-43"><a href="#cb75-43" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(speech.meta)</span>
+<span id="cb75-44"><a href="#cb75-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-45"><a href="#cb75-45" aria-hidden="true" tabindex="-1"></a><span class="co">#limit the dataset to just text and filenum</span></span>
+<span id="cb75-46"><a href="#cb75-46" aria-hidden="true" tabindex="-1"></a>speech.meta <span class="ot">&lt;-</span> speech.meta[,<span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">7</span>)]</span>
+<span id="cb75-47"><a href="#cb75-47" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(speech.meta)</span>
+<span id="cb75-48"><a href="#cb75-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-49"><a href="#cb75-49" aria-hidden="true" tabindex="-1"></a>speech.meta.ac <span class="ot">&lt;-</span> <span class="fu">as.character</span>(speech.meta<span class="sc">$</span>text)</span>
+<span id="cb75-50"><a href="#cb75-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-51"><a href="#cb75-51" aria-hidden="true" tabindex="-1"></a>speech.meta.ac</span>
+<span id="cb75-52"><a href="#cb75-52" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb75-53"><a href="#cb75-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-54"><a href="#cb75-54" aria-hidden="true" tabindex="-1"></a>After getting the data ready, I followed the steps to set up the model as we learned in class. </span>
+<span id="cb75-55"><a href="#cb75-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-58"><a href="#cb75-58" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb75-59"><a href="#cb75-59" aria-hidden="true" tabindex="-1"></a><span class="co">#create iterator</span></span>
+<span id="cb75-60"><a href="#cb75-60" aria-hidden="true" tabindex="-1"></a>it <span class="ot">&lt;-</span><span class="fu">itoken</span>(speech.meta.ac, tolower, word_tokenizer, <span class="at">ids =</span> speech.meta<span class="sc">$</span>textnum, <span class="at">n_chunks =</span> <span class="dv">10</span>)</span>
+<span id="cb75-61"><a href="#cb75-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-62"><a href="#cb75-62" aria-hidden="true" tabindex="-1"></a><span class="co"># prints iterator</span></span>
+<span id="cb75-63"><a href="#cb75-63" aria-hidden="true" tabindex="-1"></a>it</span>
+<span id="cb75-64"><a href="#cb75-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-65"><a href="#cb75-65" aria-hidden="true" tabindex="-1"></a><span class="co"># build the vocabulary, removing stopwords and some other tokens that are not meaningful</span></span>
+<span id="cb75-66"><a href="#cb75-66" aria-hidden="true" tabindex="-1"></a>sw <span class="ot">&lt;-</span> <span class="fu">stopwords</span>(<span class="st">"en"</span>, <span class="at">source =</span> <span class="st">"snowball"</span>)</span>
+<span id="cb75-67"><a href="#cb75-67" aria-hidden="true" tabindex="-1"></a><span class="fu">typeof</span>(sw)</span>
+<span id="cb75-68"><a href="#cb75-68" aria-hidden="true" tabindex="-1"></a>sw</span>
+<span id="cb75-69"><a href="#cb75-69" aria-hidden="true" tabindex="-1"></a>sw <span class="ot">&lt;-</span> <span class="fu">c</span>(sw, <span class="st">"must"</span>, <span class="st">"can"</span>, <span class="st">"c"</span>, <span class="st">"mr"</span>, <span class="st">'v'</span>, <span class="st">"il"</span>, <span class="st">"tt"</span>, <span class="st">"ll"</span>, <span class="st">"aij"</span>, <span class="st">"j"</span>, <span class="st">"es"</span>, <span class="st">"ul"</span>,<span class="st">"wi"</span>, <span class="st">"q"</span>, <span class="st">"el"</span>, <span class="st">"tl"</span>, <span class="st">"cl"</span>, <span class="st">"la"</span>, <span class="st">"er"</span>, <span class="st">"tt"</span>,<span class="st">"ul"</span>, <span class="st">"fl"</span>, <span class="st">"fi"</span>, <span class="st">"r"</span>, <span class="st">"l"</span>, <span class="st">"lo"</span>, <span class="st">"tel"</span>, <span class="st">"cl"</span>, <span class="st">"la"</span>, <span class="st">"z"</span>, <span class="st">"le"</span>, <span class="st">"en"</span>, <span class="st">"ch"</span>, <span class="st">"ed"</span>, <span class="st">"fl"</span>, <span class="st">"er"</span>, <span class="st">"fi"</span>, <span class="st">"co"</span>)</span>
+<span id="cb75-70"><a href="#cb75-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-71"><a href="#cb75-71" aria-hidden="true" tabindex="-1"></a><span class="co">#create vocabulary</span></span>
+<span id="cb75-72"><a href="#cb75-72" aria-hidden="true" tabindex="-1"></a>v <span class="ot">&lt;-</span> <span class="fu">create_vocabulary</span>(it, <span class="at">stopwords =</span> sw, <span class="at">doc_proportion_max =</span> .<span class="dv">95</span>, <span class="at">doc_proportion_min =</span> .<span class="dv">05</span>)</span>
+<span id="cb75-73"><a href="#cb75-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-74"><a href="#cb75-74" aria-hidden="true" tabindex="-1"></a><span class="co">#I want to prune the vocabulary: </span></span>
+<span id="cb75-75"><a href="#cb75-75" aria-hidden="true" tabindex="-1"></a>v <span class="ot">&lt;-</span> <span class="fu">prune_vocabulary</span>(v, <span class="at">term_count_min =</span> <span class="dv">10</span>)</span>
+<span id="cb75-76"><a href="#cb75-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-77"><a href="#cb75-77" aria-hidden="true" tabindex="-1"></a><span class="co"># creates a closure that helps transform list of tokens into vector space</span></span>
+<span id="cb75-78"><a href="#cb75-78" aria-hidden="true" tabindex="-1"></a>vectorizer <span class="ot">&lt;-</span> <span class="fu">vocab_vectorizer</span>(v)</span>
+<span id="cb75-79"><a href="#cb75-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-80"><a href="#cb75-80" aria-hidden="true" tabindex="-1"></a><span class="co"># creates document term matrix</span></span>
+<span id="cb75-81"><a href="#cb75-81" aria-hidden="true" tabindex="-1"></a>dtm <span class="ot">&lt;-</span> <span class="fu">create_dtm</span>(it, vectorizer, <span class="at">type =</span> <span class="st">"dgTMatrix"</span>)</span>
+<span id="cb75-82"><a href="#cb75-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-83"><a href="#cb75-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-84"><a href="#cb75-84" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb75-85"><a href="#cb75-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-86"><a href="#cb75-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-87"><a href="#cb75-87" aria-hidden="true" tabindex="-1"></a>Next I ran a series of models, testing different numbers of topics. I started with 10 since</span>
+<span id="cb75-88"><a href="#cb75-88" aria-hidden="true" tabindex="-1"></a>that seemeed like a lot of topics to me and I thought it would be informative. As I thought, many topics were not very prevalent in the documents. </span>
+<span id="cb75-89"><a href="#cb75-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-90"><a href="#cb75-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-93"><a href="#cb75-93" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb75-94"><a href="#cb75-94" aria-hidden="true" tabindex="-1"></a><span class="co"># create new LDA model with 10 topics</span></span>
+<span id="cb75-95"><a href="#cb75-95" aria-hidden="true" tabindex="-1"></a>lda_model <span class="ot">&lt;-</span> LDA<span class="sc">$</span><span class="fu">new</span>(<span class="at">n_topics =</span> <span class="dv">10</span>, <span class="at">doc_topic_prior =</span> <span class="fl">0.1</span>,</span>
+<span id="cb75-96"><a href="#cb75-96" aria-hidden="true" tabindex="-1"></a>                     <span class="at">topic_word_prior =</span> <span class="fl">0.01</span>)</span>
+<span id="cb75-97"><a href="#cb75-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-98"><a href="#cb75-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-99"><a href="#cb75-99" aria-hidden="true" tabindex="-1"></a><span class="co"># fitting the model</span></span>
+<span id="cb75-100"><a href="#cb75-100" aria-hidden="true" tabindex="-1"></a>doc_topic_distr <span class="ot">&lt;-</span> </span>
+<span id="cb75-101"><a href="#cb75-101" aria-hidden="true" tabindex="-1"></a>  lda_model<span class="sc">$</span><span class="fu">fit_transform</span>(<span class="at">x =</span> dtm, <span class="at">n_iter =</span> <span class="dv">5000</span>,</span>
+<span id="cb75-102"><a href="#cb75-102" aria-hidden="true" tabindex="-1"></a>                          <span class="at">convergence_tol =</span> <span class="fl">0.001</span>, <span class="at">n_check_convergence =</span> <span class="dv">25</span>,</span>
+<span id="cb75-103"><a href="#cb75-103" aria-hidden="true" tabindex="-1"></a>                          <span class="at">progressbar =</span> T)</span>
+<span id="cb75-104"><a href="#cb75-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-105"><a href="#cb75-105" aria-hidden="true" tabindex="-1"></a><span class="co"># View the topics </span></span>
+<span id="cb75-106"><a href="#cb75-106" aria-hidden="true" tabindex="-1"></a>lda_model<span class="sc">$</span><span class="fu">get_top_words</span>(<span class="at">n =</span> <span class="dv">20</span>, <span class="at">topic_number =</span> <span class="fu">c</span>(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L),</span>
+<span id="cb75-107"><a href="#cb75-107" aria-hidden="true" tabindex="-1"></a>                        <span class="at">lambda =</span> <span class="fl">0.3</span>)</span>
+<span id="cb75-108"><a href="#cb75-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-109"><a href="#cb75-109" aria-hidden="true" tabindex="-1"></a><span class="co">#What proportion of documents fit different topics? </span></span>
+<span id="cb75-110"><a href="#cb75-110" aria-hidden="true" tabindex="-1"></a><span class="fu">barplot</span>(doc_topic_distr[<span class="dv">2</span>, ], <span class="at">xlab =</span> <span class="st">"topic"</span>,</span>
+<span id="cb75-111"><a href="#cb75-111" aria-hidden="true" tabindex="-1"></a>        <span class="at">ylab =</span> <span class="st">"proportion"</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),</span>
+<span id="cb75-112"><a href="#cb75-112" aria-hidden="true" tabindex="-1"></a>        <span class="at">names.arg =</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">ncol</span>(doc_topic_distr))</span>
+<span id="cb75-113"><a href="#cb75-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-114"><a href="#cb75-114" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb75-115"><a href="#cb75-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-116"><a href="#cb75-116" aria-hidden="true" tabindex="-1"></a>Since the percentages were so low, I decided to try a model with a lower number of topics, moving to extraction of 5 topics.</span>
+<span id="cb75-117"><a href="#cb75-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-120"><a href="#cb75-120" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb75-121"><a href="#cb75-121" aria-hidden="true" tabindex="-1"></a><span class="co">#for some topics, the proportion is very low. </span></span>
+<span id="cb75-122"><a href="#cb75-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-123"><a href="#cb75-123" aria-hidden="true" tabindex="-1"></a><span class="co">#now I want to test with 5 topics. </span></span>
+<span id="cb75-124"><a href="#cb75-124" aria-hidden="true" tabindex="-1"></a>lda_model5 <span class="ot">&lt;-</span> LDA<span class="sc">$</span><span class="fu">new</span>(<span class="at">n_topics =</span> <span class="dv">5</span>, <span class="at">doc_topic_prior =</span> <span class="fl">0.1</span>,</span>
+<span id="cb75-125"><a href="#cb75-125" aria-hidden="true" tabindex="-1"></a>                     <span class="at">topic_word_prior =</span> <span class="fl">0.01</span>)</span>
+<span id="cb75-126"><a href="#cb75-126" aria-hidden="true" tabindex="-1"></a>doc_topic_distr5 <span class="ot">&lt;-</span> </span>
+<span id="cb75-127"><a href="#cb75-127" aria-hidden="true" tabindex="-1"></a>  lda_model5<span class="sc">$</span><span class="fu">fit_transform</span>(<span class="at">x =</span> dtm, <span class="at">n_iter =</span> <span class="dv">5000</span>,</span>
+<span id="cb75-128"><a href="#cb75-128" aria-hidden="true" tabindex="-1"></a>                          <span class="at">convergence_tol =</span> <span class="fl">0.001</span>, <span class="at">n_check_convergence =</span> <span class="dv">25</span>,</span>
+<span id="cb75-129"><a href="#cb75-129" aria-hidden="true" tabindex="-1"></a>                          <span class="at">progressbar =</span> T)</span>
+<span id="cb75-130"><a href="#cb75-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-131"><a href="#cb75-131" aria-hidden="true" tabindex="-1"></a><span class="co"># View the topics </span></span>
+<span id="cb75-132"><a href="#cb75-132" aria-hidden="true" tabindex="-1"></a>lda_model5<span class="sc">$</span><span class="fu">get_top_words</span>(<span class="at">n =</span> <span class="dv">20</span>, <span class="at">topic_number =</span> <span class="fu">c</span>(1L, 2L, 3L, 4L, 5L),</span>
+<span id="cb75-133"><a href="#cb75-133" aria-hidden="true" tabindex="-1"></a>                        <span class="at">lambda =</span> <span class="fl">0.3</span>)</span>
+<span id="cb75-134"><a href="#cb75-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-135"><a href="#cb75-135" aria-hidden="true" tabindex="-1"></a><span class="co">#what proportion of docs fit the topics? </span></span>
+<span id="cb75-136"><a href="#cb75-136" aria-hidden="true" tabindex="-1"></a><span class="fu">barplot</span>(doc_topic_distr5[<span class="dv">2</span>, ], <span class="at">xlab =</span> <span class="st">"topic"</span>,</span>
+<span id="cb75-137"><a href="#cb75-137" aria-hidden="true" tabindex="-1"></a>        <span class="at">ylab =</span> <span class="st">"proportion"</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),</span>
+<span id="cb75-138"><a href="#cb75-138" aria-hidden="true" tabindex="-1"></a>        <span class="at">names.arg =</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">ncol</span>(doc_topic_distr5))</span>
+<span id="cb75-139"><a href="#cb75-139" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb75-140"><a href="#cb75-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-141"><a href="#cb75-141" aria-hidden="true" tabindex="-1"></a>Less than 20% of documents are of 3 of these topics. Further, there were some topics that I had difficulty interpreting or thinking why they were separate. At this point I was starting to see some consistency in terms of which topics were extracted. For example, there was one topic that seemed to be very "solutions" focused with words like energy, development, technologies...However, I thought that maybe I should use even fewer topics? </span>
+<span id="cb75-142"><a href="#cb75-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-145"><a href="#cb75-145" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb75-146"><a href="#cb75-146" aria-hidden="true" tabindex="-1"></a>lda_model4 <span class="ot">&lt;-</span> LDA<span class="sc">$</span><span class="fu">new</span>(<span class="at">n_topics =</span> <span class="dv">4</span>, <span class="at">doc_topic_prior =</span> <span class="fl">0.1</span>,</span>
+<span id="cb75-147"><a href="#cb75-147" aria-hidden="true" tabindex="-1"></a>                      <span class="at">topic_word_prior =</span> <span class="fl">0.01</span>)</span>
+<span id="cb75-148"><a href="#cb75-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-149"><a href="#cb75-149" aria-hidden="true" tabindex="-1"></a>doc_topic_distr4 <span class="ot">&lt;-</span> </span>
+<span id="cb75-150"><a href="#cb75-150" aria-hidden="true" tabindex="-1"></a>  lda_model4<span class="sc">$</span><span class="fu">fit_transform</span>(<span class="at">x =</span> dtm, <span class="at">n_iter =</span> <span class="dv">5000</span>,</span>
+<span id="cb75-151"><a href="#cb75-151" aria-hidden="true" tabindex="-1"></a>                           <span class="at">convergence_tol =</span> <span class="fl">0.001</span>, <span class="at">n_check_convergence =</span> <span class="dv">25</span>,</span>
+<span id="cb75-152"><a href="#cb75-152" aria-hidden="true" tabindex="-1"></a>                           <span class="at">progressbar =</span> T)</span>
+<span id="cb75-153"><a href="#cb75-153" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-154"><a href="#cb75-154" aria-hidden="true" tabindex="-1"></a>lda_model4<span class="sc">$</span><span class="fu">get_top_words</span>(<span class="at">n =</span> <span class="dv">20</span>, <span class="at">topic_number =</span> <span class="fu">c</span>(1L, 2L, 3L, 4L),</span>
+<span id="cb75-155"><a href="#cb75-155" aria-hidden="true" tabindex="-1"></a>                         <span class="at">lambda =</span> <span class="fl">0.3</span>)</span>
+<span id="cb75-156"><a href="#cb75-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-157"><a href="#cb75-157" aria-hidden="true" tabindex="-1"></a><span class="co">#what proportion of docs fit the topics? </span></span>
+<span id="cb75-158"><a href="#cb75-158" aria-hidden="true" tabindex="-1"></a><span class="fu">barplot</span>(doc_topic_distr4[<span class="dv">2</span>, ], <span class="at">xlab =</span> <span class="st">"topic"</span>,</span>
+<span id="cb75-159"><a href="#cb75-159" aria-hidden="true" tabindex="-1"></a>        <span class="at">ylab =</span> <span class="st">"proportion"</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),</span>
+<span id="cb75-160"><a href="#cb75-160" aria-hidden="true" tabindex="-1"></a>        <span class="at">names.arg =</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">ncol</span>(doc_topic_distr4))</span>
+<span id="cb75-161"><a href="#cb75-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-162"><a href="#cb75-162" aria-hidden="true" tabindex="-1"></a>doc_topic_distr4</span>
+<span id="cb75-163"><a href="#cb75-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-164"><a href="#cb75-164" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb75-165"><a href="#cb75-165" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-166"><a href="#cb75-166" aria-hidden="true" tabindex="-1"></a>I think 4 topics look meaningful, and at least each topic has 10% of documents classified as most likely being within that topic. But, to be safe, and to explore the data even more, I also looked at a 3 topic model. </span>
+<span id="cb75-167"><a href="#cb75-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-170"><a href="#cb75-170" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb75-171"><a href="#cb75-171" aria-hidden="true" tabindex="-1"></a>lda_model3 <span class="ot">&lt;-</span> LDA<span class="sc">$</span><span class="fu">new</span>(<span class="at">n_topics =</span> <span class="dv">3</span>, <span class="at">doc_topic_prior =</span> <span class="fl">0.1</span>,</span>
+<span id="cb75-172"><a href="#cb75-172" aria-hidden="true" tabindex="-1"></a>                      <span class="at">topic_word_prior =</span> <span class="fl">0.01</span>)</span>
+<span id="cb75-173"><a href="#cb75-173" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-174"><a href="#cb75-174" aria-hidden="true" tabindex="-1"></a>doc_topic_distr3 <span class="ot">&lt;-</span> </span>
+<span id="cb75-175"><a href="#cb75-175" aria-hidden="true" tabindex="-1"></a>  lda_model3<span class="sc">$</span><span class="fu">fit_transform</span>(<span class="at">x =</span> dtm, <span class="at">n_iter =</span> <span class="dv">5000</span>,</span>
+<span id="cb75-176"><a href="#cb75-176" aria-hidden="true" tabindex="-1"></a>                           <span class="at">convergence_tol =</span> <span class="fl">0.001</span>, <span class="at">n_check_convergence =</span> <span class="dv">25</span>,</span>
+<span id="cb75-177"><a href="#cb75-177" aria-hidden="true" tabindex="-1"></a>                           <span class="at">progressbar =</span> T)</span>
+<span id="cb75-178"><a href="#cb75-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-179"><a href="#cb75-179" aria-hidden="true" tabindex="-1"></a>lda_model3<span class="sc">$</span><span class="fu">get_top_words</span>(<span class="at">n =</span> <span class="dv">20</span>, <span class="at">topic_number =</span> <span class="fu">c</span>(1L, 2L, 3L),</span>
+<span id="cb75-180"><a href="#cb75-180" aria-hidden="true" tabindex="-1"></a>                         <span class="at">lambda =</span> <span class="fl">0.3</span>)</span>
+<span id="cb75-181"><a href="#cb75-181" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-182"><a href="#cb75-182" aria-hidden="true" tabindex="-1"></a><span class="co">#what proportion of docs fit the topics? </span></span>
+<span id="cb75-183"><a href="#cb75-183" aria-hidden="true" tabindex="-1"></a><span class="fu">barplot</span>(doc_topic_distr3[<span class="dv">2</span>, ], <span class="at">xlab =</span> <span class="st">"topic"</span>,</span>
+<span id="cb75-184"><a href="#cb75-184" aria-hidden="true" tabindex="-1"></a>        <span class="at">ylab =</span> <span class="st">"proportion"</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),</span>
+<span id="cb75-185"><a href="#cb75-185" aria-hidden="true" tabindex="-1"></a>        <span class="at">names.arg =</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">ncol</span>(doc_topic_distr3))</span>
+<span id="cb75-186"><a href="#cb75-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-187"><a href="#cb75-187" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb75-188"><a href="#cb75-188" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-189"><a href="#cb75-189" aria-hidden="true" tabindex="-1"></a>It seems like the 4-topic solution is what I should go with. Now I should try to describe each topic. Because this is completely exploratory, I thought it would be better to use a naming method that simply relies on top words in each topic. </span>
+<span id="cb75-190"><a href="#cb75-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-193"><a href="#cb75-193" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb75-194"><a href="#cb75-194" aria-hidden="true" tabindex="-1"></a>lda_model4<span class="sc">$</span><span class="fu">plot</span>()</span>
+<span id="cb75-195"><a href="#cb75-195" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-196"><a href="#cb75-196" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb75-197"><a href="#cb75-197" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-198"><a href="#cb75-198" aria-hidden="true" tabindex="-1"></a>This resulted in the following four topics. I can speculate about the content of each but want to explore the speeches which are most likely classified under each before doing so...</span>
+<span id="cb75-199"><a href="#cb75-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-200"><a href="#cb75-200" aria-hidden="true" tabindex="-1"></a>#topic 1: convention_parties_president_protocol_annex - perhaps this is about the UNFCC itself/the proccess</span>
+<span id="cb75-201"><a href="#cb75-201" aria-hidden="true" tabindex="-1"></a>#topic 2: us_agreement_need_action_challenge - this also seems sort of process focused, </span>
+<span id="cb75-202"><a href="#cb75-202" aria-hidden="true" tabindex="-1"></a>'how will we go about solving the problems'</span>
+<span id="cb75-203"><a href="#cb75-203" aria-hidden="true" tabindex="-1"></a>#topic 3: energy_development_technologies_projects_sustainable - this seems solution-focused to me, </span>
+<span id="cb75-204"><a href="#cb75-204" aria-hidden="true" tabindex="-1"></a>'what should we do about climate change'</span>
+<span id="cb75-205"><a href="#cb75-205" aria-hidden="true" tabindex="-1"></a>#topic 4: island_people_human_small_sea - this final topic feels different from the others, based on </span>
+<span id="cb75-206"><a href="#cb75-206" aria-hidden="true" tabindex="-1"></a>my initial exploration I feel like it is really focused on how people are being impacted</span>
+<span id="cb75-207"><a href="#cb75-207" aria-hidden="true" tabindex="-1"></a>or the 'human element of climate change'. </span>
+<span id="cb75-208"><a href="#cb75-208" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-209"><a href="#cb75-209" aria-hidden="true" tabindex="-1"></a>Next steps: Although it would be completely exploratory (and again, maybe not relevant to my key research </span>
+<span id="cb75-210"><a href="#cb75-210" aria-hidden="true" tabindex="-1"></a>questions) I was wondering what it would mean to see how the climate risk index relates to topic prevalence?</span>
+<span id="cb75-211"><a href="#cb75-211" aria-hidden="true" tabindex="-1"></a>As well, I could look at topic probabilities changing over time (i.e., by year of speech)? </span>
+<span id="cb75-212"><a href="#cb75-212" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-213"><a href="#cb75-213" aria-hidden="true" tabindex="-1"></a>To examine this, I want to save the probabilities for the four topics for each document, and then use my</span>
+<span id="cb75-214"><a href="#cb75-214" aria-hidden="true" tabindex="-1"></a>metadata to look at correlations/regressions between these and the topics.</span>
+<span id="cb75-215"><a href="#cb75-215" aria-hidden="true" tabindex="-1"></a>I haven't figured out a clean way to export these probabilities</span>
+<span id="cb75-216"><a href="#cb75-216" aria-hidden="true" tabindex="-1"></a>and join them with my original data. Because it isn't a priority for me, my plan is to return to topic </span>
+<span id="cb75-217"><a href="#cb75-217" aria-hidden="true" tabindex="-1"></a>modeling after completing the other key analyses.</span>
+<span id="cb75-218"><a href="#cb75-218" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-219"><a href="#cb75-219" aria-hidden="true" tabindex="-1"></a>Further, based on my past experience doing similar types of analyses (to me, the concept seems</span>
+<span id="cb75-220"><a href="#cb75-220" aria-hidden="true" tabindex="-1"></a>highly similar to latent class/profile analysis and factor analysis) I feel like I need to more deeply think</span>
+<span id="cb75-221"><a href="#cb75-221" aria-hidden="true" tabindex="-1"></a>about what these topics are about, what they represent, and (becaues of my area of interest) what they mean </span>
+<span id="cb75-222"><a href="#cb75-222" aria-hidden="true" tabindex="-1"></a>psychologically. It would be fun to rush ahead and look at some of the analyses I'd like to do, but I am still</span>
+<span id="cb75-223"><a href="#cb75-223" aria-hidden="true" tabindex="-1"></a>uncertain about what I think underlies each of the topics I found, and I want to think about it more before</span>
+<span id="cb75-224"><a href="#cb75-224" aria-hidden="true" tabindex="-1"></a>I do anlayses, maybe so I can even think of hypotheses to test rather than just testing every possibility...</span>
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+</body></html>

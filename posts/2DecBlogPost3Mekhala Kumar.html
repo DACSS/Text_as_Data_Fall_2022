@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.0.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Mekhala Kumar">
+<meta name="dcterms.date" content="2022-11-29">
+<meta name="description" content="Further Preprocessing">
+
+<title>Text-as-Data Fall 2022 - Blog Post 3</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../images/DACSS_Round_Network.png" rel="icon" type="image/png">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+<meta name="twitter:title" content="Text-as-Data Fall 2022 - Blog Post 3">
+<meta name="twitter:description" content="Further Preprocessing">
+<meta name="twitter:creator" content="@UMassDACSS">
+<meta name="twitter:card" content="summary">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <a class="navbar-brand" href="../index.html">
+    <img src="../images/UMass White Wordmark Horiz.png" alt="">
+    <span class="navbar-title">Text-as-Data Fall 2022</span>
+  </a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="https://dacss.github.io/Text_as_Data_Fall_2022/">Fall 2022</a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html">Contributors</a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://umass.edu/sbs/dacss">DACSS</a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/DACSS/Text_as_Data_Fall_2022"><i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+ </a>
+  </li>  
+</ul>
+              <div class="quarto-toggle-container">
+                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+              </div>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#the-dataset" id="toc-the-dataset" class="nav-link active" data-scroll-target="#the-dataset">The dataset</a></li>
+  <li><a href="#modification-of-the-files-that-were-read-in" id="toc-modification-of-the-files-that-were-read-in" class="nav-link" data-scroll-target="#modification-of-the-files-that-were-read-in">Modification of the files that were read in</a></li>
+  <li><a href="#cleaning-up-the-name-of-newspapers-and-the-dates" id="toc-cleaning-up-the-name-of-newspapers-and-the-dates" class="nav-link" data-scroll-target="#cleaning-up-the-name-of-newspapers-and-the-dates">Cleaning up the name of newspapers and the dates</a></li>
+  <li><a href="#cleaning-up-the-main-information-of-the-article" id="toc-cleaning-up-the-main-information-of-the-article" class="nav-link" data-scroll-target="#cleaning-up-the-main-information-of-the-article">Cleaning up the main information of the article</a></li>
+  <li><a href="#preprocessing" id="toc-preprocessing" class="nav-link" data-scroll-target="#preprocessing">Preprocessing</a></li>
+  <li><a href="#creating-the-corpus-and-looking-at-the-number-of-tokens-in-each-document" id="toc-creating-the-corpus-and-looking-at-the-number-of-tokens-in-each-document" class="nav-link" data-scroll-target="#creating-the-corpus-and-looking-at-the-number-of-tokens-in-each-document">Creating the corpus and looking at the number of tokens in each document</a></li>
+  <li><a href="#checking-for-metadata" id="toc-checking-for-metadata" class="nav-link" data-scroll-target="#checking-for-metadata">Checking for metadata</a></li>
+  <li><a href="#creating-tokens" id="toc-creating-tokens" class="nav-link" data-scroll-target="#creating-tokens">Creating tokens</a></li>
+  <li><a href="#removing-punctuation" id="toc-removing-punctuation" class="nav-link" data-scroll-target="#removing-punctuation">Removing punctuation</a></li>
+  <li><a href="#removing-stopwords" id="toc-removing-stopwords" class="nav-link" data-scroll-target="#removing-stopwords">Removing stopwords</a></li>
+  <li><a href="#keyword-in-context" id="toc-keyword-in-context" class="nav-link" data-scroll-target="#keyword-in-context">Keyword in context</a></li>
+  <li><a href="#creating-a-tokens-object-with-bigrams-and-trigrams" id="toc-creating-a-tokens-object-with-bigrams-and-trigrams" class="nav-link" data-scroll-target="#creating-a-tokens-object-with-bigrams-and-trigrams">Creating a tokens object with bigrams and trigrams</a></li>
+  <li><a href="#word-cloud" id="toc-word-cloud" class="nav-link" data-scroll-target="#word-cloud">Word Cloud</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Blog Post 3</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+  <div class="quarto-categories">
+    <div class="quarto-category">MekhalaKumar</div>
+    <div class="quarto-category">Olympics2020</div>
+    <div class="quarto-category">GenderandSports</div>
+    <div class="quarto-category">BlogPost3</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    Further Preprocessing
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Mekhala Kumar </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">November 29, 2022</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+</header>
+
+<p>In this post, I focused on fixing the issues I faced while preprocessing the data in the previous blog post.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#devtools::install_github("quanteda/readtext") </span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readtext)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(striprtf)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">#library(LexisNexisTools)</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(corpus)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda.textplots)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="the-dataset" class="level2">
+<h2 class="anchored" data-anchor-id="the-dataset">The dataset</h2>
+<p>I was able to save the files, that were read in, as an R object. So that fixed the problem where it was taking a large amount of time to load all the files.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#saveRDS(df, file = "Data/All12Files.rds")</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>df_All<span class="ot">&lt;-</span><span class="fu">readRDS</span>(<span class="at">file =</span> <span class="st">"D:/Text as Data/All12Files.rds"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>df1<span class="ot">&lt;-</span>df_All</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="modification-of-the-files-that-were-read-in" class="level2">
+<h2 class="anchored" data-anchor-id="modification-of-the-files-that-were-read-in">Modification of the files that were read in</h2>
+<p>Before moving to the preprocessing steps, I had to clean the data since there were many white spaces and terms present that were not required.<br>
+I was able to extract and separate the newspaper name, date and main text of the article successfully after following the suggestions of Professor Song.<br>
+This was done by removing leading and trailing whitespaces as well as finding common words used that could help separate the text into the columns required.</p>
+</section>
+<section id="cleaning-up-the-name-of-newspapers-and-the-dates" class="level2">
+<h2 class="anchored" data-anchor-id="cleaning-up-the-name-of-newspapers-and-the-dates">Cleaning up the name of newspapers and the dates</h2>
+<p>The rows of text which did not have the names of the newspapers were removed.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>df1<span class="sc">$</span>Newspaper_Date <span class="ot">&lt;-</span> <span class="fu">str_squish</span>(df1<span class="sc">$</span>Newspaper_Date)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>df2 <span class="ot">&lt;-</span> df1 <span class="sc">%&gt;%</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Newspaper_Date <span class="sc">!=</span> <span class="st">""</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>df2_cleaning2 <span class="ot">&lt;-</span> df2 <span class="sc">%&gt;%</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(Newspaper_Date, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"newspaper"</span>, <span class="st">"date"</span>),</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">sep =</span> <span class="st">"(?=(August|July))"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Expected 2 pieces. Additional pieces discarded in 5 rows [329, 600,
+880, 1047, 1134].</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(df2_cleaning2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 1,157
+Columns: 4
+$ newspaper &lt;chr&gt; "Hindustan Times ", "Hindustan Times ", "The Hindu ", "Hindu…
+$ date      &lt;chr&gt; "August 9, 2021 Monday Copyright 2021 HT Media Ltd. All Righ…
+$ Body      &lt;chr&gt; "\nBody\n\n\nMumbai, Aug. 9 -- From a solitary two-day fixtu…
+$ Tags      &lt;chr&gt; "\nSubject:&nbsp;OLYMPICS (92%); CRICKET (90%); OLYMPIC COMMITTEE…</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>df2_cleaning2<span class="sc">$</span>newspaper <span class="ot">&lt;-</span> <span class="fu">str_squish</span>(df2_cleaning2<span class="sc">$</span>newspaper)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>df2_cleaning2<span class="ot">&lt;-</span>df2_cleaning2<span class="sc">%&gt;%</span><span class="fu">separate</span>(date, <span class="at">into=</span><span class="fu">c</span>(<span class="st">"date"</span>, <span class="st">"Delete"</span>), <span class="at">sep=</span><span class="st">"Copyright"</span>)<span class="sc">%&gt;%</span><span class="fu">select</span>(<span class="sc">-</span>Delete)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>df2_cleaning2 <span class="ot">&lt;-</span> df2_cleaning2 <span class="sc">%&gt;%</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(date, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"date"</span>, <span class="st">"delete"</span>),</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">sep =</span> <span class="st">"(?=(Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday))"</span>)<span class="sc">%&gt;%</span><span class="fu">select</span>(<span class="sc">-</span>delete)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Expected 2 pieces. Missing pieces filled with `NA` in 115 rows [15, 50,
+53, 59, 66, 76, 81, 87, 104, 108, 112, 115, 121, 123, 126, 142, 143, 147, 150,
+154, ...].</code></pre>
+</div>
+</div>
+</section>
+<section id="cleaning-up-the-main-information-of-the-article" class="level2">
+<h2 class="anchored" data-anchor-id="cleaning-up-the-main-information-of-the-article">Cleaning up the main information of the article</h2>
+<p>I found that there were two formats in which the main information was saved; hence there were two approaches taken to clean the same.<br>
+I also checked a few rows of data to see if the information extracted was in the format that I wanted it to be in.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>df2_cleaning2<span class="sc">$</span>Body <span class="ot">&lt;-</span> <span class="fu">str_squish</span>(df2_cleaning2<span class="sc">$</span>Body)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>df2_cleaning2<span class="sc">$</span>Body <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"^(.{4})(.*)$"</span>,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                           <span class="st">"</span><span class="sc">\\</span><span class="st">1-</span><span class="sc">\\</span><span class="st">2"</span>,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>                           df2_cleaning2<span class="sc">$</span>Body)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>df2_cleaning_reg <span class="ot">&lt;-</span> df2_cleaning2 <span class="sc">%&gt;%</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a> <span class="fu">separate</span>(Body, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"delete"</span>, <span class="st">"body"</span>),</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">sep =</span> <span class="st">"[</span><span class="sc">\\</span><span class="st">d+] --"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Expected 2 pieces. Missing pieces filled with `NA` in 738 rows [3, 6,
+8, 12, 13, 15, 19, 20, 24, 25, 29, 31, 32, 33, 35, 37, 39, 41, 42, 43, ...].</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>df2_cleaning4 <span class="ot">&lt;-</span> df2_cleaning_reg <span class="sc">%&gt;%</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">is.na</span>(body))</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>df2_cleaning_remaining <span class="ot">&lt;-</span> df2_cleaning_reg <span class="sc">%&gt;%</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(body))</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>df2_cleaning5 <span class="ot">&lt;-</span> df2_cleaning4 <span class="sc">%&gt;%</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(delete, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"delete2"</span>, <span class="st">"body2"</span>),</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>           <span class="at">sep =</span> <span class="st">"Body- "</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>delete2, <span class="sc">-</span>body)</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(df2_cleaning4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 738
+Columns: 5
+$ newspaper &lt;chr&gt; "The Hindu", "DNA", "The Telegraph (India)", "India Today On…
+$ date      &lt;chr&gt; "August 9, 2021 ", "July 27, 2021 ", "August 7, 2021 ", "Aug…
+$ delete    &lt;chr&gt; "Body- After the best-ever performance at the just-concluded…
+$ body      &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …
+$ Tags      &lt;chr&gt; "\nSubject:&nbsp;2020 TOKYO SUMMER OLYMPICS (90%); OLYMPICS (90%)…</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(df2_cleaning_remaining)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 419
+Columns: 5
+$ newspaper &lt;chr&gt; "Hindustan Times", "Hindustan Times", "Hindustan Times", "Hi…
+$ date      &lt;chr&gt; "August 9, 2021 ", "August 2, 2021 ", "July 28, 2021 ", "Aug…
+$ delete    &lt;chr&gt; "Body- Mumbai, Aug. ", "Body- India, Aug. ", "Body- New Delh…
+$ body      &lt;chr&gt; " From a solitary two-day fixture between Great Britain and …
+$ Tags      &lt;chr&gt; "\nSubject:&nbsp;OLYMPICS (92%); CRICKET (90%); OLYMPIC COMMITTEE…</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>df2_cleaning_remaining <span class="ot">&lt;-</span> df2_cleaning_remaining <span class="sc">%&gt;%</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>delete)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>df2_cleaning5 <span class="ot">&lt;-</span> df2_cleaning5 <span class="sc">%&gt;%</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">body =</span> body2)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>df2_cleaned_all <span class="ot">&lt;-</span> <span class="fu">rbind</span>(df2_cleaning_remaining,</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>                         df2_cleaning5)</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>df2_cleaned_all<span class="sc">%&gt;%</span><span class="fu">select</span>(body)<span class="sc">%&gt;%</span><span class="fu">filter</span>(<span class="fu">row_number</span>() <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        body
+1  From a solitary two-day fixture between Great Britain and France in the 1900 Olympics, prospects of cricket's inclusion as an 8-team medal sport for men and women in Los Angeles 2028 have brightened. The International Cricket Council (ICC)'s proposal to introduce cricket as an Olympic sport in 2028 has been placed before the International Olympic Committee (IOC). Importantly, the Board of Control for Cricket in India (BCCI)'s reluctance to join the Olympic movement is now a thing of the past. "Once cricket is added in the Olympics, India will be participating," BCCI secretary Jay Shah said. "The BCCI and the ICC are on the same page as far as participation in the Olympics is concerned." The BCCI in its Apex Council meeting in April had given a conditional nod to send a team for the 2028 edition if its autonomy wasn't disturbed and there was no interference from the Indian Olympic Association (IOA). The BCCI, IOA and government though are working in sync. The Indian cricket board pledged Rs. 10 crore to assist the Tokyo bound Indian contingent's marketing budget. They also announced a cash prize totalling Rs. 4 crore for the seven medal winners on Saturday. The ICC, which has 92 Associate members but only 12 members play Test cricket, has been slow on the Olympics issue. Many of the top Test nations have in the past have had an insular view of safeguarding their playing window and TV rights revenue and resisting cricket's entry into Olympics. Now, with an agreement amongst most leading cricket boards, it has been in constant talks with IOC and an Olympics committee formed for the purpose. With a nudge from the government to increase India's medal prospects, BCCI administration has also switched its stance. "The BCCI is more than happy to work together with the government and help increase India's medal chances," a BCCI official said. Cricket has been added as a discipline in the 2022 Commonwealth Games (Birmingham, July-Aug). There's cricket in the 2022 Asian Games (Hangzhou, September) too. With the cricket calendar congested with ICC events, bilateral cricket and franchise leagues, finding a window for each of these games consistently may become a challenge. That is why, the Commonwealth Games will only have women's cricket. The Olympics, it is learnt, will require the participation of men and women. T20 has emerged as the format of choice despite some Associate nations championing for introducing T10. The English cricket board has explored the prospects of taking the Hundred-ball format to the Olympics, riding on its newly launched league. With neither format having international status, ICC is expected to start with T20Is. While introduction of a new sport at Olympics involves structured presentations and lobbying, those in cricket are confident that India's rapidly growing consumer market and digital engagement base will marry IOC's search for new Olympic markets. Published by HT Digital Content Services with permission from Hindustan Times. For any query with respect to this article or any other content requirement, please contact Editor at Classification Language: ENGLISH Publication-Type: Newswire</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>df2_cleaned_all<span class="sc">%&gt;%</span><span class="fu">select</span>(body)<span class="sc">%&gt;%</span><span class="fu">filter</span>(<span class="fu">row_number</span>() <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">60</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  body
+1  Indian wrestler Bajrang Punia on Saturday won the bronze medal after defeating Daulet Niyazbekov of Kazakhstan in the men's freestyle 65kg category. The second seed, who faced a crushing 5-12 defeat to Azerbaijan's Haji Aliyev in the semifinals, redeemed his campaign as he earned India's sixth medal of Tokyo 2020 with a clear 8-0 victory in the bronze medal bout. The men's freestyle 65kg bronze medal showdown bout began with Punia taking a point when Niyazbekov couldn't score in the 30 seconds attacking zone. The Indian then got another point to take a 2-0 lead at the break. (Full Tokyo 2020 Coverage) Punia started off on an attacking note in the last three minutes and got two more points with a take down to take a 4-0 lead. The India then gave no chance to the wrester from Kazakhstan by scoring four more points with two more take downs. Punia became the sixth Indian wrestler to finish on the Olympic podium after KD Jadhav, Sushil Kumar, Yogeshwar Dutt, Sakshi Malik and Ravi Kumar Dahiya. This became the second instance after the 2012 London Olympics when two Indian wrestlers won medals in the same Games. Ravi Dahiya had earlier won silver in the men's 57 kg category in this Olympic. Twenty-seven-year-old Punia began his challenge against Kyrgyzstan's Ernazar Akmataliev, defeating him 3-3 after scoring a later point with a smart take-down towards the end of the bout. In the 1/4 final, he enjoyed a successful second period against Morteza Cheka Ghiasi of Iran to win by fall. TOKYO 2020 OLYMPICS DAY 15 BLOG Bajrang is a three-time world championships medallist. He won a bronze in the 2019 World Championships and had won a silver in 2018, both in the 65kg category. He had won a bronze at the world championships in 2013 in the 60 kg category. He is also the reigning Commonwealth and Asian games champion of the 65kg category, having won the gold medal in 2018 in both the Games. He had won a silver medal in the 61kg category in the CWG and Asiad in 2014 respectively. (more details awaited) Published by HT Digital Content Services with permission from Hindustan Times. For any query with respect to this article or any other content requirement, please contact Editor at Classification Language: ENGLISH Publication-Type: Newswire</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>df2_cleaned_all_more<span class="ot">&lt;-</span>df2_cleaned_all<span class="sc">%&gt;%</span><span class="fu">separate</span>(body, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"body"</span>, <span class="st">"delete"</span>),<span class="at">sep =</span> <span class="st">"Published|Classification"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Expected 2 pieces. Additional pieces discarded in 418 rows [1, 2, 3, 4,
+5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...].</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>df2_cleaned_all_more <span class="ot">&lt;-</span> df2_cleaned_all_more <span class="sc">%&gt;%</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>delete)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>df2_cleaned_all_more<span class="sc">%&gt;%</span><span class="fu">select</span>(body)<span class="sc">%&gt;%</span><span class="fu">filter</span>(<span class="fu">row_number</span>() <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        body
+1  From a solitary two-day fixture between Great Britain and France in the 1900 Olympics, prospects of cricket's inclusion as an 8-team medal sport for men and women in Los Angeles 2028 have brightened. The International Cricket Council (ICC)'s proposal to introduce cricket as an Olympic sport in 2028 has been placed before the International Olympic Committee (IOC). Importantly, the Board of Control for Cricket in India (BCCI)'s reluctance to join the Olympic movement is now a thing of the past. "Once cricket is added in the Olympics, India will be participating," BCCI secretary Jay Shah said. "The BCCI and the ICC are on the same page as far as participation in the Olympics is concerned." The BCCI in its Apex Council meeting in April had given a conditional nod to send a team for the 2028 edition if its autonomy wasn't disturbed and there was no interference from the Indian Olympic Association (IOA). The BCCI, IOA and government though are working in sync. The Indian cricket board pledged Rs. 10 crore to assist the Tokyo bound Indian contingent's marketing budget. They also announced a cash prize totalling Rs. 4 crore for the seven medal winners on Saturday. The ICC, which has 92 Associate members but only 12 members play Test cricket, has been slow on the Olympics issue. Many of the top Test nations have in the past have had an insular view of safeguarding their playing window and TV rights revenue and resisting cricket's entry into Olympics. Now, with an agreement amongst most leading cricket boards, it has been in constant talks with IOC and an Olympics committee formed for the purpose. With a nudge from the government to increase India's medal prospects, BCCI administration has also switched its stance. "The BCCI is more than happy to work together with the government and help increase India's medal chances," a BCCI official said. Cricket has been added as a discipline in the 2022 Commonwealth Games (Birmingham, July-Aug). There's cricket in the 2022 Asian Games (Hangzhou, September) too. With the cricket calendar congested with ICC events, bilateral cricket and franchise leagues, finding a window for each of these games consistently may become a challenge. That is why, the Commonwealth Games will only have women's cricket. The Olympics, it is learnt, will require the participation of men and women. T20 has emerged as the format of choice despite some Associate nations championing for introducing T10. The English cricket board has explored the prospects of taking the Hundred-ball format to the Olympics, riding on its newly launched league. With neither format having international status, ICC is expected to start with T20Is. While introduction of a new sport at Olympics involves structured presentations and lobbying, those in cricket are confident that India's rapidly growing consumer market and digital engagement base will marry IOC's search for new Olympic markets. </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>df2_cleaned_all_more<span class="sc">%&gt;%</span><span class="fu">select</span>(body)<span class="sc">%&gt;%</span><span class="fu">filter</span>(<span class="fu">row_number</span>() <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">8</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           body
+1  The Board of Control for Cricket in India (BCCI) on Saturday decided to celebrate India's most successful ever campaign at the Olympics by announcing cash rewards for all the medal winners at the Tokyo Games. the In a tweet, BCCI secretary Jay Shah also announced that Neeraj Chopra, India's first-ever gold medal winner in athletics - he won gold in men's javelin throw event - will get Rs.1 crore from the board. Rs.50 lakh each will be given to silver medallists -- weightlifter Mirabai Chanu and wrestler Ravi Kumar Dahiya. "Our athletes have made the country proud by finishing on the podium at @Tokyo2020. The @BCCI acknowledges their stellar efforts and we are delighted to announce cash prizes for the medallists," Jay Shah tweeted. Mirabai Chanu won India's first weightlifting medal at the Games and Ravi Dahiya became only the second wrestler from the country to win a silver after Sushil Kumar (2012). The bronze medallists -- wrestler Bajrang Punia, boxer Lovlina Borgohain and shuttler P V Sindhu -- will get Rs.25 lakh each. Sindhu became the first Indian woman and the second athlete overall to win two Olympic medals. She had won silver five years ago at the Rio Olympics. The men's hockey team which won its first Olympic medal in 41 years will get Rs.1.25 crore. India beat Germany 5-4 to win their third bronze medal and take their overall medal tally in Olympics to 12. India finished Tokyo 2020 with seven medals, making it their most successful campaign at the Games. India bettered their tally of six medals at the London Olympics in 2012. </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>df2_cleaned_all_more<span class="sc">%&gt;%</span><span class="fu">select</span>(body)<span class="sc">%&gt;%</span><span class="fu">filter</span>(<span class="fu">row_number</span>() <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">166</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        body
+1  "I will come back with a medal for sure."This was the promise ace midfielder Lalit Kumar Upadhyay made to his father Satish Kumar Upadhyay and coach Parmanand Mishra before India won a historic medal in hockey after 41 years at the Tokyo Olympics on Thursday, defeating Germany 5-4 in the bronze medal match. The promise didn't make the two relax at all. They couldn't sleep properly till the start of the match for the bronze medal at the Oi Hockey Stadium on Thursday morning. There were altogether different scenes at Lalit's home at the Shivpur bypass in Varanasi and coach Mishra's house in Sarnath, located 10 km northeast of Varanasi.People from Lalit's village gathered at his house to watch the match live with his parents and his elder brother, whereas Mishra chose to watch it alone as he didn't want to be disturbed. "I watched the match all alone as I didn't want any disturbance. I even kept my family out of my room during the 60-minute clash. I couldn't pick my phone for a few minutes even after India's win as it was an emotional moment for me. I couldn't believe that my trainee Lalit kept his promise of a medal to me," said Mishra who trained Lalit at the Udai Pratap College in Varanasi under the Sports Authority of India's scheme. "This means a lot to me as well as to Varanasi, which has produced some great hockey players for India in the past like Mohd Shahid and Vivek Singh. India's success in hockey at the Tokyo Games is a great gift to Varanasi and it's a special occasion to celebrate in the month of Sawan as we all worship Lord Shiva," said Mishra, adding, "Lalit was one of the amazing kids we had in the lot of 10-11 boys under training. He (Lalit) never disobeyed my orders on the ground and was always disciplined." "I never found him missing his training sessions. His ability to bounce back, especially when he was trapped in a selection controversy, helped him a lot. Lalit's achievement will help attract many more Varanasi kids to hockey in the near future," said Mishra, 62. Lalit's father Satish, 61, too sounded emotional on his son's success. "I told him to stay focused even after India lost to Belgium in the semi-final. It was heartbreaking for all of us but I kept my cool and didn't let my son know my emotions," said the senior Upadhyay, still a private employee of a nationalised bank in Varanasi. "We celebrated all the goals scored by India today and my heart was almost in my mouth when Germany got a penalty corner in the last few seconds of the game. I still feel the goosebumps as controlling emotions at that time was quite difficult," he said. In Tokyo, the situation was no different for Lalit who was watching the match while sitting in the stands of the Oi Hockey Stadium after being injured in the previous match. "It's an emotional moment... can't understand what to say (after a pause). The way we played today was unique. It's a moment to celebrate, congratulate everyone," said Lalit on Thursday. "I came to Tokyo with Baba Bholenath's blessings, and was sure of winning a medal here as I had (made) this promise to my family and my coach in Varanasi. In today's game, our strong defence stopped the Germans. The last four minutes were heart-stopping as the opponents were scoring penalty corners one after the other. My heart came to a standstill for a while when Germany got a penalty corner in the last six seconds, but Anna (PR Sreejesh) stood like a rock at the goalpost and defended us." "This medal will act as a tonic for Indian hockey. After a long gap, this medal has increased our stature at the international level. The popularity of hockey will increase once again . A plan should be made to take this game to the villages." (With inputs from Sudhir Kumar in Varanasi) </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>df2_cleaned_all_more<span class="sc">$</span>Tags <span class="ot">&lt;-</span> <span class="fu">str_squish</span>(df2_cleaned_all_more<span class="sc">$</span>Tags)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co">#saveRDS(df2_cleaned_all_more, file = "Data/CleanData.rds")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="preprocessing" class="level1">
+<h1>Preprocessing</h1>
+<p>Once the data was cleaned, I followed the same preprocessing steps as in the previous post but checked if there were any significant differences by comparing the word clouds obtained in the previous post and the current post.</p>
+</section>
+<section id="creating-the-corpus-and-looking-at-the-number-of-tokens-in-each-document" class="level1">
+<h1>Creating the corpus and looking at the number of tokens in each document</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>newspaper_corpus <span class="ot">&lt;-</span> <span class="fu">corpus</span>(df2_cleaned_all_more,<span class="at">text_field =</span> <span class="st">"body"</span>)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>newspaper_corpus_summary <span class="ot">&lt;-</span> <span class="fu">summary</span>(newspaper_corpus)</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(newspaper_corpus_summary)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Text Types Tokens Sentences       newspaper            date
+1 text1   260    542        22 Hindustan Times August 9, 2021 
+2 text2   106    220         5 Hindustan Times August 2, 2021 
+3 text3   153    305         8 Hindustan Times  July 28, 2021 
+4 text4   198    380        16 Hindustan Times August 8, 2021 
+5 text5   197    348         6 Hindustan Times  July 29, 2021 
+6 text6   166    255         8 Hindustan Times August 1, 2021 
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       Tags
+1                                                                                                                                                                                                                                                                                                                                                                                        Subject: OLYMPICS (92%); CRICKET (90%); OLYMPIC COMMITTEES (90%); SPORTS GOVERNING BODIES (90%); SPORTS &amp; RECREATION EVENTS (89%); AGREEMENTS (78%); WOMEN'S SPORTS (78%); ASSOCIATIONS &amp; ORGANIZATIONS (77%); TALKS &amp; MEETINGS (77%) Organization: INTERNATIONAL OLYMPIC COMMITTEE (57%) Industry: BUDGETS (66%); TELEVISION INDUSTRY (50%) Geographic: MUMBAI, MAHARASHTRA, INDIA (92%); LOS ANGELES, CA, USA (79%); BIRMINGHAM, ENGLAND (58%); CALIFORNIA, USA (58%); INDIA (94%); UNITED KINGDOM (79%); FRANCE (58%) Load-Date: August 8, 2021
+2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              Subject: 2020 TOKYO SUMMER OLYMPICS (90%); OLYMPICS (90%); SHOOTING SPORTS (90%); SUMMER OLYMPICS (90%); WEAPONS &amp; ARMS (89%); EQUESTRIAN SPORTS (78%); WOMEN'S SPORTS (78%) Industry: MEDIA CONTENT (78%) Geographic: INDIA (91%) Load-Date: August 1, 2021
+3                                                                                                                                                                                                                                                                                                                                                                                                                                                             Subject: 2020 TOKYO SUMMER OLYMPICS (91%); OLYMPICS (91%); ATHLETES (90%); FIELD HOCKEY (90%); SUMMER OLYMPICS (90%); WOMEN'S SPORTS (90%); BOAT RACING (89%); ROWING (89%); ARCHERY (78%); BADMINTON (78%); BOXING (78%); MEN'S SPORTS (78%); SPORTS &amp; RECREATION EVENTS (78%); SPORTS AWARDS (78%); TOURNAMENTS (76%); BOATING &amp; RAFTING (75%) Industry: MEDIA CONTENT (78%) Geographic: NEW DELHI, INDIA (74%); INDIA (94%); UNITED KINGDOM (73%) Load-Date: July 27, 2021
+4 Subject: ARMIES (94%); OLYMPICS (92%); 2020 TOKYO SUMMER OLYMPICS (90%); ARMED FORCES (90%); HEADS OF STATE &amp; GOVERNMENT (90%); PHOTO &amp; VIDEO SHARING (90%); PRIME MINISTERS (90%); SPORTS &amp; RECREATION (90%); SPORTS AWARDS (90%); SUMMER OLYMPICS (90%); VIRAL VIDEOS (90%); HUMAN RESOURCES &amp; PERSONNEL MANAGEMENT (78%); TRACK &amp; FIELD (78%); EDUCATION &amp; TRAINING (77%); MILITARY SERVICE (77%); SOCIAL MEDIA (77%); EDUCATION SYSTEMS &amp; INSTITUTIONS (74%); GOVERNMENT ADVISORS &amp; MINISTERS (73%); STUDENTS &amp; STUDENT LIFE (73%); INTERNET SOCIAL NETWORKING (72%); WEAPONS &amp; ARMS (72%) Industry: ARMIES (94%); ARMED FORCES (90%); PHOTO &amp; VIDEO SHARING (90%); VIRAL VIDEOS (90%); MEDIA CONTENT (78%); MILITARY SERVICE (77%); SOCIAL MEDIA (77%); EDUCATION SYSTEMS &amp; INSTITUTIONS (74%); INTERNET SOCIAL NETWORKING (72%) Person: NARENDRA MODI (79%) Geographic: GUJARAT, INDIA (79%); INDIA (94%) Load-Date: August 8, 2021
+5                                                                                                                                                                            Subject: 2020 TOKYO SUMMER OLYMPICS (90%); ARCHERY (90%); MEN'S SPORTS (90%); SUMMER OLYMPICS (90%); WOMEN'S SPORTS (90%); WEAPONS &amp; ARMS (89%); BADMINTON (78%); BOXING (78%); ROWING (78%); SHOOTING SPORTS (78%); BOAT RACING (73%); BOATING &amp; RAFTING (73%) Company: RADIAL INC (63%) Industry: NAICS561499 ALL OTHER BUSINESS SUPPORT SERVICES (63%); NAICS561422 TELEMARKETING BUREAUS &amp; OTHER CONTACT CENTERS (63%); NAICS541511 CUSTOM COMPUTER PROGRAMMING SERVICES (63%); NAICS518210 DATA PROCESSING, HOSTING &amp; RELATED SERVICES (63%); NAICS454110 ELECTRONIC SHOPPING AND MAIL-ORDER HOUSES (63%); SIC7389 BUSINESS SERVICES (63%); MEDIA CONTENT (78%) Geographic: NEW DELHI, INDIA (74%); INDIA (91%); ARGENTINA (79%) Load-Date: July 28, 2021
+6                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               Subject: 2020 TOKYO SUMMER OLYMPICS (90%); OLYMPICS (90%); SUMMER OLYMPICS (90%); BADMINTON (89%); FIELD HOCKEY (89%); MEN'S SPORTS (89%); BOXING (78%); SPORTS AWARDS (78%); WOMEN'S SPORTS (78%); GOLF (72%) Industry: MEDIA CONTENT (78%) Geographic: NEW DELHI, INDIA (74%); INDIA (93%); UNITED KINGDOM (68%) Load-Date: July 31, 2021</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>newspaper_corpus_summary<span class="sc">$</span>Tokens</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  [1]  542  220  305  380  348  255  547  299  254  298  326  292  393  353  431
+ [16]  644  289  328  300  305  479  522  371  232  352  371  255  317  780  376
+ [31]  188  222  520  580  207  383  367  522  337  321  472  347  635  341  243
+ [46]  545  447  310  509  583  331  270  363  282 1084  375  266  310  477  383
+ [61]  237  271  504  370  321  603  271  359  237  342  449  662  884 1196  280
+ [76]  336  649  378  635  548  375  400  483  353  707  434  255 1118  282  440
+ [91]  469  294  310  333 1024  361  290  652  282  999</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ndoc</span>(newspaper_corpus)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1157</code></pre>
+</div>
+</div>
+</section>
+<section id="checking-for-metadata" class="level1">
+<h1>Checking for metadata</h1>
+<p>There was metadata but too many pages were being printed so I commented out the line.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co">#docvars(newspaper_corpus)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="creating-tokens" class="level1">
+<h1>Creating tokens</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>newspaper_tokens <span class="ot">&lt;-</span> <span class="fu">tokens</span>(newspaper_corpus)</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(newspaper_tokens)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Tokens consisting of 6 documents and 3 docvars.
+text1 :
+ [1] "From"     "a"        "solitary" "two-day"  "fixture"  "between" 
+ [7] "Great"    "Britain"  "and"      "France"   "in"       "the"     
+[ ... and 530 more ]
+
+text2 :
+ [1] "Tokyo"      "Olympics"   "Day"        "10"         "Full"      
+ [6] "Schedule"   ":"          "Kamalpreet" "Kaur"       "stunned"   
+[11] "the"        "nation"    
+[ ... and 208 more ]
+
+text3 :
+ [1] "The"      "Tokyo"    "Olympics" "2020"     "enters"   "the"     
+ [7] "fifth"    "day"      "which"    "will"     "begin"    "with"    
+[ ... and 293 more ]
+
+text4 :
+ [1] "After"      "Neeraj"     "Chopra"     "became"     "the"       
+ [6] "second"     "Indian"     "ever"       "to"         "win"       
+[11] "an"         "individual"
+[ ... and 368 more ]
+
+text5 :
+ [1] "Day"       "5"         "of"        "the"       "Tokyo"     "Olympics" 
+ [7] "on"        "Wednesday" "was"       "a"         "hot"       "and"      
+[ ... and 336 more ]
+
+text6 :
+ [1] "Day"        "8"          "of"         "the"        "Tokyo"     
+ [6] "Olympics"   "wasn't"     "great"      "in"         "particular"
+[11] "for"        "India"     
+[ ... and 243 more ]</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co">#print(newspaper_tokens)</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="co">#sprintf(as.character(newspaper_tokens[1]))</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="removing-punctuation" class="level1">
+<h1>Removing punctuation</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>newspaper_tokens <span class="ot">&lt;-</span> <span class="fu">tokens</span>(newspaper_tokens ,</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">remove_punct =</span> T)</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(newspaper_tokens)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Tokens consisting of 6 documents and 3 docvars.
+text1 :
+ [1] "From"     "a"        "solitary" "two-day"  "fixture"  "between" 
+ [7] "Great"    "Britain"  "and"      "France"   "in"       "the"     
+[ ... and 464 more ]
+
+text2 :
+ [1] "Tokyo"      "Olympics"   "Day"        "10"         "Full"      
+ [6] "Schedule"   "Kamalpreet" "Kaur"       "stunned"    "the"       
+[11] "nation"     "with"      
+[ ... and 171 more ]
+
+text3 :
+ [1] "The"      "Tokyo"    "Olympics" "2020"     "enters"   "the"     
+ [7] "fifth"    "day"      "which"    "will"     "begin"    "with"    
+[ ... and 255 more ]
+
+text4 :
+ [1] "After"      "Neeraj"     "Chopra"     "became"     "the"       
+ [6] "second"     "Indian"     "ever"       "to"         "win"       
+[11] "an"         "individual"
+[ ... and 335 more ]
+
+text5 :
+ [1] "Day"       "5"         "of"        "the"       "Tokyo"     "Olympics" 
+ [7] "on"        "Wednesday" "was"       "a"         "hot"       "and"      
+[ ... and 274 more ]
+
+text6 :
+ [1] "Day"        "8"          "of"         "the"        "Tokyo"     
+ [6] "Olympics"   "wasn't"     "great"      "in"         "particular"
+[11] "for"        "India"     
+[ ... and 215 more ]</code></pre>
+</div>
+</div>
+</section>
+<section id="removing-stopwords" class="level1">
+<h1>Removing stopwords</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>withoutstopwords_news<span class="ot">&lt;-</span> <span class="fu">tokens_select</span>(newspaper_tokens, </span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>                    <span class="at">pattern =</span> <span class="fu">stopwords</span>(<span class="st">"en"</span>),</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">select =</span> <span class="st">"remove"</span>)</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(withoutstopwords_news)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Tokens consisting of 1,157 documents and 3 docvars.
+text1 :
+ [1] "solitary"  "two-day"   "fixture"   "Great"     "Britain"   "France"   
+ [7] "1900"      "Olympics"  "prospects" "cricket's" "inclusion" "8-team"   
+[ ... and 267 more ]
+
+text2 :
+ [1] "Tokyo"      "Olympics"   "Day"        "10"         "Full"      
+ [6] "Schedule"   "Kamalpreet" "Kaur"       "stunned"    "nation"    
+[11] "64m"        "throw"     
+[ ... and 136 more ]
+
+text3 :
+ [1] "Tokyo"    "Olympics" "2020"     "enters"   "fifth"    "day"     
+ [7] "begin"    "Indian"   "women's"  "Hockey"   "team"     "locking" 
+[ ... and 186 more ]
+
+text4 :
+ [1] "Neeraj"     "Chopra"     "became"     "second"     "Indian"    
+ [6] "ever"       "win"        "individual" "gold"       "medal"     
+[11] "Tokyo"      "Olympics"  
+[ ... and 205 more ]
+
+text5 :
+ [1] "Day"       "5"         "Tokyo"     "Olympics"  "Wednesday" "hot"      
+ [7] "cold"      "affair"    "Shuttler"  "PV"        "Sindhu"    "advanced" 
+[ ... and 217 more ]
+
+text6 :
+ [1] "Day"        "8"          "Tokyo"      "Olympics"   "great"     
+ [6] "particular" "India"      "top"        "guns"       "failed"    
+[11] "make"       "mark"      
+[ ... and 145 more ]
+
+[ reached max_ndoc ... 1,151 more documents ]</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(withoutstopwords_news)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Tokens consisting of 6 documents and 3 docvars.
+text1 :
+ [1] "solitary"  "two-day"   "fixture"   "Great"     "Britain"   "France"   
+ [7] "1900"      "Olympics"  "prospects" "cricket's" "inclusion" "8-team"   
+[ ... and 267 more ]
+
+text2 :
+ [1] "Tokyo"      "Olympics"   "Day"        "10"         "Full"      
+ [6] "Schedule"   "Kamalpreet" "Kaur"       "stunned"    "nation"    
+[11] "64m"        "throw"     
+[ ... and 136 more ]
+
+text3 :
+ [1] "Tokyo"    "Olympics" "2020"     "enters"   "fifth"    "day"     
+ [7] "begin"    "Indian"   "women's"  "Hockey"   "team"     "locking" 
+[ ... and 186 more ]
+
+text4 :
+ [1] "Neeraj"     "Chopra"     "became"     "second"     "Indian"    
+ [6] "ever"       "win"        "individual" "gold"       "medal"     
+[11] "Tokyo"      "Olympics"  
+[ ... and 205 more ]
+
+text5 :
+ [1] "Day"       "5"         "Tokyo"     "Olympics"  "Wednesday" "hot"      
+ [7] "cold"      "affair"    "Shuttler"  "PV"        "Sindhu"    "advanced" 
+[ ... and 217 more ]
+
+text6 :
+ [1] "Day"        "8"          "Tokyo"      "Olympics"   "great"     
+ [6] "particular" "India"      "top"        "guns"       "failed"    
+[11] "make"       "mark"      
+[ ... and 145 more ]</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co">#as.character(withoutstopwords_news)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co">#saveRDS(withoutstopwords_news, file = "Data/PreprocessedData.rds")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="keyword-in-context" class="level1">
+<h1>Keyword in context</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>kwic_women<span class="ot">&lt;-</span> <span class="fu">kwic</span>(withoutstopwords_news,</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">pattern =</span> <span class="fu">c</span>(<span class="st">"women"</span>))</span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>kwic_men<span class="ot">&lt;-</span><span class="fu">kwic</span>(withoutstopwords_news,</span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">pattern =</span> <span class="fu">c</span>(<span class="st">"men"</span>))</span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(kwic_women)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Keyword-in-context with 6 matches.                                                                  
+   [text1, 16]          inclusion 8-team medal sport men | women |
+  [text1, 224] Olympics learnt require participation men | women |
+   [text5, 35] archer Deepika Kumari sailed pre-quarters | women |
+  [text5, 181]           IST Nethra Kumanan Laser Radial | Women |
+ [text26, 199]    turned emotional watching game Notably | women |
+  [text30, 62]          announce HK Group decided honour | Women |
+                                          
+ Los Angeles 2028 brightened International
+ T20 emerged format choice despite        
+ individual event Taking part first       
+ Race 7 8 8 45                            
+ hockey players come humble backgrounds   
+ hockey team players player wishes        </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(kwic_men)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Keyword-in-context with 6 matches.                                                                    
+   [text1, 15]        cricket's inclusion 8-team medal sport | men |
+  [text1, 223] cricket Olympics learnt require participation | men |
+  [text5, 159]            IST SAILING Vishnu Saravanan Laser | Men |
+  [text5, 170]         IST Ganapathy Kelapanda Varun Thakkar | Men |
+  [text22, 87]               Britain's goal came 45th minute | Men |
+ [text73, 333]             strong women's boxing good boxers | men |
+                                     
+ women Los Angeles 2028 brightened   
+ women T20 emerged format choice     
+ Race 7 8 8 35                       
+ Race 5 6 8 35                       
+ Blue Great Britain quarterfinal long
+ well competed ask gone Olympics     </code></pre>
+</div>
+</div>
+</section>
+<section id="creating-a-tokens-object-with-bigrams-and-trigrams" class="level1">
+<h1>Creating a tokens object with bigrams and trigrams</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>news_ngrams <span class="ot">&lt;-</span> <span class="fu">tokens_ngrams</span>(withoutstopwords_news, <span class="at">n=</span><span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>)</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(news_ngrams)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Tokens consisting of 6 documents and 3 docvars.
+text1 :
+ [1] "solitary_two-day"    "two-day_fixture"     "fixture_Great"      
+ [4] "Great_Britain"       "Britain_France"      "France_1900"        
+ [7] "1900_Olympics"       "Olympics_prospects"  "prospects_cricket's"
+[10] "cricket's_inclusion" "inclusion_8-team"    "8-team_medal"       
+[ ... and 543 more ]
+
+text2 :
+ [1] "Tokyo_Olympics"      "Olympics_Day"        "Day_10"             
+ [4] "10_Full"             "Full_Schedule"       "Schedule_Kamalpreet"
+ [7] "Kamalpreet_Kaur"     "Kaur_stunned"        "stunned_nation"     
+[10] "nation_64m"          "64m_throw"           "throw_qualification"
+[ ... and 281 more ]
+
+text3 :
+ [1] "Tokyo_Olympics" "Olympics_2020"  "2020_enters"    "enters_fifth"  
+ [5] "fifth_day"      "day_begin"      "begin_Indian"   "Indian_women's"
+ [9] "women's_Hockey" "Hockey_team"    "team_locking"   "locking_horns" 
+[ ... and 381 more ]
+
+text4 :
+ [1] "Neeraj_Chopra"   "Chopra_became"   "became_second"   "second_Indian"  
+ [5] "Indian_ever"     "ever_win"        "win_individual"  "individual_gold"
+ [9] "gold_medal"      "medal_Tokyo"     "Tokyo_Olympics"  "Olympics_video" 
+[ ... and 419 more ]
+
+text5 :
+ [1] "Day_5"              "5_Tokyo"            "Tokyo_Olympics"    
+ [4] "Olympics_Wednesday" "Wednesday_hot"      "hot_cold"          
+ [7] "cold_affair"        "affair_Shuttler"    "Shuttler_PV"       
+[10] "PV_Sindhu"          "Sindhu_advanced"    "advanced_Round"    
+[ ... and 443 more ]
+
+text6 :
+ [1] "Day_8"            "8_Tokyo"          "Tokyo_Olympics"   "Olympics_great"  
+ [5] "great_particular" "particular_India" "India_top"        "top_guns"        
+ [9] "guns_failed"      "failed_make"      "make_mark"        "mark_Boxers"     
+[ ... and 299 more ]</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span>(news_ngrams)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Tokens consisting of 6 documents and 3 docvars.
+text1152 :
+ [1] "Diamond_baron"          "baron_Savji"            "Savji_Dholakia"        
+ [4] "Dholakia_made"          "made_yet"               "yet_another"           
+ [7] "another_announcement"   "announcement_declaring" "declaring_award"       
+[10] "award_Rs"               "Rs_2.5"                 "2.5_lakh"              
+[ ... and 171 more ]
+
+text1153 :
+ [1] "THE.WAIT.HAS.ENDED_men's" "men's_hockey"            
+ [3] "hockey_team"              "team_every"              
+ [5] "every_Indian"             "Indian_dreaming"         
+ [7] "dreaming_winning"         "winning_Olympic"         
+ [9] "Olympic_medal"            "medal_Indian"            
+[11] "Indian_side"              "side_defeatedGermany"    
+[ ... and 135 more ]
+
+text1154 :
+ [1] "New_Delhi"            "Delhi_Indian"         "Indian_sports"       
+ [4] "sports_fraternity"    "fraternity_including" "including_cricketing"
+ [7] "cricketing_greats"    "greats_Sachin"        "Sachin_Tendulkar"    
+[10] "Tendulkar_country's"  "country's_white-ball" "white-ball_skipper"  
+[ ... and 51 more ]
+
+text1155 :
+ [1] "India's_Equestrian" "Equestrian_Fouaad"  "Fouaad_Mirza"      
+ [4] "Mirza_Seigneur"     "Seigneur_Medicott"  "Medicott_qualified"
+ [7] "qualified_Jumping"  "Jumping_Individual" "Individual_Finals" 
+[10] "Finals_got"         "got_8"              "8_point"           
+[ ... and 179 more ]
+
+text1156 :
+ [1] "Saturday_Saikhom" "Saikhom_Mirabai"  "Mirabai_Chanu"    "Chanu_stood"     
+ [5] "stood_podium"     "podium_Tokyo"     "Tokyo_silver"     "silver_medal"    
+ [9] "medal_around"     "around_neck"      "neck_two"         "two_former"      
+[ ... and 203 more ]
+
+text1157 :
+ [1] "Mirabai_Chanu"           "Chanu_said"             
+ [3] "said_failed"             "failed_campaign"        
+ [5] "campaign_Rio"            "Rio_taught"             
+ [7] "taught_overcome"         "overcome_disappointment"
+ [9] "disappointment_make"     "make_fresh"             
+[11] "fresh_start"             "start_virtual"          
+[ ... and 201 more ]</code></pre>
+</div>
+</div>
+</section>
+<section id="word-cloud" class="level1">
+<h1>Word Cloud</h1>
+<p>I created a word cloud to check if there are any words other than the stopwords to be removed.<br>
+This time the words classification, publication-type and body did not appear so the preprocessing was successful.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>news_dfm <span class="ot">&lt;-</span> <span class="fu">dfm</span>(<span class="fu">tokens</span>(withoutstopwords_news))</span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>news_dfm</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Document-feature matrix of: 1,157 documents, 22,370 features (99.21% sparse) and 3 docvars.
+       features
+docs    solitary two-day fixture great britain france 1900 olympics prospects
+  text1        1       1       1     1       1      1    1        9         3
+  text2        0       0       0     0       0      0    0        2         0
+  text3        0       0       0     2       2      0    0        3         0
+  text4        0       0       0     0       0      0    0       10         0
+  text5        0       0       0     0       0      0    0        3         0
+  text6        0       0       0     2       1      0    0        2         0
+       features
+docs    cricket's
+  text1         2
+  text2         0
+  text3         0
+  text4         0
+  text5         0
+  text6         0
+[ reached max_ndoc ... 1,151 more documents, reached max_nfeat ... 22,360 more features ]</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="fu">textplot_wordcloud</span>(news_dfm, <span class="at">min_count =</span> <span class="dv">50</span>, <span class="at">random_order =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="2DecBlogPost3Mekhala-Kumar_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="co">#saveRDS(news_dfm, file = "Data/News_DFM.rds")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Questions: 1. How can I use the data of the classification tags and newspaper names in my analysis? 2. Is the word cloud accurate because some of the words were omitted from the image?<br>
+</p>
+<p>In my next blog post, I will begin the process of topic modelling.</p>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } 
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+<script src="https://giscus.app/client.js" data-repo="DACSS/Text_as_Data_Fall_2022" data-repo-id="R_kgDOH5675w" data-category="Announcements" data-category-id="" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
+</script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb59" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Blog Post 3 "</span></span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Mekhala Kumar"</span></span>
+<span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a><span class="an">description:</span><span class="co"> "Further Preprocessing"</span></span>
+<span id="cb59-5"><a href="#cb59-5" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "11/29/2022"</span></span>
+<span id="cb59-6"><a href="#cb59-6" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb59-7"><a href="#cb59-7" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb59-8"><a href="#cb59-8" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb59-9"><a href="#cb59-9" aria-hidden="true" tabindex="-1"></a><span class="co">    code-copy: true</span></span>
+<span id="cb59-10"><a href="#cb59-10" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb59-11"><a href="#cb59-11" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span></span>
+<span id="cb59-12"><a href="#cb59-12" aria-hidden="true" tabindex="-1"></a><span class="co">  - MekhalaKumar</span></span>
+<span id="cb59-13"><a href="#cb59-13" aria-hidden="true" tabindex="-1"></a><span class="co">  - Olympics2020</span></span>
+<span id="cb59-14"><a href="#cb59-14" aria-hidden="true" tabindex="-1"></a><span class="co">  - GenderandSports</span></span>
+<span id="cb59-15"><a href="#cb59-15" aria-hidden="true" tabindex="-1"></a><span class="co">  - BlogPost3</span></span>
+<span id="cb59-16"><a href="#cb59-16" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb59-17"><a href="#cb59-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-18"><a href="#cb59-18" aria-hidden="true" tabindex="-1"></a>In this post, I focused on fixing the issues I faced while preprocessing the data in the previous blog post. </span>
+<span id="cb59-21"><a href="#cb59-21" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb59-22"><a href="#cb59-22" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: setup</span></span>
+<span id="cb59-23"><a href="#cb59-23" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb59-24"><a href="#cb59-24" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb59-25"><a href="#cb59-25" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb59-26"><a href="#cb59-26" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda)</span>
+<span id="cb59-27"><a href="#cb59-27" aria-hidden="true" tabindex="-1"></a><span class="co">#devtools::install_github("quanteda/readtext") </span></span>
+<span id="cb59-28"><a href="#cb59-28" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readtext)</span>
+<span id="cb59-29"><a href="#cb59-29" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(striprtf)</span>
+<span id="cb59-30"><a href="#cb59-30" aria-hidden="true" tabindex="-1"></a><span class="co">#library(LexisNexisTools)</span></span>
+<span id="cb59-31"><a href="#cb59-31" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(corpus)</span>
+<span id="cb59-32"><a href="#cb59-32" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda.textplots)</span>
+<span id="cb59-33"><a href="#cb59-33" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb59-34"><a href="#cb59-34" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb59-35"><a href="#cb59-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-36"><a href="#cb59-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-37"><a href="#cb59-37" aria-hidden="true" tabindex="-1"></a><span class="fu">## The dataset</span></span>
+<span id="cb59-38"><a href="#cb59-38" aria-hidden="true" tabindex="-1"></a>I was able to save the files, that were read in, as an R object. So that fixed the problem where it was taking a large amount of time to load all the files. </span>
+<span id="cb59-41"><a href="#cb59-41" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb59-42"><a href="#cb59-42" aria-hidden="true" tabindex="-1"></a><span class="co">#saveRDS(df, file = "Data/All12Files.rds")</span></span>
+<span id="cb59-43"><a href="#cb59-43" aria-hidden="true" tabindex="-1"></a>df_All<span class="ot">&lt;-</span><span class="fu">readRDS</span>(<span class="at">file =</span> <span class="st">"D:/Text as Data/All12Files.rds"</span>)</span>
+<span id="cb59-44"><a href="#cb59-44" aria-hidden="true" tabindex="-1"></a>df1<span class="ot">&lt;-</span>df_All</span>
+<span id="cb59-45"><a href="#cb59-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-46"><a href="#cb59-46" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb59-47"><a href="#cb59-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-48"><a href="#cb59-48" aria-hidden="true" tabindex="-1"></a><span class="fu">## Modification of the files that were read in</span></span>
+<span id="cb59-49"><a href="#cb59-49" aria-hidden="true" tabindex="-1"></a>Before moving to the preprocessing steps, I had to clean the data since there were many white spaces and terms present that were not required.\</span>
+<span id="cb59-50"><a href="#cb59-50" aria-hidden="true" tabindex="-1"></a>I was able to extract and separate the newspaper name, date and main text of the article successfully after following the suggestions of Professor Song.\</span>
+<span id="cb59-51"><a href="#cb59-51" aria-hidden="true" tabindex="-1"></a>This was done by removing leading and trailing whitespaces as well as finding common words used that could help separate the text into the columns required. </span>
+<span id="cb59-52"><a href="#cb59-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-53"><a href="#cb59-53" aria-hidden="true" tabindex="-1"></a><span class="fu">## Cleaning up the name of newspapers and the dates</span></span>
+<span id="cb59-54"><a href="#cb59-54" aria-hidden="true" tabindex="-1"></a>The rows of text which did not have the names of the newspapers were removed. </span>
+<span id="cb59-57"><a href="#cb59-57" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb59-58"><a href="#cb59-58" aria-hidden="true" tabindex="-1"></a>df1<span class="sc">$</span>Newspaper_Date <span class="ot">&lt;-</span> <span class="fu">str_squish</span>(df1<span class="sc">$</span>Newspaper_Date)</span>
+<span id="cb59-59"><a href="#cb59-59" aria-hidden="true" tabindex="-1"></a>df2 <span class="ot">&lt;-</span> df1 <span class="sc">%&gt;%</span></span>
+<span id="cb59-60"><a href="#cb59-60" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Newspaper_Date <span class="sc">!=</span> <span class="st">""</span>)</span>
+<span id="cb59-61"><a href="#cb59-61" aria-hidden="true" tabindex="-1"></a>df2_cleaning2 <span class="ot">&lt;-</span> df2 <span class="sc">%&gt;%</span></span>
+<span id="cb59-62"><a href="#cb59-62" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(Newspaper_Date, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"newspaper"</span>, <span class="st">"date"</span>),</span>
+<span id="cb59-63"><a href="#cb59-63" aria-hidden="true" tabindex="-1"></a>         <span class="at">sep =</span> <span class="st">"(?=(August|July))"</span>)</span>
+<span id="cb59-64"><a href="#cb59-64" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(df2_cleaning2)</span>
+<span id="cb59-65"><a href="#cb59-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-66"><a href="#cb59-66" aria-hidden="true" tabindex="-1"></a>df2_cleaning2<span class="sc">$</span>newspaper <span class="ot">&lt;-</span> <span class="fu">str_squish</span>(df2_cleaning2<span class="sc">$</span>newspaper)</span>
+<span id="cb59-67"><a href="#cb59-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-68"><a href="#cb59-68" aria-hidden="true" tabindex="-1"></a>df2_cleaning2<span class="ot">&lt;-</span>df2_cleaning2<span class="sc">%&gt;%</span><span class="fu">separate</span>(date, <span class="at">into=</span><span class="fu">c</span>(<span class="st">"date"</span>, <span class="st">"Delete"</span>), <span class="at">sep=</span><span class="st">"Copyright"</span>)<span class="sc">%&gt;%</span><span class="fu">select</span>(<span class="sc">-</span>Delete)</span>
+<span id="cb59-69"><a href="#cb59-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-70"><a href="#cb59-70" aria-hidden="true" tabindex="-1"></a>df2_cleaning2 <span class="ot">&lt;-</span> df2_cleaning2 <span class="sc">%&gt;%</span></span>
+<span id="cb59-71"><a href="#cb59-71" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(date, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"date"</span>, <span class="st">"delete"</span>),</span>
+<span id="cb59-72"><a href="#cb59-72" aria-hidden="true" tabindex="-1"></a>           <span class="at">sep =</span> <span class="st">"(?=(Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday))"</span>)<span class="sc">%&gt;%</span><span class="fu">select</span>(<span class="sc">-</span>delete)</span>
+<span id="cb59-73"><a href="#cb59-73" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb59-74"><a href="#cb59-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-75"><a href="#cb59-75" aria-hidden="true" tabindex="-1"></a><span class="fu">## Cleaning up the main information of the article</span></span>
+<span id="cb59-76"><a href="#cb59-76" aria-hidden="true" tabindex="-1"></a>I found that there were two formats in which the main information was saved; hence there were two approaches taken to clean the same. \</span>
+<span id="cb59-77"><a href="#cb59-77" aria-hidden="true" tabindex="-1"></a>I also checked a few rows of data to see if the information extracted was in the format that I wanted it to be in. </span>
+<span id="cb59-80"><a href="#cb59-80" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb59-81"><a href="#cb59-81" aria-hidden="true" tabindex="-1"></a>df2_cleaning2<span class="sc">$</span>Body <span class="ot">&lt;-</span> <span class="fu">str_squish</span>(df2_cleaning2<span class="sc">$</span>Body)</span>
+<span id="cb59-82"><a href="#cb59-82" aria-hidden="true" tabindex="-1"></a>df2_cleaning2<span class="sc">$</span>Body <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"^(.{4})(.*)$"</span>,</span>
+<span id="cb59-83"><a href="#cb59-83" aria-hidden="true" tabindex="-1"></a>                           <span class="st">"</span><span class="sc">\\</span><span class="st">1-</span><span class="sc">\\</span><span class="st">2"</span>,</span>
+<span id="cb59-84"><a href="#cb59-84" aria-hidden="true" tabindex="-1"></a>                           df2_cleaning2<span class="sc">$</span>Body)</span>
+<span id="cb59-85"><a href="#cb59-85" aria-hidden="true" tabindex="-1"></a>df2_cleaning_reg <span class="ot">&lt;-</span> df2_cleaning2 <span class="sc">%&gt;%</span></span>
+<span id="cb59-86"><a href="#cb59-86" aria-hidden="true" tabindex="-1"></a> <span class="fu">separate</span>(Body, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"delete"</span>, <span class="st">"body"</span>),</span>
+<span id="cb59-87"><a href="#cb59-87" aria-hidden="true" tabindex="-1"></a>  <span class="at">sep =</span> <span class="st">"[</span><span class="sc">\\</span><span class="st">d+] --"</span>)</span>
+<span id="cb59-88"><a href="#cb59-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-89"><a href="#cb59-89" aria-hidden="true" tabindex="-1"></a>df2_cleaning4 <span class="ot">&lt;-</span> df2_cleaning_reg <span class="sc">%&gt;%</span></span>
+<span id="cb59-90"><a href="#cb59-90" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">is.na</span>(body))</span>
+<span id="cb59-91"><a href="#cb59-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-92"><a href="#cb59-92" aria-hidden="true" tabindex="-1"></a>df2_cleaning_remaining <span class="ot">&lt;-</span> df2_cleaning_reg <span class="sc">%&gt;%</span></span>
+<span id="cb59-93"><a href="#cb59-93" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(body))</span>
+<span id="cb59-94"><a href="#cb59-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-95"><a href="#cb59-95" aria-hidden="true" tabindex="-1"></a>df2_cleaning5 <span class="ot">&lt;-</span> df2_cleaning4 <span class="sc">%&gt;%</span></span>
+<span id="cb59-96"><a href="#cb59-96" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(delete, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"delete2"</span>, <span class="st">"body2"</span>),</span>
+<span id="cb59-97"><a href="#cb59-97" aria-hidden="true" tabindex="-1"></a>           <span class="at">sep =</span> <span class="st">"Body- "</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb59-98"><a href="#cb59-98" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>delete2, <span class="sc">-</span>body)</span>
+<span id="cb59-99"><a href="#cb59-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-100"><a href="#cb59-100" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(df2_cleaning4)</span>
+<span id="cb59-101"><a href="#cb59-101" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(df2_cleaning_remaining)</span>
+<span id="cb59-102"><a href="#cb59-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-103"><a href="#cb59-103" aria-hidden="true" tabindex="-1"></a>df2_cleaning_remaining <span class="ot">&lt;-</span> df2_cleaning_remaining <span class="sc">%&gt;%</span></span>
+<span id="cb59-104"><a href="#cb59-104" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>delete)</span>
+<span id="cb59-105"><a href="#cb59-105" aria-hidden="true" tabindex="-1"></a>df2_cleaning5 <span class="ot">&lt;-</span> df2_cleaning5 <span class="sc">%&gt;%</span></span>
+<span id="cb59-106"><a href="#cb59-106" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">body =</span> body2)</span>
+<span id="cb59-107"><a href="#cb59-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-108"><a href="#cb59-108" aria-hidden="true" tabindex="-1"></a>df2_cleaned_all <span class="ot">&lt;-</span> <span class="fu">rbind</span>(df2_cleaning_remaining,</span>
+<span id="cb59-109"><a href="#cb59-109" aria-hidden="true" tabindex="-1"></a>                         df2_cleaning5)</span>
+<span id="cb59-110"><a href="#cb59-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-111"><a href="#cb59-111" aria-hidden="true" tabindex="-1"></a>df2_cleaned_all<span class="sc">%&gt;%</span><span class="fu">select</span>(body)<span class="sc">%&gt;%</span><span class="fu">filter</span>(<span class="fu">row_number</span>() <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">1</span>))</span>
+<span id="cb59-112"><a href="#cb59-112" aria-hidden="true" tabindex="-1"></a>df2_cleaned_all<span class="sc">%&gt;%</span><span class="fu">select</span>(body)<span class="sc">%&gt;%</span><span class="fu">filter</span>(<span class="fu">row_number</span>() <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">60</span>))</span>
+<span id="cb59-113"><a href="#cb59-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-114"><a href="#cb59-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-115"><a href="#cb59-115" aria-hidden="true" tabindex="-1"></a>df2_cleaned_all_more<span class="ot">&lt;-</span>df2_cleaned_all<span class="sc">%&gt;%</span><span class="fu">separate</span>(body, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"body"</span>, <span class="st">"delete"</span>),<span class="at">sep =</span> <span class="st">"Published|Classification"</span>)</span>
+<span id="cb59-116"><a href="#cb59-116" aria-hidden="true" tabindex="-1"></a>df2_cleaned_all_more <span class="ot">&lt;-</span> df2_cleaned_all_more <span class="sc">%&gt;%</span></span>
+<span id="cb59-117"><a href="#cb59-117" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>delete)</span>
+<span id="cb59-118"><a href="#cb59-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-119"><a href="#cb59-119" aria-hidden="true" tabindex="-1"></a>df2_cleaned_all_more<span class="sc">%&gt;%</span><span class="fu">select</span>(body)<span class="sc">%&gt;%</span><span class="fu">filter</span>(<span class="fu">row_number</span>() <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">1</span>))</span>
+<span id="cb59-120"><a href="#cb59-120" aria-hidden="true" tabindex="-1"></a>df2_cleaned_all_more<span class="sc">%&gt;%</span><span class="fu">select</span>(body)<span class="sc">%&gt;%</span><span class="fu">filter</span>(<span class="fu">row_number</span>() <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">8</span>))</span>
+<span id="cb59-121"><a href="#cb59-121" aria-hidden="true" tabindex="-1"></a>df2_cleaned_all_more<span class="sc">%&gt;%</span><span class="fu">select</span>(body)<span class="sc">%&gt;%</span><span class="fu">filter</span>(<span class="fu">row_number</span>() <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">166</span>))</span>
+<span id="cb59-122"><a href="#cb59-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-123"><a href="#cb59-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-124"><a href="#cb59-124" aria-hidden="true" tabindex="-1"></a>df2_cleaned_all_more<span class="sc">$</span>Tags <span class="ot">&lt;-</span> <span class="fu">str_squish</span>(df2_cleaned_all_more<span class="sc">$</span>Tags)</span>
+<span id="cb59-125"><a href="#cb59-125" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb59-126"><a href="#cb59-126" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-127"><a href="#cb59-127" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb59-128"><a href="#cb59-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-131"><a href="#cb59-131" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb59-132"><a href="#cb59-132" aria-hidden="true" tabindex="-1"></a><span class="co">#saveRDS(df2_cleaned_all_more, file = "Data/CleanData.rds")</span></span>
+<span id="cb59-133"><a href="#cb59-133" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb59-134"><a href="#cb59-134" aria-hidden="true" tabindex="-1"></a><span class="fu"># Preprocessing</span></span>
+<span id="cb59-135"><a href="#cb59-135" aria-hidden="true" tabindex="-1"></a>Once the data was cleaned, I followed the same preprocessing steps as in the previous post but checked if there were any significant differences by comparing the word clouds obtained in the previous post and the current post. </span>
+<span id="cb59-136"><a href="#cb59-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-137"><a href="#cb59-137" aria-hidden="true" tabindex="-1"></a><span class="fu"># Creating the corpus and looking at the number of tokens in each document</span></span>
+<span id="cb59-140"><a href="#cb59-140" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb59-141"><a href="#cb59-141" aria-hidden="true" tabindex="-1"></a>newspaper_corpus <span class="ot">&lt;-</span> <span class="fu">corpus</span>(df2_cleaned_all_more,<span class="at">text_field =</span> <span class="st">"body"</span>)</span>
+<span id="cb59-142"><a href="#cb59-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-143"><a href="#cb59-143" aria-hidden="true" tabindex="-1"></a>newspaper_corpus_summary <span class="ot">&lt;-</span> <span class="fu">summary</span>(newspaper_corpus)</span>
+<span id="cb59-144"><a href="#cb59-144" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(newspaper_corpus_summary)</span>
+<span id="cb59-145"><a href="#cb59-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-146"><a href="#cb59-146" aria-hidden="true" tabindex="-1"></a>newspaper_corpus_summary<span class="sc">$</span>Tokens</span>
+<span id="cb59-147"><a href="#cb59-147" aria-hidden="true" tabindex="-1"></a><span class="fu">ndoc</span>(newspaper_corpus)</span>
+<span id="cb59-148"><a href="#cb59-148" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb59-149"><a href="#cb59-149" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-150"><a href="#cb59-150" aria-hidden="true" tabindex="-1"></a><span class="fu"># Checking for metadata</span></span>
+<span id="cb59-151"><a href="#cb59-151" aria-hidden="true" tabindex="-1"></a>There was metadata but too many pages were being printed so I commented out the line. </span>
+<span id="cb59-154"><a href="#cb59-154" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb59-155"><a href="#cb59-155" aria-hidden="true" tabindex="-1"></a><span class="co">#docvars(newspaper_corpus)</span></span>
+<span id="cb59-156"><a href="#cb59-156" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb59-157"><a href="#cb59-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-158"><a href="#cb59-158" aria-hidden="true" tabindex="-1"></a><span class="fu"># Creating tokens</span></span>
+<span id="cb59-161"><a href="#cb59-161" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb59-162"><a href="#cb59-162" aria-hidden="true" tabindex="-1"></a>newspaper_tokens <span class="ot">&lt;-</span> <span class="fu">tokens</span>(newspaper_corpus)</span>
+<span id="cb59-163"><a href="#cb59-163" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(newspaper_tokens)</span>
+<span id="cb59-164"><a href="#cb59-164" aria-hidden="true" tabindex="-1"></a><span class="co">#print(newspaper_tokens)</span></span>
+<span id="cb59-165"><a href="#cb59-165" aria-hidden="true" tabindex="-1"></a><span class="co">#sprintf(as.character(newspaper_tokens[1]))</span></span>
+<span id="cb59-166"><a href="#cb59-166" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb59-167"><a href="#cb59-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-168"><a href="#cb59-168" aria-hidden="true" tabindex="-1"></a><span class="fu"># Removing punctuation</span></span>
+<span id="cb59-171"><a href="#cb59-171" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb59-172"><a href="#cb59-172" aria-hidden="true" tabindex="-1"></a>newspaper_tokens <span class="ot">&lt;-</span> <span class="fu">tokens</span>(newspaper_tokens ,</span>
+<span id="cb59-173"><a href="#cb59-173" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">remove_punct =</span> T)</span>
+<span id="cb59-174"><a href="#cb59-174" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(newspaper_tokens)</span>
+<span id="cb59-175"><a href="#cb59-175" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb59-176"><a href="#cb59-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-177"><a href="#cb59-177" aria-hidden="true" tabindex="-1"></a><span class="fu"># Removing stopwords</span></span>
+<span id="cb59-180"><a href="#cb59-180" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb59-181"><a href="#cb59-181" aria-hidden="true" tabindex="-1"></a>withoutstopwords_news<span class="ot">&lt;-</span> <span class="fu">tokens_select</span>(newspaper_tokens, </span>
+<span id="cb59-182"><a href="#cb59-182" aria-hidden="true" tabindex="-1"></a>                    <span class="at">pattern =</span> <span class="fu">stopwords</span>(<span class="st">"en"</span>),</span>
+<span id="cb59-183"><a href="#cb59-183" aria-hidden="true" tabindex="-1"></a>                    <span class="at">select =</span> <span class="st">"remove"</span>)</span>
+<span id="cb59-184"><a href="#cb59-184" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(withoutstopwords_news)</span>
+<span id="cb59-185"><a href="#cb59-185" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(withoutstopwords_news)</span>
+<span id="cb59-186"><a href="#cb59-186" aria-hidden="true" tabindex="-1"></a><span class="co">#as.character(withoutstopwords_news)</span></span>
+<span id="cb59-187"><a href="#cb59-187" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-188"><a href="#cb59-188" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb59-189"><a href="#cb59-189" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-192"><a href="#cb59-192" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb59-193"><a href="#cb59-193" aria-hidden="true" tabindex="-1"></a><span class="co">#saveRDS(withoutstopwords_news, file = "Data/PreprocessedData.rds")</span></span>
+<span id="cb59-194"><a href="#cb59-194" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb59-195"><a href="#cb59-195" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-196"><a href="#cb59-196" aria-hidden="true" tabindex="-1"></a><span class="fu"># Keyword in context</span></span>
+<span id="cb59-199"><a href="#cb59-199" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb59-200"><a href="#cb59-200" aria-hidden="true" tabindex="-1"></a>kwic_women<span class="ot">&lt;-</span> <span class="fu">kwic</span>(withoutstopwords_news,</span>
+<span id="cb59-201"><a href="#cb59-201" aria-hidden="true" tabindex="-1"></a>                        <span class="at">pattern =</span> <span class="fu">c</span>(<span class="st">"women"</span>))</span>
+<span id="cb59-202"><a href="#cb59-202" aria-hidden="true" tabindex="-1"></a>kwic_men<span class="ot">&lt;-</span><span class="fu">kwic</span>(withoutstopwords_news,</span>
+<span id="cb59-203"><a href="#cb59-203" aria-hidden="true" tabindex="-1"></a>                        <span class="at">pattern =</span> <span class="fu">c</span>(<span class="st">"men"</span>))</span>
+<span id="cb59-204"><a href="#cb59-204" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(kwic_women)</span>
+<span id="cb59-205"><a href="#cb59-205" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(kwic_men)</span>
+<span id="cb59-206"><a href="#cb59-206" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb59-207"><a href="#cb59-207" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-208"><a href="#cb59-208" aria-hidden="true" tabindex="-1"></a><span class="fu"># Creating a tokens object with bigrams and trigrams </span></span>
+<span id="cb59-209"><a href="#cb59-209" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-212"><a href="#cb59-212" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb59-213"><a href="#cb59-213" aria-hidden="true" tabindex="-1"></a>news_ngrams <span class="ot">&lt;-</span> <span class="fu">tokens_ngrams</span>(withoutstopwords_news, <span class="at">n=</span><span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>)</span>
+<span id="cb59-214"><a href="#cb59-214" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(news_ngrams)</span>
+<span id="cb59-215"><a href="#cb59-215" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span>(news_ngrams)</span>
+<span id="cb59-216"><a href="#cb59-216" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb59-217"><a href="#cb59-217" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-218"><a href="#cb59-218" aria-hidden="true" tabindex="-1"></a><span class="fu"># Word Cloud</span></span>
+<span id="cb59-219"><a href="#cb59-219" aria-hidden="true" tabindex="-1"></a>I created a word cloud to check if there are any words other than the stopwords to be removed.\</span>
+<span id="cb59-220"><a href="#cb59-220" aria-hidden="true" tabindex="-1"></a>This time the words classification, publication-type and body did not appear so the preprocessing was successful.</span>
+<span id="cb59-223"><a href="#cb59-223" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb59-224"><a href="#cb59-224" aria-hidden="true" tabindex="-1"></a>news_dfm <span class="ot">&lt;-</span> <span class="fu">dfm</span>(<span class="fu">tokens</span>(withoutstopwords_news))</span>
+<span id="cb59-225"><a href="#cb59-225" aria-hidden="true" tabindex="-1"></a>news_dfm</span>
+<span id="cb59-226"><a href="#cb59-226" aria-hidden="true" tabindex="-1"></a><span class="fu">textplot_wordcloud</span>(news_dfm, <span class="at">min_count =</span> <span class="dv">50</span>, <span class="at">random_order =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb59-227"><a href="#cb59-227" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb59-228"><a href="#cb59-228" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-231"><a href="#cb59-231" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb59-232"><a href="#cb59-232" aria-hidden="true" tabindex="-1"></a><span class="co">#saveRDS(news_dfm, file = "Data/News_DFM.rds")</span></span>
+<span id="cb59-233"><a href="#cb59-233" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb59-234"><a href="#cb59-234" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-235"><a href="#cb59-235" aria-hidden="true" tabindex="-1"></a>Questions:</span>
+<span id="cb59-236"><a href="#cb59-236" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>How can I use the data of the classification tags and newspaper names in my analysis?</span>
+<span id="cb59-237"><a href="#cb59-237" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Is the word cloud accurate because some of the words were omitted from the image?\</span>
+<span id="cb59-238"><a href="#cb59-238" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-239"><a href="#cb59-239" aria-hidden="true" tabindex="-1"></a>In my next blog post, I will begin the process of topic modelling. </span>
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+</body></html>

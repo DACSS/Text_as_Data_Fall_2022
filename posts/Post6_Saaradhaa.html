@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.0.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Saaradhaa M">
+<meta name="dcterms.date" content="2022-12-03">
+<meta name="description" content="Topic Modelling">
+
+<title>Text-as-Data Fall 2022 - Post 6</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../images/DACSS_Round_Network.png" rel="icon" type="image/png">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+<link href="../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+<script src="../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+
+
+<link rel="stylesheet" href="styles.css">
+<meta name="twitter:title" content="Text-as-Data Fall 2022 - Post 6">
+<meta name="twitter:description" content="Topic Modelling">
+<meta name="twitter:creator" content="@UMassDACSS">
+<meta name="twitter:card" content="summary">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <a class="navbar-brand" href="../index.html">
+    <img src="../images/UMass White Wordmark Horiz.png" alt="">
+    <span class="navbar-title">Text-as-Data Fall 2022</span>
+  </a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="https://dacss.github.io/Text_as_Data_Fall_2022/">Fall 2022</a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html">Contributors</a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://umass.edu/sbs/dacss">DACSS</a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/DACSS/Text_as_Data_Fall_2022"><i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+ </a>
+  </li>  
+</ul>
+              <div class="quarto-toggle-container">
+                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+              </div>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#discarded-structural-topic-model" id="toc-discarded-structural-topic-model" class="nav-link" data-scroll-target="#discarded-structural-topic-model">[Discarded] Structural Topic Model</a></li>
+  <li><a href="#correlated-topic-model-reddit-comments" id="toc-correlated-topic-model-reddit-comments" class="nav-link" data-scroll-target="#correlated-topic-model-reddit-comments">Correlated Topic Model: Reddit Comments</a></li>
+  <li><a href="#correlated-topic-model-oral-histories" id="toc-correlated-topic-model-oral-histories" class="nav-link" data-scroll-target="#correlated-topic-model-oral-histories">Correlated Topic Model: Oral Histories</a></li>
+  <li><a href="#impact-on-rqs" id="toc-impact-on-rqs" class="nav-link" data-scroll-target="#impact-on-rqs">Impact on RQs</a></li>
+  <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations">Limitations</a></li>
+  <li><a href="#future-work" id="toc-future-work" class="nav-link" data-scroll-target="#future-work">Future Work</a></li>
+  <li><a href="#bibliography" id="toc-bibliography" class="nav-link" data-scroll-target="#bibliography">Bibliography</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Post 6</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+  <div class="quarto-categories">
+    <div class="quarto-category">post 6</div>
+    <div class="quarto-category">saaradhaa</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    Topic Modelling
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Saaradhaa M </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">December 3, 2022</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+</header>
+
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">echo =</span> <span class="cn">TRUE</span>, <span class="at">warning =</span> <span class="cn">FALSE</span>, <span class="at">message =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"post6_saaradhaa.rdata"</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stm)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>Based on the feedback I received for Post 5, I will be discarding the KWIC analysis and lexical dispersion plots in my final submission, as they are hard to interpret.</p>
+<p>In this post, I will create topic models, and compare the results with the dictionary analysis I did in Post 5.</p>
+</section>
+<section id="discarded-structural-topic-model" class="level2">
+<h2 class="anchored" data-anchor-id="discarded-structural-topic-model">[Discarded] Structural Topic Model</h2>
+<p>I first tried STM, with age group (older vs.&nbsp;younger) as the covariate of interest. In the code chunk below, I joined the two datasets together, added the covariate and attempted to run the STM.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># load oral histories and Reddit comments.</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># transcripts &lt;- read_rds("transcripts.rds")</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># reddit_comments_final &lt;- read_rds("reddit_comments_final.rds")</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># reddit_comments_final$doc_id &lt;- c(42:106133)</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># reddit_comments_final &lt;- reddit_comments_final[!(reddit_comments_final$comment=="[removed]"), ]</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># saveRDS(reddit_comments_final, "reddit_comments_final.rds")</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># reddit_comments_final &lt;- read_rds("reddit_comments_final.rds")</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># remove ".txt" from doc_id column of oral histories.</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>transcripts<span class="sc">$</span>doc_id <span class="ot">&lt;-</span> <span class="fu">str_remove</span>(transcripts<span class="sc">$</span>doc_id, <span class="st">".txt"</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co"># join oral histories and comemtns into 1 table.</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># table &lt;- reddit_comments_final %&gt;% select(doc_id, comment)</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># table &lt;- table %&gt;% rename(text = comment)</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co"># table &lt;- rbind(table, transcripts)</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co"># table$doc_id &lt;- as.numeric(table$doc_id)</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co"># create covariate.</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co"># table &lt;- mutate(table, age = case_when(doc_id &lt;= 41 ~ "1", doc_id &gt; 41 ~ "2"))</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co"># table$age &lt;- as.factor(table$age)</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co"># print(dfSummary(table, varnumbers = FALSE, plain.ascii = FALSE, graph.magnif = 0.30, style = "grid", valid.col = FALSE), method = 'render', table.classes = 'table-condensed')</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="co"># create dfm.</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co"># DFM &lt;- dfm(tokens(table$text))</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="co"># run stm with 5 topics.</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="co"># myModel &lt;- stm(DFM, K = 5, content = ~ age, prevalence = ~ age, data = table, max.em.its = 1000, seed = 1234, init.type = "Spectral")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>I noticed that there were some comments labelled “[removed]” that I failed to remove previously. I’ve re-saved the rds object, so that the latest object reflects this change.</p>
+<p>Ultimately, I decided to discard this idea for the following reasons:</p>
+<ul>
+<li><p>The model is computationally expensive to run, because of the size of the table after combining both datasets.</p></li>
+<li><p>Adding old vs.&nbsp;young as a covariate doesn’t work well, because there are only 41 transcripts vs.&nbsp;&gt;100k comments.</p></li>
+</ul>
+<p>It makes more sense to run them as two separate correlated topic models, which I will attempt in the next section.</p>
+</section>
+<section id="correlated-topic-model-reddit-comments" class="level2">
+<h2 class="anchored" data-anchor-id="correlated-topic-model-reddit-comments">Correlated Topic Model: Reddit Comments</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create corpus.</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>reddit_corpus <span class="ot">&lt;-</span> <span class="fu">corpus</span>(reddit_comments_final<span class="sc">$</span>comment)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># create tokens, remove punctuation, numbers and symbols, then convert to lowercase.</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>reddit_tokens <span class="ot">&lt;-</span> <span class="fu">tokens</span>(reddit_corpus, <span class="at">remove_punct =</span> T, <span class="at">remove_numbers =</span> T, <span class="at">remove_symbols =</span> T)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>reddit_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_tolower</span>(reddit_tokens)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># remove tokens that appeared in wordclouds/models that were not meaningful.</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>reddit_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_remove</span>(reddit_tokens, <span class="fu">c</span>(<span class="st">"m"</span>, <span class="st">"s"</span>, <span class="st">"say"</span>, <span class="st">"see"</span>, <span class="st">"make"</span>, <span class="st">"way"</span>, <span class="st">"well"</span>, <span class="st">"many"</span>, <span class="st">"someone"</span>, <span class="st">"never"</span>, <span class="st">"still"</span>, <span class="st">"now"</span>, <span class="st">"go"</span>, <span class="st">"thing"</span>, <span class="st">"things"</span>, <span class="st">"know"</span>, <span class="st">"think"</span>, <span class="st">"also"</span>, <span class="st">"said"</span>, <span class="st">"going"</span>, <span class="st">"want"</span>, <span class="st">"t"</span>, <span class="st">"one"</span>, <span class="st">"lot"</span>, <span class="st">"much"</span>, <span class="st">"even"</span>, <span class="st">"really"</span>, <span class="st">"sure"</span>, <span class="st">"yeah"</span>, <span class="st">"look"</span>, <span class="st">"always"</span>, <span class="st">"something"</span>, <span class="st">"re"</span>, <span class="st">"actually"</span>, <span class="st">"get"</span>, <span class="st">"got"</span>, <span class="st">"though"</span>, <span class="st">"take"</span>, <span class="st">"etc"</span>, <span class="st">"can"</span>, <span class="st">"like"</span>, <span class="st">"don"</span>, <span class="st">"saying"</span>, <span class="st">"l"</span>, <span class="st">"ý"</span>, <span class="st">"þ"</span>, <span class="st">"doesnt"</span>, <span class="st">"finally"</span>, <span class="st">"everyday"</span>, <span class="st">"lmfao"</span>, <span class="st">"yup"</span>, <span class="st">"ah"</span>, <span class="st">"ya"</span>, <span class="st">"yea"</span>))</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co"># create and trim dfm, then remove all English stopwords.</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>reddit_dfm <span class="ot">&lt;-</span> <span class="fu">dfm</span>(reddit_tokens)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>reddit_dfm <span class="ot">&lt;-</span> reddit_dfm <span class="sc">%&gt;%</span> <span class="fu">dfm_trim</span>(<span class="at">min_termfreq =</span> <span class="dv">100</span>, <span class="at">max_termfreq =</span> <span class="dv">400</span>) <span class="sc">%&gt;%</span> <span class="fu">dfm_remove</span>(<span class="fu">stopwords</span>(<span class="st">"en"</span>))</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co"># convert dfm to stm object.</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>reddit_stm <span class="ot">&lt;-</span> <span class="fu">convert</span>(reddit_dfm, <span class="at">to =</span> <span class="st">"stm"</span>)</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co"># in the code below, i tested out several different numbers of topics. unfortunately i couldn't plot them all in the same plot, due to the size of the dataset - i managed to save the image for the plot with 5, 10 and 15 topics and i will insert it into the qmd.</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co"># reddit_k &lt;- searchK(reddit_stm$documents, reddit_stm$vocab, K = c(2, 3, 4), N = floor(0.1 * nrow(reddit_comments_final)), data = reddit_comments_final, max.em.its = 100, init.type = "Spectral")</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="co"># x &lt;- plot(reddit_k)</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co"># saveRDS(x, "reddit_k.rds")</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co"># reddit_k_2 &lt;- searchK(reddit_stm$documents, reddit_stm$vocab, K = c(5, 10, 15), N = floor(0.1 * nrow(reddit_comments_final)), data = reddit_comments_final, max.em.its = 100, init.type = "Spectral")</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="co"># x2 &lt;- plot(reddit_k_2)</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="co"># saveRDS(x2, "reddit_k_2.rds")</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="co"># reddit_k_3 &lt;- searchK(reddit_stm$documents, reddit_stm$vocab, K = c(20, 50), N = floor(0.1 * nrow(reddit_comments_final)), data = reddit_comments_final, max.em.its = 100, init.type = "Spectral")</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="co"># x3 &lt;- plot(reddit_k_3)</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="co"># saveRDS(x3, "reddit_k_3.rds")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><img src="images/newgraph-reddit-8pm.png" class="img-fluid"></p>
+<p>For pre-processing, I decided to remove all English stopwords, in addition to my own list of non-meaningful words that appeared in previous wordclouds and topic models. I was more liberal with removing words for topic modelling compared to the dictionary analysis, wordclouds and network plots that I did before. This is for 2 reasons: (1) I wanted to reduce dimensionality as much as possible, and (2) I wanted to get meaningful top words that would let me easily label topics.</p>
+<p>After trying searchK(), I’ve decided to go with 15 topics, as it seems to provide the best trade-off between achieving high held-out likelihood/semantic coherence and maintaining low residuals.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># run CTM.</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>reddit_ctm <span class="ot">&lt;-</span> <span class="fu">stm</span>(reddit_stm<span class="sc">$</span>documents, reddit_stm<span class="sc">$</span>vocab, <span class="at">K =</span> <span class="dv">15</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>, <span class="at">max.em.its =</span> <span class="dv">100</span>, <span class="at">seed =</span> <span class="dv">1357</span>, <span class="at">init.type =</span> <span class="st">"Spectral"</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>reddit_ctm</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>A topic model with 15 topics, 80831 documents and a 2017 word dictionary.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot topic frequency.</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(reddit_ctm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Post6_Saaradhaa_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># how are the topics linked?</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">topicQuality</span>(reddit_ctm, reddit_stm<span class="sc">$</span>documents, <span class="at">size =</span> <span class="dv">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] -269.9816 -305.1516 -267.3652 -266.1916 -292.6668 -246.7307 -217.4622
+ [8] -232.7336 -289.4103 -177.5153 -199.3643 -312.5121 -222.0334 -298.6694
+[15] -247.5489
+ [1] 9.957172 9.976646 9.940079 9.949152 9.968998 9.908364 9.942547 9.927896
+ [9] 9.950906 9.944618 9.932766 9.976635 9.910031 9.943586 9.846559</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="Post6_Saaradhaa_files/figure-html/unnamed-chunk-4-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">topicCorr</span>(reddit_ctm), <span class="at">vlabels =</span> <span class="fu">c</span>(<span class="st">"1"</span>, <span class="st">"2"</span>, <span class="st">"3"</span>, <span class="st">"4"</span>, <span class="st">"5"</span>, <span class="st">"6"</span>, <span class="st">"7"</span>, <span class="st">"8"</span>, <span class="st">"9"</span>, <span class="st">"10"</span>, <span class="st">"11"</span>, <span class="st">"12"</span>, <span class="st">"13"</span>, <span class="st">"14"</span>, <span class="st">"15"</span>), <span class="at">vertex.color =</span> <span class="st">"lightpink"</span>, <span class="at">vertex.label.cex =</span> <span class="fl">0.75</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Post6_Saaradhaa_files/figure-html/unnamed-chunk-4-3.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># top 10 words in each topic, based on FREX.</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>reddit_names <span class="ot">&lt;-</span> <span class="fu">labelTopics</span>(reddit_ctm, <span class="at">n=</span><span class="dv">10</span>)<span class="sc">$</span>frex</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>reddit_topics <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="cn">NA</span>, <span class="dv">15</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">15</span>){</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  reddit_topics[i] <span class="ot">&lt;-</span> <span class="fu">paste</span>(reddit_names[i,], <span class="at">collapse =</span> <span class="st">"_"</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>reddit_topics</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "celebrate_york_christmas_diwali_holidays_energy_holiday_showed_miss_key"                
+ [2] "eid_song_ny_weed_attacks_nj_county_join_dinner_california"                              
+ [3] "afghanistan_speaks_ukraine_urdu_lanka_brahmin_nation_homeland_refugees_civil"           
+ [4] "republicans_aunty_republican_catholic_democrats_wing_christianity_obama_convert_jindal" 
+ [5] "arent_bobby_policies_f_harris_six_beliefs_hypocritical_welcome_mallu"                   
+ [6] "chai_dish_masala_pronounce_cooking_tea_cuisine_dishes_naan_features"                    
+ [7] "hasan_jokes_king_personality_talks_besides_facts_content_woke_kaling"                   
+ [8] "complex_hatred_victim_definition_superior_internalized_becomes_amongst_mythology_debate"
+ [9] "stores_store_drinking_drink_boat_fresh_obsessed_grocery_season_taste"                   
+[10] "actors_patel_hollywood_film_actor_roles_dev_e.g_rishi_khan"                             
+[11] "information_report_mods_account_facebook_posted_tiktok_banned_links_badly"              
+[12] "sri_iran_bengal_tamils_famine_democracy_central_lord_islamic_israel"                    
+[13] "expensive_cost_complain_tax_abd_afford_engaged_pop_financially_waste"                   
+[14] "anime_mil_apps_app_se_gf_virus_songs_baby_dil"                                          
+[15] "passive_aggressive_omg_nope_aunties_reaction_downvoted_worry_chill_canadians"           </code></pre>
+</div>
+</div>
+<p>I had to re-run the model several times, as some tokens showed up in the FREX that were not meaningful (e.g., “finally”, “yup”). I also needed to trim the dfm quite a bit for searchK() and stm() to run, due to the number of rows.</p>
+<p>The final dictionary had ~2000 words. Based on frequency alone, the top topics are Topics 8, 13 and 11. However, I would select Topics 10 (note: cut off on the plot, looks like “1” but it’s actually 10), 7 and 11 as the highest quality, as they scored well on both semantic coherence and exclusivity.</p>
+<p>Topic 15 seems the least distinctive. The topic quality plot shows it to be the lowest in exclusivity, while the topic correlation plot reflected it as being linked with topics 2, 5, 12 and 14.</p>
+</section>
+<section id="correlated-topic-model-oral-histories" class="level2">
+<h2 class="anchored" data-anchor-id="correlated-topic-model-oral-histories">Correlated Topic Model: Oral Histories</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create 'quanteda' corpus. </span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>oh_corpus <span class="ot">&lt;-</span> <span class="fu">corpus</span>(transcripts<span class="sc">$</span>text)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># create tokens, remove punctuation, numbers, symbols and stopwords, then convert to lowercase.</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>oh_tokens <span class="ot">&lt;-</span> <span class="fu">tokens</span>(oh_corpus, <span class="at">remove_punct =</span> T, <span class="at">remove_numbers =</span> T, <span class="at">remove_symbols =</span> T)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>oh_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_select</span>(oh_tokens, <span class="at">pattern =</span> <span class="fu">stopwords</span>(<span class="st">"en"</span>), <span class="at">selection =</span> <span class="st">"remove"</span>)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>oh_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_tolower</span>(oh_tokens)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co"># remove tokens that appeared in previous wordclouds/models that were not meaningful.</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>oh_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_remove</span>(oh_tokens, <span class="fu">c</span>(<span class="st">"know"</span>, <span class="st">"even"</span>, <span class="st">"used"</span>, <span class="st">"thing"</span>, <span class="st">"lot"</span>, <span class="st">"yes"</span>, <span class="st">"say"</span>, <span class="st">"going"</span>, <span class="st">"went"</span>, <span class="st">"yeah"</span>, <span class="st">"come"</span>, <span class="st">"actually"</span>, <span class="st">"mean"</span>, <span class="st">"like"</span>, <span class="st">"think"</span>, <span class="st">"get"</span>, <span class="st">"go"</span>, <span class="st">"said"</span>, <span class="st">"see"</span>, <span class="st">"things"</span>, <span class="st">"really"</span>, <span class="st">"well"</span>, <span class="st">"still"</span>, <span class="st">"little"</span>, <span class="st">"got"</span>, <span class="st">"right"</span>, <span class="st">"can"</span>, <span class="st">"came"</span>, <span class="st">"um"</span>, <span class="st">"quite"</span>, <span class="st">"bit"</span>, <span class="st">"every"</span>, <span class="st">"oh"</span>, <span class="st">"many"</span>, <span class="st">"always"</span>, <span class="st">"one"</span>, <span class="st">"two"</span>, <span class="st">"just"</span>, <span class="st">"much"</span>, <span class="st">"want"</span>, <span class="st">"wanted"</span>, <span class="st">"okay"</span>, <span class="st">"part"</span>, <span class="st">"also"</span>, <span class="st">"just"</span>, <span class="st">"us"</span>, <span class="st">"never"</span>, <span class="st">"many"</span>, <span class="st">"something"</span>, <span class="st">"want"</span>, <span class="st">"wanted"</span>, <span class="st">"uh"</span>, <span class="st">"guy"</span>, <span class="st">"guys"</span>, <span class="st">"hey"</span>, <span class="st">"says"</span>, <span class="st">"stuff"</span>, <span class="st">"huh"</span>, <span class="st">"anyway"</span>))</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="co"># create and trim dfm.</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>oh_dfm <span class="ot">&lt;-</span> <span class="fu">dfm</span>(oh_tokens)</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>oh_dfm <span class="ot">&lt;-</span> oh_dfm <span class="sc">%&gt;%</span> <span class="fu">dfm_trim</span>(<span class="at">min_termfreq =</span> <span class="dv">10</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>, <span class="at">min_docfreq =</span> .<span class="dv">1</span>, <span class="at">docfreq_type =</span> <span class="st">"prop"</span>)</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="co"># how many topics would be good?</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="co"># oh_k &lt;- searchK(oh_dfm, K = c(5, 10, 15, 20, 50), N = floor(0.1 * nrow(transcripts)), data = transcripts, init.type = "Spectral")</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="co"># plot(oh_k)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><img src="images/newgraph-OH-11pm.png" class="img-fluid"></p>
+<p>From the plot, it looks like 5 topics is the best. It provides the highest held-out likelihood and semantic coherence, as well as the lowest residuals. <strong>That being said, I decided to go with 15 topics.</strong> It isn’t very different from 5 topics, and it allows for a fairer comparison with the Reddit topics. Comparisons I make would solely be based on the <u>content</u> of the topics, without losing any breadth due to differences in the number of topics.</p>
+<p>To elaborate a little more, when I ran the model with only 5 topics, they were very general (e.g., “immigration/work”, “healthcare”). In comparison, the Reddit topics were a lot more specific (e.g., “conflict about American politics”, “discourse about race/religion”). I wanted to ensure that any differences I observed were true differences, and not just due to an unfairly low number of topics for the oral histories.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># run CTM.</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>oh_ctm <span class="ot">&lt;-</span> <span class="fu">stm</span>(oh_dfm, <span class="at">K =</span> <span class="dv">15</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>, <span class="at">seed =</span> <span class="dv">1234</span>, <span class="at">init.type =</span> <span class="st">"Spectral"</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>oh_ctm</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>A topic model with 15 topics, 41 documents and a 2378 word dictionary.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot topic frequency.</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(oh_ctm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Post6_Saaradhaa_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># how are the topics linked?</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">topicQuality</span>(oh_ctm, oh_dfm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1]  -7.6034460  -0.5779503 -17.1132753  -1.2538720  -3.8802732 -15.7195616
+ [7] -17.2073068  -4.1544386  -6.7867697  -0.6500378 -13.2995462  -0.4698847
+[13]  -0.2747410  -1.2242950  -3.0322712
+ [1] 8.767926 8.054422 8.135152 7.711805 9.369714 8.621087 8.514395 7.907196
+ [9] 7.504592 7.542386 8.858313 8.025425 7.284688 7.913756 7.365599</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="Post6_Saaradhaa_files/figure-html/unnamed-chunk-6-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">topicCorr</span>(oh_ctm), <span class="at">vlabels =</span> <span class="fu">c</span>(<span class="st">"1"</span>, <span class="st">"2"</span>, <span class="st">"3"</span>, <span class="st">"4"</span>, <span class="st">"5"</span>, <span class="st">"6"</span>, <span class="st">"7"</span>, <span class="st">"8"</span>, <span class="st">"9"</span>, <span class="st">"10"</span>, <span class="st">"11"</span>, <span class="st">"12"</span>, <span class="st">"13"</span>, <span class="st">"14"</span>, <span class="st">"15"</span>), <span class="at">vertex.color =</span> <span class="st">"lightpink"</span>, <span class="at">vertex.label.cex =</span> <span class="fl">0.75</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Post6_Saaradhaa_files/figure-html/unnamed-chunk-6-3.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># top 10 words in each topic, based on FREX.</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>oh_names <span class="ot">&lt;-</span> <span class="fu">labelTopics</span>(oh_ctm, <span class="at">n=</span><span class="dv">10</span>)<span class="sc">$</span>frex</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>oh_topics <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="cn">NA</span>, <span class="dv">15</span>)</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">15</span>){</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  oh_topics[i] <span class="ot">&lt;-</span> <span class="fu">paste</span>(oh_names[i,], <span class="at">collapse =</span> <span class="st">"_"</span>)</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>oh_topics</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "carnatic_listen_listening_chuckles_violin_music_hmm_performance_sing_singing"             
+ [2] "delhi_laughing_indians_difficult_movies_cooking_computers_company_wow_french"             
+ [3] "dance_guru_art_dancing_form_stage_dancer_teacher_teach_style"                             
+ [4] "children_women_bombay_burma_enjoy_girls_church_hearing_husband_enjoyed"                   
+ [5] "instruments_musical_play_ah_music_learning_o'clock_competition_concert_instrumental"      
+ [6] "sri_lanka_lankan_temple_bank_colombo_mm_tamil_close_engineering"                          
+ [7] "bangladesh_hawaii_muslim_canada_laughing_sort_bangladeshi_research_aware_citizen"         
+ [8] "dr_husband_medical_geography_anthropology_master's_hospital_resident_chemistry_chief"     
+ [9] "pakistan_muslims_advertising_michigan_campus_agency_pakistani_paper_urdu_muslim"          
+[10] "architecture_world_mit_communities_indonesia_huge_sorts_development_immigrant_environment"
+[11] "sri_lanka_history_library_professor_studied_village_umm_lankan_medium"                    
+[12] "nineteen_literature_example_punjab_punjabi_visiting_musicians_types_poetry_interest"      
+[13] "obviously_whatever_boeing_nasa_iit_pretty_dollar_microsoft_mainstream_engineering"        
+[14] "mom_medical_dad_york_tough_nice_health_pregnant_father_mumbai"                            
+[15] "laughs_berkeley_food_planning_denver_dc_type_store_indians_wife"                          </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># save.image("post6_saaradhaa.RData")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Similar to what I did for the Reddit data, I re-ran the model several times, removing a few tokens that didn’t add value to the topics generated (e.g., “hey”, “stuff”).</p>
+<p>The final dictionary had ~2400 words, just slightly more than the Reddit data. Based on frequency, the top topics are 15, 4 and 2. I would also choose Topics 1, 5 and 11 as being of good quality (good balance between exclusivity and semantic coherence). Topics 1 and 5 were well-correlated too (afterthought: makes sense, because they both concern music –&gt; refer to table in the next section).</p>
+</section>
+<section id="impact-on-rqs" class="level2">
+<h2 class="anchored" data-anchor-id="impact-on-rqs">Impact on RQs</h2>
+<p>As discussed in Post 5, these are my RQs:</p>
+<div class="callout-tip callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Research Questions
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li>How have the values and concerns of South Asian Americans changed over time?</li>
+<li>Do older South Asian Americans align more with the honour culture prevalent in their home countries? Do younger South Asian Americans align more with the dignity culture prevalent in the USA?</li>
+</ol>
+</div>
+</div>
+<p>To recap, the dictionary analysis showed that both groups valued self-direction and benevolence. Older immigrants valued achievement more, while younger immigrants valued universalism more. There was some evidence that older immigrants were more aligned with the South Asian honour culture, and that younger immigrants were more aligned with the American dignity culture.</p>
+<p>I will first create my own topic labels, based on the FREX top words. The top topics (based on frequency and quality) are in <strong>bold</strong>.</p>
+<table class="table">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 42%">
+<col style="width: 38%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>S/N</th>
+<th>Older Immigrants</th>
+<th>Younger Immigrants</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td><strong>Classical Indian music</strong></td>
+<td>Festivities</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td><strong>[Mix] life; new technologies</strong></td>
+<td>[Mix] life as a South Asian American</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Classical Indian dance</td>
+<td>Recent/ongoing wars; caste issues</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td><strong>[Mix] Key South Asian locations, religion, family</strong></td>
+<td>American politics</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td><strong>Learning musical instruments</strong></td>
+<td>Conflict about American politics</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Sri Lankan experiences</td>
+<td>South Asian food</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Bangladeshi experiences</td>
+<td><strong>South Asian American comedians</strong></td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Working in healthcare</td>
+<td><strong>Discourse about race, religion</strong></td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>Pakistani Muslim experiences</td>
+<td>Food and beverages</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Travel, migration</td>
+<td><strong>South Asian American actors</strong></td>
+</tr>
+<tr class="odd">
+<td>11</td>
+<td><strong>Sri Lankan experiences</strong></td>
+<td><strong>Subreddit administration; general social media</strong></td>
+</tr>
+<tr class="even">
+<td>12</td>
+<td>Punjabi experiences</td>
+<td>South Asian crises/conflicts</td>
+</tr>
+<tr class="odd">
+<td>13</td>
+<td>Work, education</td>
+<td><strong>Finances/cost of living</strong></td>
+</tr>
+<tr class="even">
+<td>14</td>
+<td>Family</td>
+<td>Dating; leisure</td>
+</tr>
+<tr class="odd">
+<td>15</td>
+<td><strong>Life in the US</strong></td>
+<td>[Mix] dealing with elders</td>
+</tr>
+</tbody>
+</table>
+<p>Considering RQ 1:</p>
+<ul>
+<li><p>One clear difference is in the perception of new technologies. Computers were seen as new technologies by first-generation immigrants, while second-generation immigrants had a keener understanding of more specific recent developments (social media, subreddit moderation).</p></li>
+<li><p>South Asian identity also seemed to come across as more cohesive for second-generation immigrants. For the first generation, there was a fairly neat divide between the different types of South Asian experiences - Sri Lankan, Bangladeshi, Punjabi, Pakistani, etc - whereas the second generation seemed to consider these groups altogether as one.</p></li>
+</ul>
+<p>For RQ 2:</p>
+<ul>
+<li><p>Echoing the dictionary analysis, there was a focus on achievement-related topics in the oral histories (e.g., work was featured in 2 topics). Meanwhile, the younger generation was interested in many issues beyond their individual lives - wars in non-Western regions and discourse about race, religion and caste issues.</p></li>
+<li><p>There also seemed to be a greater American orientation among the second-generation - they were tuned in to American politics, actors and comedians.</p></li>
+</ul>
+</section>
+<section id="limitations" class="level2">
+<h2 class="anchored" data-anchor-id="limitations">Limitations</h2>
+<p>One limitation of this effort is the difference in the type of text. Oral histories, by nature, are quite different from Reddit communities. The former is naturally more focused on the self, so some differences observed could be due to the modality used. Still, the findings are valuable in enriching our understanding of South Asian immigrants in Western countries, and help to move past the collectivist/individualistic cultural types that much of the literature focuses on (Triandis, 1995).</p>
+<p>Topic modelling is also an unsupervised method that requires me to use my own judgment to choose the number of topics and the final labels for the topics - interpretations might have been slightly different, had someone else done this.</p>
+</section>
+<section id="future-work" class="level2">
+<h2 class="anchored" data-anchor-id="future-work">Future Work</h2>
+<p>Future work could investigate first- and second-generation immigrants from other regions (e.g., African continent), other types of text (e.g., movie scripts, presidential speeches), other methods of analysis (e.g., Structural Topic Modelling) and common ‘global’ values across cultures.</p>
+</section>
+<section id="bibliography" class="level2">
+<h2 class="anchored" data-anchor-id="bibliography">Bibliography</h2>
+<p>Triandis, H. C. (1995). <em>Individualism &amp; collectivism.</em> Westview Press.</p>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } 
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+<script src="https://giscus.app/client.js" data-repo="DACSS/Text_as_Data_Fall_2022" data-repo-id="R_kgDOH5675w" data-category="Announcements" data-category-id="" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
+</script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb22" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Post 6"</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Saaradhaa M"</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="an">description:</span><span class="co"> "Topic Modelling"</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "12/03/2022"</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="an">editor:</span><span class="co"> visual</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="co">    html:</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="co">        df-print: paged</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a><span class="co">        toc: true</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="co">        code-copy: true</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a><span class="co">        code-tools: true</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a><span class="co">        css: "styles.css"</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span><span class="co"> </span></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a><span class="co">  - post 6</span></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a><span class="co">  - saaradhaa</span></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: setup</span></span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">echo =</span> <span class="cn">TRUE</span>, <span class="at">warning =</span> <span class="cn">FALSE</span>, <span class="at">message =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"post6_saaradhaa.rdata"</span>)</span>
+<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stm)</span>
+<span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda)</span>
+<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a><span class="fu">## Introduction</span></span>
+<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a>Based on the feedback I received for Post 5, I will be discarding the KWIC analysis and lexical dispersion plots in my final submission, as they are hard to interpret.</span>
+<span id="cb22-37"><a href="#cb22-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-38"><a href="#cb22-38" aria-hidden="true" tabindex="-1"></a>In this post, I will create topic models, and compare the results with the dictionary analysis I did in Post 5.</span>
+<span id="cb22-39"><a href="#cb22-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-40"><a href="#cb22-40" aria-hidden="true" tabindex="-1"></a><span class="fu">## \[Discarded\] Structural Topic Model</span></span>
+<span id="cb22-41"><a href="#cb22-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-42"><a href="#cb22-42" aria-hidden="true" tabindex="-1"></a>I first tried STM, with age group (older vs. younger) as the covariate of interest. In the code chunk below, I joined the two datasets together, added the covariate and attempted to run the STM.</span>
+<span id="cb22-43"><a href="#cb22-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-46"><a href="#cb22-46" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-47"><a href="#cb22-47" aria-hidden="true" tabindex="-1"></a><span class="co"># load oral histories and Reddit comments.</span></span>
+<span id="cb22-48"><a href="#cb22-48" aria-hidden="true" tabindex="-1"></a><span class="co"># transcripts &lt;- read_rds("transcripts.rds")</span></span>
+<span id="cb22-49"><a href="#cb22-49" aria-hidden="true" tabindex="-1"></a><span class="co"># reddit_comments_final &lt;- read_rds("reddit_comments_final.rds")</span></span>
+<span id="cb22-50"><a href="#cb22-50" aria-hidden="true" tabindex="-1"></a><span class="co"># reddit_comments_final$doc_id &lt;- c(42:106133)</span></span>
+<span id="cb22-51"><a href="#cb22-51" aria-hidden="true" tabindex="-1"></a><span class="co"># reddit_comments_final &lt;- reddit_comments_final[!(reddit_comments_final$comment=="[removed]"), ]</span></span>
+<span id="cb22-52"><a href="#cb22-52" aria-hidden="true" tabindex="-1"></a><span class="co"># saveRDS(reddit_comments_final, "reddit_comments_final.rds")</span></span>
+<span id="cb22-53"><a href="#cb22-53" aria-hidden="true" tabindex="-1"></a><span class="co"># reddit_comments_final &lt;- read_rds("reddit_comments_final.rds")</span></span>
+<span id="cb22-54"><a href="#cb22-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-55"><a href="#cb22-55" aria-hidden="true" tabindex="-1"></a><span class="co"># remove ".txt" from doc_id column of oral histories.</span></span>
+<span id="cb22-56"><a href="#cb22-56" aria-hidden="true" tabindex="-1"></a>transcripts<span class="sc">$</span>doc_id <span class="ot">&lt;-</span> <span class="fu">str_remove</span>(transcripts<span class="sc">$</span>doc_id, <span class="st">".txt"</span>)</span>
+<span id="cb22-57"><a href="#cb22-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-58"><a href="#cb22-58" aria-hidden="true" tabindex="-1"></a><span class="co"># join oral histories and comemtns into 1 table.</span></span>
+<span id="cb22-59"><a href="#cb22-59" aria-hidden="true" tabindex="-1"></a><span class="co"># table &lt;- reddit_comments_final %&gt;% select(doc_id, comment)</span></span>
+<span id="cb22-60"><a href="#cb22-60" aria-hidden="true" tabindex="-1"></a><span class="co"># table &lt;- table %&gt;% rename(text = comment)</span></span>
+<span id="cb22-61"><a href="#cb22-61" aria-hidden="true" tabindex="-1"></a><span class="co"># table &lt;- rbind(table, transcripts)</span></span>
+<span id="cb22-62"><a href="#cb22-62" aria-hidden="true" tabindex="-1"></a><span class="co"># table$doc_id &lt;- as.numeric(table$doc_id)</span></span>
+<span id="cb22-63"><a href="#cb22-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-64"><a href="#cb22-64" aria-hidden="true" tabindex="-1"></a><span class="co"># create covariate.</span></span>
+<span id="cb22-65"><a href="#cb22-65" aria-hidden="true" tabindex="-1"></a><span class="co"># table &lt;- mutate(table, age = case_when(doc_id &lt;= 41 ~ "1", doc_id &gt; 41 ~ "2"))</span></span>
+<span id="cb22-66"><a href="#cb22-66" aria-hidden="true" tabindex="-1"></a><span class="co"># table$age &lt;- as.factor(table$age)</span></span>
+<span id="cb22-67"><a href="#cb22-67" aria-hidden="true" tabindex="-1"></a><span class="co"># print(dfSummary(table, varnumbers = FALSE, plain.ascii = FALSE, graph.magnif = 0.30, style = "grid", valid.col = FALSE), method = 'render', table.classes = 'table-condensed')</span></span>
+<span id="cb22-68"><a href="#cb22-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-69"><a href="#cb22-69" aria-hidden="true" tabindex="-1"></a><span class="co"># create dfm.</span></span>
+<span id="cb22-70"><a href="#cb22-70" aria-hidden="true" tabindex="-1"></a><span class="co"># DFM &lt;- dfm(tokens(table$text))</span></span>
+<span id="cb22-71"><a href="#cb22-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-72"><a href="#cb22-72" aria-hidden="true" tabindex="-1"></a><span class="co"># run stm with 5 topics.</span></span>
+<span id="cb22-73"><a href="#cb22-73" aria-hidden="true" tabindex="-1"></a><span class="co"># myModel &lt;- stm(DFM, K = 5, content = ~ age, prevalence = ~ age, data = table, max.em.its = 1000, seed = 1234, init.type = "Spectral")</span></span>
+<span id="cb22-74"><a href="#cb22-74" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-75"><a href="#cb22-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-76"><a href="#cb22-76" aria-hidden="true" tabindex="-1"></a>I noticed that there were some comments labelled "<span class="sc">\[</span>removed<span class="sc">\]</span>" that I failed to remove previously. I've re-saved the rds object, so that the latest object reflects this change.</span>
+<span id="cb22-77"><a href="#cb22-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-78"><a href="#cb22-78" aria-hidden="true" tabindex="-1"></a>Ultimately, I decided to discard this idea for the following reasons:</span>
+<span id="cb22-79"><a href="#cb22-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-80"><a href="#cb22-80" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>The model is computationally expensive to run, because of the size of the table after combining both datasets.</span>
+<span id="cb22-81"><a href="#cb22-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-82"><a href="#cb22-82" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Adding old vs. young as a covariate doesn't work well, because there are only 41 transcripts vs. <span class="sc">\&gt;</span>100k comments.</span>
+<span id="cb22-83"><a href="#cb22-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-84"><a href="#cb22-84" aria-hidden="true" tabindex="-1"></a>It makes more sense to run them as two separate correlated topic models, which I will attempt in the next section.</span>
+<span id="cb22-85"><a href="#cb22-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-86"><a href="#cb22-86" aria-hidden="true" tabindex="-1"></a><span class="fu">## Correlated Topic Model: Reddit Comments</span></span>
+<span id="cb22-87"><a href="#cb22-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-90"><a href="#cb22-90" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-91"><a href="#cb22-91" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb22-92"><a href="#cb22-92" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb22-93"><a href="#cb22-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-94"><a href="#cb22-94" aria-hidden="true" tabindex="-1"></a><span class="co"># create corpus.</span></span>
+<span id="cb22-95"><a href="#cb22-95" aria-hidden="true" tabindex="-1"></a>reddit_corpus <span class="ot">&lt;-</span> <span class="fu">corpus</span>(reddit_comments_final<span class="sc">$</span>comment)</span>
+<span id="cb22-96"><a href="#cb22-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-97"><a href="#cb22-97" aria-hidden="true" tabindex="-1"></a><span class="co"># create tokens, remove punctuation, numbers and symbols, then convert to lowercase.</span></span>
+<span id="cb22-98"><a href="#cb22-98" aria-hidden="true" tabindex="-1"></a>reddit_tokens <span class="ot">&lt;-</span> <span class="fu">tokens</span>(reddit_corpus, <span class="at">remove_punct =</span> T, <span class="at">remove_numbers =</span> T, <span class="at">remove_symbols =</span> T)</span>
+<span id="cb22-99"><a href="#cb22-99" aria-hidden="true" tabindex="-1"></a>reddit_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_tolower</span>(reddit_tokens)</span>
+<span id="cb22-100"><a href="#cb22-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-101"><a href="#cb22-101" aria-hidden="true" tabindex="-1"></a><span class="co"># remove tokens that appeared in wordclouds/models that were not meaningful.</span></span>
+<span id="cb22-102"><a href="#cb22-102" aria-hidden="true" tabindex="-1"></a>reddit_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_remove</span>(reddit_tokens, <span class="fu">c</span>(<span class="st">"m"</span>, <span class="st">"s"</span>, <span class="st">"say"</span>, <span class="st">"see"</span>, <span class="st">"make"</span>, <span class="st">"way"</span>, <span class="st">"well"</span>, <span class="st">"many"</span>, <span class="st">"someone"</span>, <span class="st">"never"</span>, <span class="st">"still"</span>, <span class="st">"now"</span>, <span class="st">"go"</span>, <span class="st">"thing"</span>, <span class="st">"things"</span>, <span class="st">"know"</span>, <span class="st">"think"</span>, <span class="st">"also"</span>, <span class="st">"said"</span>, <span class="st">"going"</span>, <span class="st">"want"</span>, <span class="st">"t"</span>, <span class="st">"one"</span>, <span class="st">"lot"</span>, <span class="st">"much"</span>, <span class="st">"even"</span>, <span class="st">"really"</span>, <span class="st">"sure"</span>, <span class="st">"yeah"</span>, <span class="st">"look"</span>, <span class="st">"always"</span>, <span class="st">"something"</span>, <span class="st">"re"</span>, <span class="st">"actually"</span>, <span class="st">"get"</span>, <span class="st">"got"</span>, <span class="st">"though"</span>, <span class="st">"take"</span>, <span class="st">"etc"</span>, <span class="st">"can"</span>, <span class="st">"like"</span>, <span class="st">"don"</span>, <span class="st">"saying"</span>, <span class="st">"l"</span>, <span class="st">"ý"</span>, <span class="st">"þ"</span>, <span class="st">"doesnt"</span>, <span class="st">"finally"</span>, <span class="st">"everyday"</span>, <span class="st">"lmfao"</span>, <span class="st">"yup"</span>, <span class="st">"ah"</span>, <span class="st">"ya"</span>, <span class="st">"yea"</span>))</span>
+<span id="cb22-103"><a href="#cb22-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-104"><a href="#cb22-104" aria-hidden="true" tabindex="-1"></a><span class="co"># create and trim dfm, then remove all English stopwords.</span></span>
+<span id="cb22-105"><a href="#cb22-105" aria-hidden="true" tabindex="-1"></a>reddit_dfm <span class="ot">&lt;-</span> <span class="fu">dfm</span>(reddit_tokens)</span>
+<span id="cb22-106"><a href="#cb22-106" aria-hidden="true" tabindex="-1"></a>reddit_dfm <span class="ot">&lt;-</span> reddit_dfm <span class="sc">%&gt;%</span> <span class="fu">dfm_trim</span>(<span class="at">min_termfreq =</span> <span class="dv">100</span>, <span class="at">max_termfreq =</span> <span class="dv">400</span>) <span class="sc">%&gt;%</span> <span class="fu">dfm_remove</span>(<span class="fu">stopwords</span>(<span class="st">"en"</span>))</span>
+<span id="cb22-107"><a href="#cb22-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-108"><a href="#cb22-108" aria-hidden="true" tabindex="-1"></a><span class="co"># convert dfm to stm object.</span></span>
+<span id="cb22-109"><a href="#cb22-109" aria-hidden="true" tabindex="-1"></a>reddit_stm <span class="ot">&lt;-</span> <span class="fu">convert</span>(reddit_dfm, <span class="at">to =</span> <span class="st">"stm"</span>)</span>
+<span id="cb22-110"><a href="#cb22-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-111"><a href="#cb22-111" aria-hidden="true" tabindex="-1"></a><span class="co"># in the code below, i tested out several different numbers of topics. unfortunately i couldn't plot them all in the same plot, due to the size of the dataset - i managed to save the image for the plot with 5, 10 and 15 topics and i will insert it into the qmd.</span></span>
+<span id="cb22-112"><a href="#cb22-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-113"><a href="#cb22-113" aria-hidden="true" tabindex="-1"></a><span class="co"># reddit_k &lt;- searchK(reddit_stm$documents, reddit_stm$vocab, K = c(2, 3, 4), N = floor(0.1 * nrow(reddit_comments_final)), data = reddit_comments_final, max.em.its = 100, init.type = "Spectral")</span></span>
+<span id="cb22-114"><a href="#cb22-114" aria-hidden="true" tabindex="-1"></a><span class="co"># x &lt;- plot(reddit_k)</span></span>
+<span id="cb22-115"><a href="#cb22-115" aria-hidden="true" tabindex="-1"></a><span class="co"># saveRDS(x, "reddit_k.rds")</span></span>
+<span id="cb22-116"><a href="#cb22-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-117"><a href="#cb22-117" aria-hidden="true" tabindex="-1"></a><span class="co"># reddit_k_2 &lt;- searchK(reddit_stm$documents, reddit_stm$vocab, K = c(5, 10, 15), N = floor(0.1 * nrow(reddit_comments_final)), data = reddit_comments_final, max.em.its = 100, init.type = "Spectral")</span></span>
+<span id="cb22-118"><a href="#cb22-118" aria-hidden="true" tabindex="-1"></a><span class="co"># x2 &lt;- plot(reddit_k_2)</span></span>
+<span id="cb22-119"><a href="#cb22-119" aria-hidden="true" tabindex="-1"></a><span class="co"># saveRDS(x2, "reddit_k_2.rds")</span></span>
+<span id="cb22-120"><a href="#cb22-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-121"><a href="#cb22-121" aria-hidden="true" tabindex="-1"></a><span class="co"># reddit_k_3 &lt;- searchK(reddit_stm$documents, reddit_stm$vocab, K = c(20, 50), N = floor(0.1 * nrow(reddit_comments_final)), data = reddit_comments_final, max.em.its = 100, init.type = "Spectral")</span></span>
+<span id="cb22-122"><a href="#cb22-122" aria-hidden="true" tabindex="-1"></a><span class="co"># x3 &lt;- plot(reddit_k_3)</span></span>
+<span id="cb22-123"><a href="#cb22-123" aria-hidden="true" tabindex="-1"></a><span class="co"># saveRDS(x3, "reddit_k_3.rds")</span></span>
+<span id="cb22-124"><a href="#cb22-124" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-125"><a href="#cb22-125" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-126"><a href="#cb22-126" aria-hidden="true" tabindex="-1"></a><span class="al">![](images/newgraph-reddit-8pm.png)</span></span>
+<span id="cb22-127"><a href="#cb22-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-128"><a href="#cb22-128" aria-hidden="true" tabindex="-1"></a>For pre-processing, I decided to remove all English stopwords, in addition to my own list of non-meaningful words that appeared in previous wordclouds and topic models. I was more liberal with removing words for topic modelling compared to the dictionary analysis, wordclouds and network plots that I did before. This is for 2 reasons: (1) I wanted to reduce dimensionality as much as possible, and (2) I wanted to get meaningful top words that would let me easily label topics.</span>
+<span id="cb22-129"><a href="#cb22-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-130"><a href="#cb22-130" aria-hidden="true" tabindex="-1"></a>After trying searchK(), I've decided to go with 15 topics, as it seems to provide the best trade-off between achieving high held-out likelihood/semantic coherence and maintaining low residuals.</span>
+<span id="cb22-131"><a href="#cb22-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-134"><a href="#cb22-134" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-135"><a href="#cb22-135" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb22-136"><a href="#cb22-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-137"><a href="#cb22-137" aria-hidden="true" tabindex="-1"></a><span class="co"># run CTM.</span></span>
+<span id="cb22-138"><a href="#cb22-138" aria-hidden="true" tabindex="-1"></a>reddit_ctm <span class="ot">&lt;-</span> <span class="fu">stm</span>(reddit_stm<span class="sc">$</span>documents, reddit_stm<span class="sc">$</span>vocab, <span class="at">K =</span> <span class="dv">15</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>, <span class="at">max.em.its =</span> <span class="dv">100</span>, <span class="at">seed =</span> <span class="dv">1357</span>, <span class="at">init.type =</span> <span class="st">"Spectral"</span>)</span>
+<span id="cb22-139"><a href="#cb22-139" aria-hidden="true" tabindex="-1"></a>reddit_ctm</span>
+<span id="cb22-140"><a href="#cb22-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-141"><a href="#cb22-141" aria-hidden="true" tabindex="-1"></a><span class="co"># plot topic frequency.</span></span>
+<span id="cb22-142"><a href="#cb22-142" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(reddit_ctm)</span>
+<span id="cb22-143"><a href="#cb22-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-144"><a href="#cb22-144" aria-hidden="true" tabindex="-1"></a><span class="co"># how are the topics linked?</span></span>
+<span id="cb22-145"><a href="#cb22-145" aria-hidden="true" tabindex="-1"></a><span class="fu">topicQuality</span>(reddit_ctm, reddit_stm<span class="sc">$</span>documents, <span class="at">size =</span> <span class="dv">100</span>)</span>
+<span id="cb22-146"><a href="#cb22-146" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">topicCorr</span>(reddit_ctm), <span class="at">vlabels =</span> <span class="fu">c</span>(<span class="st">"1"</span>, <span class="st">"2"</span>, <span class="st">"3"</span>, <span class="st">"4"</span>, <span class="st">"5"</span>, <span class="st">"6"</span>, <span class="st">"7"</span>, <span class="st">"8"</span>, <span class="st">"9"</span>, <span class="st">"10"</span>, <span class="st">"11"</span>, <span class="st">"12"</span>, <span class="st">"13"</span>, <span class="st">"14"</span>, <span class="st">"15"</span>), <span class="at">vertex.color =</span> <span class="st">"lightpink"</span>, <span class="at">vertex.label.cex =</span> <span class="fl">0.75</span>)</span>
+<span id="cb22-147"><a href="#cb22-147" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-148"><a href="#cb22-148" aria-hidden="true" tabindex="-1"></a><span class="co"># top 10 words in each topic, based on FREX.</span></span>
+<span id="cb22-149"><a href="#cb22-149" aria-hidden="true" tabindex="-1"></a>reddit_names <span class="ot">&lt;-</span> <span class="fu">labelTopics</span>(reddit_ctm, <span class="at">n=</span><span class="dv">10</span>)<span class="sc">$</span>frex</span>
+<span id="cb22-150"><a href="#cb22-150" aria-hidden="true" tabindex="-1"></a>reddit_topics <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="cn">NA</span>, <span class="dv">15</span>)</span>
+<span id="cb22-151"><a href="#cb22-151" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">15</span>){</span>
+<span id="cb22-152"><a href="#cb22-152" aria-hidden="true" tabindex="-1"></a>  reddit_topics[i] <span class="ot">&lt;-</span> <span class="fu">paste</span>(reddit_names[i,], <span class="at">collapse =</span> <span class="st">"_"</span>)</span>
+<span id="cb22-153"><a href="#cb22-153" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-154"><a href="#cb22-154" aria-hidden="true" tabindex="-1"></a>reddit_topics</span>
+<span id="cb22-155"><a href="#cb22-155" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-156"><a href="#cb22-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-157"><a href="#cb22-157" aria-hidden="true" tabindex="-1"></a>I had to re-run the model several times, as some tokens showed up in the FREX that were not meaningful (e.g., "finally", "yup"). I also needed to trim the dfm quite a bit for searchK() and stm() to run, due to the number of rows.</span>
+<span id="cb22-158"><a href="#cb22-158" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-159"><a href="#cb22-159" aria-hidden="true" tabindex="-1"></a>The final dictionary had \~2000 words. Based on frequency alone, the top topics are Topics 8, 13 and 11. However, I would select Topics 10 (note: cut off on the plot, looks like "1" but it's actually 10), 7 and 11 as the highest quality, as they scored well on both semantic coherence and exclusivity.</span>
+<span id="cb22-160"><a href="#cb22-160" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-161"><a href="#cb22-161" aria-hidden="true" tabindex="-1"></a>Topic 15 seems the least distinctive. The topic quality plot shows it to be the lowest in exclusivity, while the topic correlation plot reflected it as being linked with topics 2, 5, 12 and 14.</span>
+<span id="cb22-162"><a href="#cb22-162" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-163"><a href="#cb22-163" aria-hidden="true" tabindex="-1"></a><span class="fu">## Correlated Topic Model: Oral Histories</span></span>
+<span id="cb22-164"><a href="#cb22-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-167"><a href="#cb22-167" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-168"><a href="#cb22-168" aria-hidden="true" tabindex="-1"></a><span class="co"># create 'quanteda' corpus. </span></span>
+<span id="cb22-169"><a href="#cb22-169" aria-hidden="true" tabindex="-1"></a>oh_corpus <span class="ot">&lt;-</span> <span class="fu">corpus</span>(transcripts<span class="sc">$</span>text)</span>
+<span id="cb22-170"><a href="#cb22-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-171"><a href="#cb22-171" aria-hidden="true" tabindex="-1"></a><span class="co"># create tokens, remove punctuation, numbers, symbols and stopwords, then convert to lowercase.</span></span>
+<span id="cb22-172"><a href="#cb22-172" aria-hidden="true" tabindex="-1"></a>oh_tokens <span class="ot">&lt;-</span> <span class="fu">tokens</span>(oh_corpus, <span class="at">remove_punct =</span> T, <span class="at">remove_numbers =</span> T, <span class="at">remove_symbols =</span> T)</span>
+<span id="cb22-173"><a href="#cb22-173" aria-hidden="true" tabindex="-1"></a>oh_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_select</span>(oh_tokens, <span class="at">pattern =</span> <span class="fu">stopwords</span>(<span class="st">"en"</span>), <span class="at">selection =</span> <span class="st">"remove"</span>)</span>
+<span id="cb22-174"><a href="#cb22-174" aria-hidden="true" tabindex="-1"></a>oh_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_tolower</span>(oh_tokens)</span>
+<span id="cb22-175"><a href="#cb22-175" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-176"><a href="#cb22-176" aria-hidden="true" tabindex="-1"></a><span class="co"># remove tokens that appeared in previous wordclouds/models that were not meaningful.</span></span>
+<span id="cb22-177"><a href="#cb22-177" aria-hidden="true" tabindex="-1"></a>oh_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_remove</span>(oh_tokens, <span class="fu">c</span>(<span class="st">"know"</span>, <span class="st">"even"</span>, <span class="st">"used"</span>, <span class="st">"thing"</span>, <span class="st">"lot"</span>, <span class="st">"yes"</span>, <span class="st">"say"</span>, <span class="st">"going"</span>, <span class="st">"went"</span>, <span class="st">"yeah"</span>, <span class="st">"come"</span>, <span class="st">"actually"</span>, <span class="st">"mean"</span>, <span class="st">"like"</span>, <span class="st">"think"</span>, <span class="st">"get"</span>, <span class="st">"go"</span>, <span class="st">"said"</span>, <span class="st">"see"</span>, <span class="st">"things"</span>, <span class="st">"really"</span>, <span class="st">"well"</span>, <span class="st">"still"</span>, <span class="st">"little"</span>, <span class="st">"got"</span>, <span class="st">"right"</span>, <span class="st">"can"</span>, <span class="st">"came"</span>, <span class="st">"um"</span>, <span class="st">"quite"</span>, <span class="st">"bit"</span>, <span class="st">"every"</span>, <span class="st">"oh"</span>, <span class="st">"many"</span>, <span class="st">"always"</span>, <span class="st">"one"</span>, <span class="st">"two"</span>, <span class="st">"just"</span>, <span class="st">"much"</span>, <span class="st">"want"</span>, <span class="st">"wanted"</span>, <span class="st">"okay"</span>, <span class="st">"part"</span>, <span class="st">"also"</span>, <span class="st">"just"</span>, <span class="st">"us"</span>, <span class="st">"never"</span>, <span class="st">"many"</span>, <span class="st">"something"</span>, <span class="st">"want"</span>, <span class="st">"wanted"</span>, <span class="st">"uh"</span>, <span class="st">"guy"</span>, <span class="st">"guys"</span>, <span class="st">"hey"</span>, <span class="st">"says"</span>, <span class="st">"stuff"</span>, <span class="st">"huh"</span>, <span class="st">"anyway"</span>))</span>
+<span id="cb22-178"><a href="#cb22-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-179"><a href="#cb22-179" aria-hidden="true" tabindex="-1"></a><span class="co"># create and trim dfm.</span></span>
+<span id="cb22-180"><a href="#cb22-180" aria-hidden="true" tabindex="-1"></a>oh_dfm <span class="ot">&lt;-</span> <span class="fu">dfm</span>(oh_tokens)</span>
+<span id="cb22-181"><a href="#cb22-181" aria-hidden="true" tabindex="-1"></a>oh_dfm <span class="ot">&lt;-</span> oh_dfm <span class="sc">%&gt;%</span> <span class="fu">dfm_trim</span>(<span class="at">min_termfreq =</span> <span class="dv">10</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>, <span class="at">min_docfreq =</span> .<span class="dv">1</span>, <span class="at">docfreq_type =</span> <span class="st">"prop"</span>)</span>
+<span id="cb22-182"><a href="#cb22-182" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-183"><a href="#cb22-183" aria-hidden="true" tabindex="-1"></a><span class="co"># how many topics would be good?</span></span>
+<span id="cb22-184"><a href="#cb22-184" aria-hidden="true" tabindex="-1"></a><span class="co"># oh_k &lt;- searchK(oh_dfm, K = c(5, 10, 15, 20, 50), N = floor(0.1 * nrow(transcripts)), data = transcripts, init.type = "Spectral")</span></span>
+<span id="cb22-185"><a href="#cb22-185" aria-hidden="true" tabindex="-1"></a><span class="co"># plot(oh_k)</span></span>
+<span id="cb22-186"><a href="#cb22-186" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-187"><a href="#cb22-187" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-188"><a href="#cb22-188" aria-hidden="true" tabindex="-1"></a><span class="al">![](images/newgraph-OH-11pm.png)</span></span>
+<span id="cb22-189"><a href="#cb22-189" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-190"><a href="#cb22-190" aria-hidden="true" tabindex="-1"></a>From the plot, it looks like 5 topics is the best. It provides the highest held-out likelihood and semantic coherence, as well as the lowest residuals. **That being said, I decided to go with 15 topics.** It isn't very different from 5 topics, and it allows for a fairer comparison with the Reddit topics. Comparisons I make would solely be based on the <span class="co">[</span><span class="ot">content</span><span class="co">]</span>{.underline} of the topics, without losing any breadth due to differences in the number of topics.</span>
+<span id="cb22-191"><a href="#cb22-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-192"><a href="#cb22-192" aria-hidden="true" tabindex="-1"></a>To elaborate a little more, when I ran the model with only 5 topics, they were very general (e.g., "immigration/work", "healthcare"). In comparison, the Reddit topics were a lot more specific (e.g., "conflict about American politics", "discourse about race/religion"). I wanted to ensure that any differences I observed were true differences, and not just due to an unfairly low number of topics for the oral histories.</span>
+<span id="cb22-193"><a href="#cb22-193" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-196"><a href="#cb22-196" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-197"><a href="#cb22-197" aria-hidden="true" tabindex="-1"></a><span class="co"># run CTM.</span></span>
+<span id="cb22-198"><a href="#cb22-198" aria-hidden="true" tabindex="-1"></a>oh_ctm <span class="ot">&lt;-</span> <span class="fu">stm</span>(oh_dfm, <span class="at">K =</span> <span class="dv">15</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>, <span class="at">seed =</span> <span class="dv">1234</span>, <span class="at">init.type =</span> <span class="st">"Spectral"</span>)</span>
+<span id="cb22-199"><a href="#cb22-199" aria-hidden="true" tabindex="-1"></a>oh_ctm</span>
+<span id="cb22-200"><a href="#cb22-200" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-201"><a href="#cb22-201" aria-hidden="true" tabindex="-1"></a><span class="co"># plot topic frequency.</span></span>
+<span id="cb22-202"><a href="#cb22-202" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(oh_ctm)</span>
+<span id="cb22-203"><a href="#cb22-203" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-204"><a href="#cb22-204" aria-hidden="true" tabindex="-1"></a><span class="co"># how are the topics linked?</span></span>
+<span id="cb22-205"><a href="#cb22-205" aria-hidden="true" tabindex="-1"></a><span class="fu">topicQuality</span>(oh_ctm, oh_dfm)</span>
+<span id="cb22-206"><a href="#cb22-206" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">topicCorr</span>(oh_ctm), <span class="at">vlabels =</span> <span class="fu">c</span>(<span class="st">"1"</span>, <span class="st">"2"</span>, <span class="st">"3"</span>, <span class="st">"4"</span>, <span class="st">"5"</span>, <span class="st">"6"</span>, <span class="st">"7"</span>, <span class="st">"8"</span>, <span class="st">"9"</span>, <span class="st">"10"</span>, <span class="st">"11"</span>, <span class="st">"12"</span>, <span class="st">"13"</span>, <span class="st">"14"</span>, <span class="st">"15"</span>), <span class="at">vertex.color =</span> <span class="st">"lightpink"</span>, <span class="at">vertex.label.cex =</span> <span class="fl">0.75</span>)</span>
+<span id="cb22-207"><a href="#cb22-207" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-208"><a href="#cb22-208" aria-hidden="true" tabindex="-1"></a><span class="co"># top 10 words in each topic, based on FREX.</span></span>
+<span id="cb22-209"><a href="#cb22-209" aria-hidden="true" tabindex="-1"></a>oh_names <span class="ot">&lt;-</span> <span class="fu">labelTopics</span>(oh_ctm, <span class="at">n=</span><span class="dv">10</span>)<span class="sc">$</span>frex</span>
+<span id="cb22-210"><a href="#cb22-210" aria-hidden="true" tabindex="-1"></a>oh_topics <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="cn">NA</span>, <span class="dv">15</span>)</span>
+<span id="cb22-211"><a href="#cb22-211" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">15</span>){</span>
+<span id="cb22-212"><a href="#cb22-212" aria-hidden="true" tabindex="-1"></a>  oh_topics[i] <span class="ot">&lt;-</span> <span class="fu">paste</span>(oh_names[i,], <span class="at">collapse =</span> <span class="st">"_"</span>)</span>
+<span id="cb22-213"><a href="#cb22-213" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-214"><a href="#cb22-214" aria-hidden="true" tabindex="-1"></a>oh_topics</span>
+<span id="cb22-215"><a href="#cb22-215" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-216"><a href="#cb22-216" aria-hidden="true" tabindex="-1"></a><span class="co"># save.image("post6_saaradhaa.RData")</span></span>
+<span id="cb22-217"><a href="#cb22-217" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-218"><a href="#cb22-218" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-219"><a href="#cb22-219" aria-hidden="true" tabindex="-1"></a>Similar to what I did for the Reddit data, I re-ran the model several times, removing a few tokens that didn't add value to the topics generated (e.g., "hey", "stuff").</span>
+<span id="cb22-220"><a href="#cb22-220" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-221"><a href="#cb22-221" aria-hidden="true" tabindex="-1"></a>The final dictionary had \~2400 words, just slightly more than the Reddit data. Based on frequency, the top topics are 15, 4 and 2. I would also choose Topics 1, 5 and 11 as being of good quality (good balance between exclusivity and semantic coherence). Topics 1 and 5 were well-correlated too (afterthought: makes sense, because they both concern music --<span class="sc">\&gt;</span> refer to table in the next section).</span>
+<span id="cb22-222"><a href="#cb22-222" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-223"><a href="#cb22-223" aria-hidden="true" tabindex="-1"></a><span class="fu">## Impact on RQs</span></span>
+<span id="cb22-224"><a href="#cb22-224" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-225"><a href="#cb22-225" aria-hidden="true" tabindex="-1"></a>As discussed in Post 5, these are my RQs:</span>
+<span id="cb22-226"><a href="#cb22-226" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-227"><a href="#cb22-227" aria-hidden="true" tabindex="-1"></a>::: callout-tip</span>
+<span id="cb22-228"><a href="#cb22-228" aria-hidden="true" tabindex="-1"></a><span class="fu">## Research Questions</span></span>
+<span id="cb22-229"><a href="#cb22-229" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-230"><a href="#cb22-230" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>How have the values and concerns of South Asian Americans changed over time?</span>
+<span id="cb22-231"><a href="#cb22-231" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>Do older South Asian Americans align more with the honour culture prevalent in their home countries? Do younger South Asian Americans align more with the dignity culture prevalent in the USA?</span>
+<span id="cb22-232"><a href="#cb22-232" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb22-233"><a href="#cb22-233" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-234"><a href="#cb22-234" aria-hidden="true" tabindex="-1"></a>To recap, the dictionary analysis showed that both groups valued self-direction and benevolence. Older immigrants valued achievement more, while younger immigrants valued universalism more. There was some evidence that older immigrants were more aligned with the South Asian honour culture, and that younger immigrants were more aligned with the American dignity culture.</span>
+<span id="cb22-235"><a href="#cb22-235" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-236"><a href="#cb22-236" aria-hidden="true" tabindex="-1"></a>I will first create my own topic labels, based on the FREX top words. The top topics (based on frequency and quality) are in **bold**.</span>
+<span id="cb22-237"><a href="#cb22-237" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-238"><a href="#cb22-238" aria-hidden="true" tabindex="-1"></a>| S/N | Older Immigrants                                        | Younger Immigrants                                 |</span>
+<span id="cb22-239"><a href="#cb22-239" aria-hidden="true" tabindex="-1"></a>|--------------|-------------------------------|----------------------------|</span>
+<span id="cb22-240"><a href="#cb22-240" aria-hidden="true" tabindex="-1"></a>| 1   | **Classical Indian music**                              | Festivities                                        |</span>
+<span id="cb22-241"><a href="#cb22-241" aria-hidden="true" tabindex="-1"></a>| 2   | **\[Mix\] life; new technologies**                      | <span class="sc">\[</span>Mix<span class="sc">\]</span> life as a South Asian American             |</span>
+<span id="cb22-242"><a href="#cb22-242" aria-hidden="true" tabindex="-1"></a>| 3   | Classical Indian dance                                  | Recent/ongoing wars; caste issues                  |</span>
+<span id="cb22-243"><a href="#cb22-243" aria-hidden="true" tabindex="-1"></a>| 4   | **\[Mix\] Key South Asian locations, religion, family** | American politics                                  |</span>
+<span id="cb22-244"><a href="#cb22-244" aria-hidden="true" tabindex="-1"></a>| 5   | **Learning musical instruments**                        | Conflict about American politics                   |</span>
+<span id="cb22-245"><a href="#cb22-245" aria-hidden="true" tabindex="-1"></a>| 6   | Sri Lankan experiences                                  | South Asian food                                   |</span>
+<span id="cb22-246"><a href="#cb22-246" aria-hidden="true" tabindex="-1"></a>| 7   | Bangladeshi experiences                                 | **South Asian American comedians**                 |</span>
+<span id="cb22-247"><a href="#cb22-247" aria-hidden="true" tabindex="-1"></a>| 8   | Working in healthcare                                   | **Discourse about race, religion**                 |</span>
+<span id="cb22-248"><a href="#cb22-248" aria-hidden="true" tabindex="-1"></a>| 9   | Pakistani Muslim experiences                            | Food and beverages                                 |</span>
+<span id="cb22-249"><a href="#cb22-249" aria-hidden="true" tabindex="-1"></a>| 10  | Travel, migration                                       | **South Asian American actors**                    |</span>
+<span id="cb22-250"><a href="#cb22-250" aria-hidden="true" tabindex="-1"></a>| 11  | **Sri Lankan experiences**                              | **Subreddit administration; general social media** |</span>
+<span id="cb22-251"><a href="#cb22-251" aria-hidden="true" tabindex="-1"></a>| 12  | Punjabi experiences                                     | South Asian crises/conflicts                       |</span>
+<span id="cb22-252"><a href="#cb22-252" aria-hidden="true" tabindex="-1"></a>| 13  | Work, education                                         | **Finances/cost of living**                        |</span>
+<span id="cb22-253"><a href="#cb22-253" aria-hidden="true" tabindex="-1"></a>| 14  | Family                                                  | Dating; leisure                                    |</span>
+<span id="cb22-254"><a href="#cb22-254" aria-hidden="true" tabindex="-1"></a>| 15  | **Life in the US**                                      | <span class="sc">\[</span>Mix<span class="sc">\]</span> dealing with elders                        |</span>
+<span id="cb22-255"><a href="#cb22-255" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-256"><a href="#cb22-256" aria-hidden="true" tabindex="-1"></a>Considering RQ 1:</span>
+<span id="cb22-257"><a href="#cb22-257" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-258"><a href="#cb22-258" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>One clear difference is in the perception of new technologies. Computers were seen as new technologies by first-generation immigrants, while second-generation immigrants had a keener understanding of more specific recent developments (social media, subreddit moderation).</span>
+<span id="cb22-259"><a href="#cb22-259" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-260"><a href="#cb22-260" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>South Asian identity also seemed to come across as more cohesive for second-generation immigrants. For the first generation, there was a fairly neat divide between the different types of South Asian experiences - Sri Lankan, Bangladeshi, Punjabi, Pakistani, etc - whereas the second generation seemed to consider these groups altogether as one.</span>
+<span id="cb22-261"><a href="#cb22-261" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-262"><a href="#cb22-262" aria-hidden="true" tabindex="-1"></a>For RQ 2:</span>
+<span id="cb22-263"><a href="#cb22-263" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-264"><a href="#cb22-264" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Echoing the dictionary analysis, there was a focus on achievement-related topics in the oral histories (e.g., work was featured in 2 topics). Meanwhile, the younger generation was interested in many issues beyond their individual lives - wars in non-Western regions and discourse about race, religion and caste issues.</span>
+<span id="cb22-265"><a href="#cb22-265" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-266"><a href="#cb22-266" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>There also seemed to be a greater American orientation among the second-generation - they were tuned in to American politics, actors and comedians.</span>
+<span id="cb22-267"><a href="#cb22-267" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-268"><a href="#cb22-268" aria-hidden="true" tabindex="-1"></a><span class="fu">## Limitations</span></span>
+<span id="cb22-269"><a href="#cb22-269" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-270"><a href="#cb22-270" aria-hidden="true" tabindex="-1"></a>One limitation of this effort is the difference in the type of text. Oral histories, by nature, are quite different from Reddit communities. The former is naturally more focused on the self, so some differences observed could be due to the modality used. Still, the findings are valuable in enriching our understanding of South Asian immigrants in Western countries, and help to move past the collectivist/individualistic cultural types that much of the literature focuses on (Triandis, 1995).</span>
+<span id="cb22-271"><a href="#cb22-271" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-272"><a href="#cb22-272" aria-hidden="true" tabindex="-1"></a>Topic modelling is also an unsupervised method that requires me to use my own judgment to choose the number of topics and the final labels for the topics - interpretations might have been slightly different, had someone else done this.</span>
+<span id="cb22-273"><a href="#cb22-273" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-274"><a href="#cb22-274" aria-hidden="true" tabindex="-1"></a><span class="fu">## Future Work</span></span>
+<span id="cb22-275"><a href="#cb22-275" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-276"><a href="#cb22-276" aria-hidden="true" tabindex="-1"></a>Future work could investigate first- and second-generation immigrants from other regions (e.g., African continent), other types of text (e.g., movie scripts, presidential speeches), other methods of analysis (e.g., Structural Topic Modelling) and common 'global' values across cultures.</span>
+<span id="cb22-277"><a href="#cb22-277" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-278"><a href="#cb22-278" aria-hidden="true" tabindex="-1"></a><span class="fu">## Bibliography</span></span>
+<span id="cb22-279"><a href="#cb22-279" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-280"><a href="#cb22-280" aria-hidden="true" tabindex="-1"></a>Triandis, H. C. (1995). *Individualism &amp; collectivism.* Westview Press.</span>
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+</body></html>

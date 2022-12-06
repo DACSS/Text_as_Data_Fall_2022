@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.0.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Mekhala Kumar">
+<meta name="dcterms.date" content="2022-11-15">
+<meta name="description" content="Reading in Data and Preprocessing">
+
+<title>Text-as-Data Fall 2022 - Blog Post 2</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../images/DACSS_Round_Network.png" rel="icon" type="image/png">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+<meta name="twitter:title" content="Text-as-Data Fall 2022 - Blog Post 2">
+<meta name="twitter:description" content="Reading in Data and Preprocessing">
+<meta name="twitter:creator" content="@UMassDACSS">
+<meta name="twitter:card" content="summary">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <a class="navbar-brand" href="../index.html">
+    <img src="../images/UMass White Wordmark Horiz.png" alt="">
+    <span class="navbar-title">Text-as-Data Fall 2022</span>
+  </a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="https://dacss.github.io/Text_as_Data_Fall_2022/">Fall 2022</a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html">Contributors</a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://umass.edu/sbs/dacss">DACSS</a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/DACSS/Text_as_Data_Fall_2022"><i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+ </a>
+  </li>  
+</ul>
+              <div class="quarto-toggle-container">
+                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+              </div>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#about-the-data-and-collection-process" id="toc-about-the-data-and-collection-process" class="nav-link active" data-scroll-target="#about-the-data-and-collection-process">About the Data and Collection Process</a></li>
+  <li><a href="#initial-steps" id="toc-initial-steps" class="nav-link" data-scroll-target="#initial-steps">Initial steps</a></li>
+  <li><a href="#components" id="toc-components" class="nav-link" data-scroll-target="#components">Components</a>
+  <ul class="collapse">
+  <li><a href="#issues-i-noticed-while-doing-this-step-were" id="toc-issues-i-noticed-while-doing-this-step-were" class="nav-link" data-scroll-target="#issues-i-noticed-while-doing-this-step-were">3 issues I noticed while doing this step were:</a></li>
+  </ul></li>
+  <li><a href="#creating-the-dataframe-for-1-file" id="toc-creating-the-dataframe-for-1-file" class="nav-link" data-scroll-target="#creating-the-dataframe-for-1-file">Creating the dataframe for 1 file</a></li>
+  <li><a href="#reading-all-the-files" id="toc-reading-all-the-files" class="nav-link" data-scroll-target="#reading-all-the-files">Reading all the files</a></li>
+  <li><a href="#putting-the-information-into-a-dataframe" id="toc-putting-the-information-into-a-dataframe" class="nav-link" data-scroll-target="#putting-the-information-into-a-dataframe">Putting the information into a dataframe</a>
+  <ul class="collapse">
+  <li><a href="#some-issues-i-faced-here" id="toc-some-issues-i-faced-here" class="nav-link" data-scroll-target="#some-issues-i-faced-here">Some issues I faced here:</a></li>
+  </ul></li>
+  <li><a href="#creating-the-corpus-and-looking-at-the-number-of-tokens-in-each-document" id="toc-creating-the-corpus-and-looking-at-the-number-of-tokens-in-each-document" class="nav-link" data-scroll-target="#creating-the-corpus-and-looking-at-the-number-of-tokens-in-each-document">Creating the corpus and looking at the number of tokens in each document</a></li>
+  <li><a href="#checking-for-metadata" id="toc-checking-for-metadata" class="nav-link" data-scroll-target="#checking-for-metadata">Checking for metadata</a></li>
+  <li><a href="#creating-tokens" id="toc-creating-tokens" class="nav-link" data-scroll-target="#creating-tokens">Creating tokens</a></li>
+  <li><a href="#removing-punctuation" id="toc-removing-punctuation" class="nav-link" data-scroll-target="#removing-punctuation">Removing punctuation</a></li>
+  <li><a href="#removing-stopwords" id="toc-removing-stopwords" class="nav-link" data-scroll-target="#removing-stopwords">Removing stopwords</a></li>
+  <li><a href="#keyword-in-context" id="toc-keyword-in-context" class="nav-link" data-scroll-target="#keyword-in-context">Keyword in context</a></li>
+  <li><a href="#creating-a-tokens-object-with-bigrams-and-trigrams" id="toc-creating-a-tokens-object-with-bigrams-and-trigrams" class="nav-link" data-scroll-target="#creating-a-tokens-object-with-bigrams-and-trigrams">Creating a tokens object with bigrams and trigrams</a></li>
+  <li><a href="#word-cloud" id="toc-word-cloud" class="nav-link" data-scroll-target="#word-cloud">Word Cloud</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Blog Post 2</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+  <div class="quarto-categories">
+    <div class="quarto-category">MekhalaKumar</div>
+    <div class="quarto-category">Olympics2020</div>
+    <div class="quarto-category">GenderandSports</div>
+    <div class="quarto-category">BlogPost2</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    Reading in Data and Preprocessing
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Mekhala Kumar </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">November 15, 2022</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+</header>
+
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#devtools::install_github("quanteda/readtext") </span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readtext)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(striprtf)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">#library(LexisNexisTools)</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(corpus)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda.textplots)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="about-the-data-and-collection-process" class="level1">
+<h1>About the Data and Collection Process</h1>
+<p>I will be looking into how women’s and men’s sports were described, specifically in the context of the Tokyo Olympics 2020. The data used for this project is a collection of Indian newspaper archives from LexisNexis, from July 22,2021 to August 9, 2021 (as the Olympics were held between 23 July-8 August). I tried a few ways to collect the articles. At first, I tried scraping the Deccan Herald website and then tried scraping the LexisNexis archive. However, I was unable to do so. Hence, I downloaded articles from LexisNexis. The articles were collected after filtering the database. These filters were: Jul 22,2021 to Aug 09,2021, Asia, India, Men’s Sports/Women’s Sports/Sports Awards, Newspapers/web-based publications, a set of newspapers which were: Hindustan Times, Times of India (Electronic Edition), Free Press Journal (India), The Telegraph (India), Indian Express, Mint, DNA, India Today Online, The Hindu and Economic Times.</p>
+</section>
+<section id="initial-steps" class="level1">
+<h1>Initial steps</h1>
+<p>At first, I tried reading in the data for one file and looked for the different components present, in order to understand what I needed to extract.<br>
+Since, it was causing errors to load the files, I have provided the code of how I read in the files and extracted information as comments.<br>
+I have loaded in the data using an R object.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#my_texts &lt;- readtext(paste0("D:/Text as Data/Files(100) Set 1.rtf"),text_field = "texts")</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co">#testing &lt;- as.character(my_texts)</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">#testing</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#typeof(testing)</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">#str_length(testing)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="components" class="level1">
+<h1>Components</h1>
+<p>The body of the article is the main text required. In order to extract this, I found the index value of where the body of the text started. Additionally, I collected the index values for the information of the newspaper name, date and classifications.</p>
+<section id="issues-i-noticed-while-doing-this-step-were" class="level2">
+<h2 class="anchored" data-anchor-id="issues-i-noticed-while-doing-this-step-were">3 issues I noticed while doing this step were:</h2>
+<ol type="1">
+<li>The titles of each article were not saved when the file was read in.</li>
+<li>The dateline which included the location or date was not present for every article.</li>
+<li>I had thought of using the index position of nPublished, as it denoted the end of the body of the article. However, this was not present for all the articles.</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Components</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">#indices_name&lt;-str_locate_all(testing, "\n\n\n\n\n\n")%&gt;%unlist()</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#indices_name</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#indices_date&lt;-str_locate_all(testing,"\nDateline")</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#indices_date</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#For the actual text</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#indices_body&lt;-str_locate_all(testing,"\nBody")%&gt;%unlist()</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">#indices_body</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">#indices_body_end&lt;-str_locate_all(testing,"\nPublished")%&gt;%unlist()</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">#indices_body_end</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co">#Subject and classifications </span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co">#indices_classification&lt;-str_locate_all(testing,"\nSubject")%&gt;%unlist()</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co">#indices_classification</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co">#Document end</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co">#indices_end&lt;-str_locate_all(testing,"\nEnd of Document")%&gt;%unlist()</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co">#indices_end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="creating-the-dataframe-for-1-file" class="level1">
+<h1>Creating the dataframe for 1 file</h1>
+<p>I tried creating a dataframe for the articles in 1 file and faced issues when I tried to separate information such as the few words before the body of the article starts (such as date and location).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#df_test &lt;- data.frame(matrix(ncol = 3, nrow = 1191))%&gt;% rename(</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a> <span class="co">#   Newspaper_Date=X1 ,</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">#  Body=X2,</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="co">#  Tags=X3</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>   <span class="co"># )</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">#Testing with a smaller set</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">#for (i in 1:3){</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a> <span class="co"># df_test[i,1]&lt;-str_sub(testing,indices_name[i],indices_body[i])</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a> <span class="co"># df_test[i,2]&lt;-str_sub(testing,indices_body[i],indices_body_end[i])</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="co">#df_test[i,3]&lt;-str_sub(testing,indices_classification[i],indices_end[i])</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co">#}</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co">#df_test&lt;-df_test%&gt;%separate(Newspaper_Date, into=c("Newspaper_Date", "Delete"), sep="Copyright")%&gt;%select(-Delete)</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co">#for (i in 1:100){</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="co"># df[i,1]&lt;-str_sub(testing,indices_name[i],indices_body[i])</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="co"># df[i,2]&lt;-str_sub(testing,indices_body[i],indices_classification[i])</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="co"># df[i,3]&lt;-str_sub(testing,indices_classification[i],indices_end[i])</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="co"># }</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="co">#\nPublished not there everywhere so did not work</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="co">#for (i in 1:100){</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a> <span class="co"># df[i,1]&lt;-str_sub(testing,indices_name[i],indices_body[i])</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  <span class="co">#df[i,2]&lt;-str_sub(testing,indices_body[i],indices_classification[i])</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>  <span class="co">#df[i,3]&lt;-str_sub(testing,indices_classification[i],indices_end[i])</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="co">#}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="reading-all-the-files" class="level1">
+<h1>Reading all the files</h1>
+<p>This reads in the entire collection of files. The rest of the post works with the data from all the files.<br>
+</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">#my_text1 &lt;- readtext(paste0("Data/Files(100) Set 1.rtf"),text_field = "texts")</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">#my_text2 &lt;- readtext(paste0("Data/Files(100) Set 2.rtf"),text_field = "texts")</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">#my_text3 &lt;- readtext(paste0("Data/Files(100) Set 3.rtf"),text_field = "texts")</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">#my_text4 &lt;- readtext(paste0("Data/Files(100) Set 4.rtf"),text_field = "texts")</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">#my_text5 &lt;- readtext(paste0("Data/Files(100) Set 5.rtf"),text_field = "texts")</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">#my_text6 &lt;- readtext(paste0("Data/Files(100) Set 6.rtf"),text_field = "texts")</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">#my_text7 &lt;- readtext(paste0("Data/Files(100) Set 7.rtf"),text_field = "texts")</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">#my_text8 &lt;- readtext(paste0("Data/Files(100) Set 8.rtf"),text_field = "texts")</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">#my_text9 &lt;- readtext(paste0("Data/Files(100) Set 9.rtf"),text_field = "texts")</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co">#my_text10 &lt;- readtext(paste0("Data/Files(100) Set 10.rtf"),text_field = "texts")</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co">#my_text11 &lt;- readtext(paste0("Data/Files(100) Set 11.rtf"),text_field = "texts")</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co">#my_text12 &lt;- readtext(paste0("Data/Files(91) Set 12.rtf"),text_field = "texts")</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co">#files&lt;-c(my_text1,my_text2,my_text3,my_text4,my_text5,my_text6,my_text7,my_text8,my_text9,my_text10,my_text11,my_text12)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="putting-the-information-into-a-dataframe" class="level1">
+<h1>Putting the information into a dataframe</h1>
+<p>Using a nested for loop, I collected the index positions for the different components of each newspaper article and created a dataframe to put in the data. For the last file, I made a separate for loop since it had fewer articles to be read in and put into a dataframe.</p>
+<section id="some-issues-i-faced-here" class="level2">
+<h2 class="anchored" data-anchor-id="some-issues-i-faced-here">Some issues I faced here:</h2>
+<ol type="1">
+<li>Before the beginning of the article, the word body as well as the location and date are often mentioned. However, there was no constant separator that could be used.</li>
+<li>For articles 767-800, the newspaper and date were not read in. Due to this, I could not perform any operations on the column to remove unnecessary text.</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#df1 &lt;- data.frame(matrix(ncol = 3, nrow = 1100))%&gt;% rename(</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a> <span class="co">#   Newspaper_Date=X1 ,</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">#  Body=X2,</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>   <span class="co"># Tags=X3</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>   <span class="co"># )</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">#k=0</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co">#for (i in seq(2,22,2)){</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="co">#testing &lt;- as.character(files[i])</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="co">#indices_name&lt;-str_locate_all(testing, "\n\n\n\n\n\n")%&gt;%unlist()</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">#indices_body&lt;-str_locate_all(testing,"\nBody")%&gt;%unlist()</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="co">#indices_classification&lt;-str_locate_all(testing,"\nSubject")%&gt;%unlist()</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="co">#indices_end&lt;-str_locate_all(testing,"\nEnd of Document")%&gt;%unlist()</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a> <span class="co"># print(k)</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co">#  for(j in 1:100){</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a> <span class="co">#   df1[k+j,1]&lt;-str_sub(testing,indices_name[j],indices_body[j])</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  <span class="co">#  df1[k+j,2]&lt;-str_sub(testing,indices_body[j],indices_classification[j])</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  <span class="co">#  df1[k+j,3]&lt;-str_sub(testing,indices_classification[j],indices_end[j])</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  <span class="co">#}</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  <span class="co">#k=k+100</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  <span class="co">#}</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="co">#df2 &lt;- data.frame(matrix(ncol = 3, nrow = 91))%&gt;% rename(</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a> <span class="co">#   Newspaper_Date=X1 ,</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  <span class="co">#  Body=X2,</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>   <span class="co"># Tags=X3</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>    <span class="co">#)</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a><span class="co">#testing &lt;- as.character(files[24])</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a><span class="co">#indices_name&lt;-str_locate_all(testing, "\n\n\n\n\n\n")%&gt;%unlist()</span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a><span class="co">#indices_body&lt;-str_locate_all(testing,"\nBody")%&gt;%unlist()</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a><span class="co">#indices_classification&lt;-str_locate_all(testing,"\nSubject")%&gt;%unlist()</span></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a><span class="co">#indices_end&lt;-str_locate_all(testing,"\nEnd of Document")%&gt;%unlist()</span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a><span class="co">#for(l in 1:91){</span></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a> <span class="co"># df2[l,1]&lt;-str_sub(testing,indices_name[l],indices_body[l])</span></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>  <span class="co">#df2[l,2]&lt;-str_sub(testing,indices_body[l],indices_classification[l])</span></span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>  <span class="co">#df2[l,3]&lt;-str_sub(testing,indices_classification[l],indices_end[l])</span></span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a><span class="co">#}</span></span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a><span class="co">#df&lt;-rbind(df1,df2)</span></span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a><span class="co">#Does not work because the information is missing for some</span></span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a><span class="co">#df&lt;-df%&gt;%separate(Newspaper_Date, into=c("Newspaper_Date", "Delete"), sep="Copyright")%&gt;%select(-Delete)</span></span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a><span class="co">#this does not work</span></span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a><span class="co">#df&lt;-df%&gt;%separate(Newspaper_Date, into=c("Newspaper", "Date"), sep="{\n}")</span></span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a><span class="co">#df&lt;-df_test%&gt;%separate(Newspaper_Date, into=c("Newspaper", "Date"), sep="[August|July]")</span></span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a><span class="co">#df&lt;-df%&gt;%separate(Body,into=c("Delete","Body"),sep="--|Body")</span></span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a><span class="co">#write.csv(df, "D:/Text as Data/Text_as_Data_Fall_2022/posts/output.csv", row.names=FALSE, quote=FALSE)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>df_All<span class="ot">&lt;-</span><span class="fu">readRDS</span>(<span class="at">file =</span> <span class="st">"D:/Text as Data/All12Files.rds"</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>df<span class="ot">&lt;-</span>df_All</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">#Does not work because the information is missing for some</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>df<span class="ot">&lt;-</span>df<span class="sc">%&gt;%</span><span class="fu">separate</span>(Newspaper_Date, <span class="at">into=</span><span class="fu">c</span>(<span class="st">"Newspaper_Date"</span>, <span class="st">"Delete"</span>), <span class="at">sep=</span><span class="st">"Copyright"</span>)<span class="sc">%&gt;%</span><span class="fu">select</span>(<span class="sc">-</span>Delete)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Expected 2 pieces. Missing pieces filled with `NA` in 34 rows [767,
+768, 769, 770, 771, 772, 773, 774, 775, 776, 777, 778, 779, 780, 781, 782, 783,
+784, 785, 786, ...].</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">#this does not work</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co">#df&lt;-df%&gt;%separate(Newspaper_Date, into=c("Newspaper", "Date"), sep="{\n}")</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co">#df&lt;-df_test%&gt;%separate(Newspaper_Date, into=c("Newspaper", "Date"), sep="[August|July]")</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co">#df&lt;-df%&gt;%separate(Body,into=c("Delete","Body"),sep="--|Body")</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co">#write.csv(df, "D:/Text as Data/Text_as_Data_Fall_2022/posts/output.csv", row.names=FALSE, quote=FALSE)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="creating-the-corpus-and-looking-at-the-number-of-tokens-in-each-document" class="level1">
+<h1>Creating the corpus and looking at the number of tokens in each document</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>newspaper_corpus <span class="ot">&lt;-</span> <span class="fu">corpus</span>(df,<span class="at">text_field =</span> <span class="st">"Body"</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>newspaper_corpus_summary <span class="ot">&lt;-</span> <span class="fu">summary</span>(newspaper_corpus)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(newspaper_corpus_summary)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Text Types Tokens Sentences
+1 text1   293    586        24
+2 text2   138    264         6
+3 text3   365    911        30
+4 text4   187    349         9
+5 text5   229    424        18
+6 text6   231    467        25
+                                              Newspaper_Date
+1 \n\n\n\n\n\n\nHindustan Times\nAugust 9, 2021 Monday\n\n\n
+2   \n\n\n\n\n\nHindustan Times\nAugust 2, 2021 Monday\n\n\n
+3         \n\n\n\n\n\nThe Hindu\nAugust 9, 2021 Monday\n\n\n
+4 \n\n\n\n\n\nHindustan Times\nJuly 28, 2021 Wednesday\n\n\n
+5   \n\n\n\n\n\nHindustan Times\nAugust 8, 2021 Sunday\n\n\n
+6               \n\n\n\n\n\nDNA\nJuly 27, 2021 Tuesday\n\n\n
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          Tags
+1                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       \nSubject:&nbsp;OLYMPICS (92%); CRICKET (90%); OLYMPIC COMMITTEES (90%); SPORTS GOVERNING BODIES (90%); SPORTS &amp; RECREATION EVENTS (89%); AGREEMENTS (78%); WOMEN'S SPORTS (78%); ASSOCIATIONS &amp; ORGANIZATIONS (77%); TALKS &amp; MEETINGS (77%)\n\nOrganization:&nbsp;INTERNATIONAL OLYMPIC COMMITTEE (57%)\n\nIndustry:&nbsp;BUDGETS (66%); TELEVISION INDUSTRY (50%)\n\nGeographic:&nbsp;MUMBAI, MAHARASHTRA, INDIA (92%); LOS ANGELES, CA, USA (79%); BIRMINGHAM, ENGLAND (58%); CALIFORNIA, USA (58%); INDIA (94%); UNITED KINGDOM (79%); FRANCE (58%)\n\nLoad-Date:&nbsp;August 8, 2021\n\n\n
+2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                \nSubject:&nbsp;2020 TOKYO SUMMER OLYMPICS (90%); OLYMPICS (90%); SHOOTING SPORTS (90%); SUMMER OLYMPICS (90%); WEAPONS &amp; ARMS (89%); EQUESTRIAN SPORTS (78%); WOMEN'S SPORTS (78%)\n\nIndustry:&nbsp;MEDIA CONTENT (78%)\n\nGeographic:&nbsp;INDIA (91%)\n\nLoad-Date:&nbsp;August 1, 2021\n\n\n
+3                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            \nSubject:&nbsp;2020 TOKYO SUMMER OLYMPICS (90%); OLYMPICS (90%); SUMMER OLYMPICS (90%); MEN'S SPORTS (78%); SPORTS AWARDS (78%)\n\nGeographic:&nbsp;NEW DELHI, INDIA (59%); INDIA (92%)\n\nLoad-Date:&nbsp;August 9, 2021\n\n\n
+4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               \nSubject:&nbsp;2020 TOKYO SUMMER OLYMPICS (91%); OLYMPICS (91%); ATHLETES (90%); FIELD HOCKEY (90%); SUMMER OLYMPICS (90%); WOMEN'S SPORTS (90%); BOAT RACING (89%); ROWING (89%); ARCHERY (78%); BADMINTON (78%); BOXING (78%); MEN'S SPORTS (78%); SPORTS &amp; RECREATION EVENTS (78%); SPORTS AWARDS (78%); TOURNAMENTS (76%); BOATING &amp; RAFTING (75%)\n\nIndustry:&nbsp;MEDIA CONTENT (78%)\n\nGeographic:&nbsp;NEW DELHI, INDIA (74%); INDIA (94%); UNITED KINGDOM (73%)\n\nLoad-Date:&nbsp;July 27, 2021\n\n\n
+5                                                                                                                                                                                                                                                                                                                \nSubject:&nbsp;ARMIES (94%); OLYMPICS (92%); 2020 TOKYO SUMMER OLYMPICS (90%); ARMED FORCES (90%); HEADS OF STATE &amp; GOVERNMENT (90%); PHOTO &amp; VIDEO SHARING (90%); PRIME MINISTERS (90%); SPORTS &amp; RECREATION (90%); SPORTS AWARDS (90%); SUMMER OLYMPICS (90%); VIRAL VIDEOS (90%); HUMAN RESOURCES &amp; PERSONNEL MANAGEMENT (78%); TRACK &amp; FIELD (78%); EDUCATION &amp; TRAINING (77%); MILITARY SERVICE (77%); SOCIAL MEDIA (77%); EDUCATION SYSTEMS &amp; INSTITUTIONS (74%); GOVERNMENT ADVISORS &amp; MINISTERS (73%); STUDENTS &amp; STUDENT LIFE (73%); INTERNET SOCIAL NETWORKING (72%); WEAPONS &amp; ARMS (72%)\n\nIndustry:&nbsp;ARMIES (94%); ARMED FORCES (90%); PHOTO &amp; VIDEO SHARING (90%); VIRAL VIDEOS (90%); MEDIA CONTENT (78%); MILITARY SERVICE (77%); SOCIAL MEDIA (77%); EDUCATION SYSTEMS &amp; INSTITUTIONS (74%); INTERNET SOCIAL NETWORKING (72%)\n\nPerson:&nbsp;NARENDRA MODI (79%)\n\nGeographic:&nbsp;GUJARAT, INDIA (79%); INDIA (94%)\n\nLoad-Date:&nbsp;August 8, 2021\n\n\n
+6 \nSubject:&nbsp;DRUGS IN SPORTS (94%); OLYMPICS (92%); SPORTS &amp; RECREATION (92%); SPORTS &amp; RECREATION EVENTS (91%); 2020 TOKYO SUMMER OLYMPICS (90%); SPORTS AWARDS (90%); SUMMER OLYMPICS (90%); OLYMPIC COMMITTEES (89%); WINTER OLYMPICS (89%); 2016 RIO SUMMER OLYMPICS (78%); ACADEMY AWARDS (78%); ENTERTAINMENT &amp; ARTS AWARDS (78%); GENDER EQUALITY (78%); SPORTS GOVERNING BODIES (78%); WOMEN (78%); WOMEN'S SPORTS (78%); CONTROLLED SUBSTANCES CRIME (76%); NEGATIVE MISC NEWS (76%); NEGATIVE NEWS (76%); INVESTIGATIONS (73%); WINTER SPORTS (73%); SCANDALS (71%); AUTO RACING (66%); DISCRIMINATION (66%); FIFA WORLD CUP (66%); DOCUMENTARY FILMS (65%); TALIBAN (60%); ALTERNATIVE DISPUTE RESOLUTION (50%)\n\nCompany:&nbsp; NETFLIX INC (54%);  AL MUDON INTERNATIONAL REAL ESTATE CO KSCC (51%)\n\nTicker:&nbsp;NFLX (NASDAQ) (54%); ALMUDON (KUW) (51%)\n\nIndustry:&nbsp;NAICS532282 VIDEO TAPE &amp; DISC RENTAL (54%); SIC7841 VIDEO TAPE RENTAL (54%); NAICS531110 LESSORS OF RESIDENTIAL BUILDINGS &amp; DWELLINGS (51%); SIC6513 OPERATORS OF APARTMENT BUILDINGS (51%); ACADEMY AWARDS (78%); ENTERTAINMENT &amp; ARTS AWARDS (78%); DOCUMENTARY FILMS (65%); MOTOR VEHICLES (61%)\n\nGeographic:&nbsp;RUSSIAN FEDERATION (93%); AFGHANISTAN (52%)\n\nLoad-Date:&nbsp;July 27, 2021\n\n\n</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>newspaper_corpus_summary<span class="sc">$</span>Tokens</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  [1] 586 264 911 349 424 467 392 605 300 591 343 295 315 298 298 344 370 336
+ [19] 690 420 436 397 475 225 722 688 333 372 221 344 484 591 640 348 357 523
+ [37] 276 567 359 415 518 533 414 391 345 354 601 554 216 288 277 466 232 395
+ [55] 832 415 399 361 890 299 360 440 823 289 526 674 633 633 420 232 267 688
+ [73] 320 248 563 357 781 633 562 624 240 251 426 597 869 591 576 633 364 427
+ [91] 562 271 411 588 566 380 342 241 242 251</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ndoc</span>(newspaper_corpus)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1191</code></pre>
+</div>
+</div>
+</section>
+<section id="checking-for-metadata" class="level1">
+<h1>Checking for metadata</h1>
+<p>There was metadata but too many pages were being printed so I commented out the line.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">#docvars(newspaper_corpus)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="creating-tokens" class="level1">
+<h1>Creating tokens</h1>
+<p>as.character function prints too many pages so it was commented out.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>newspaper_tokens <span class="ot">&lt;-</span> <span class="fu">tokens</span>(newspaper_corpus)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(newspaper_tokens)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Tokens consisting of 6 documents and 2 docvars.
+text1 :
+ [1] "Body"     "Mumbai"   ","        "Aug"      "."        "9"       
+ [7] "-"        "From"     "a"        "solitary" "two-day"  "fixture" 
+[ ... and 574 more ]
+
+text2 :
+ [1] "Body"     "India"    ","        "Aug"      "."        "2"       
+ [7] "-"        "Tokyo"    "Olympics" "Day"      "10"       "Full"    
+[ ... and 252 more ]
+
+text3 :
+ [1] "Body"           "After"          "the"            "best-ever"     
+ [5] "performance"    "at"             "the"            "just-concluded"
+ [9] "Tokyo"          "Olympics"       ","              "India"         
+[ ... and 899 more ]
+
+text4 :
+ [1] "Body"     "New"      "Delhi"    ","        "July"     "28"      
+ [7] "-"        "The"      "Tokyo"    "Olympics" "2020"     "enters"  
+[ ... and 337 more ]
+
+text5 :
+ [1] "Body"   "India"  ","      "Aug"    "."      "8"      "-"      "After" 
+ [9] "Neeraj" "Chopra" "became" "the"   
+[ ... and 412 more ]
+
+text6 :
+ [1] "Body"      "If"        "you're"    "wondering" "who"       "are"      
+ [7] "these"     "ROC"       "athletes"  "winning"   "so"        "many"     
+[ ... and 455 more ]</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co">#as.character(newspaper_tokens[1])</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="co">#sprintf(as.character(newspaper_tokens[1]))</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="removing-punctuation" class="level1">
+<h1>Removing punctuation</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>newspaper_tokens <span class="ot">&lt;-</span> <span class="fu">tokens</span>(newspaper_tokens ,</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">remove_punct =</span> T)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(newspaper_tokens)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Tokens consisting of 6 documents and 2 docvars.
+text1 :
+ [1] "Body"     "Mumbai"   "Aug"      "9"        "From"     "a"       
+ [7] "solitary" "two-day"  "fixture"  "between"  "Great"    "Britain" 
+[ ... and 501 more ]
+
+text2 :
+ [1] "Body"       "India"      "Aug"        "2"          "Tokyo"     
+ [6] "Olympics"   "Day"        "10"         "Full"       "Schedule"  
+[11] "Kamalpreet" "Kaur"      
+[ ... and 208 more ]
+
+text3 :
+ [1] "Body"           "After"          "the"            "best-ever"     
+ [5] "performance"    "at"             "the"            "just-concluded"
+ [9] "Tokyo"          "Olympics"       "India"          "shall"         
+[ ... and 783 more ]
+
+text4 :
+ [1] "Body"     "New"      "Delhi"    "July"     "28"       "The"     
+ [7] "Tokyo"    "Olympics" "2020"     "enters"   "the"      "fifth"   
+[ ... and 293 more ]
+
+text5 :
+ [1] "Body"   "India"  "Aug"    "8"      "After"  "Neeraj" "Chopra" "became"
+ [9] "the"    "second" "Indian" "ever"  
+[ ... and 372 more ]
+
+text6 :
+ [1] "Body"      "If"        "you're"    "wondering" "who"       "are"      
+ [7] "these"     "ROC"       "athletes"  "winning"   "so"        "many"     
+[ ... and 416 more ]</code></pre>
+</div>
+</div>
+</section>
+<section id="removing-stopwords" class="level1">
+<h1>Removing stopwords</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>withoutstopwords_news<span class="ot">&lt;-</span> <span class="fu">tokens_select</span>(newspaper_tokens, </span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>                    <span class="at">pattern =</span> <span class="fu">stopwords</span>(<span class="st">"en"</span>),</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">select =</span> <span class="st">"remove"</span>)</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(withoutstopwords_news)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Tokens consisting of 6 documents and 2 docvars.
+text1 :
+ [1] "Body"     "Mumbai"   "Aug"      "9"        "solitary" "two-day" 
+ [7] "fixture"  "Great"    "Britain"  "France"   "1900"     "Olympics"
+[ ... and 292 more ]
+
+text2 :
+ [1] "Body"       "India"      "Aug"        "2"          "Tokyo"     
+ [6] "Olympics"   "Day"        "10"         "Full"       "Schedule"  
+[11] "Kamalpreet" "Kaur"      
+[ ... and 161 more ]
+
+text3 :
+ [1] "Body"           "best-ever"      "performance"    "just-concluded"
+ [5] "Tokyo"          "Olympics"       "India"          "shall"         
+ [9] "look"           "breaking"       "top"            "10"            
+[ ... and 456 more ]
+
+text4 :
+ [1] "Body"     "New"      "Delhi"    "July"     "28"       "Tokyo"   
+ [7] "Olympics" "2020"     "enters"   "fifth"    "day"      "begin"   
+[ ... and 212 more ]
+
+text5 :
+ [1] "Body"       "India"      "Aug"        "8"          "Neeraj"    
+ [6] "Chopra"     "became"     "second"     "Indian"     "ever"      
+[11] "win"        "individual"
+[ ... and 230 more ]
+
+text6 :
+ [1] "Body"       "wondering"  "ROC"        "athletes"   "winning"   
+ [6] "many"       "medals"     "Tokyo"      "Olympics"   "everything"
+[11] "need"       "know"      
+[ ... and 230 more ]</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co">#summary(withoutstopwords_news)</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="co">#as.character(withoutstopwords_news)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="keyword-in-context" class="level1">
+<h1>Keyword in context</h1>
+<p>Since I want to look at women’s and men’s sports, I tried looking at the keyword-in-context for the words women and men.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>kwic_women<span class="ot">&lt;-</span> <span class="fu">kwic</span>(withoutstopwords_news,</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">pattern =</span> <span class="fu">c</span>(<span class="st">"women"</span>))</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>kwic_men<span class="ot">&lt;-</span><span class="fu">kwic</span>(withoutstopwords_news,</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">pattern =</span> <span class="fu">c</span>(<span class="st">"men"</span>))</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(kwic_women)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Keyword-in-context with 6 matches.                                                                 
+  [text1, 20]          inclusion 8-team medal sport men | women |
+ [text1, 228] Olympics learnt require participation men | women |
+ [text3, 274]              valiantly win medal 41 years | women |
+ [text3, 304]     happy take note spectacular emergence | women |
+ [text3, 318]              2016 Rio games medal winners | women |
+ [text3, 324]           Tokyo three seven medal winners | women |
+                                           
+ Los Angeles 2028 brightened International 
+ T20 emerged format choice despite         
+ bravehearts made Olympics debut 1980      
+ athletes international sports arena coming
+ Tokyo three seven medal winners           
+ golden record men's hockey team           </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(kwic_men)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Keyword-in-context with 6 matches.                                                                   
+  [text1, 19]        cricket's inclusion 8-team medal sport | men |
+ [text1, 227] cricket Olympics learnt require participation | men |
+ [text7, 164]            IST SAILING Vishnu Saravanan Laser | Men |
+ [text7, 175]         IST Ganapathy Kelapanda Varun Thakkar | Men |
+ [text19, 21]      Olympics 2020 performance Manpreet Singh | men |
+ [text31, 21]     Recently 78-year-old actor shared analogy | men |
+                                        
+ women Los Angeles 2028 brightened      
+ women T20 emerged format choice        
+ Race 7 8 8 35                          
+ Race 5 6 8 35                          
+ taken social media storm Several       
+ women's Indian hockey performance Tokyo</code></pre>
+</div>
+</div>
+</section>
+<section id="creating-a-tokens-object-with-bigrams-and-trigrams" class="level1">
+<h1>Creating a tokens object with bigrams and trigrams</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>news_ngrams <span class="ot">&lt;-</span> <span class="fu">tokens_ngrams</span>(withoutstopwords_news, <span class="at">n=</span><span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(news_ngrams)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Tokens consisting of 6 documents and 2 docvars.
+text1 :
+ [1] "Body_Mumbai"        "Mumbai_Aug"         "Aug_9"             
+ [4] "9_solitary"         "solitary_two-day"   "two-day_fixture"   
+ [7] "fixture_Great"      "Great_Britain"      "Britain_France"    
+[10] "France_1900"        "1900_Olympics"      "Olympics_prospects"
+[ ... and 593 more ]
+
+text2 :
+ [1] "Body_India"          "India_Aug"           "Aug_2"              
+ [4] "2_Tokyo"             "Tokyo_Olympics"      "Olympics_Day"       
+ [7] "Day_10"              "10_Full"             "Full_Schedule"      
+[10] "Schedule_Kamalpreet" "Kamalpreet_Kaur"     "Kaur_stunned"       
+[ ... and 331 more ]
+
+text3 :
+ [1] "Body_best-ever"             "best-ever_performance"     
+ [3] "performance_just-concluded" "just-concluded_Tokyo"      
+ [5] "Tokyo_Olympics"             "Olympics_India"            
+ [7] "India_shall"                "shall_look"                
+ [9] "look_breaking"              "breaking_top"              
+[11] "top_10"                     "10_earliest"               
+[ ... and 921 more ]
+
+text4 :
+ [1] "Body_New"       "New_Delhi"      "Delhi_July"     "July_28"       
+ [5] "28_Tokyo"       "Tokyo_Olympics" "Olympics_2020"  "2020_enters"   
+ [9] "enters_fifth"   "fifth_day"      "day_begin"      "begin_Indian"  
+[ ... and 433 more ]
+
+text5 :
+ [1] "Body_India"      "India_Aug"       "Aug_8"           "8_Neeraj"       
+ [5] "Neeraj_Chopra"   "Chopra_became"   "became_second"   "second_Indian"  
+ [9] "Indian_ever"     "ever_win"        "win_individual"  "individual_gold"
+[ ... and 469 more ]
+
+text6 :
+ [1] "Body_wondering"      "wondering_ROC"       "ROC_athletes"       
+ [4] "athletes_winning"    "winning_many"        "many_medals"        
+ [7] "medals_Tokyo"        "Tokyo_Olympics"      "Olympics_everything"
+[10] "everything_need"     "need_know"           "know_ROC"           
+[ ... and 469 more ]</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span>(news_ngrams)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Tokens consisting of 6 documents and 2 docvars.
+text1186 :
+ [1] "Body_Diamond"           "Diamond_baron"          "baron_Savji"           
+ [4] "Savji_Dholakia"         "Dholakia_made"          "made_yet"              
+ [7] "yet_another"            "another_announcement"   "announcement_declaring"
+[10] "declaring_award"        "award_Rs"               "Rs_2.5"                
+[ ... and 183 more ]
+
+text1187 :
+ [1] "Body_THE.WAIT.HAS.ENDED"  "THE.WAIT.HAS.ENDED_men's"
+ [3] "men's_hockey"             "hockey_team"             
+ [5] "team_every"               "every_Indian"            
+ [7] "Indian_dreaming"          "dreaming_winning"        
+ [9] "winning_Olympic"          "Olympic_medal"           
+[11] "medal_Indian"             "Indian_side"             
+[ ... and 147 more ]
+
+text1188 :
+ [1] "Body_New"             "New_Delhi"            "Delhi_Indian"        
+ [4] "Indian_sports"        "sports_fraternity"    "fraternity_including"
+ [7] "including_cricketing" "cricketing_greats"    "greats_Sachin"       
+[10] "Sachin_Tendulkar"     "Tendulkar_country's"  "country's_white-ball"
+[ ... and 63 more ]
+
+text1189 :
+ [1] "Body_India's"       "India's_Equestrian" "Equestrian_Fouaad" 
+ [4] "Fouaad_Mirza"       "Mirza_Seigneur"     "Seigneur_Medicott" 
+ [7] "Medicott_qualified" "qualified_Jumping"  "Jumping_Individual"
+[10] "Individual_Finals"  "Finals_got"         "got_8"             
+[ ... and 191 more ]
+
+text1190 :
+ [1] "Body_Saturday"    "Saturday_Saikhom" "Saikhom_Mirabai"  "Mirabai_Chanu"   
+ [5] "Chanu_stood"      "stood_podium"     "podium_Tokyo"     "Tokyo_silver"    
+ [9] "silver_medal"     "medal_around"     "around_neck"      "neck_two"        
+[ ... and 215 more ]
+
+text1191 :
+ [1] "Body_Mirabai"            "Mirabai_Chanu"          
+ [3] "Chanu_said"              "said_failed"            
+ [5] "failed_campaign"         "campaign_Rio"           
+ [7] "Rio_taught"              "taught_overcome"        
+ [9] "overcome_disappointment" "disappointment_make"    
+[11] "make_fresh"              "fresh_start"            
+[ ... and 213 more ]</code></pre>
+</div>
+</div>
+</section>
+<section id="word-cloud" class="level1">
+<h1>Word Cloud</h1>
+<p>I created a word cloud to check if there are any words other than the stopwords to be removed. The words- classification, publication-type and body should ideally be removed.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create the dfm</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>news_dfm <span class="ot">&lt;-</span> <span class="fu">dfm</span>(<span class="fu">tokens</span>(withoutstopwords_news))</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="co"># find out a quick summary of the dfm</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>news_dfm</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Document-feature matrix of: 1,191 documents, 22,788 features (99.15% sparse) and 2 docvars.
+       features
+docs    body mumbai aug 9 solitary two-day fixture great britain france
+  text1    1      1   1 1        1       1       1     1       1      1
+  text2    1      0   1 0        0       0       0     0       0      0
+  text3    1      0   0 0        0       0       0     0       0      0
+  text4    1      0   0 0        0       0       0     2       2      0
+  text5    1      0   1 0        0       0       0     0       0      0
+  text6    1      0   0 0        0       0       0     0       0      0
+[ reached max_ndoc ... 1,185 more documents, reached max_nfeat ... 22,778 more features ]</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">textplot_wordcloud</span>(news_dfm, <span class="at">min_count =</span> <span class="dv">50</span>, <span class="at">random_order =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in wordcloud(x, min_size, max_size, min_count, max_words, color, :
+#tokyo2020 could not be fit on page. It will not be plotted.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in wordcloud(x, min_size, max_size, min_count, max_words, color, :
+parents could not be fit on page. It will not be plotted.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in wordcloud(x, min_size, max_size, min_count, max_words, color, :
+becoming could not be fit on page. It will not be plotted.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in wordcloud(x, min_size, max_size, min_count, max_words, color, :
+corners could not be fit on page. It will not be plotted.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in wordcloud(x, min_size, max_size, min_count, max_words, color, :
+almost could not be fit on page. It will not be plotted.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in wordcloud(x, min_size, max_size, min_count, max_words, color, : story
+could not be fit on page. It will not be plotted.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="2DecBlogPost2Mekhala-Kumar_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } 
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+<script src="https://giscus.app/client.js" data-repo="DACSS/Text_as_Data_Fall_2022" data-repo-id="R_kgDOH5675w" data-category="Announcements" data-category-id="" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
+</script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb42" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Blog Post 2 "</span></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Mekhala Kumar"</span></span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a><span class="an">description:</span><span class="co"> "Reading in Data and Preprocessing"</span></span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "11/15/2022"</span></span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a><span class="co">    code-copy: true</span></span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span></span>
+<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a><span class="co">  - MekhalaKumar</span></span>
+<span id="cb42-13"><a href="#cb42-13" aria-hidden="true" tabindex="-1"></a><span class="co">  - Olympics2020</span></span>
+<span id="cb42-14"><a href="#cb42-14" aria-hidden="true" tabindex="-1"></a><span class="co">  - GenderandSports</span></span>
+<span id="cb42-15"><a href="#cb42-15" aria-hidden="true" tabindex="-1"></a><span class="co">  - BlogPost2</span></span>
+<span id="cb42-16"><a href="#cb42-16" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb42-17"><a href="#cb42-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-20"><a href="#cb42-20" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb42-21"><a href="#cb42-21" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: setup</span></span>
+<span id="cb42-22"><a href="#cb42-22" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb42-23"><a href="#cb42-23" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb42-24"><a href="#cb42-24" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb42-25"><a href="#cb42-25" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda)</span>
+<span id="cb42-26"><a href="#cb42-26" aria-hidden="true" tabindex="-1"></a><span class="co">#devtools::install_github("quanteda/readtext") </span></span>
+<span id="cb42-27"><a href="#cb42-27" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readtext)</span>
+<span id="cb42-28"><a href="#cb42-28" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(striprtf)</span>
+<span id="cb42-29"><a href="#cb42-29" aria-hidden="true" tabindex="-1"></a><span class="co">#library(LexisNexisTools)</span></span>
+<span id="cb42-30"><a href="#cb42-30" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(corpus)</span>
+<span id="cb42-31"><a href="#cb42-31" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda.textplots)</span>
+<span id="cb42-32"><a href="#cb42-32" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb42-33"><a href="#cb42-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-34"><a href="#cb42-34" aria-hidden="true" tabindex="-1"></a><span class="fu"># About the Data and Collection Process</span></span>
+<span id="cb42-35"><a href="#cb42-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-36"><a href="#cb42-36" aria-hidden="true" tabindex="-1"></a>I will be looking into how women's and men's sports were described, specifically in the context of the Tokyo Olympics 2020. The data used for this project is a collection of Indian newspaper archives from LexisNexis, from July 22,2021 to August 9, 2021 (as the Olympics were held between 23 July-8 August). I tried a few ways to collect the articles. At first, I tried scraping the Deccan Herald website and then tried scraping the LexisNexis archive. However, I was unable to do so. Hence, I downloaded articles from LexisNexis. The articles were collected after filtering the database. These filters were: Jul 22,2021 to Aug 09,2021, Asia, India, Men's Sports/Women's Sports/Sports Awards, Newspapers/web-based publications, a set of newspapers which were: Hindustan Times, Times of India (Electronic Edition), Free Press Journal (India), The Telegraph (India), Indian Express, Mint, DNA, India Today Online, The Hindu and Economic Times.</span>
+<span id="cb42-37"><a href="#cb42-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-38"><a href="#cb42-38" aria-hidden="true" tabindex="-1"></a><span class="fu"># Initial steps </span></span>
+<span id="cb42-39"><a href="#cb42-39" aria-hidden="true" tabindex="-1"></a>At first, I tried reading in the data for one file and looked for the different components present, in order to understand what I needed to extract. \</span>
+<span id="cb42-40"><a href="#cb42-40" aria-hidden="true" tabindex="-1"></a>Since, it was causing errors to load the files, I have provided the code of how I read in the files and extracted information as comments.\</span>
+<span id="cb42-41"><a href="#cb42-41" aria-hidden="true" tabindex="-1"></a>I have loaded in the data using an R object. </span>
+<span id="cb42-44"><a href="#cb42-44" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb42-45"><a href="#cb42-45" aria-hidden="true" tabindex="-1"></a><span class="co">#my_texts &lt;- readtext(paste0("D:/Text as Data/Files(100) Set 1.rtf"),text_field = "texts")</span></span>
+<span id="cb42-46"><a href="#cb42-46" aria-hidden="true" tabindex="-1"></a><span class="co">#testing &lt;- as.character(my_texts)</span></span>
+<span id="cb42-47"><a href="#cb42-47" aria-hidden="true" tabindex="-1"></a><span class="co">#testing</span></span>
+<span id="cb42-48"><a href="#cb42-48" aria-hidden="true" tabindex="-1"></a><span class="co">#typeof(testing)</span></span>
+<span id="cb42-49"><a href="#cb42-49" aria-hidden="true" tabindex="-1"></a><span class="co">#str_length(testing)</span></span>
+<span id="cb42-50"><a href="#cb42-50" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb42-51"><a href="#cb42-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-52"><a href="#cb42-52" aria-hidden="true" tabindex="-1"></a><span class="fu"># Components</span></span>
+<span id="cb42-53"><a href="#cb42-53" aria-hidden="true" tabindex="-1"></a>The body of the article is the main text required. In order to extract this, I found the index value of where the body of the text started. Additionally, I collected the index values for the information of the newspaper name, date and classifications.</span>
+<span id="cb42-54"><a href="#cb42-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-55"><a href="#cb42-55" aria-hidden="true" tabindex="-1"></a><span class="fu">## 3 issues I noticed while doing this step were:</span></span>
+<span id="cb42-56"><a href="#cb42-56" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>The titles of each article were not saved when the file was read in.</span>
+<span id="cb42-57"><a href="#cb42-57" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>The dateline which included the location or date was not present for every article. </span>
+<span id="cb42-58"><a href="#cb42-58" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>I had thought of using the index position of nPublished, as it denoted the end of the body of the article. However, this was not present for all the articles. </span>
+<span id="cb42-61"><a href="#cb42-61" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb42-62"><a href="#cb42-62" aria-hidden="true" tabindex="-1"></a><span class="co">#Components</span></span>
+<span id="cb42-63"><a href="#cb42-63" aria-hidden="true" tabindex="-1"></a><span class="co">#indices_name&lt;-str_locate_all(testing, "\n\n\n\n\n\n")%&gt;%unlist()</span></span>
+<span id="cb42-64"><a href="#cb42-64" aria-hidden="true" tabindex="-1"></a><span class="co">#indices_name</span></span>
+<span id="cb42-65"><a href="#cb42-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-66"><a href="#cb42-66" aria-hidden="true" tabindex="-1"></a><span class="co">#indices_date&lt;-str_locate_all(testing,"\nDateline")</span></span>
+<span id="cb42-67"><a href="#cb42-67" aria-hidden="true" tabindex="-1"></a><span class="co">#indices_date</span></span>
+<span id="cb42-68"><a href="#cb42-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-69"><a href="#cb42-69" aria-hidden="true" tabindex="-1"></a><span class="co">#For the actual text</span></span>
+<span id="cb42-70"><a href="#cb42-70" aria-hidden="true" tabindex="-1"></a><span class="co">#indices_body&lt;-str_locate_all(testing,"\nBody")%&gt;%unlist()</span></span>
+<span id="cb42-71"><a href="#cb42-71" aria-hidden="true" tabindex="-1"></a><span class="co">#indices_body</span></span>
+<span id="cb42-72"><a href="#cb42-72" aria-hidden="true" tabindex="-1"></a><span class="co">#indices_body_end&lt;-str_locate_all(testing,"\nPublished")%&gt;%unlist()</span></span>
+<span id="cb42-73"><a href="#cb42-73" aria-hidden="true" tabindex="-1"></a><span class="co">#indices_body_end</span></span>
+<span id="cb42-74"><a href="#cb42-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-75"><a href="#cb42-75" aria-hidden="true" tabindex="-1"></a><span class="co">#Subject and classifications </span></span>
+<span id="cb42-76"><a href="#cb42-76" aria-hidden="true" tabindex="-1"></a><span class="co">#indices_classification&lt;-str_locate_all(testing,"\nSubject")%&gt;%unlist()</span></span>
+<span id="cb42-77"><a href="#cb42-77" aria-hidden="true" tabindex="-1"></a><span class="co">#indices_classification</span></span>
+<span id="cb42-78"><a href="#cb42-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-79"><a href="#cb42-79" aria-hidden="true" tabindex="-1"></a><span class="co">#Document end</span></span>
+<span id="cb42-80"><a href="#cb42-80" aria-hidden="true" tabindex="-1"></a><span class="co">#indices_end&lt;-str_locate_all(testing,"\nEnd of Document")%&gt;%unlist()</span></span>
+<span id="cb42-81"><a href="#cb42-81" aria-hidden="true" tabindex="-1"></a><span class="co">#indices_end</span></span>
+<span id="cb42-82"><a href="#cb42-82" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb42-83"><a href="#cb42-83" aria-hidden="true" tabindex="-1"></a><span class="fu"># Creating the dataframe for 1 file</span></span>
+<span id="cb42-84"><a href="#cb42-84" aria-hidden="true" tabindex="-1"></a>I tried creating a dataframe for the articles in 1 file and faced issues when I tried to separate information such as the few words before the body of the article starts (such as date and location). </span>
+<span id="cb42-87"><a href="#cb42-87" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb42-88"><a href="#cb42-88" aria-hidden="true" tabindex="-1"></a><span class="co">#df_test &lt;- data.frame(matrix(ncol = 3, nrow = 1191))%&gt;% rename(</span></span>
+<span id="cb42-89"><a href="#cb42-89" aria-hidden="true" tabindex="-1"></a> <span class="co">#   Newspaper_Date=X1 ,</span></span>
+<span id="cb42-90"><a href="#cb42-90" aria-hidden="true" tabindex="-1"></a>  <span class="co">#  Body=X2,</span></span>
+<span id="cb42-91"><a href="#cb42-91" aria-hidden="true" tabindex="-1"></a>  <span class="co">#  Tags=X3</span></span>
+<span id="cb42-92"><a href="#cb42-92" aria-hidden="true" tabindex="-1"></a>   <span class="co"># )</span></span>
+<span id="cb42-93"><a href="#cb42-93" aria-hidden="true" tabindex="-1"></a><span class="co">#Testing with a smaller set</span></span>
+<span id="cb42-94"><a href="#cb42-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-95"><a href="#cb42-95" aria-hidden="true" tabindex="-1"></a><span class="co">#for (i in 1:3){</span></span>
+<span id="cb42-96"><a href="#cb42-96" aria-hidden="true" tabindex="-1"></a> <span class="co"># df_test[i,1]&lt;-str_sub(testing,indices_name[i],indices_body[i])</span></span>
+<span id="cb42-97"><a href="#cb42-97" aria-hidden="true" tabindex="-1"></a> <span class="co"># df_test[i,2]&lt;-str_sub(testing,indices_body[i],indices_body_end[i])</span></span>
+<span id="cb42-98"><a href="#cb42-98" aria-hidden="true" tabindex="-1"></a>  <span class="co">#df_test[i,3]&lt;-str_sub(testing,indices_classification[i],indices_end[i])</span></span>
+<span id="cb42-99"><a href="#cb42-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-100"><a href="#cb42-100" aria-hidden="true" tabindex="-1"></a><span class="co">#}</span></span>
+<span id="cb42-101"><a href="#cb42-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-102"><a href="#cb42-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-103"><a href="#cb42-103" aria-hidden="true" tabindex="-1"></a><span class="co">#df_test&lt;-df_test%&gt;%separate(Newspaper_Date, into=c("Newspaper_Date", "Delete"), sep="Copyright")%&gt;%select(-Delete)</span></span>
+<span id="cb42-104"><a href="#cb42-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-105"><a href="#cb42-105" aria-hidden="true" tabindex="-1"></a><span class="co">#for (i in 1:100){</span></span>
+<span id="cb42-106"><a href="#cb42-106" aria-hidden="true" tabindex="-1"></a><span class="co"># df[i,1]&lt;-str_sub(testing,indices_name[i],indices_body[i])</span></span>
+<span id="cb42-107"><a href="#cb42-107" aria-hidden="true" tabindex="-1"></a><span class="co"># df[i,2]&lt;-str_sub(testing,indices_body[i],indices_classification[i])</span></span>
+<span id="cb42-108"><a href="#cb42-108" aria-hidden="true" tabindex="-1"></a><span class="co"># df[i,3]&lt;-str_sub(testing,indices_classification[i],indices_end[i])</span></span>
+<span id="cb42-109"><a href="#cb42-109" aria-hidden="true" tabindex="-1"></a><span class="co"># }</span></span>
+<span id="cb42-110"><a href="#cb42-110" aria-hidden="true" tabindex="-1"></a><span class="co">#\nPublished not there everywhere so did not work</span></span>
+<span id="cb42-111"><a href="#cb42-111" aria-hidden="true" tabindex="-1"></a><span class="co">#for (i in 1:100){</span></span>
+<span id="cb42-112"><a href="#cb42-112" aria-hidden="true" tabindex="-1"></a> <span class="co"># df[i,1]&lt;-str_sub(testing,indices_name[i],indices_body[i])</span></span>
+<span id="cb42-113"><a href="#cb42-113" aria-hidden="true" tabindex="-1"></a>  <span class="co">#df[i,2]&lt;-str_sub(testing,indices_body[i],indices_classification[i])</span></span>
+<span id="cb42-114"><a href="#cb42-114" aria-hidden="true" tabindex="-1"></a>  <span class="co">#df[i,3]&lt;-str_sub(testing,indices_classification[i],indices_end[i])</span></span>
+<span id="cb42-115"><a href="#cb42-115" aria-hidden="true" tabindex="-1"></a><span class="co">#}</span></span>
+<span id="cb42-116"><a href="#cb42-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-117"><a href="#cb42-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-118"><a href="#cb42-118" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb42-119"><a href="#cb42-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-120"><a href="#cb42-120" aria-hidden="true" tabindex="-1"></a><span class="fu"># Reading all the files</span></span>
+<span id="cb42-121"><a href="#cb42-121" aria-hidden="true" tabindex="-1"></a>This reads in the entire collection of files. The rest of the post works with the data from all the files. \</span>
+<span id="cb42-124"><a href="#cb42-124" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb42-125"><a href="#cb42-125" aria-hidden="true" tabindex="-1"></a><span class="co">#my_text1 &lt;- readtext(paste0("Data/Files(100) Set 1.rtf"),text_field = "texts")</span></span>
+<span id="cb42-126"><a href="#cb42-126" aria-hidden="true" tabindex="-1"></a><span class="co">#my_text2 &lt;- readtext(paste0("Data/Files(100) Set 2.rtf"),text_field = "texts")</span></span>
+<span id="cb42-127"><a href="#cb42-127" aria-hidden="true" tabindex="-1"></a><span class="co">#my_text3 &lt;- readtext(paste0("Data/Files(100) Set 3.rtf"),text_field = "texts")</span></span>
+<span id="cb42-128"><a href="#cb42-128" aria-hidden="true" tabindex="-1"></a><span class="co">#my_text4 &lt;- readtext(paste0("Data/Files(100) Set 4.rtf"),text_field = "texts")</span></span>
+<span id="cb42-129"><a href="#cb42-129" aria-hidden="true" tabindex="-1"></a><span class="co">#my_text5 &lt;- readtext(paste0("Data/Files(100) Set 5.rtf"),text_field = "texts")</span></span>
+<span id="cb42-130"><a href="#cb42-130" aria-hidden="true" tabindex="-1"></a><span class="co">#my_text6 &lt;- readtext(paste0("Data/Files(100) Set 6.rtf"),text_field = "texts")</span></span>
+<span id="cb42-131"><a href="#cb42-131" aria-hidden="true" tabindex="-1"></a><span class="co">#my_text7 &lt;- readtext(paste0("Data/Files(100) Set 7.rtf"),text_field = "texts")</span></span>
+<span id="cb42-132"><a href="#cb42-132" aria-hidden="true" tabindex="-1"></a><span class="co">#my_text8 &lt;- readtext(paste0("Data/Files(100) Set 8.rtf"),text_field = "texts")</span></span>
+<span id="cb42-133"><a href="#cb42-133" aria-hidden="true" tabindex="-1"></a><span class="co">#my_text9 &lt;- readtext(paste0("Data/Files(100) Set 9.rtf"),text_field = "texts")</span></span>
+<span id="cb42-134"><a href="#cb42-134" aria-hidden="true" tabindex="-1"></a><span class="co">#my_text10 &lt;- readtext(paste0("Data/Files(100) Set 10.rtf"),text_field = "texts")</span></span>
+<span id="cb42-135"><a href="#cb42-135" aria-hidden="true" tabindex="-1"></a><span class="co">#my_text11 &lt;- readtext(paste0("Data/Files(100) Set 11.rtf"),text_field = "texts")</span></span>
+<span id="cb42-136"><a href="#cb42-136" aria-hidden="true" tabindex="-1"></a><span class="co">#my_text12 &lt;- readtext(paste0("Data/Files(91) Set 12.rtf"),text_field = "texts")</span></span>
+<span id="cb42-137"><a href="#cb42-137" aria-hidden="true" tabindex="-1"></a><span class="co">#files&lt;-c(my_text1,my_text2,my_text3,my_text4,my_text5,my_text6,my_text7,my_text8,my_text9,my_text10,my_text11,my_text12)</span></span>
+<span id="cb42-138"><a href="#cb42-138" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb42-139"><a href="#cb42-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-140"><a href="#cb42-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-141"><a href="#cb42-141" aria-hidden="true" tabindex="-1"></a><span class="fu"># Putting the information into a dataframe</span></span>
+<span id="cb42-142"><a href="#cb42-142" aria-hidden="true" tabindex="-1"></a>Using a nested for loop, I collected the index positions for the different components of each newspaper article and created a dataframe to put in the data. For the last file, I made a separate for loop since it had fewer articles to be read in and put into a dataframe. </span>
+<span id="cb42-143"><a href="#cb42-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-144"><a href="#cb42-144" aria-hidden="true" tabindex="-1"></a><span class="fu">## Some issues I faced here:</span></span>
+<span id="cb42-145"><a href="#cb42-145" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Before the beginning of the article, the word body as well as the location and date are often mentioned. However, there was no constant separator that could be used. </span>
+<span id="cb42-146"><a href="#cb42-146" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>For articles 767-800, the newspaper and date were not read in. Due to this, I could not perform any operations on the column to remove unnecessary text. </span>
+<span id="cb42-149"><a href="#cb42-149" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb42-150"><a href="#cb42-150" aria-hidden="true" tabindex="-1"></a><span class="co">#df1 &lt;- data.frame(matrix(ncol = 3, nrow = 1100))%&gt;% rename(</span></span>
+<span id="cb42-151"><a href="#cb42-151" aria-hidden="true" tabindex="-1"></a> <span class="co">#   Newspaper_Date=X1 ,</span></span>
+<span id="cb42-152"><a href="#cb42-152" aria-hidden="true" tabindex="-1"></a>  <span class="co">#  Body=X2,</span></span>
+<span id="cb42-153"><a href="#cb42-153" aria-hidden="true" tabindex="-1"></a>   <span class="co"># Tags=X3</span></span>
+<span id="cb42-154"><a href="#cb42-154" aria-hidden="true" tabindex="-1"></a>   <span class="co"># )</span></span>
+<span id="cb42-155"><a href="#cb42-155" aria-hidden="true" tabindex="-1"></a><span class="co">#k=0</span></span>
+<span id="cb42-156"><a href="#cb42-156" aria-hidden="true" tabindex="-1"></a><span class="co">#for (i in seq(2,22,2)){</span></span>
+<span id="cb42-157"><a href="#cb42-157" aria-hidden="true" tabindex="-1"></a>  <span class="co">#testing &lt;- as.character(files[i])</span></span>
+<span id="cb42-158"><a href="#cb42-158" aria-hidden="true" tabindex="-1"></a>  <span class="co">#indices_name&lt;-str_locate_all(testing, "\n\n\n\n\n\n")%&gt;%unlist()</span></span>
+<span id="cb42-159"><a href="#cb42-159" aria-hidden="true" tabindex="-1"></a>  <span class="co">#indices_body&lt;-str_locate_all(testing,"\nBody")%&gt;%unlist()</span></span>
+<span id="cb42-160"><a href="#cb42-160" aria-hidden="true" tabindex="-1"></a>  <span class="co">#indices_classification&lt;-str_locate_all(testing,"\nSubject")%&gt;%unlist()</span></span>
+<span id="cb42-161"><a href="#cb42-161" aria-hidden="true" tabindex="-1"></a>  <span class="co">#indices_end&lt;-str_locate_all(testing,"\nEnd of Document")%&gt;%unlist()</span></span>
+<span id="cb42-162"><a href="#cb42-162" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb42-163"><a href="#cb42-163" aria-hidden="true" tabindex="-1"></a> <span class="co"># print(k)</span></span>
+<span id="cb42-164"><a href="#cb42-164" aria-hidden="true" tabindex="-1"></a><span class="co">#  for(j in 1:100){</span></span>
+<span id="cb42-165"><a href="#cb42-165" aria-hidden="true" tabindex="-1"></a> <span class="co">#   df1[k+j,1]&lt;-str_sub(testing,indices_name[j],indices_body[j])</span></span>
+<span id="cb42-166"><a href="#cb42-166" aria-hidden="true" tabindex="-1"></a>  <span class="co">#  df1[k+j,2]&lt;-str_sub(testing,indices_body[j],indices_classification[j])</span></span>
+<span id="cb42-167"><a href="#cb42-167" aria-hidden="true" tabindex="-1"></a>  <span class="co">#  df1[k+j,3]&lt;-str_sub(testing,indices_classification[j],indices_end[j])</span></span>
+<span id="cb42-168"><a href="#cb42-168" aria-hidden="true" tabindex="-1"></a>  <span class="co">#}</span></span>
+<span id="cb42-169"><a href="#cb42-169" aria-hidden="true" tabindex="-1"></a>  <span class="co">#k=k+100</span></span>
+<span id="cb42-170"><a href="#cb42-170" aria-hidden="true" tabindex="-1"></a>  <span class="co">#}</span></span>
+<span id="cb42-171"><a href="#cb42-171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-172"><a href="#cb42-172" aria-hidden="true" tabindex="-1"></a><span class="co">#df2 &lt;- data.frame(matrix(ncol = 3, nrow = 91))%&gt;% rename(</span></span>
+<span id="cb42-173"><a href="#cb42-173" aria-hidden="true" tabindex="-1"></a> <span class="co">#   Newspaper_Date=X1 ,</span></span>
+<span id="cb42-174"><a href="#cb42-174" aria-hidden="true" tabindex="-1"></a>  <span class="co">#  Body=X2,</span></span>
+<span id="cb42-175"><a href="#cb42-175" aria-hidden="true" tabindex="-1"></a>   <span class="co"># Tags=X3</span></span>
+<span id="cb42-176"><a href="#cb42-176" aria-hidden="true" tabindex="-1"></a>    <span class="co">#)</span></span>
+<span id="cb42-177"><a href="#cb42-177" aria-hidden="true" tabindex="-1"></a><span class="co">#testing &lt;- as.character(files[24])</span></span>
+<span id="cb42-178"><a href="#cb42-178" aria-hidden="true" tabindex="-1"></a><span class="co">#indices_name&lt;-str_locate_all(testing, "\n\n\n\n\n\n")%&gt;%unlist()</span></span>
+<span id="cb42-179"><a href="#cb42-179" aria-hidden="true" tabindex="-1"></a><span class="co">#indices_body&lt;-str_locate_all(testing,"\nBody")%&gt;%unlist()</span></span>
+<span id="cb42-180"><a href="#cb42-180" aria-hidden="true" tabindex="-1"></a><span class="co">#indices_classification&lt;-str_locate_all(testing,"\nSubject")%&gt;%unlist()</span></span>
+<span id="cb42-181"><a href="#cb42-181" aria-hidden="true" tabindex="-1"></a><span class="co">#indices_end&lt;-str_locate_all(testing,"\nEnd of Document")%&gt;%unlist()</span></span>
+<span id="cb42-182"><a href="#cb42-182" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-183"><a href="#cb42-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-184"><a href="#cb42-184" aria-hidden="true" tabindex="-1"></a><span class="co">#for(l in 1:91){</span></span>
+<span id="cb42-185"><a href="#cb42-185" aria-hidden="true" tabindex="-1"></a> <span class="co"># df2[l,1]&lt;-str_sub(testing,indices_name[l],indices_body[l])</span></span>
+<span id="cb42-186"><a href="#cb42-186" aria-hidden="true" tabindex="-1"></a>  <span class="co">#df2[l,2]&lt;-str_sub(testing,indices_body[l],indices_classification[l])</span></span>
+<span id="cb42-187"><a href="#cb42-187" aria-hidden="true" tabindex="-1"></a>  <span class="co">#df2[l,3]&lt;-str_sub(testing,indices_classification[l],indices_end[l])</span></span>
+<span id="cb42-188"><a href="#cb42-188" aria-hidden="true" tabindex="-1"></a><span class="co">#}</span></span>
+<span id="cb42-189"><a href="#cb42-189" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-190"><a href="#cb42-190" aria-hidden="true" tabindex="-1"></a><span class="co">#df&lt;-rbind(df1,df2)</span></span>
+<span id="cb42-191"><a href="#cb42-191" aria-hidden="true" tabindex="-1"></a><span class="co">#Does not work because the information is missing for some</span></span>
+<span id="cb42-192"><a href="#cb42-192" aria-hidden="true" tabindex="-1"></a><span class="co">#df&lt;-df%&gt;%separate(Newspaper_Date, into=c("Newspaper_Date", "Delete"), sep="Copyright")%&gt;%select(-Delete)</span></span>
+<span id="cb42-193"><a href="#cb42-193" aria-hidden="true" tabindex="-1"></a><span class="co">#this does not work</span></span>
+<span id="cb42-194"><a href="#cb42-194" aria-hidden="true" tabindex="-1"></a><span class="co">#df&lt;-df%&gt;%separate(Newspaper_Date, into=c("Newspaper", "Date"), sep="{\n}")</span></span>
+<span id="cb42-195"><a href="#cb42-195" aria-hidden="true" tabindex="-1"></a><span class="co">#df&lt;-df_test%&gt;%separate(Newspaper_Date, into=c("Newspaper", "Date"), sep="[August|July]")</span></span>
+<span id="cb42-196"><a href="#cb42-196" aria-hidden="true" tabindex="-1"></a><span class="co">#df&lt;-df%&gt;%separate(Body,into=c("Delete","Body"),sep="--|Body")</span></span>
+<span id="cb42-197"><a href="#cb42-197" aria-hidden="true" tabindex="-1"></a><span class="co">#write.csv(df, "D:/Text as Data/Text_as_Data_Fall_2022/posts/output.csv", row.names=FALSE, quote=FALSE)</span></span>
+<span id="cb42-198"><a href="#cb42-198" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb42-199"><a href="#cb42-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-202"><a href="#cb42-202" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb42-203"><a href="#cb42-203" aria-hidden="true" tabindex="-1"></a>df_All<span class="ot">&lt;-</span><span class="fu">readRDS</span>(<span class="at">file =</span> <span class="st">"D:/Text as Data/All12Files.rds"</span>)</span>
+<span id="cb42-204"><a href="#cb42-204" aria-hidden="true" tabindex="-1"></a>df<span class="ot">&lt;-</span>df_All</span>
+<span id="cb42-205"><a href="#cb42-205" aria-hidden="true" tabindex="-1"></a><span class="co">#Does not work because the information is missing for some</span></span>
+<span id="cb42-206"><a href="#cb42-206" aria-hidden="true" tabindex="-1"></a>df<span class="ot">&lt;-</span>df<span class="sc">%&gt;%</span><span class="fu">separate</span>(Newspaper_Date, <span class="at">into=</span><span class="fu">c</span>(<span class="st">"Newspaper_Date"</span>, <span class="st">"Delete"</span>), <span class="at">sep=</span><span class="st">"Copyright"</span>)<span class="sc">%&gt;%</span><span class="fu">select</span>(<span class="sc">-</span>Delete)</span>
+<span id="cb42-207"><a href="#cb42-207" aria-hidden="true" tabindex="-1"></a><span class="co">#this does not work</span></span>
+<span id="cb42-208"><a href="#cb42-208" aria-hidden="true" tabindex="-1"></a><span class="co">#df&lt;-df%&gt;%separate(Newspaper_Date, into=c("Newspaper", "Date"), sep="{\n}")</span></span>
+<span id="cb42-209"><a href="#cb42-209" aria-hidden="true" tabindex="-1"></a><span class="co">#df&lt;-df_test%&gt;%separate(Newspaper_Date, into=c("Newspaper", "Date"), sep="[August|July]")</span></span>
+<span id="cb42-210"><a href="#cb42-210" aria-hidden="true" tabindex="-1"></a><span class="co">#df&lt;-df%&gt;%separate(Body,into=c("Delete","Body"),sep="--|Body")</span></span>
+<span id="cb42-211"><a href="#cb42-211" aria-hidden="true" tabindex="-1"></a><span class="co">#write.csv(df, "D:/Text as Data/Text_as_Data_Fall_2022/posts/output.csv", row.names=FALSE, quote=FALSE)</span></span>
+<span id="cb42-212"><a href="#cb42-212" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb42-213"><a href="#cb42-213" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-214"><a href="#cb42-214" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-215"><a href="#cb42-215" aria-hidden="true" tabindex="-1"></a><span class="fu"># Creating the corpus and looking at the number of tokens in each document</span></span>
+<span id="cb42-218"><a href="#cb42-218" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb42-219"><a href="#cb42-219" aria-hidden="true" tabindex="-1"></a>newspaper_corpus <span class="ot">&lt;-</span> <span class="fu">corpus</span>(df,<span class="at">text_field =</span> <span class="st">"Body"</span>)</span>
+<span id="cb42-220"><a href="#cb42-220" aria-hidden="true" tabindex="-1"></a>newspaper_corpus_summary <span class="ot">&lt;-</span> <span class="fu">summary</span>(newspaper_corpus)</span>
+<span id="cb42-221"><a href="#cb42-221" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(newspaper_corpus_summary)</span>
+<span id="cb42-222"><a href="#cb42-222" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-223"><a href="#cb42-223" aria-hidden="true" tabindex="-1"></a>newspaper_corpus_summary<span class="sc">$</span>Tokens</span>
+<span id="cb42-224"><a href="#cb42-224" aria-hidden="true" tabindex="-1"></a><span class="fu">ndoc</span>(newspaper_corpus)</span>
+<span id="cb42-225"><a href="#cb42-225" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb42-226"><a href="#cb42-226" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-227"><a href="#cb42-227" aria-hidden="true" tabindex="-1"></a><span class="fu"># Checking for metadata</span></span>
+<span id="cb42-228"><a href="#cb42-228" aria-hidden="true" tabindex="-1"></a>There was metadata but too many pages were being printed so I commented out the line. </span>
+<span id="cb42-231"><a href="#cb42-231" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb42-232"><a href="#cb42-232" aria-hidden="true" tabindex="-1"></a><span class="co">#docvars(newspaper_corpus)</span></span>
+<span id="cb42-233"><a href="#cb42-233" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb42-234"><a href="#cb42-234" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-235"><a href="#cb42-235" aria-hidden="true" tabindex="-1"></a><span class="fu"># Creating tokens</span></span>
+<span id="cb42-236"><a href="#cb42-236" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-237"><a href="#cb42-237" aria-hidden="true" tabindex="-1"></a>as.character function prints too many pages so it was commented out. </span>
+<span id="cb42-240"><a href="#cb42-240" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb42-241"><a href="#cb42-241" aria-hidden="true" tabindex="-1"></a>newspaper_tokens <span class="ot">&lt;-</span> <span class="fu">tokens</span>(newspaper_corpus)</span>
+<span id="cb42-242"><a href="#cb42-242" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(newspaper_tokens)</span>
+<span id="cb42-243"><a href="#cb42-243" aria-hidden="true" tabindex="-1"></a><span class="co">#as.character(newspaper_tokens[1])</span></span>
+<span id="cb42-244"><a href="#cb42-244" aria-hidden="true" tabindex="-1"></a><span class="co">#sprintf(as.character(newspaper_tokens[1]))</span></span>
+<span id="cb42-245"><a href="#cb42-245" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb42-246"><a href="#cb42-246" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-247"><a href="#cb42-247" aria-hidden="true" tabindex="-1"></a><span class="fu"># Removing punctuation</span></span>
+<span id="cb42-250"><a href="#cb42-250" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb42-251"><a href="#cb42-251" aria-hidden="true" tabindex="-1"></a>newspaper_tokens <span class="ot">&lt;-</span> <span class="fu">tokens</span>(newspaper_tokens ,</span>
+<span id="cb42-252"><a href="#cb42-252" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">remove_punct =</span> T)</span>
+<span id="cb42-253"><a href="#cb42-253" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(newspaper_tokens)</span>
+<span id="cb42-254"><a href="#cb42-254" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb42-255"><a href="#cb42-255" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-256"><a href="#cb42-256" aria-hidden="true" tabindex="-1"></a><span class="fu"># Removing stopwords</span></span>
+<span id="cb42-259"><a href="#cb42-259" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb42-260"><a href="#cb42-260" aria-hidden="true" tabindex="-1"></a>withoutstopwords_news<span class="ot">&lt;-</span> <span class="fu">tokens_select</span>(newspaper_tokens, </span>
+<span id="cb42-261"><a href="#cb42-261" aria-hidden="true" tabindex="-1"></a>                    <span class="at">pattern =</span> <span class="fu">stopwords</span>(<span class="st">"en"</span>),</span>
+<span id="cb42-262"><a href="#cb42-262" aria-hidden="true" tabindex="-1"></a>                    <span class="at">select =</span> <span class="st">"remove"</span>)</span>
+<span id="cb42-263"><a href="#cb42-263" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(withoutstopwords_news)</span>
+<span id="cb42-264"><a href="#cb42-264" aria-hidden="true" tabindex="-1"></a><span class="co">#summary(withoutstopwords_news)</span></span>
+<span id="cb42-265"><a href="#cb42-265" aria-hidden="true" tabindex="-1"></a><span class="co">#as.character(withoutstopwords_news)</span></span>
+<span id="cb42-266"><a href="#cb42-266" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-267"><a href="#cb42-267" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb42-268"><a href="#cb42-268" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-269"><a href="#cb42-269" aria-hidden="true" tabindex="-1"></a><span class="fu"># Keyword in context</span></span>
+<span id="cb42-270"><a href="#cb42-270" aria-hidden="true" tabindex="-1"></a>Since I want to look at women's and men's sports, I tried looking at the keyword-in-context for the words women and men. </span>
+<span id="cb42-273"><a href="#cb42-273" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb42-274"><a href="#cb42-274" aria-hidden="true" tabindex="-1"></a>kwic_women<span class="ot">&lt;-</span> <span class="fu">kwic</span>(withoutstopwords_news,</span>
+<span id="cb42-275"><a href="#cb42-275" aria-hidden="true" tabindex="-1"></a>                        <span class="at">pattern =</span> <span class="fu">c</span>(<span class="st">"women"</span>))</span>
+<span id="cb42-276"><a href="#cb42-276" aria-hidden="true" tabindex="-1"></a>kwic_men<span class="ot">&lt;-</span><span class="fu">kwic</span>(withoutstopwords_news,</span>
+<span id="cb42-277"><a href="#cb42-277" aria-hidden="true" tabindex="-1"></a>                        <span class="at">pattern =</span> <span class="fu">c</span>(<span class="st">"men"</span>))</span>
+<span id="cb42-278"><a href="#cb42-278" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(kwic_women)</span>
+<span id="cb42-279"><a href="#cb42-279" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(kwic_men)</span>
+<span id="cb42-280"><a href="#cb42-280" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb42-281"><a href="#cb42-281" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-282"><a href="#cb42-282" aria-hidden="true" tabindex="-1"></a><span class="fu"># Creating a tokens object with bigrams and trigrams </span></span>
+<span id="cb42-283"><a href="#cb42-283" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-286"><a href="#cb42-286" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb42-287"><a href="#cb42-287" aria-hidden="true" tabindex="-1"></a>news_ngrams <span class="ot">&lt;-</span> <span class="fu">tokens_ngrams</span>(withoutstopwords_news, <span class="at">n=</span><span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>)</span>
+<span id="cb42-288"><a href="#cb42-288" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(news_ngrams)</span>
+<span id="cb42-289"><a href="#cb42-289" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span>(news_ngrams)</span>
+<span id="cb42-290"><a href="#cb42-290" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb42-291"><a href="#cb42-291" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-292"><a href="#cb42-292" aria-hidden="true" tabindex="-1"></a><span class="fu"># Word Cloud</span></span>
+<span id="cb42-293"><a href="#cb42-293" aria-hidden="true" tabindex="-1"></a>I created a word cloud to check if there are any words other than the stopwords to be removed.</span>
+<span id="cb42-294"><a href="#cb42-294" aria-hidden="true" tabindex="-1"></a>The words- classification, publication-type and body should ideally be removed.</span>
+<span id="cb42-297"><a href="#cb42-297" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb42-298"><a href="#cb42-298" aria-hidden="true" tabindex="-1"></a><span class="co"># create the dfm</span></span>
+<span id="cb42-299"><a href="#cb42-299" aria-hidden="true" tabindex="-1"></a>news_dfm <span class="ot">&lt;-</span> <span class="fu">dfm</span>(<span class="fu">tokens</span>(withoutstopwords_news))</span>
+<span id="cb42-300"><a href="#cb42-300" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-301"><a href="#cb42-301" aria-hidden="true" tabindex="-1"></a><span class="co"># find out a quick summary of the dfm</span></span>
+<span id="cb42-302"><a href="#cb42-302" aria-hidden="true" tabindex="-1"></a>news_dfm</span>
+<span id="cb42-303"><a href="#cb42-303" aria-hidden="true" tabindex="-1"></a><span class="fu">textplot_wordcloud</span>(news_dfm, <span class="at">min_count =</span> <span class="dv">50</span>, <span class="at">random_order =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb42-304"><a href="#cb42-304" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+</body></html>
