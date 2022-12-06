@@ -1,0 +1,764 @@
+---
+title: "Blog 6-Focus on Sentiment Analysis of MA Gubernatorial Candidate Tweet Replies"
+author: "Rhowena Vespa"
+desription: "Predicting Election Results using Twitter Data"
+date: "11/30/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - Blog 6
+  - Twitter Replies
+  - Twarc2
+  - Rhowena Vespa
+  - Massachusetts Gubernatorial Elections
+  - Healey
+  - Diehl
+  - Sentiment Analysis
+ 
+---
+
+```{r}
+#| label: setup
+#| warning: false
+
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, StringsAsFActors= FALSE)
+```
+Update: For the final blog post, I have decided to focus on Sentiment Analysis and any correlation to Twitter Data.
+This post builds on previous blog posts and a more detailed analysis on sentiments from Twitter Data
+
+This project analyzes Twitter engagement of specific Massachusetts Governor Candidates namely
+Maura Healey and Geoff Diehl. 
+
+CORPUS: Extracted twitter replies (Oct 29 to Nov 4) from all of Healey and Diehl's tweets.
+The replies looks into how these candidates engages other twitter users by generating a response 
+to their original tweet or retweet.
+
+The replies are then cleaned and pre-processed.
+
+Analysis: 
+
+        Initial Data visualization (word cloud)
+        TF-IDF
+        Semantic Network Analysis
+        Sentiment Analysis + Polarity
+        
+        
+# LOAD PACKAGES
+
+```{r}
+
+library(readr)
+library(dplyr)
+library(quanteda)
+library(quanteda.textstats)
+library(quanteda.textplots)
+library(ggplot2)
+library(DT)
+library(tm)
+library(stringr)
+library(tidyverse)
+library(tidytext)
+library(plyr)
+library(tidyverse)
+library(quanteda.textmodels)
+library(devtools)
+library(caret)
+library(e1071)
+library(quanteda.dictionaries)
+#library(devtools)
+#devtools::install_github("kbenoit/quanteda.dictionaries")
+library(quanteda.dictionaries)
+library(syuzhet) 
+#remotes::install_github("quanteda/quanteda.sentiment")
+library(quanteda.sentiment)
+library(lubridate)
+```
+
+# Healey DATA
+## Load Data
+```{r}
+Healy <- read_csv("Healy.csv")
+Healy$text <- gsub("@[[:alpha:]]*","", Healy$text) #remove Twitter handles
+Healy$text <- gsub("&amp", "", Healy$text)
+Healy$text <- gsub("healey", "", Healy$text)
+Healy$text <- gsub("_", "", Healy$text)
+
+```
+## Data Cleaning/ Preprocessing
+```{r}
+Healy_corpus <- Corpus(VectorSource(Healy$text))
+Healy_corpus <- tm_map(Healy_corpus, tolower) #lowercase
+Healy_corpus <- tm_map(Healy_corpus, removeWords,c("s","healey", "healy","vote", "votes","voted","Voter","maura","rt", "amp",(stopwords("english"))))
+Healy_corpus <- tm_map(Healy_corpus, removePunctuation)
+Healy_corpus <- tm_map(Healy_corpus, stripWhitespace)
+Healy_corpus <- tm_map(Healy_corpus, removeNumbers)
+```
+## Tokenize and stemming
+
+```{r}
+Healy_corpus <- corpus(Healy_corpus,text_field = "text") 
+Healy_text_df <- as.data.frame(Healy_corpus)
+Healy_tokens <- tokens(Healy_corpus)
+Healy_tokens <- tokens_wordstem(Healy_tokens) 
+print(Healy_tokens)
+dfm(Healy_tokens)
+```
+
+## Create dfm
+```{r}
+# create a full dfm for comparison---use this to append to polarity
+Healy_Dfm <- tokens(Healy_tokens,
+                  remove_punct = TRUE,
+                  remove_symbols = TRUE,
+                  remove_numbers = TRUE,
+                  remove_url = TRUE,
+                  split_hyphens = FALSE,
+                  split_tags = FALSE,
+                  include_docvars = TRUE) %>%
+  tokens_tolower() %>%
+  dfm(remove = stopwords('english')) %>%
+  dfm_trim(min_termfreq = 10, verbose = FALSE) %>%
+  dfm()
+```
+
+
+## TF-IDF 
+
+```{r}
+topfeatures(Healy_Dfm)
+```
+```{r}
+Healy_tf_dfm <- dfm_tfidf(Healy_Dfm, force = TRUE) #create a new DFM by tf-idf scores
+topfeatures(Healy_tf_dfm) ## this shows top words by tf-idf
+```
+
+
+
+```{r}
+# convert corpus to dfm using the dictionary---use to append ???
+HealyDfm_nrc <- tokens(Healy_tokens,
+                     remove_punct = TRUE,
+                     remove_symbols = TRUE,
+                     remove_numbers = TRUE,
+                     remove_url = TRUE,
+                     split_tags = FALSE,
+                     split_hyphens = FALSE,
+                     include_docvars = TRUE) %>%
+  tokens_tolower() %>%
+  dfm(remove = stopwords('english')) %>%
+  dfm_trim(min_termfreq = 10, verbose = FALSE) %>%
+  dfm() %>%
+  dfm_lookup(data_dictionary_NRC)
+
+```
+
+## Word Cloud
+
+```{r}
+library(RColorBrewer)
+textplot_wordcloud(Healy_Dfm, scale=c(5,1), max.words=40, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, "Dark2"))
+```
+
+## Feature-Occurence Matrix
+
+```{r}
+# DFM that contains hashtags 
+Healytag_dfm <- dfm_select(Healy_Dfm, pattern = "#*")
+Healytoptag <- names(topfeatures(Healy_Dfm, 30)) 
+head(Healytoptag)
+```
+```{r}
+Healytag_fcm <- fcm(Healy_Dfm, context = "document", tri = FALSE)
+head(Healytag_fcm)
+```
+## Semantic Network Visualization
+
+```{r}
+#Visualization of semantic network based on hashtag co-occurrence
+Healytopgat_fcm <- fcm_select(Healytag_fcm, pattern = Healytoptag)
+textplot_network(Healytopgat_fcm, min_freq = 1.2,
+                 omit_isolated = TRUE,
+                 edge_color = "#1F78B4",
+                 edge_alpha = 0.5,
+                 edge_size = 2,
+                 vertex_color = "black",
+                 vertex_size = 2,
+                 vertex_labelcolor = NULL,
+                 vertex_labelfont = NULL,
+                 vertex_labelsize = 8,
+                 offset = NULL)
+
+```
+```{r}
+textplot_network(Healytopgat_fcm, vertex_labelsize = 3 * rowSums(Healytopgat_fcm)/min(rowSums(Healytopgat_fcm)))
+```
+```{r}
+H_csv <- as.data.frame((cbind(Healy,Healy_text_df)))
+write_csv(H_csv,"H_csv")
+```
+## NRC Sentiment Analysis
+```{r}
+H_Sentiment <- get_nrc_sentiment(H_csv$Healy_corpus) 
+```
+```{r}
+H_all_senti <- cbind(H_Sentiment, H_csv)  #Combine sentiment ratings to create a new data frame
+```
+
+```{r}
+summary(H_Sentiment)
+```
+
+##POLARITY SCORES??
+
+```{r}
+# POLARITY
+
+H_all_senti$polarity <- (H_all_senti$positive - H_all_senti$negative)/(H_all_senti$positive + H_all_senti$negative)
+
+H_all_senti$polarity[(H_all_senti$positive + H_all_senti$negative) == 0] <- 0
+
+ggplot(H_all_senti) +
+  geom_histogram(aes(x=polarity)) +
+  theme_bw()
+
+```
+
+```{r}
+datatable(H_all_senti[1:50,], options = list(pageLength = 5)) 
+```
+
+
+
+### ANOTHER Sentiment Analysis NRC summary
+
+## Sentiment Analysis
+
+```{r} 
+#convert cleaned Healy_tokens back tp corpus for sentiment analysis
+Healy_corpus <- corpus(as.character(Healy_tokens))
+```
+### NRC Dictionary
+
+```{r}
+# use liwcalike() to estimate sentiment using NRC dictionary
+HealyTweetSentiment_nrc <- liwcalike(Healy_corpus, data_dictionary_NRC)
+names(HealyTweetSentiment_nrc)
+```
+```{r}
+HealyTweetSentiment_nrc_viz <- HealyTweetSentiment_nrc %>%
+  select(c("anger", "anticipation", "disgust", "fear","joy","sadness", "surprise","trust","positive","negative"))
+```
+```{r}
+Healy_tr<-data.frame(t(HealyTweetSentiment_nrc_viz)) #transpose
+```
+```{r}
+Healy_tr_new <- data.frame(rowSums(Healy_tr[2:1900]))
+Healy_tr_mean <- data.frame(rowMeans(Healy_tr[2:1900]))#get mean of sentiment values
+names(Healy_tr_new)[1] <- "Count"
+Healy_tr_new <- cbind("sentiment" = rownames(Healy_tr_new), Healy_tr_new)
+rownames(Healy_tr_new) <- NULL
+Healy_tr_new2<-Healy_tr_new[1:8,]
+```
+```{r}
+write_csv(Healy_tr_new2,"Healy-Sentiments")
+write_csv(Healy_tr_new,"Healy-8 Sentiments")
+```
+```{r}
+
+#Plot One - Count of words associated with each sentiment
+quickplot(sentiment, data=Healy_tr_new2, weight=Count, geom="bar", fill=sentiment, ylab="count")+ggtitle("Emotions of REPLIES to Maura Healey Tweets")
+```
+```{r}
+names(Healy_tr_mean)[1] <- "Mean"
+Healy_tr_mean <- cbind("sentiment" = rownames(Healy_tr_mean), Healy_tr_mean)
+rownames(Healy_tr_mean) <- NULL
+Healy_tr_mean2<-Healy_tr_mean[9:10,]
+write_csv(Healy_tr_mean2,"Healy-Mean Sentiments")
+```
+```{r}
+#Plot One - Count of words associated with each sentiment
+quickplot(sentiment, data=Healy_tr_mean2, weight=Mean, geom="bar", fill=sentiment, ylab="Mean Sentiment Score")+ggtitle("Mean Sentiment Scores to Maura Healey Tweets")
+```                                                                                                                  
+
+
+# DIEHL DATA
+
+## Load Data
+```{r}
+Diehl <- read_csv("Diehl.csv")
+Diehl$text <- gsub("@[[:alpha:]]*","", Diehl$text) #remove Twitter handles
+Diehl$text <- gsub("&amp", "", Diehl$text)
+Diehl$text <- gsub("_", "", Diehl$text)
+```
+## Data Cleaning/ Preprocessing
+```{r}
+Diehl_corpus <- Corpus(VectorSource(Diehl$text))
+Diehl_corpus <- tm_map(Diehl_corpus, tolower) #lowercase
+Diehl_corpus <- tm_map(Diehl_corpus, removeWords, 
+                       c("s","geoff", "diehl","rt", "Vote","voter","voted", "amp"))
+Diehl_corpus <- tm_map(Diehl_corpus, removeWords, 
+                       stopwords("english"))
+Diehl_corpus <- tm_map(Diehl_corpus, removePunctuation)
+Diehl_corpus <- tm_map(Diehl_corpus, stripWhitespace)
+Diehl_corpus <- tm_map(Diehl_corpus, removeNumbers)
+
+Diehl_corpus <- corpus(Diehl_corpus,text_field = "text") 
+
+Diehl_text_df <- as.data.frame(Diehl_corpus)
+
+```
+
+## Tokenize and stemming
+```{r}
+Diehl_tokens <- tokens(Diehl_corpus)
+Diehl_tokens <- tokens_wordstem(Diehl_tokens)
+print(Diehl_tokens)
+dfm(Diehl_tokens)
+```
+## Create dfm
+```{r}
+# create a full dfm for comparison---use this to append to polarity
+Diehl_Dfm <- tokens(Diehl_tokens,
+                    remove_punct = TRUE,
+                    remove_symbols = TRUE,
+                    remove_numbers = TRUE,
+                    remove_url = TRUE,
+                    split_hyphens = FALSE,
+                    split_tags = FALSE,
+                    include_docvars = TRUE) %>%
+  tokens_tolower() %>%
+  dfm(remove = stopwords('english')) %>%
+  dfm_trim(min_termfreq = 10, verbose = FALSE) %>%
+  dfm()
+```
+
+
+
+## TF-IDF
+
+```{r}
+topfeatures(Diehl_Dfm)
+```
+```{r}
+Diehl_tf_dfm <- dfm_tfidf(Diehl_Dfm, force = TRUE) #create a new DFM by tf-idf scores
+topfeatures(Diehl_tf_dfm) ## this shows top words by tf-idf
+```
+
+
+```{r}
+
+# convert corpus to dfm using the dictionary---use to append 
+DiehlDfm_nrc <- tokens(Diehl_tokens,
+                       remove_punct = TRUE,
+                       remove_symbols = TRUE,
+                       remove_numbers = TRUE,
+                       remove_url = TRUE,
+                       split_tags = FALSE,
+                       split_hyphens = FALSE,
+                       include_docvars = TRUE) %>%
+  tokens_tolower() %>%
+  dfm(remove = stopwords('english')) %>%
+  dfm_trim(min_termfreq = 6, verbose = FALSE) %>%
+  dfm() %>%
+  dfm_lookup(data_dictionary_NRC)
+
+
+dim(DiehlDfm_nrc)
+head(DiehlDfm_nrc, 10)
+
+```
+## Word CLoud
+```{r}
+library(RColorBrewer)
+textplot_wordcloud(Diehl_Dfm, scale=c(5,1), max.words=40, random.order=FALSE, rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, "Dark2"))
+```
+
+
+## Feature-occurrence matrix 
+```{r}
+Diehltag_dfm <- dfm_select(Diehl_Dfm, pattern = "#*")
+Diehltoptag <- names(topfeatures(Diehl_Dfm, 30)) 
+head(Diehltoptag)
+```
+```{r}
+Diehltag_fcm <- fcm(Diehl_Dfm)
+head(Diehltag_fcm)
+```
+
+## Semantic Network Analysis
+```{r}
+#Visualization of semantic network based on hashtag co-occurrence
+
+Diehltopgat_fcm <- fcm_select(Diehltag_fcm, pattern = Diehltoptag)
+textplot_network(Diehltopgat_fcm, min_freq = 1.2,
+                 omit_isolated = TRUE,
+                 edge_color = "#1F78B4",
+                 edge_alpha = 0.4,
+                 edge_size = 2,
+                 vertex_color = "#4D4D4D",
+                 vertex_size = 2,
+                 vertex_labelcolor = NULL,
+                 vertex_labelfont = NULL,
+                 vertex_labelsize = 7,
+                 offset = NULL)
+
+```
+```{r}
+fcm_select(Diehltopgat_fcm, pattern = Diehltoptag) %>%
+    textplot_network(min_freq = 0.7, vertex_labelcolor = rep(c('black', NA), 15),vertex_labelsize = 6)
+```
+
+
+```{r}
+D_csv <- as.data.frame((cbind(Diehl,Diehl_text_df)))
+write_csv(D_csv,"D_csv")
+```
+
+
+
+## Sentiment Analysis
+
+### NRC Dictionary
+```{r}
+#convert cleaned Diehl_tokens back tp corpus for sentiment analysis
+Diehl_corpus <- corpus(as.character(Diehl_tokens))
+
+# use liwcalike() to estimate sentiment using NRC dictionary
+DiehlTweetSentiment_nrc <- liwcalike(Diehl_corpus, data_dictionary_NRC)
+
+names(DiehlTweetSentiment_nrc)
+```
+```{r}
+
+DiehlTweetSentiment_nrc_viz <- DiehlTweetSentiment_nrc %>%
+  select(c("anger", "anticipation", "disgust", "fear","joy","sadness", "surprise","trust","positive","negative"))
+
+
+Diehl_tr<-data.frame(t(DiehlTweetSentiment_nrc_viz)) #transpose
+
+Diehl_tr_new <- data.frame(rowSums(Diehl_tr[2:497]))
+Diehl_tr_mean <- data.frame(rowMeans(Diehl_tr[2:497]))#get mean of sentiment values
+names(Diehl_tr_new)[1] <- "Count"
+Diehl_tr_new <- cbind("sentiment" = rownames(Diehl_tr_new), Diehl_tr_new)
+rownames(Diehl_tr_new) <- NULL
+Diehl_tr_new2<-Diehl_tr_new[1:8,]
+write_csv(Diehl_tr_new2,"Diehl- 8 Sentiments")
+```
+```{r}
+
+#Plot One - Count of words associated with each sentiment
+quickplot(sentiment, data=Diehl_tr_new2, weight=Count, geom="bar", fill=sentiment, ylab="count")+ggtitle("Emotions to REPLIES Geoff Diehl Tweets")
+
+```
+```{r}
+names(Diehl_tr_mean)[1] <- "Mean"
+Diehl_tr_mean <- cbind("sentiment" = rownames(Diehl_tr_mean), Diehl_tr_mean)
+rownames(Diehl_tr_mean) <- NULL
+Diehl_tr_mean2<-Diehl_tr_mean[9:10,]
+write_csv(Diehl_tr_mean2,"Diehl -Mean Sentiments")
+```
+```{r}
+#Plot One - Count of words associated with each sentiment
+quickplot(sentiment, data=Diehl_tr_mean2, weight=Mean, geom="bar", fill=sentiment, ylab="Mean Sentiment Score")+ggtitle("Mean Sentiment Scores to Geoff Diehl Tweets")
+```
+
+
+
+## Polarity Scores
+```{r}
+Diehldf_nrc <- convert(DiehlDfm_nrc, to = "data.frame")
+write_csv(Diehldf_nrc, "Diehl- Polarity Scores")
+
+Diehldf_nrc$polarity <- (Diehldf_nrc$positive - Diehldf_nrc$negative)/(Diehldf_nrc$positive + Diehldf_nrc$negative)
+
+Diehldf_nrc$polarity[(Diehldf_nrc$positive + Diehldf_nrc$negative) == 0] <- 0
+
+ggplot(Diehldf_nrc) +
+  geom_histogram(aes(x=polarity)) +
+  theme_bw()
+
+```
+
+## Bind to new DF
+```{r}
+Diehl_text_df <-as.data.frame(Diehl_text_df)
+DiehlCorpus_Polarity <-as.data.frame((cbind(Diehldf_nrc,Diehl_text_df)))
+```
+
+## subset to polarity and text
+```{r}
+DiehlCorpus_Polarity <- DiehlCorpus_Polarity %>%
+  select(c("polarity","Diehl_corpus"))
+
+
+DiehlCorpus_Polarity$polarity <- recode(DiehlCorpus_Polarity$polarity,
+                                        "1" = "positive",
+                                        "-1" = "negative",
+                                        "0" = "neutral",)
+```
+## Cleaned DF
+```{r}
+DiehlCorpus_Polarity <- na.omit(DiehlCorpus_Polarity)
+head(DiehlCorpus_Polarity)
+```
+## New Corpus with polarity scores
+```{r}
+DiehlCorpus_P<- corpus(DiehlCorpus_Polarity,text_field = "Diehl_corpus")   
+
+```
+
+
+## Sentiment Analysis
+
+
+
+## Polarity Scores
+```{r}
+Diehldf_nrc <- convert(DiehlDfm_nrc, to = "data.frame")
+write_csv(Diehldf_nrc, "Diehl- Polarity Scores")
+
+Diehldf_nrc$polarity <- (Diehldf_nrc$positive - Diehldf_nrc$negative)/(Diehldf_nrc$positive + Diehldf_nrc$negative)
+
+Diehldf_nrc$polarity[(Diehldf_nrc$positive + Diehldf_nrc$negative) == 0] <- 0
+
+ggplot(Diehldf_nrc) +
+  geom_histogram(aes(x=polarity)) +
+  theme_bw()
+
+```
+
+## Bind to new DF
+```{r}
+Diehl_text_df <-as.data.frame(Diehl_text_df)
+DiehlCorpus_Polarity <-as.data.frame((cbind(Diehldf_nrc,Diehl_text_df)))
+```
+
+## subset to polarity and text
+```{r}
+DiehlCorpus_Polarity <- DiehlCorpus_Polarity %>%
+  select(c("polarity","Diehl_corpus"))
+
+
+DiehlCorpus_Polarity$polarity <- recode(DiehlCorpus_Polarity$polarity,
+                                        "1" = "positive",
+                                        "-1" = "negative",
+                                        "0" = "neutral",)
+```
+
+# FOCUS: SENTIMENT ANALYSIS
+## HEALEY DATA
+```{r}
+library(ggplot2)
+library(lubridate)
+library(reshape2)
+library(dplyr)
+library(syuzhet) 
+library(stringr)
+library(tidyr)
+library(DT)
+```
+
+```{r}
+Healy_csv <- read.csv("H_csv")
+
+datatable(Healy_csv[1:50,], options = list(pageLength = 5)) 
+```
+
+```{r}
+Healy_csv$created_at <- ymd_hms(Healy_csv$created_at) 
+Healy_csv$created_at <- with_tz(Healy_csv$created_at,"America/New_York")
+Healy_csv$created_date <- as.Date(Healy_csv$created_at)
+```
+
+```{r}
+HealySentiment <- get_nrc_sentiment(Healy_csv$text) 
+Hall_senti <- cbind(Healy_csv, HealySentiment)  #Combine sentiment ratings to create a new data frame
+
+#show 50 messages rated by the NRC dictionary. 
+datatable(Hall_senti[1:50,17:29], options = list(pageLength = 5)) 
+```
+
+```{r}
+### Summary statistics by group variables
+Hall_senti$date_label <- as.factor(Hall_senti$created_date)
+
+Hsenti_aggregated <- Hall_senti %>% 
+  dplyr::group_by(date_label) %>%
+  dplyr::summarise(anger = mean(anger), 
+            anticipation = mean(anticipation), 
+            disgust = mean(disgust), 
+            fear = mean(fear), 
+            joy = mean(joy), 
+            sadness = mean(sadness), 
+            surprise = mean(surprise), 
+            trust = mean(trust)) 
+
+Hsenti_aggregated <- Hsenti_aggregated %>% pivot_longer(cols = -c(date_label), names_to = "variable", values_to = "value")
+
+datatable(Hsenti_aggregated[1:50,], options = list(pageLength = 5)) 
+```
+
+```{r}
+Hsenti_aggregated$date_label <- as.Date(Hsenti_aggregated$date_label)
+
+ggplot(data = Hsenti_aggregated, aes(x = date_label, y = value)) +
+  geom_line(size = 2, alpha = 2, aes(color = variable)) +
+  geom_point(size = 0) +
+  ylim(0, NA) +
+  theme(legend.title=element_blank(), axis.title.x = element_blank()) +
+  ylab("Average sentiment score") + 
+  ggtitle("Sentiments on HEALEY Tweets before Election Day")
+```
+
+```{r}
+library(highcharter)
+title <- paste0("sentiment scores over time", Sys.Date())
+highchart() %>%
+  hc_add_series(Hsenti_aggregated,"line", hcaes(x = date_label, y = value,group=variable)) %>%
+  hc_xAxis(type = "datetime") %>%
+   hc_title(
+    text = "Sentiments on Healey Tweets Before Election Day",
+    margin = 10,
+    align = "center",
+    style = list(color = "Black", useHTML = TRUE)
+  )
+
+```
+
+```{r}
+library(tidytext)
+library(textdata)
+library(tidyr)
+
+Hcsv_clean <- Healy_csv %>%
+  dplyr::select(text) %>%
+  unnest_tokens(word, text)
+
+Hsentiment_word_counts <- Hcsv_clean %>%
+  inner_join(get_sentiments("nrc")) %>%
+  dplyr::count(word, sentiment, sort = TRUE) %>%
+  ungroup()
+```
+
+### visualize key sentimental terms
+
+```{r}
+Hsentiment_word_counts %>%
+  group_by(sentiment) %>%
+  top_n(5) %>%
+  ungroup() %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~sentiment, scales = "free_y") +
+  labs(title = "Healey Tweet Replies Contribution to Sentiment",
+       y = "Contribution to sentiment",
+       x = NULL) +
+  coord_flip()
+```
+
+# DIEHL DATA
+
+```{r}
+Diehl_csv <- read.csv("D_csv")
+
+datatable(Diehl_csv[1:50,], options = list(pageLength = 5)) 
+```
+
+```{r}
+Diehl_csv$created_at <- ymd_hms(Diehl_csv$created_at) 
+Diehl_csv$created_at <- with_tz(Diehl_csv$created_at,"America/New_York")
+Diehl_csv$created_date <- as.Date(Diehl_csv$created_at)
+```
+
+```{r}
+DiehlSentiment <- get_nrc_sentiment(Diehl_csv$text) 
+Dall_senti <- cbind(Diehl_csv, DiehlSentiment)  #Combine sentiment ratings to create a new data frame
+
+#show 50 messages rated by the NRC dictionary. 
+datatable(Dall_senti[1:50,17:29], options = list(pageLength = 5)) 
+```
+
+```{r}
+### Summary statistics by group variables
+Dall_senti$date_label <- as.factor(Dall_senti$created_date)
+
+Dsenti_aggregated <- Dall_senti %>% 
+  dplyr::group_by(date_label) %>%
+  dplyr::summarise(anger = mean(anger), 
+            anticipation = mean(anticipation), 
+            disgust = mean(disgust), 
+            fear = mean(fear), 
+            joy = mean(joy), 
+            sadness = mean(sadness), 
+            surprise = mean(surprise), 
+            trust = mean(trust)) 
+
+Dsenti_aggregated <- Dsenti_aggregated %>% pivot_longer(cols = -c(date_label), names_to = "variable", values_to = "value")
+
+datatable(Dsenti_aggregated[1:50,], options = list(pageLength = 5)) 
+```
+
+```{r}
+Dsenti_aggregated$date_label <- as.Date(Dsenti_aggregated$date_label)
+
+ggplot(data = Dsenti_aggregated, aes(x = date_label, y = value)) +
+  geom_line(size = 2, alpha = 2, aes(color = variable)) +
+  geom_point(size = 0) +
+  ylim(0, NA) +
+  theme(legend.title=element_blank(), axis.title.x = element_blank()) +
+  ylab("Average sentiment score") + 
+  ggtitle("Sentiments on DIEHL Tweets before Election Day")
+```
+
+```{r}
+library(highcharter)
+title <- paste0("sentiment scores over time", Sys.Date())
+highchart() %>%
+  hc_add_series(Dsenti_aggregated,"line", hcaes(x = date_label, y = value,group=variable)) %>%
+  hc_xAxis(type = "datetime") %>%
+   hc_title(
+    text = "Sentiments on DIEHL Tweets Before Election Day",
+    margin = 10,
+    align = "center",
+    style = list(color = "Black", useHTML = TRUE)
+  )
+
+```
+
+```{r}
+library(tidytext)
+library(textdata)
+library(tidyr)
+
+Dcsv_clean <- Diehl_csv %>%
+  dplyr::select(text) %>%
+  unnest_tokens(word, text)
+
+Dsentiment_word_counts <- Dcsv_clean %>%
+  inner_join(get_sentiments("nrc")) %>%
+  dplyr::count(word, sentiment, sort = TRUE) %>%
+  ungroup()
+```
+
+### visualize key sentimental terms
+
+```{r}
+Dsentiment_word_counts %>%
+  group_by(sentiment) %>%
+  top_n(5) %>%
+  ungroup() %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~sentiment, scales = "free_y") +
+  labs(title = "DIEHL Tweet Replies Contribution to Sentiment",
+       y = "Words Contribution to Sentiments",
+       x = NULL) +
+  coord_flip()
+```
+
