@@ -1,0 +1,274 @@
+---
+title: "Blog Post 6"
+author: "Claire Battaglia"
+desription: "STM, continued"
+date: "12/04/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - Claire Battaglia
+  - text-as-data
+  - blog post 6
+  - open-text survey response
+  - unsupervised learning
+  - topic models
+  - causal inference
+---
+
+```{r}
+#| label: setup
+#| warning: false
+
+library(readxl)
+library(plyr)
+library(tidyverse)
+library(tidytext)
+library(quanteda)
+library(quanteda.textplots)
+library(gmodels)
+library(stm)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+For this final blog post I will be exploring Structural Topic Modeling (STM) further and thinking about causal inference in the context of my research question and hypotheses.
+
+After thinking about my dataset and research question further, I have decided to consider some additional covariates so I'll begin with reworking my dataset, corpus, and Document Feature Matrix to include those covariates. Then I'll explore other values for $k$ and spend some time thinking about the substantive interpretation of my results.
+
+## Creating My Corpus
+
+Instead of messing around with the code in my previous blog posts, I will create a new tidy dataset with the additional covariates I'm going to include and a new corpus and Document Feature Matrix (DFM) from which to work.
+
+```{r tidy dataset}
+# read data
+CFA_raw <- read_excel("FPAB Community Food Assessment Survey Data.xlsx", sheet = "Raw")
+
+# rename columns
+CFA_tidy_final <- CFA_raw %>%
+  rename("id" = "Respondent ID",
+         "zip" = "Zip Code",
+         "age" = "Age",
+         "income" = "Annual Household Income",
+         "size" = "Number of Individuals in Your Household",
+         "change" = "What changes would you like to see for Missoula’s food system?")
+
+# create subset
+CFA_tidy_final <- CFA_tidy_final %>%
+  subset(select = c("zip", "age", "income", "size", "change"))
+
+# change class
+CFA_tidy_final$zip <- as.character(CFA_tidy_final$zip)
+CFA_tidy_final$age <- as.numeric(CFA_tidy_final$age)
+CFA_tidy_final$size <- as.numeric(CFA_tidy_final$size)
+
+# remove na values
+CFA_tidy_final <- na.omit(CFA_tidy_final)
+
+# save
+save(CFA_tidy_final, file = "CFA_tidy_final.RData")
+```
+
+I now have a new tidy dataset that includes 4 covariates:
+
+1. age of respondent (age)
+2. number of people living in the household (size)
+3. annual household income bracket (income)
+4. ZIP code in which household of respondent is located (zip)
+
+```{r create dfm}
+# remove row where change = ?
+CFA_tidy_final <- subset(CFA_tidy_final, change !="?")
+
+# create dfm
+dfm_change_final <- dfm(tokens(CFA_tidy_final$change),
+             tolower = TRUE,
+             remove = stopwords("en"),
+             remove_punct = TRUE)
+
+# get dimensions
+dim(dfm_change_final)
+```
+
+My new DFM contains 208 rows (the responses) and 1,125 columns (all the words that appear in the corpus).
+
+```{r covariate frequency}
+# frequency counts for covariates
+table(CFA_tidy_final$age) # age
+table(CFA_tidy_final$size) # size
+table(CFA_tidy_final$income) # income
+table(CFA_tidy_final$zip) # zip
+```
+
+This is a horrible way to try and understand frequency and distribution so I'll create some simple visualizations to make this information more accessible.
+
+```{r visualize covariate frequency}
+# create hist - age
+ggplot(CFA_tidy_final, aes(x = age)) +
+  geom_histogram(fill = "#830042") +
+  labs(title = "Respondent Age", x = "Age", y = NULL) +
+  coord_flip() +
+  theme_minimal()
+
+# create hist - size
+ggplot(CFA_tidy_final, aes(x = size)) +
+  geom_histogram(fill = "#830042") +
+  labs(title = "Number of People Living in Household", x = "Number of People", y = NULL) +
+  coord_flip() +
+  theme_minimal()
+
+# create bar plot - income
+ggplot(CFA_tidy_final, aes(x = income)) +
+  geom_bar(fill = "#830042") +
+  labs(title = "Annual Household Income Bracket of Respondent", x = "Income Bracket", y = NULL) +
+  coord_flip() +
+  theme_minimal()
+
+# create bar plot - zip
+ggplot(CFA_tidy_final, aes(x = zip)) +
+  geom_bar(fill = "#830042") +
+  labs(title = "ZIP Code of Household", x = "Zip Code", y = NULL) +
+  coord_flip() +
+  theme_minimal()
+```
+
+These are very simple but they give a much better sense of the distribution of respondents across each covariate.
+
+It seems that most respondents:
+
+* Are between 30 and 60 years old
+* Live in 2-person households
+* Have an annual household income between $50,000-250,000
+* Live in 59801, 59802, 59802 (3 of the central ZIP codes in the City of Missoula)
+
+## Document Feature Matrix
+
+Next I'll visualize my DFM with a word cloud.
+
+```{r wordcloud}
+# create wordcloud
+# png(filename = "dfm_change_final_WORD.png")
+textplot_wordcloud(dfm_change_final, min_count = 5, max_words = 50, random_order = FALSE)
+# dev.off()
+```
+
+## Structured Topic Model(s)
+
+Now I am ready to construct my Structured Topic Model(s). As I mentioned above, I'll be exploring different values for $k$, as well as thinking about the substantive interpretation of my models.
+
+```{r searchK}
+# searchK
+differentKs <- searchK(dfm_change_final,
+                       K = c(3, 5, 7),
+                       prevalence = ~ age + size + income + zip,
+                       N = 208,
+                       data = CFA_tidy_final,
+                       max.em.its = 1000,
+                       init.type = "Spectral")
+
+# diagnostic plots
+plot(differentKs)
+```
+The plot of Held-Out Likelihood would lead us to the 3-topic model. The plot of Semantic Coherence would lead us to the 7-topic model. The Residuals plot would also lead us to the 7-topic model. These are not as conclusive as I was hoping they would so, given that, I am going to construct all 3 models.
+
+```{r construct stm}
+# model w/ 3 topics
+stm_change_final_3 <- stm(dfm_change_final,
+               K = 3,
+               prevalence = ~ age + size + income + zip,
+               data = CFA_tidy_final,
+               max.em.its = 1000,
+               seed = 1234,
+               init.type = "Spectral")
+
+# model w/ 5 topics
+stm_change_final_5 <- stm(dfm_change_final,
+               K = 5,
+               prevalence = ~ age + size + income + zip,
+               data = CFA_tidy_final,
+               max.em.its = 1000,
+               seed = 1234,
+               init.type = "Spectral")
+
+# model w/ 7 topics
+stm_change_final_7 <- stm(dfm_change_final,
+               K = 7,
+               prevalence = ~ age + size + income + zip,
+               data = CFA_tidy_final,
+               max.em.its = 1000,
+               seed = 1234,
+               init.type = "Spectral")
+```
+
+```{r label topics and plot}
+# label topics - 3 topics
+labelTopics(stm_change_final_3)
+plot(stm_change_final_3, type = "summary") # plot
+
+# label topics - 5 topics
+labelTopics(stm_change_final_5)
+plot(stm_change_final_5, type = "summary") # plot
+
+# label topics - 7 topics
+labelTopics(stm_change_final_7)
+plot(stm_change_final_7, type = "summary") # plot
+```
+Looking at these plots, I am leaning towards the 7-topic model because the topics appear to be more strongly differentiated from one another. While most of the topics revealed by all 3 models feature the words "food" and "local," in the 7-topic model the third word for each topic is distinct enough to give me a sense of that topic. For example, "education" (Topic 1) and "gardens" (Topic 7) are distinct concepts.
+
+```{r}
+topic_names <- labelTopics(stm_change_final_7, n=4)$frex
+topic_labels <- rep(NA, 7)
+for (i in 1:7) {
+  topic_labels[i] <- paste(topic_names[i,], collapse = "_")
+}
+
+print(topic_labels)
+```
+
+Moving ahead with the 7-topic model, I will now estimate the effects of my covariates on topic prevalence.
+
+```{r estimate effects}
+# estimate effects
+effects_estimate <- estimateEffect(formula = 1:7 ~ age + size + income + zip,
+                                   stmobj = stm_change_final_7,
+                                   metadata = CFA_tidy_final)
+
+# get summary
+summary(effects_estimate)
+```
+
+Topic 1: county_facilities_year_production
+
+* Has a statistically significant, positive association with *ZIP code* 59868.
+
+Topic 2: ag_stores_cost_produce
+
+* Has no statistically significant (at the .01 level) association with any covariates.
+
+Topic 3: enough_growing_market_grow
+
+* Has a statistically significant, negative association with every *ZIP code*.
+
+Topic 4: organic_less_produced_sourced
+
+* Has no statistically significant association with any covariates.
+
+Topic 5: affordable_composting_new_healthy
+
+* Has a statistically significant, positive association with number of people living in household (*size*).
+
+Topic 6: preserve_prices_farm_development
+
+* Has a statistically significant, positive association with *ZIP code* 59821.
+
+Topic 7: restaurants_producers_gardens_city
+
+* Has a statistically significant, negative association with *age* and a statistically significant, positive association with *ZIP code* 59908.
+
+
+## Conclusion
+
+I still need to spend some time thinking about these topics and results but my analysis is taking shape!

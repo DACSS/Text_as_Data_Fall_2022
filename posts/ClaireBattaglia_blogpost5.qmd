@@ -123,6 +123,9 @@ I see the problem. That row was not removed when I removed rows with *NA* values
 # remove row 96
 CFA_tidy_2 <- subset(CFA_tidy, change !="?")
 
+# save
+save(CFA_tidy_2, file = "CFA_tidy_2.RData")
+
 # view to check
 print(CFA_tidy_2)
 ```
@@ -135,6 +138,9 @@ dfm_change_2 <- dfm(tokens(CFA_tidy_2$change),
              tolower = TRUE,
              remove = stopwords("en"),
              remove_punct = TRUE)
+
+# save
+save(dfm_change_2, file = "dfm_change_2.RData")
 
 # get dimensions
 dim(dfm_change_2)
