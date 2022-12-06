@@ -1,0 +1,251 @@
+---
+title: "Blog Post 6: Structural Topic Modeling"
+author: "Andrea Mah"
+desription: "Topic modeling of speeches"
+date: "12/02/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - BlogPost6
+  - Andrea Mah
+
+---
+
+
+Based on suggestions from Prof Song,I used strucutural topic modelling on my data. Structural topic models should allow me to test the association between topics and document metadata. In my case, I have three metadata variables to look at: year of speech, Climate Risk Index (CRI) and income level of a given country. To do this, I planned to use the stm package, using the Roberts et al. paper as a guide.
+
+
+```{r}
+#strucutral topic modeling
+#loading in nececssary libraries
+library(quanteda)
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(text2vec)
+library(stopwords)
+library(RCurl)
+
+#install.packages('stm')
+library(stm)
+
+#load in data/ 
+speech.meta <- read.csv('FINAL_combined_meta-text_dataset.csv')
+speech.meta$income <- as.factor(speech.meta$income)
+levels(speech.meta$income)
+
+speech.meta$incNum <- recode(speech.meta$income, "High income" = 4, "Upper middle income" = 3, "Lower middle income" = 2, "Low income" = 1)
+speech.meta$incNum
+```
+
+After loading in the data, and creating a numeric income metadata variable 
+(although it isn't a true continuous scale, it helps with interpretation to use 
+this kind of ordinal recoding to understand, roughly, the relationships between
+income levevl and topics...) I started processing the data for use with stm package.
+
+```{r}
+#process the data for use with stm package
+processed <- textProcessor(speech.meta$text_field, metadata = speech.meta)
+out <- prepDocuments(processed$documents, processed$vocab, processed$meta)
+docs <- out$documents
+vocab <- out$vocab
+meta <- out$meta
+```
+After doing this initial processing, I realized I needed to limit my corpus to 
+documents which had my covariates... thus:
+```{r}
+#process the data for use with stm package, limiting to only speeches
+#from countries with an associated CRI
+speech.meta <- subset(speech.meta, !(is.na(CRI)))
+speech.meta.cri <- subset(speech.meta, !(is.na(incNum)))
+tail(speech.meta.cri)
+
+processed <- textProcessor(speech.meta.cri$text_field, metadata = speech.meta.cri)
+out <- prepDocuments(processed$documents, processed$vocab, processed$meta)
+docs <- out$documents
+vocab <- out$vocab
+meta <- out$meta
+
+```
+
+Next, I tried running strucutral topic models using a variety of the methods 
+presented in the Roberts paper:
+
+```{r}
+stm.cri <- stm(documents = out$documents, vocab = out$vocab,
+               K = 20, prevalence = ~ CRI +income + year, data = out$meta,
+               init.type = "Spectral")
+
+stm.cri.Select <- selectModel(documents = out$documents, vocab = out$vocab,
+               K = 20, prevalence = ~ CRI + year + income, data = out$meta,
+               runs = 20, seed = 11112)
+
+#plot the models
+plotModels(stm.cri.Select, pch = c(1, 2, 3, 4, 5, 6, 7, 8, 9))
+
+selected.cri <- stm.cri.Select$runout[[1]]
+
+summary(selected.cri)
+```
+
+I used the searchK function to compare models with different numbers of topics. Based
+on my previous exploration and use of LDA, I thought that k between 3 and 10 would likely
+be sufficient... 
+
+```{r{}}
+#SearchK function to determine  potential number of topics
+#I wanted to test between 3 and 10 topics. I think 20 (which I looked at
+#in the select function) was too many topics.
+storage <- searchK(out$documents, out$vocab, K = c(3:10), 
+                   prevalence =~ CRI + year + income, data = meta)
+
+#now I want to examine the results of the search K... 
+plot.searchK(storage)
+
+results <- as.data.frame(storage$results)
+
+View(results)
+```
+
+After running this, I was= looking for the following criteria:
+#higher semantic coherene
+#high held-out likelihood
+#low residual
+#low lower bound
+
+iven the plots, I think that maybe a model with three, four or five topics could be best?
+ok, so given that I am thinking that three or four or five topics seems to fit criteria
+
+I then ran models with each number of topics. 
+
+```{r}
+stm.cri3 <- stm(documents = out$documents, vocab = out$vocab,
+                K = 3, prevalence =~ CRI + year + income, data = out$meta,
+                init.type = "Spectral")
+
+stm.cri4 <- stm(documents = out$documents, vocab = out$vocab,
+                K = 4, prevalence = ~ CRI + year + incNum, data = out$meta,
+                init.type = "Spectral")
+
+stm.cri5 <- stm(documents = out$documents, vocab = out$vocab,
+                K = 5, prevalence = ~ CRI + year + income, data = out$meta,
+                init.type = "Spectral")
+```
+
+Then, I wanted to think about labeling these... After looking at three, four, and
+five-topic models, I decided to proceed with the four-topic model.
+
+Labels based on FREX were a bit strange...Mostly country names. 
+#1: nepal_namibia_malawi_zambia_vietnam
+#2: bonn_group_complianc_bueno_china
+#3: tuvalu_copenhagen_island_australia_barbado
+#4: comment_geneva_consumpt_albania_effici
+
+perhaps labels with probability are better: 
+#1: climat, chang, develop, countri, adapt
+#2: parti, convent, develop, countri, protocol
+#3: climate, will, chang, countri, must, develop
+#4: energi, develop, countri, emiss, climat
+
+
+```{r}
+labelTopics(stm.cri3)
+sageLabels(stm.cri3)
+
+labelTopics(stm.cri4)
+
+labelTopics(stm.cri5)
+#Topic 1 Top Words:
+ # Highest Prob: climat, chang, develop, countri, presid, adapt, nation 
+#FREX: napa, namibia, malawi, nepal, zambia, vietnam, african 
+#Topic 2 Top Words:
+ # Highest Prob: parti, develop, convent, protocol, countri, kyoto, presid 
+#FREX: bonn, group, bueno, china, complianc, protocol, kyoto 
+#Topic 3 Top Words:
+ # Highest Prob: develop, climat, chang, countri, technolog, will, emiss 
+#FREX: vision, poznan, market, australia, partnership, key, invest 
+#Topic 4 Top Words:
+ # Highest Prob: countri, emiss, energi, develop, climat, convent, chang 
+#FREX: latvia, turkey, geneva, comment, agbm, lithuania, berlin 
+#Topic 5 Top Words:
+#  Highest Prob: will, climat, world, countri, chang, must, island 
+#FREX: tuvalu, barbado, solomon, island, fiji, reef, children 
+
+sageLabels(stm.cri4)
+```
+
+Next I plotted more graphs looking at topic proportion:
+
+```{r}
+#getting the graphical display of estimated topic proportions
+plot(stm.cri4, type = "summary")
+```
+
+Proceeding with 4 topics, I wanted to look at my covariates in relation to topics. 
+As a reminder, these covariates were income classification of the country, climate
+risk index, and year of speech.
+
+```{r}
+#Checking
+prep <- estimateEffect(1:4 ~ CRI + year + incNum, stm.cri4,
+                       meta = out$meta, uncertainty = "Global")
+#looking at the relationship between covariates and these four topics;
+summary(prep, topics = c(1,2,3,4))
+```
+Interestingly, CRI did not seem to be a predictor of any topic. year and income were. 
+I looked at a plot of income plotted against topic prevalence:
+#1 = low income, 2 = lower middle income, 3 = upper middle income, 4 = high income
+```{r}
+plot(prep, covariate = "incNum", topics = c(1:4), model = stm.cri4)
+```
+
+Not completely sure I set this up right, but here I looked at expected topic proportion over time (by year)
+Strangely, topic 2 decreased over time, while 4 increased. Topic 1 remained relatively stable, Topic 2 slightly increased
+```{r}
+plot(prep, "year", method = "continuous", topics = c(1:4))
+```
+
+To remind myself of topic 2, I looked at the top words... 
+
+```{r}
+#Topic 2:
+labelTopics(stm.cri4)
+#Topic 2 Top Words:
+#Highest Prob: countri, develop, emiss, convent, climat, chang, energi 
+#FREX: kazakhstan, romania, croatia, latvia, berlin, japan, geneva 
+#Lift: absorpt, achi, acti, additon, adriat, aerosol, afterward 
+#Score: romania, berlin, latvia, croatia, energi, implement, aij 
+```
+
+To compare this topic to others, I used
+topical contrasts between topic 2 and other topics
+
+```{r}
+plot(stm.cri4, type = "perspectives", topics = c(1,2), xlim = c(0.1, 0.9))
+plot(stm.cri4, type = "perspectives", topics = c(2,3), xlim = c(0.1, 0.9))
+plot(stm.cri4, type = "perspectives", topics = c(2,4), xlim = c(0.1, 0.9))
+```
+
+Finally, I looked at word clouds for each topic. I was hoping I could use the 
+package grid or gridExtra to combine these four into one graphic, but I guess
+they were not the right kind of object.
+
+```{r}
+top1 <- cloud(stm.cri4, topic = 1, scale = c(3, .3))
+top2 <- cloud(stm.cri4, topic = 2, scale = c(3, .3))
+top3 <- cloud(stm.cri4, topic = 3, scale = c(3, .3))
+top4 <- cloud(stm.cri4, topic = 4, scale = c(3, .3))
+```
+
+I think this was a very interesting exercise, but I am definitely lacking confidence
+in interpretation of various outputs from structural topic modeling. I want to spend
+more time working with the package in the future. From these explorations, I 
+don't know that I have a good understanding of waht characterizes each of the four
+extracted topics. I think I would need to spend more time closely examining each one
+to identify what the latent ideas are for each topic. 
+
+
