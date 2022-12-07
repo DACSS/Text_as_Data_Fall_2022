@@ -1,8 +1,8 @@
 ---
-title: "Blog Post 3 - Data Cleaning and Word cloud"
+title: "Blog Post 3 - Data Cleaning and Categorising"
 author: "Adithya Parupudi"
-desription: "Scraped biographies of 100+ famous people to perform text analysis"
-date: "10/11/2022"
+desription: "Performed data cleaning and categorising."
+date: "30/10/2022"
 format:
   html:
     toc: true
@@ -40,70 +40,235 @@ knitr::opts_chunk$set(echo=TRUE)
 ### **From CSV**
 
 ```{r}
-dataset2 <- read_csv("./100FamousPeople.csv")
-head(dataset2)
+dataset <- read_csv("./100FamousPeople_new.csv")
+head(dataset)
 ```
 
-### **Reading data from the website**.
+# Data Extraction
+
+## By Year
+
+There are many people in the list who are still alive. Hence the age range(eg. 1900-2000) is not complete which is causing code issues. Hence currently filling those cases with a pre-decided value of 2022. I have created two column names - from, to; to capture the age ranges
 
 ```{r}
-all = read_html("https://www.biographyonline.net/people/famous-100.html")
+# from
+from <-
+  dataset$peoples_title %>% tolower() %>% str_extract(., "[0-9]+\\s")
+
+# to
+to <-
+  dataset$peoples_title %>% tolower() %>% str_extract(., "\\s[0-9]+") %>% replace(., is.na(.), '2022')
+
+dataset$from <- from
+dataset$to <- to
+colnames(dataset)
 ```
 
-I only want the year range to check their age/era in which they lived. Hence extracting their year only. Some of the famous people are still alive. Since there is no date of expiry for them, I have temporarily filled that value with 2000 as default.
+## By Profession
 
-# Data cleaning
-
-### **Extract age ranges**
-
-There are many people in the list who are still alive. Hence the age range(eg. 1900-2000) is not complete which is causing code issues. Hence currently filling those cases with a pre-decided value of 2000
+Removing unwanted terms using regex from peoples_title column, which provides a general summary of their title such as leader, founder, princess, actor etc
 
 ```{r}
-# able to extract 1918 – 2013. and filling the unmatched pattern with 2000
-only_year <-  all %>% html_nodes("ol li") %>% html_text() %>% 
-  tolower() %>% str_extract(.,"[0-9]+\\s.\\s[0-9]+")%>% replace(.,is.na(.),'2000')
-only_year <- data.frame(only_year)
-head(only_year)
+dataset$peoples_title <-
+  dataset$peoples_title %>%  tolower() %>%  # converting to lowercase
+  str_sort() %>%
+  str_extract(., "\\).*") %>% # extracting all text after ')'. Have to remove ')'
+  str_replace(., "\\) ", "") %>%  #replacing ) in all lines
+  str_remove_all(., "\\)[0-9]*") %>% str_trim(., "both") %>%
+  str_remove_all(., "[0-9]*") %>% str_trim(., "right") %>% str_replace_all("[–|-|-|(|.]", "") %>% str_trim(., "both")
+
 
 
 
 ```
 
-### Occupations
+I have created pre-defined occupations to group all people accordingly. They are **politician, royalty, spiritual, businessman, entertainment, humanitarian, academia, sports,** and **others.** After categorising thoroughly there were still some people who did not fall into these categories. I've assigned those people with a **others** tag.
 
-Extracting their primary occupation as mentioned in the website, and converting it into a data frame for further visualizations. I have used stringr functions extensively in this case. Some popular titles include american president, actress, leader, singer, economist.
+```{r}
+# only profession
 
-These titles directly imply their line of work, or where they have participated to earn that title. For example, an olympian, humanitarian etc
+politician <-
+  c("president",
+    "leader",
+    "minister",
+    "first lady",
+    "wife",
+    "resistance")
+
+royalty <- c("heir", "throne", "monarch", "emperor", "princess")
+
+spiritual <- c("devotee", "pope")
+
+businessman <-
+  c("founder",
+    "chairman",
+    "businessman",
+    "industrialist",
+    "entrepreneur",
+    "co-founder")
+
+artist <-
+  c("musician",
+    "singer",
+    "dancer",
+    "designer",
+    "painter",
+    "composer",
+    "poet")
+
+entertainment <-
+  c("actress", "director", "producer", "playwright", "comedian")
+
+humanitarian <-
+  c(
+    "humanitarian",
+    "rights",
+    "activist",
+    "independence",
+    "movement",
+    "nun",
+    "campaigner",
+    "charity"
+  )
+
+academia <-
+  c(
+    "scientist",
+    "economist",
+    "author",
+    "economist",
+    "philosopher",
+    "inventor",
+    "microbiologist"
+  )
+
+sports <-
+  c("sport",
+    "football",
+    "baseball",
+    "golf",
+    "athlete",
+    "tennis",
+    "boxer",
+    "basketball")
+
+others <-
+  c("explorer",
+    "dancer",
+    "designer",
+    "socialite",
+    "spy",
+    "model",
+    "astronaut")
+
+dataset$profession <- with(
+  dataset,
+  case_when(
+    str_detect(dataset$peoples_title, paste(politician, collapse = "|")) ~ "politician",
+    str_detect(dataset$peoples_title, paste(royalty, collapse = "|")) ~ "royalty",
+    str_detect(dataset$peoples_title, paste(spiritual, collapse = "|")) ~ "spiritual",
+    str_detect(dataset$peoples_title, paste(businessman, collapse = "|")) ~ "businessman",
+    str_detect(dataset$peoples_title, paste(artist, collapse = "|")) ~ "artist",
+    str_detect(dataset$peoples_title, paste(entertainment, collapse = "|")) ~ "entertainment",
+    str_detect(dataset$peoples_title, paste(humanitarian, collapse = "|")) ~ "humanitarian",
+    str_detect(dataset$peoples_title, paste(academia, collapse = "|")) ~ "academia",
+    str_detect(dataset$peoples_title, paste(sports, collapse = "|")) ~ "sports",
+    str_detect(dataset$peoples_title, paste(others, collapse = "|")) ~ "others"
+  )
+)
+# head(dataset)
+
+dataset$profession <- dataset$profession %>% replace_na(., "others")
+
+dataset
+
+```
+
+## By country
+
+Since this is a list of 100 people, there are people from all around the world. Hence I wanted to categorize them broadly in terms of their nationality. Hence I group them into the following variables - europe_countries, other_countries, south_america, Russia, America, British, India etc.
+
+Some countries appeared only once, while some others ( like India) appeared more then twice. So I thought it would be better to explicitly mentioned countries which appeared more frequently.
 
 ```{r}
 
-# printing the webpage and converting everything to lowercase
-temp3 <- all %>% 
-  html_nodes("ol li") %>% html_text() %>%  tolower() %>%  # converting to lowercase
-  str_sort() %>% 
-  str_extract(.,"\\).*") %>% # extracting all text after ')'. Have to remove ')'
-  str_replace(.,"\\) ","") #replacing ) in all lines
+europe_countries <-
+  c(
+    "italy",
+    "italian",
+    "swiss",
+    "polish",
+    "swedish",
+    "irish",
+    "macedonia",
+    "dutch",
+    "spanish",
+    "portugese",
+    "czech",
+    "greek",
+    "austria"
+  )
+other_countries <-
+  c("tibetan",
+    "russian",
+    "ethiopia",
+    "egypt",
+    "jamaica",
+    "burmese",
+    "africa")
+south_america <- c("argentin", "cuba", "brazilian")
+pakistan <- c("pakistan")
+dataset$country <- with(
+  dataset,
+  case_when(
+    str_detect(dataset$peoples_title, "america|american|usa") ~ "america",
+    str_detect(dataset$peoples_title, "british|britain|english") ~ "british",
+    str_detect(dataset$peoples_title, paste(europe_countries, collapse = "|")) ~ "europe",
+    str_detect(dataset$peoples_title, "russia|soviet|russian") ~ "russia",
+    str_detect(dataset$peoples_title, "india") ~ "india",
+    str_detect(dataset$peoples_title, "^us") ~ "america",
+    str_detect(dataset$peoples_title, "german") ~ "germany",
+    str_detect(dataset$peoples_title, "france|french") ~ "france",
+    str_detect(dataset$peoples_title, "polish") ~ "poland",
+    str_detect(dataset$peoples_title, paste(south_america, collapse = "|")) ~ "south_america",
+    str_detect(dataset$peoples_title, paste(pakistan, collapse = "|")) ~ "pakistan",
+    str_detect(dataset$peoples_title, paste(other_countries, collapse = "|")) ~ "others"
+  )
+)
+# table(dataset$country, useNA = "always")
 
-# observed that the str functions are not cleaning all outputs. Hence doing further data cleaning to get desired outputs
+# replacing NA with others
+dataset$country <- dataset$country %>% replace_na(., "others")
 
-
-# extracting people designations. Doing further data cleaning
-peoples_title <- temp3 %>% str_remove_all(.,"\\)[0-9]*") %>% str_trim(.,"both")
-peoples_title <- peoples_title %>% str_remove_all(.,"[0-9]*") %>% str_trim(.,"right") %>% str_replace_all("[–|-|-|(|.]","") %>% str_trim(.,"both")
-
-peoples_title <- data.frame(peoples_title)
-head(peoples_title)
+colnames(dataset)
 
 ```
 
-### Removing jargon and fillers from all bio's
+## By Gender
+
+```{r}
+dataset$gender <- with(
+  dataset,
+  case_when(
+    str_detect(dataset$content, "\\bHis\\b") ~ "male",
+    str_detect(dataset$content, "\\bHer\\b") ~ "female"))
+
+
+dataset$gender[13] = "male"
+dataset$gender[14] = "male"
+dataset$gender[55] = "male"
+dataset$gender[64] = "female"
+dataset$gender[86] = "male"
+```
+
+# Data Cleaning of Biographies
 
 I've used stringr package to remove text such as "adsbygoogle.com" which came along with the scraped content. Also removing the last paragraph of each page, which had the links to further pages in the website.
 
 This cleaning is done to all rows in the data set, but there are a few special characters that are still left to be cleaned. Writing regex had been difficult, but at least for the word cloud has a feature to ignore special characters :). I will have to find a way to generate dataset which is void of all special characters so that it doesn't effect the analysis in later stages.
 
 ```{r}
-dataset2$content <- dataset2$content %>% str_remove_all(.,"adsbygoogle") %>%
+dataset$content <- dataset$content %>% str_remove_all(.,"adsbygoogle") %>%
   str_remove_all(.,"www.biographyonline.net") %>% 
   str_remove_all(.,"window.") %>% 
   str_remove_all(.,".push") %>% 
@@ -111,106 +276,12 @@ dataset2$content <- dataset2$content %>% str_remove_all(.,"adsbygoogle") %>%
 
 ```
 
-# Wordclouds!!!
-
-Lets try to visualise everyone's occupation using word clouds. Here I am following these steps to generate a word clouds.
-
--   tokenizing
-
--   stop word removal - using *stopwords-iso* list ( consists of 1298 stopwords)
-
--   corpus creation
-
--   removing numbers, punctuation, white spaces.
-
-    -   converting all text to lower case to maintain uniformity
-
--   Creating Document-Term Matrix
-
--   Finally generating word clouds!!!
-
-> **Important**. I faced issues generating word clouds, particularly at the matrix creation step. I've seen a lot of memory allocation issues, which I think is due to the RStudio update. Hence I am attaching the [screenshots]{.underline} of the word cloud generated in one of the successful attempts.
->
-> How I solved it temporarily?
->
-> -   either using gc() command which frees up unused memory space.
->
-> -   deleting the .rdata file from my project.
->
-> -   waiting a long time for my RAM to free up before I run another code block :(
-
-### Word Cloud on Occupations
-
-Looks like it is evident that 1/3rd of people in the list are from the USA, and Britain and most of them could be leaders, actresses, author, musician etc. It would be interesting to see the correlation of the word and the people associated with it.
+## Updating the csv file
 
 ```{r}
-for_occupation = peoples_title %>%
-  unnest_tokens(word, peoples_title, token = "words", strip_punct = TRUE) %>% 
-  filter(!(word %in% stopwords(source = "stopwords-iso"))) 
-
-
-# corpus created
-create_corpus_occupation <- Corpus(VectorSource(for_occupation))
-
-
-# cleaning data using tm library
-create_corpus_occupation <- create_corpus_occupation %>%
-  tm_map(removeNumbers) %>%
-  tm_map(removePunctuation) %>%
-  tm_map(stripWhitespace)
-create_corpus_occupation <- tm_map(create_corpus_occupation, content_transformer(tolower))
-create_corpus_occupation <- tm_map(create_corpus_occupation, removeWords, stopwords("english"))
-
-# creating document term matrix
-
-dtm_occupation <- TermDocumentMatrix(create_corpus_occupation) 
-matrix_occupation <- as.matrix(dtm_occupation) 
-words_occupation <- sort(rowSums(matrix_occupation),decreasing=TRUE) 
-df2 <- data.frame(word = names(words_occupation),freq=words_occupation)
-
-wordcloud2(data=df2, size = 0.8)
+write.csv(dataset,"100FamousPeople_new.csv")
 ```
-
-### Word cloud on ALL biographies
-
-```{r}
-bio <- dataset2 %>% 
-  unnest_tokens(word, content, token = "words", strip_punct = TRUE) %>% 
-  filter(!(word %in% stopwords(source = "stopwords-iso"))) 
-
-
-# tokenize_words(dataset$content)
-
-# %>% filter(!(word %in% stopwords(source = "stopwords-iso"))) 
-# 
-bio_vec <- bio$word
-create_corpus <- Corpus(VectorSource(bio_vec))
-
-#cleaning data using tm library
-create_corpus <- create_corpus %>%
- tm_map(removeNumbers) %>%
- tm_map(removePunctuation) %>%
- tm_map(stripWhitespace)
-create_corpus <- tm_map(create_corpus, content_transformer(tolower))
-create_corpus <- tm_map(create_corpus, removeWords, stopwords("english"))
-
-
-#creating document term matrix
-
-dtm <- TermDocumentMatrix(create_corpus)
-matrix <- as.matrix(dtm)
-words <- sort(rowSums(matrix),decreasing=TRUE)
-df <- data.frame(word = names(words),freq=words)
-#word cloud
-wordcloud2(data=df, size = 0.7)
-```
-
-![Word cloud on all biographies](People_Bios.png)
-
-The above word cloud provides really good insights about their biographies as a whole. It revolved mostly around war, people, government, politics and so on. Since this list is from the last century, the words like [*war*]{.underline} are highlighted. Since all of them are famous people, hence the word :).
-
-Words like president, american, political, army, peace, king might have some interesting correlations which I should further explore. Its good that [*women*]{.underline} are getting highlighted, which hints that a majority of this list contains women as well!
 
 # Future Analysis
 
-I am expecting to deep dive further into visualizing word count using graphs in my next post. And maybe in later posts, I want to do sentiment analysis.
+I will dive deeper into visualizing the latest dataset, and try to incorporate my findings with word clouds. I will also explore text-mining packages in the upcoming posts.

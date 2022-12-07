@@ -1,8 +1,8 @@
 ---
-title: "Blog Post 2 - 100+ Famous People"
+title: "Blog Post 2 - Web Scraping"
 author: "Adithya Parupudi"
-desription: "Scraped biographies of 100+ famous people to perform text analysis"
-date: "22/10/2022"
+desription: "Scraped biographies of 100+ famous people"
+date: "10/10/2022"
 format:
   html:
     toc: true
@@ -11,27 +11,35 @@ format:
     code-tools: true
 categories:
   - Adithya Parupudi
-  - blogpost2
 ---
+
+# Reading Libraries
 
 ```{r}
 #| label: setup
 #| warning: false
-
+library(quanteda)
 library(tidyverse)
 library(rvest)
 library(stringr)
+library(tokenizers)
 ```
 
-Using the website \<\> to scrape daat of 126 famous people from all over the world. This website has the detailed information about their early life, academic achievements, and the impact created by them.
+# Introduction
 
-I wanted to find out :
+Using the website https://www.biographyonline.net/people/famous-100.html to scrape data of 126 famous people from all over the world. This website has the detailed information about their early life, academic achievements, and the impact created by them.
+
+I wanted to find out the following:
 
 1.  What is the most common profession? Which areas of work do most of them fall into?
 2.  Where are they from? Whats their education background?
-3.  Whats their cause of death?
-4.  Which time period did most of them existed?
-5.  Emotion behind their famous quotes
+3.  How are they distributed demographically?
+4.  What is the male vs female percentage in this list?
+5.  Which time period did most of them existed?
+6.  what are the similarities of all people belonging to the same/similar profession?
+7.  How does their personalities change before and after the major world wars?
+
+# Web Scraping
 
 Reading the content of landing page, which has urls of all the famous people.
 
@@ -40,39 +48,106 @@ all = read_html("https://www.biographyonline.net/people/famous-100.html")
 
 ```
 
-I've created three variables to capture the celebrity names, individual page urls and their content. Each page contains various excerpts from their life such as "Early Life", "Notable Achievements", "Famous Quotes" and so on. I further created a dataset with each variable name as its column, to structure the data for further text processing, which is yet to be done.
+I've created three variables to capture the celebrity names, their occupation/title(as described by the website) and their content. Each page contains various excerpts from their life such as "Early Life", "Notable Achievements", "Famous Quotes" and so on.
 
 ```{r}
-people_names <- all %>% html_nodes("ol a") %>% html_text()
+people_names <- all %>% html_nodes("ol:nth-child(2) a") %>% html_text()
 # people_names
+length(people_names)
+typeof(people_names)
 
-#getting all the links
+missing_names <- c("Joe Biden","Tiger Woods","Kim Kardashian","Elon Musk")
+people_names<- append(people_names,missing_names)
 
-links <- all %>% html_nodes("ol a") %>% 
+# temp <- data.frame(people_names, people_title)
+
+peoples_title <- all %>% html_nodes("ol:nth-child(2) li") %>% html_text() 
+```
+
+
+### Get content
+
+I've written a function which recursively pulls data from the website and stores in a variable called 'content'. I wish to store data in individual variables and combine them to create a data-frame. Content of 4 people were missing. They are "Joe Biden","Tiger Woods","Kim Kardashian","Elon Musk" for whom I have pulled data from their respective Wikipedia pages and joined them together in a data frame. I have also appended their names to the list.
+
+```{r}
+# getting all the links
+links <- all %>% html_nodes("ol:nth-child(2) a") %>% 
   html_attr("href") %>% 
   str_replace(.,"/women/ingrid-bergman.html", "../women/ingrid-bergman.html") %>% 
   str_replace(.,"https://www.biographyonline.net/", "../") %>% 
   str_replace(.,"../", "https://www.biographyonline.net/")
 
+# function which pulls data from the website
 get_content = function(link){
   data = read_html(link)
   # data = read_html("https://www.biographyonline.net/nobelprize/economics/paul-krugman.html")
   content = data %>% html_nodes('.clearfix') %>% html_text() %>% paste(collapse = "!!!")
   return(content)
-    
 }
 
+# output is stored in 'content' variable
 content = sapply(links, FUN = get_content, USE.NAMES = FALSE) 
-dataset = data.frame(people_names, links, content, stringsAsFactors = FALSE)
 
-
-
+# joe biden
+content[97]<- read_html('https://en.wikipedia.org/wiki/Joe_Biden') %>% 
+  html_nodes('p') %>% html_text() %>% paste(collapse = '!!!')
+content[97] 
+# tiger woods
+content[98] <- read_html('https://en.wikipedia.org/wiki/Tiger_Woods') %>% 
+  html_nodes('p') %>% html_text() %>% paste(collapse = '!!!')
+#kim kardashian
+content[99] <- read_html('https://en.wikipedia.org/wiki/Kim_Kardashian') %>% 
+  html_nodes('p') %>% html_text() %>% paste(collapse = '!!!')
+#elon musk
+content[100] <- read_html('https://en.wikipedia.org/wiki/Elon_Musk') %>% 
+  html_nodes('p') %>% html_text() %>% paste(collapse = '!!!')
 ```
 
-Arranging the data in alphabetical order.
+### Creating dataframe
+
+Creating a data frame which combines all the variables so far.
 
 ```{r}
-arrange(dataset, people_names)
+# creating new dataframe
+dataset_new = data.frame(people_names, peoples_title, content, stringsAsFactors = FALSE)
+```
+
+### Arranging in alphabetical order of names
+
+The data in website is a jumbled list. So, arranging the data in alphabetical order of people names.
+
+```{r}
+dataset_new = arrange(dataset_new, people_names)
+```
+
+### Writing to CSV file
+
+Writing all details to a .csv file.
+
+```{r}
+#saving dataset to .csv file
+write.csv(dataset_new,"100FamousPeople_new.csv")
 ```
 
 Now that I've collected the dataset, I have to perform text pre-processing by removing some urls that came with scraped content. Also split the content into multiple rows for better readability and context clarity.
+
+# Exploring dataset
+
+**Read CSV**
+
+```{r}
+dataset<- read_csv("100FamousPeople_new.csv")
+```
+
+```{r}
+
+head(dataset)
+```
+
+```{r}
+str(dataset)
+```
+
+```{r}
+summary(dataset)
+```
