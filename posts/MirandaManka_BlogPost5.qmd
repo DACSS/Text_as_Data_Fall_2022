@@ -1,0 +1,223 @@
+---
+title: "Blog Post 5 (Arlnow covid articles)"
+author: "Miranda Manka"
+desription: "Working with data - Unsupervised Learning"
+date: "12/07/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - Miranda Manka
+---
+
+```{r}
+#| label: setup
+#| warning: false
+#| message: false
+
+library(tidyverse)
+library(quanteda)
+library(quanteda.textplots)
+library(ggplot2)
+library(devtools)
+library(quanteda.dictionaries)
+library(quanteda.sentiment)
+library(quanteda.textmodels)
+library(text2vec)
+library(stm)
+library(LDAvis)
+
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+## Notes
+
+For this blog post, I will explore some of the unsupervised learning methods from recent weeks (I worked on supervised learning methods for a bit but then realized it wasn't the best strategy for my data and what I am trying to do). At this point, I plan to make the next (and last) blog post 6 a stepping stone to my final project by examining what I have done so far and revisiting my research questions to review and make sure I have answered them.
+
+## Data
+
+The dataset contains 457 different articles from Arlnow (local news site in Northern Virginia) from March 2020 to September 2022 (550 before removing "Morning Notes"). The code below comes from other blog posts so I will not explain it much, but it involves cleaning and pre-processing and generally getting the data ready to use.
+
+```{r}
+arlnow_covid = read_csv("_data/arlnow_covid_posts.csv", col_names = TRUE, show_col_types = FALSE)
+arlnow_covid = subset(arlnow_covid, select = -c(1))
+arlnow_covid = dplyr::rename(arlnow_covid, text_field = raw_text)
+arlnow_covid = arlnow_covid[!grepl("Morning Notes", arlnow_covid$header_text), ]
+
+arlnow_covid_corpus = corpus(arlnow_covid, docid_field = "doc_id", text_field = "text_field")
+arlnow_covid_summary = summary(arlnow_covid_corpus)
+arlnow_covid_corpus_tokens = tokens(arlnow_covid_corpus, remove_punct = T)
+
+arlnow_covid_dfm = tokens(arlnow_covid_corpus,
+                                    remove_punct = TRUE, 
+                                    remove_symbols = TRUE,
+                                      remove_numbers = TRUE) %>%
+                           dfm(tolower = TRUE) %>%
+                           dfm_remove(stopwords('english')) %>%
+                           dfm_remove(c("arlington", "county", "virginia", "$"))
+
+# most frequent terms (features)
+topfeatures(arlnow_covid_dfm, 20)
+```
+
+## Analysis - Unsupervised Learning (topic modeling)
+
+Topic models are used to identify the topics that characterize a set of documents. LDA and STM are both mixed-membership models, meaning documents are characterized as arising from a distribution over topics, rather than coming from a single topic.
+
+#### Latent Dirichlet Allocation
+
+LDA uses two basic principles: each document is made up of topics, and each word in a document can be attributed to a topic.
+
+```{r}
+# create new LDA model
+lda_model <- LDA$new(n_topics = 10, doc_topic_prior = 0.1,
+                     topic_word_prior = 0.01)
+
+# print other methods for LDA
+lda_model
+
+# fitting model
+doc_topic_distr <- lda_model$fit_transform(x = arlnow_covid_dfm, n_iter = 1000,
+                          convergence_tol = 0.001, n_check_convergence = 25,
+                          progressbar = FALSE)
+
+# doc_topic_distr is a matrix where each row is a document, each row is a topic, and the cell entry is the proportion of the document estimated to be of the topic - each row is the topic attention distribution for a document
+
+# topic distribution for the first document
+barplot(doc_topic_distr[1, ], xlab = "topic",
+        ylab = "proportion", ylim = c(0,1),
+        names.arg = 1:ncol(doc_topic_distr))
+
+# get top n words for all topics
+lda_model$get_top_words(n = 5, lambda = 0.2)
+
+# quite a few of these topics actually seem to make sense and fit together - I think this was fairly successful and creates some interesting ideas and topics
+
+## visualization (opens in browser)
+#lda_model$plot()
+```
+
+### Structural Topic Models
+
+STM allows for leveraging the information (metadata) as part of the estimation of the topics. In this case, estimating topical prevalence by incorporating time/date information in estimating the topics. 
+
+```{r}
+# correlated topic model - a structural topic model that incorporates covariates; an STM without covariates reduces to a very fast implementation of correlated topic models (a version of the vanilla LDA model but where the topic proportions can be positively correlated with one another).
+
+# creating a new variable from time_tag that will just be the year, then recreating the dfm
+time_year = as.factor(substr(arlnow_covid$time_tag, 1, 4))
+arlnow_covid$time_year = time_year
+arlnow_covid = arlnow_covid[-c(3)]
+is.character(arlnow_covid$time_year)
+arlnow_covid_corpus_new = corpus(arlnow_covid, docid_field = "doc_id", text_field = "text_field")
+arlnow_covid_dfm_new = tokens(arlnow_covid_corpus_new,
+                                    remove_punct = TRUE, 
+                                    remove_symbols = TRUE,
+                                      remove_numbers = TRUE) %>%
+                           dfm(tolower = TRUE) %>%
+                           dfm_remove(stopwords('english')) %>%
+                           dfm_remove(c("arlington", "county", "virginia", "$"))
+
+
+
+
+# estimate the correlated topic model
+cor_topic_model <- stm(arlnow_covid_dfm_new, K = 7,
+                       verbose = FALSE, init.type = "Spectral")
+cor_topic_model
+
+# look at the topics - the words that are most frequent, probable, or that otherwise characterize a topic
+summary(cor_topic_model)
+
+# extract those words
+labelTopics(cor_topic_model)
+
+# top document associated with each topic
+findThoughts(cor_topic_model,
+             texts = arlnow_covid$text_field,
+             topics = c(1:7),
+             n = 1)
+
+
+
+# structural topic model
+
+# I will leverage the time_tag variable included in the dataset as a covariate in my estimates of topical prevalence, I expect some topics to be more prevalent by different dates (expect topics to change over time)
+
+# specify model I chose k=7 using the searchK function, shown below/later in this document
+myModel <- stm(arlnow_covid_dfm_new,
+               K = 7,
+               prevalence = ~ time_year,
+               data = arlnow_covid,
+               max.em.its = 1000,
+               seed = 1234,
+               init.type = "Spectral")
+
+# view model
+myModel
+labelTopics(myModel)
+
+# plotting out the top topics (as groups of words associated with that topic) and their estimated frequency across the corpus
+plot(myModel, type = "summary")
+
+# these topics seem to make sense compared to eachother and lda and what I might expect
+
+
+# specify model again but without prevalence = ~ time_year
+myModel2 <- stm(arlnow_covid_dfm_new,
+               K = 7,
+               data = arlnow_covid,
+               max.em.its = 1000,
+               seed = 1234,
+               init.type = "Spectral")
+
+# view model
+myModel2
+labelTopics(myModel2)
+
+# plotting out the top topics (as groups of words associated with that topic) and their estimated frequency across the corpus
+plot(myModel2, type = "summary")
+
+# these topics also seem to make sense, generally
+
+
+
+# choosing k - searchK() lets you estimate a series of different models, then you can plot a series of different evaluation metrics across those choices
+
+differentKs <- searchK(arlnow_covid_dfm_new,
+                       K = c(3, 5, 7, 10, 20, 30),
+                       prevalence = ~ time_year,
+                       N = 200,
+                       data = arlnow_covid,
+                       max.em.its = 1000,
+                       init.type = "Spectral")
+
+plot(differentKs)
+
+# k=7 is looking good based on higher held out likelihood and semantic coherence and lower residuals - since it is a trade off there is no one best k, but 7 seems to have a good balance here
+
+
+# just using a slightly different method here
+arlnow_stm <- convert(arlnow_covid_dfm_new, to = "stm")
+
+diffK <- searchK(arlnow_stm$documents, 
+                 arlnow_stm$vocab, 
+                 K = c(3, 7, 10), 
+                 N = 200, 
+                 data = arlnow_covid, 
+                 max.em.its = 1000, 
+                 init.type = "Spectral")
+plot(diffK)
+summary(diffK)
+```
+
+## Review/More Notes
+
+I liked working with topic models, I think it will be good to use and incorporate for answering my research questions and in my final poster. I thought the topics generally fit well, and I would like to explore them further a little bit, specifically any visualizations and further meaning. I plan to elaborate and explain further about applying this to my project.
+I started with supervised learning, and while it is not included here (as I didn't find it as relevant for my data and research questions), I thought it was useful to learn about and work with. 
+As I mentioned at the start, I plan to make my next blog post about reviewing what I have done, what I still need to/plan to do, and other loose ends as a stepping stone towards my final poster.
+
+
