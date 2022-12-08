@@ -1,0 +1,240 @@
+---
+title: "Blog Post 4 "
+author: "Mekhala Kumar"
+description: "LDA Topic Modelling"
+date: "12/7/2022"
+format:
+  html:
+    toc: true
+    code-copy: true
+    code-tools: true
+categories:
+  - MekhalaKumar
+  - Olympics2020
+  - GenderandSports
+  - BlogPost4
+  - LDA Topic Modelling
+---
+```{r}
+#| label: setup
+#| warning: false
+#| message: false
+library(tidyverse)
+library(quanteda)
+#devtools::install_github("quanteda/readtext") 
+library(readtext)
+library(striprtf)
+library(corpus)
+library(quanteda.textplots)
+library(readr)
+library(topicmodels)
+library(tidytext)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(text2vec)
+library(tm)
+```
+
+## Initial steps
+First a few more common words were removed from the document feature matrix so that the analysis is not cluttered by those words. 
+```{r}
+articles_dfm<-readRDS(file = "Data/News_DFM.rds")
+articles_dfm
+#textplot_wordcloud(articles_dfm, min_count = 50, random_order = FALSE)
+articles_dfm <- dfm_remove(articles_dfm, c("said","also","says","can","just"), verbose = TRUE)
+#textplot_wordcloud(articles_dfm, min_count = 50, random_order = FALSE)
+
+```
+
+## Semantic Network
+For the semantic network, I limited the document feature matrix to terms that appeared a least 15 times and in 25% of the documents. This consisted of 48 terms which I plotted.\
+Unsurprisingly, this shows that most of the articles discuss India in the Olympics (as Indian newspaper articles were used). One major theme that can be observed is the discussion of the hockey team, the men's team had placed third in over four decades hence marking history and was led by the captain Manpreet Singh. Other significant terms include medals and medal colours perhaps pertaining to victories by other Indian athletes; which may be more clearly observed through a topic model. 
+```{r}
+dfm_refined <- dfm_trim(articles_dfm, min_termfreq = 15)
+dfm_refined <- dfm_trim(dfm_refined, min_docfreq = .25, docfreq_type = "prop")
+
+fcm<- fcm(dfm_refined)
+dim(fcm)
+
+top_features <- names(topfeatures(fcm, 48))
+fcm_refined <- fcm_select(fcm, pattern = top_features, selection = "keep")
+dim(fcm_refined)
+size <- log(colSums(fcm_refined))
+textplot_network(fcm_refined, vertex_size = size / max(size) * 3)
+```
+## Topic Modelling
+I used the topicmodels package to run a Latent Dirichlet Allocation topic model. 
+
+##Preparatory steps
+
+To run the model, the data had to be in the form of a document term matrix. First the document feature matrix was converted into a one-token-per-document-per-row table and then this table was converted into a document term matrix. 
+```{r}
+articles_tidy<-tidy(articles_dfm)
+articles_tidy
+
+news_dtm <- articles_tidy %>%
+  cast_dtm(document, term, count)
+news_dtm
+```
+## Word topic probabilities
+## 3 topics
+There was not much valuable information being provided by keeping only three topics.\
+The first topic seemed to be about Neeraj Chopra winning the gold medal in javelin throw and PV Sindhu winning the bronze medal in badminton and the second topic seemed to focus on hockey. The third topic just had common terms pertaining to Olympics. \
+Hence, I ran a search_k function in order to find the optimal number of topics to use to derive a meaningful analysis. 
+```{r}
+
+news_lda <- LDA(news_dtm, k = 3, control = list(seed = 2345))
+news_lda
+#extracting per-topic-per-word probabilities
+news_topics <- tidy(news_lda, matrix = "beta")
+news_topics
+
+#Finding the top 10 terms
+news_top_10 <- news_topics %>%
+  group_by(topic) %>%
+  slice_max(beta, n = 10) %>% 
+  ungroup() %>%
+  arrange(topic, -beta)
+
+news_top_10%>%
+  mutate(term = reorder_within(term, beta, topic)) %>%
+  ggplot(aes(beta, term, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  scale_y_reordered()
+```
+
+## Choosing K
+
+Based on the semantic coherence, I selected K as 25. 
+
+```{r}
+library(stm)
+differentKs <- searchK(articles_dfm,
+                       K = c(5,10,15,25,50),
+                       N = 250,
+                       data = articles_tidy,
+                       max.em.its = 1000,
+                       init.type = "Spectral")
+
+plot(differentKs)
+```
+## Fitting the Latent Dirichlet Allocation topic model for 25 topics
+At first I plotted the top 10 words for each topic, however I thought that having the top 20 words would give a better idea of the content covered. 
+## 25 topics
+Many of the topics (2,5,8,12,18,20) focus on hockey. However, different aspects pertaining to the game are discussed.\
+Topic 2 discusses the Prime Minister honouring the hockey players with the highest sports award of India- the Major Dhyan Chand Khel Ratna. \
+Topic 5 is a little unclear as it has information about marketing but also mentions the police.\
+Topic 8 covers the details of the hockey games and mentions the other countries that took part in the semifinal and final mens' matches.\
+Topic 12 can be considered as the reaction of the public to the game and content of tweets regarding the same.\
+Topic 18 has a mix of the hockey team's achievements and PV Sindhu's (badminton player) achievement
+Topic 20 discusses how the government of the state of Odisha reacted to the win and stated it would continue to sponsor the women's and men's hockey teams.\
+
+All of the players mentioned in the topic models were either winners or in the final rounds of their respective sports. They also contained information regarding tweets and prominent celebrities that congratulated them. There was no noticeable difference in the top terms used for male sports players and female sports players.However, one difference that can be observed is that although both the mens' and womens' Indian hockey teams played well, majority of the topics were regarding the mens' achievements (2,8,12 and 18). Perhaps, because they placed third whereas the womens' team placed fourth.  \
+Similar to hockey, the sports of javelin throw, wrestling and weightlifting were mentioned in several topics. For the gold medallist Neeraj Chopra, there was also a topic which pertained to his army background. Finally, many of the topics about the winners mention cash prizes from sources such as the government and the term 'rs' which stands for rupees which is the Indian currency. \
+The topic that was popular outside the Indian context (topics 1 and 15), regarding the gymnast Simon Biles and the importance of mental health as she had withdrawn from the Olympics due to mental health concerns.
+
+```{r fig.height=14, fig.width=12}
+news_lda25 <- LDA(news_dtm, k = 25, control = list(seed = 2345))
+news_lda25
+
+#extracting per-topic-per-word probabilities
+news_topics25 <- tidy(news_lda25, matrix = "beta")
+news_topics25
+
+#Finding the top 10 terms
+news_top_10_25 <- news_topics25 %>%
+  group_by(topic) %>%
+  slice_max(beta, n = 10) %>% 
+  ungroup() %>%
+  arrange(topic, -beta)
+
+news_top_10_25%>%
+  mutate(term = reorder_within(term, beta, topic)) %>%
+  ggplot(aes(beta, term, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  scale_y_reordered()
+
+#Finding top 20 terms
+news_top_20_25 <- news_topics25 %>%
+  group_by(topic) %>%
+  slice_max(beta, n = 20) %>% 
+  ungroup() %>%
+  arrange(topic, -beta)
+
+news_top_20_25%>%
+  mutate(term = reorder_within(term, beta, topic)) %>%
+  ggplot(aes(beta, term, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  scale_y_reordered()
+```
+
+Since many of the topic models had their top terms as "olympics" or "India", I wanted to check whether removing these terms would offer a deeper insight into the topics. 
+
+```{r}
+#removing some of the common words and then seeing how the topic model looks
+articles_dfm_common_rem <- dfm_remove(articles_dfm, c("olympics","olympic","india","indian","tokyo","sports","#tokyo2020","2020","2021","india's"), verbose = TRUE)
+articles_tidy2<-tidy(articles_dfm_common_rem)
+articles_tidy2
+news_dtm2<- articles_tidy2 %>%
+  cast_dtm(document, term, count)
+news_dtm2
+
+```
+## Topic Models with some common words removed
+Most of the topics regarding the prominent sports players remained the same. \
+This model did make it more clear as to why the word police occured in one of the topics that was about hockey. Topic 15 in the model includes words such as casteist, women's and hockey which refers to the incident where casteist remarks about women hockey players were made after the women's team had lost a semifinal.\
+Moreover, Topic 24 has information that is not related to the Olympics at all, which may indicate that some of the news articles in the dataframe could have had multiple headlines being discussed and gotten mixed up with the Olympics news. 
+```{r fig.height=15, fig.width=12}
+news_lda25_remove <- LDA(news_dtm2, k = 25, control = list(seed = 2345))
+news_lda25_remove
+
+#extracting per-topic-per-word probabilities
+news_topics25_remove <- tidy(news_lda25_remove, matrix = "beta")
+news_topics25_remove
+
+#Finding the top 20 terms
+news_top_20_25_remove <- news_topics25_remove %>%
+  group_by(topic) %>%
+  slice_max(beta, n = 20) %>% 
+  ungroup() %>%
+  arrange(topic, -beta)
+
+news_top_20_25_remove%>%
+  mutate(term = reorder_within(term, beta, topic)) %>%
+  ggplot(aes(beta, term, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  scale_y_reordered()
+```
+
+## Greatest difference between 2 topics
+In this LDA model, for the topics regarding hockey, the different aspects covered in each are observable. However, for the topics about Neeraj Chopra in the javelin throw event- topics 11 and 25, it is not clear as to the difference in the 2 topics. Hence, I wanted to check for the words which have the greatest difference between the 2 topics. I kept the beta value greater than 1/5000. \
+In topic 11, the common words seem to be more general such as the act of winning and being in the finals, whereas in topic 25, the common words are more specific to Neeraj Chopra and how his winning was a historical moment in  Indian sports. 
+```{r fig.height=15, fig.width=12}
+#Different Neeraj Chopra topics
+#beta_11_12%>%select(topic)%>%n_distinct()
+beta_11_25<- news_topics25_remove %>%
+  mutate(topic = paste0("topic", topic))%>%
+  filter(topic=="topic11"|topic=="topic25")%>%
+  pivot_wider(names_from =topic, values_from = beta)%>% 
+  filter(topic11 > .005| topic25 > .005) %>%
+  mutate(log_ratio = log2(topic25/ topic11))
+
+beta_11_25%>%select(log_ratio)%>%max()
+beta_11_25%>%select(log_ratio)%>%min()
+testt <- ggplot(beta_11_25, aes(x = `term`, y = `log_ratio`, width = .5)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  coord_flip()
+
+library(plotly)
+ggplotly(testt)
+```
+
+In the next post, I plan to implement structural topic models. 
+
+
+
