@@ -20,6 +20,19 @@ categories:
 #| label: setup
 #| warning: false
 #| message: false
+
+library(tidyverse)
+library(pdftools)
+library(stringr)
+library(polite)
+library(quanteda)
+library(tidytext)
+library(quanteda.textplots)
+library(tm)
+library(RedditExtractoR)
+
+load("post2_saaradhaa.rdata")
+
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
@@ -43,20 +56,6 @@ To understand older South Asian Americans, I will be scraping data from the [Sou
 To understand younger South Asian Americans, I will be scraping posts and comments from the subreddit r/ABCDesis ("American Born Confused Desis"). Reddit is very popular in the US, with Americans comprising [half](https://thrivemyway.com/reddit-statistics/#Reddit-Usage-Statistics) of all Reddit Users. Reddit provides an optimal way of understanding communities of users with some common trait/interest - in this case, South Asian Americans. Reddit users also tend to fall in the 18-29 age range, representing South Asian Americans who migrated in the 1990s-2000s (and thus grew up in the Internet age).
 
 For all code chunks below, I will document my thought process as comments in the code chunks, so that I can keep track of what I'm doing. I'll also be commenting out some of the code so that it doesn't re-run when I render (e.g., I don't want to re-download my files again when I render the document).
-
-## Load Libraries
-
-```{r}
-library(tidyverse)
-library(pdftools)
-library(stringr)
-library(polite)
-library(quanteda)
-library(tidytext)
-library(quanteda.textplots)
-library(tm)
-library(RedditExtractoR)
-```
 
 ## Reading In PDF Data
 
@@ -122,8 +121,8 @@ for (i in 42:50)
 # convert to characters and save.
 text_a <- unlist(text_a) %>% paste0(collapse=" ") %>% stringr::str_squish()
 text_s <- unlist(text_s) %>% paste0(collapse=" ") %>% stringr::str_squish()
-saveRDS(text_a, file="text_a.rds")
-saveRDS(text_s, file="text_s.rds")
+# saveRDS(text_a, file="text_a.rds")
+# saveRDS(text_s, file="text_s.rds")
 
 # when reading them into R in the future, i can use this command: readRDS(file="text_a.rds")
 
@@ -193,7 +192,7 @@ I ideally want to analyse more than 1000 posts, so I'll look into other methods 
 # let's save the content object so that we don't have to keep re-running it. in the future, i can just re-load this.
 # saveRDS(content, "content.rds")
 
-content <- read_rds("content.rds")
+# content <- read_rds("content.rds")
 
 # this took me pretty long to read in, then R hung and i lost it! 
 # url_content <- get_thread_content(content$url[1:100])
@@ -245,7 +244,7 @@ reddit_corpus <- corpus(content$title_text)
 reddit_corpus <- corpus_reshape(reddit_corpus,to="sentences")
 
 # save object.
-saveRDS(reddit_corpus, "reddit_corpus.rds")
+# saveRDS(reddit_corpus, "reddit_corpus.rds")
 ```
 
 Let's make a wordcloud.
@@ -261,6 +260,8 @@ Let's also look at the use of the word "culture", similar to what I did for the 
 
 ```{r}
 head(kwic(reddit_corpus, pattern = c("culture"), window=10))
+
+# save.image("post2_saaradhaa.RData")
 ```
 
 There seems to be a lot more detail in the Reddit data when looking at the windows around the word "culture".

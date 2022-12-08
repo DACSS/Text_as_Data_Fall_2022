@@ -203,7 +203,7 @@ oh_values %>% select(docname,ac) %>% arrange(desc(ac)) %>% head(1)
 
 Opening Text 36 on my computer, the interviewee discusses her grueling training in classical dance, and how it was challenging to keep up with especially when she migrated to the US. This is a classic example of achievement.
 
-Meanwhile, younger South Asian Americans valued **universalism** more. This is interesting, as Schwartz describes this as *opposite* to benevolence, which focuses just on loved ones: "people do not recognize these needs until they encounter others beyond the extended primary group...two subtypes of concern...welfare of those in the larger society and world and for nature". This could reflect several things:
+Meanwhile, younger South Asian Americans valued **universalism** more. This is interesting, as Schwartz describes this as *opposite* to benevolence, which focuses just on loved ones: "people do not recognize these needs until they encounter others beyond the extended primary group...two subtypes of concern...welfare of those in the larger society and world and for nature" (Schwartz, 2012, p. 7). This could reflect several things:
 
 -   Younger South Asian Americans' socialization to both South Asian and American cultures (regard for both the society at large [and]{.underline} their close loved ones, reflected in endorsing supposedly opposing values);
 
