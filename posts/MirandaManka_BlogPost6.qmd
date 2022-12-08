@@ -1,0 +1,81 @@
+---
+title: "Blog Post 6 (Arlnow covid articles)"
+author: "Miranda Manka"
+desription: "Recap/Review"
+date: "12/08/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - Miranda Manka
+---
+
+```{r}
+#| label: setup
+#| warning: false
+#| message: false
+
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+## Quick Notes
+I want to use this blog post as a stepping stone to my final project by examining what I have done so far and revisiting my research questions to review and make sure I have answered them. I also want to include what I still need to/plan to do, and other loose ends as a stepping stone towards my final poster.
+
+## Short Background Of My Idea
+For this project, I thought it would be really interesting to use news articles/posts from a local news site (in Arlington, VA). I thought this would be most relevant to me since I know the area and can relate. I wanted to look at covid-specific terms, as this has been an ongoing pandemic since 2020. 
+
+## Getting The Data
+I webscraped the arlnow.com site and I got articles that date from mid-March 2020 to the end of September 2022. I searched on the site for "covid" and only scraped articles that showed up from searching. This gave me 550 articles with the title, author, time/date, and text from the posts.
+
+## Initial Research Questions
+1: The change in word usage over time (for example, if "closed" was used in more articles in 2020 than 2022).
+
+2: The change in the sentiment of the articles over time.
+
+Other: I had some other ideas I wanted to explore, but were not specific research questions. This included comparing the arlnow articles to another city (but I didn't end up exploring this, to instead focus on what I was already working on). I also wanted to look at which words are connected and potentially draw some insights about real-world applications given people's experiences during the pandemic (for example, "vaccine" and "requirement" may be found together in a news article).
+
+## Methods/Processes Used
+Not all of these can be included in my final, but I thought it would be really helpful to go back through and list all of the methods I used.
+
+### Blog Post 2
+- Corpus/Tokens
+- Kwic Analysis (looks at a word and its appearances in a text to find out its meaning and usage - for example, words like "school", "vaccine", and "restaurant")
+
+### Blog Post 3
+- Pre-processing (cleaning and preparing the data - remove punctuation, symbols, numbers, stopwords, and certain terms ("arlington", "county", "virginia", "$"); make words lower-case)
+- Word Cloud (size of the word corresponds to the frequency of the term in the corpus)
+- Zipf's Law (where the frequency of any word is inversely proportional to its rank in the frequency table)
+- Feature Co-occurrence Matrix (how words within the corpus relate to one another)
+- Semantic Network (used to visualize relationships between words/themes in the corpus)
+
+### Blog Post 4
+- Dictionary Analysis (identify a set of words that connect to a certain concept, and to count the frequency of that set of words within a document) (nrc dictionary)
+- Sentiment Analysis (determining whether the terms were positive or negative, (polarity) from the dictionary)
+- Document Feature Matrix (documents in rows and “features” as columns)
+- Dictionary Comparison (looking at and comparing the various dictionaries)
+
+### Blog Post 5
+- Topic Modeling (identify the topics that characterize a set of documents)
+- Latent Dirichlet Allocation (each document is made up of topics, and each word in a document can be attributed to a topic)
+- Structural Topic Modeling (allows for leveraging the information (metadata) as part of the estimation of the topics)
+- Correlated Topic Model (a structural topic model that incorporates covariates)
+- SearchK
+
+## Potential Visualizations
+- Word Cloud
+- Semantic Network
+- Sentiment/Polarity change over time
+- Changes over time (Sentiment/Polarity) (Use of specific words: "restaurants", "schools", "vaccines" etc)
+- Topics found in Topic Modeling
+
+## Reflection/Discussion
+Difficulties: Throughout the semester, there were some times I struggled. Initially, I had trouble deciding on an idea (this is why my first blog post had a different topic) because I was trying to choose the "best" topic, but I realized I just needed to pick any of the multiple ideas I found interesting and go with it. Getting my data through webscraping was difficult and stressful because I had to work through using the css selectors and that was new to me. One of the stresses I had throughout the semester was figuring out exactly what questions I wanted to answer and how to answer them, both what methods to use and examining the results and the applications/importance.
+
+What I learned & liked: I learned so much this semester. I worked through the difficulties mentioned above and was able to learn about the process of text analysis. I was surprised at all of the different methods of analysis we covered in only one semester, and how each text should be analyzed and interpreted differently based on the content and goals of the analysis. 
+
+Still to-do: I still need to put everything together in the poster. I didn't include my results here so I will put them in the poster, as well as as much information and explanation as I can fit. I basically need to run the code again so I can copy and paste the results and visualizations, and maybe make some minor changes. I will add a results section, as well as more discussion relevant to my data.
+
+
