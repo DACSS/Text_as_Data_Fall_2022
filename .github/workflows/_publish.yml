@@ -103,6 +103,7 @@ jobs:
             any::syuzhet
             any::quarto  
             any::kableExtra
+            any::servr
           cache-version: 1
           #extra-packages: any::rcmdcheck
           #needs: check
