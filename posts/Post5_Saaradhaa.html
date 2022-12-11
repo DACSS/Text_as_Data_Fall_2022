@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.0.37">
+<meta name="generator" content="quarto-1.2.269">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -14,10 +14,15 @@
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-span.underline{text-decoration: underline;}
-div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
@@ -56,7 +61,7 @@ code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
 code span.at { color: #7d9029; } /* Attribute */
 code span.bn { color: #40a070; } /* BaseN */
-code span.bu { } /* BuiltIn */
+code span.bu { color: #008000; } /* BuiltIn */
 code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
 code span.ch { color: #4070a0; } /* Char */
 code span.cn { color: #880000; } /* Constant */
@@ -69,7 +74,7 @@ code span.er { color: #ff0000; font-weight: bold; } /* Error */
 code span.ex { } /* Extension */
 code span.fl { color: #40a070; } /* Float */
 code span.fu { color: #06287e; } /* Function */
-code span.im { } /* Import */
+code span.im { color: #008000; font-weight: bold; } /* Import */
 code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
 code span.kw { color: #007020; font-weight: bold; } /* Keyword */
 code span.op { color: #666666; } /* Operator */
@@ -131,6 +136,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <meta name="twitter:title" content="Text-as-Data Fall 2022 - Post 5">
 <meta name="twitter:description" content="KWIC and Dictionary Analysis">
 <meta name="twitter:creator" content="@UMassDACSS">
+<meta name="twitter:site" content="@UMassDACSS">
 <meta name="twitter:card" content="summary">
 </head>
 
@@ -140,28 +146,35 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <header id="quarto-header" class="headroom fixed-top">
     <nav class="navbar navbar-expand-lg navbar-dark ">
       <div class="navbar-container container-fluid">
-      <a class="navbar-brand" href="../index.html">
-    <img src="../images/UMass White Wordmark Horiz.png" alt="">
+      <div class="navbar-brand-container">
+    <a href="../index.html" class="navbar-brand navbar-brand-logo">
+    <img src="../images/UMass White Wordmark Horiz.png" alt="" class="navbar-logo">
+    </a>
+    <a class="navbar-brand" href="../index.html">
     <span class="navbar-title">Text-as-Data Fall 2022</span>
-  </a>
+    </a>
+  </div>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="https://dacss.github.io/Text_as_Data_Fall_2022/">Fall 2022</a>
+    <a class="nav-link" href="https://dacss.github.io/Text_as_Data_Fall_2022/">
+ <span class="menu-text">Fall 2022</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../about.html">Contributors</a>
+    <a class="nav-link" href="../about.html">
+ <span class="menu-text">Contributors</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="https://umass.edu/sbs/dacss">DACSS</a>
+    <a class="nav-link" href="https://umass.edu/sbs/dacss">
+ <span class="menu-text">DACSS</span></a>
   </li>  
   <li class="nav-item compact">
     <a class="nav-link" href="https://github.com/DACSS/Text_as_Data_Fall_2022"><i class="bi bi-github" role="img" aria-label="GitHub">
 </i> 
- </a>
+ <span class="menu-text"></span></a>
   </li>  
 </ul>
               <div class="quarto-toggle-container">
@@ -177,7 +190,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <!-- sidebar -->
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc">
+        <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">On this page</h2>
    
   <ul>
@@ -224,6 +237,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       <p class="date">November 13, 2022</p>
     </div>
   </div>
+  
     
   </div>
   
@@ -234,65 +248,100 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda.textplots)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda.dictionaries)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(utils)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"post5_saaradhaa.rdata"</span>)</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">echo =</span> <span class="cn">TRUE</span>, <span class="at">warning =</span> <span class="cn">FALSE</span>, <span class="at">message =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda.dictionaries)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in library(quanteda.dictionaries): there is no package called 'quanteda.dictionaries'</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(utils)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"post5_saaradhaa.rdata"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in readChar(con, 5L, useBytes = TRUE): cannot open the connection</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">echo =</span> <span class="cn">TRUE</span>, <span class="at">warning =</span> <span class="cn">FALSE</span>, <span class="at">message =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="kwic-analysis" class="level2">
 <h2 class="anchored" data-anchor-id="kwic-analysis">KWIC Analysis</h2>
 <p>I will first work on the comments I received for Post 4. I compared the appearance of the term ‘culture’ in the oral histories vs.&nbsp;Reddit comments, but received feedback to try a kwic analysis instead (to check which terms are more likely to be used with ‘culture’).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># load saved R object with oral histories.</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># transcripts &lt;- read_rds("transcripts.rds")</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># create 'quanteda' corpus. </span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>oh_corpus <span class="ot">&lt;-</span> <span class="fu">corpus</span>(transcripts<span class="sc">$</span>text)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># create my own list of stopwords, based on qualitative reading of the first transcript.</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>to_keep <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"do"</span>, <span class="st">"does"</span>, <span class="st">"did"</span>, <span class="st">"would"</span>, <span class="st">"should"</span>, <span class="st">"could"</span>, <span class="st">"ought"</span>, <span class="st">"isn't"</span>, <span class="st">"aren't"</span>, <span class="st">"wasn't"</span>, <span class="st">"weren't"</span>, <span class="st">"hasn't"</span>, <span class="st">"haven't"</span>, <span class="st">"hadn't"</span>, <span class="st">"doesn't"</span>, <span class="st">"don't"</span>, <span class="st">"didn't"</span>, <span class="st">"won't"</span>, <span class="st">"wouldn't"</span>, <span class="st">"shan't"</span>, <span class="st">"shouldn't"</span>, <span class="st">"can't"</span>, <span class="st">"cannot"</span>, <span class="st">"couldn't"</span>, <span class="st">"mustn't"</span>, <span class="st">"because"</span>, <span class="st">"against"</span>, <span class="st">"between"</span>, <span class="st">"into"</span>, <span class="st">"through"</span>, <span class="st">"during"</span>, <span class="st">"before"</span>, <span class="st">"after"</span>, <span class="st">"above"</span>, <span class="st">"below"</span>, <span class="st">"over"</span>, <span class="st">"under"</span>, <span class="st">"no"</span>, <span class="st">"nor"</span>, <span class="st">"not"</span>)</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>Stopwords <span class="ot">&lt;-</span> <span class="fu">stopwords</span>(<span class="st">"en"</span>)</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>Stopwords <span class="ot">&lt;-</span> Stopwords[<span class="sc">!</span>(Stopwords <span class="sc">%in%</span> to_keep)]</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co"># create tokens, remove punctuation, numbers, symbols and stopwords, then convert to lowercase.</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>oh_tokens <span class="ot">&lt;-</span> <span class="fu">tokens</span>(oh_corpus, <span class="at">remove_punct =</span> T, <span class="at">remove_numbers =</span> T, <span class="at">remove_symbols =</span> T)</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>oh_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_select</span>(oh_tokens, <span class="at">pattern =</span> Stopwords, <span class="at">selection =</span> <span class="st">"remove"</span>)</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>oh_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_tolower</span>(oh_tokens)</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co"># remove tokens that appeared in previous wordcloud that are not too meaningful.</span></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>oh_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_remove</span>(oh_tokens, <span class="fu">c</span>(<span class="st">"know"</span>, <span class="st">"even"</span>, <span class="st">"used"</span>, <span class="st">"thing"</span>, <span class="st">"lot"</span>, <span class="st">"yes"</span>, <span class="st">"say"</span>, <span class="st">"going"</span>, <span class="st">"went"</span>, <span class="st">"yeah"</span>, <span class="st">"come"</span>, <span class="st">"actually"</span>, <span class="st">"mean"</span>, <span class="st">"like"</span>, <span class="st">"think"</span>, <span class="st">"get"</span>, <span class="st">"go"</span>, <span class="st">"said"</span>, <span class="st">"see"</span>, <span class="st">"things"</span>, <span class="st">"really"</span>, <span class="st">"well"</span>, <span class="st">"still"</span>, <span class="st">"little"</span>, <span class="st">"got"</span>, <span class="st">"right"</span>, <span class="st">"can"</span>, <span class="st">"came"</span>, <span class="st">"um"</span>, <span class="st">"quite"</span>, <span class="st">"bit"</span>, <span class="st">"every"</span>, <span class="st">"oh"</span>, <span class="st">"many"</span>, <span class="st">"always"</span>, <span class="st">"one"</span>, <span class="st">"two"</span>, <span class="st">"just"</span>, <span class="st">"much"</span>, <span class="st">"want"</span>, <span class="st">"wanted"</span>, <span class="st">"okay"</span>, <span class="st">"part"</span>, <span class="st">"also"</span>, <span class="st">"just"</span>, <span class="st">"us"</span>, <span class="st">"never"</span>, <span class="st">"many"</span>, <span class="st">"something"</span>, <span class="st">"want"</span>, <span class="st">"wanted"</span>, <span class="st">"uh"</span>))</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co"># look at kwic for oral histories.</span></span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">kwic</span>(oh_tokens, <span class="at">pattern =</span> <span class="fu">c</span>(<span class="st">"[cC]ultur"</span>), <span class="at">window=</span><span class="dv">15</span>, <span class="at">valuetype =</span> <span class="st">"regex"</span>)</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="fu">textplot_xray</span>(data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="Post5_Saaradhaa_files/figure-html/kwic%20OH-1.png" class="img-fluid" width="672"></p>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># load saved R object with oral histories.</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># transcripts &lt;- read_rds("transcripts.rds")</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># create 'quanteda' corpus. </span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>oh_corpus <span class="ot">&lt;-</span> <span class="fu">corpus</span>(transcripts<span class="sc">$</span>text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in corpus(transcripts$text): object 'transcripts' not found</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create my own list of stopwords, based on qualitative reading of the first transcript.</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>to_keep <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"do"</span>, <span class="st">"does"</span>, <span class="st">"did"</span>, <span class="st">"would"</span>, <span class="st">"should"</span>, <span class="st">"could"</span>, <span class="st">"ought"</span>, <span class="st">"isn't"</span>, <span class="st">"aren't"</span>, <span class="st">"wasn't"</span>, <span class="st">"weren't"</span>, <span class="st">"hasn't"</span>, <span class="st">"haven't"</span>, <span class="st">"hadn't"</span>, <span class="st">"doesn't"</span>, <span class="st">"don't"</span>, <span class="st">"didn't"</span>, <span class="st">"won't"</span>, <span class="st">"wouldn't"</span>, <span class="st">"shan't"</span>, <span class="st">"shouldn't"</span>, <span class="st">"can't"</span>, <span class="st">"cannot"</span>, <span class="st">"couldn't"</span>, <span class="st">"mustn't"</span>, <span class="st">"because"</span>, <span class="st">"against"</span>, <span class="st">"between"</span>, <span class="st">"into"</span>, <span class="st">"through"</span>, <span class="st">"during"</span>, <span class="st">"before"</span>, <span class="st">"after"</span>, <span class="st">"above"</span>, <span class="st">"below"</span>, <span class="st">"over"</span>, <span class="st">"under"</span>, <span class="st">"no"</span>, <span class="st">"nor"</span>, <span class="st">"not"</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>Stopwords <span class="ot">&lt;-</span> <span class="fu">stopwords</span>(<span class="st">"en"</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>Stopwords <span class="ot">&lt;-</span> Stopwords[<span class="sc">!</span>(Stopwords <span class="sc">%in%</span> to_keep)]</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co"># create tokens, remove punctuation, numbers, symbols and stopwords, then convert to lowercase.</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>oh_tokens <span class="ot">&lt;-</span> <span class="fu">tokens</span>(oh_corpus, <span class="at">remove_punct =</span> T, <span class="at">remove_numbers =</span> T, <span class="at">remove_symbols =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in tokens(oh_corpus, remove_punct = T, remove_numbers = T, remove_symbols = T): object 'oh_corpus' not found</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>oh_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_select</span>(oh_tokens, <span class="at">pattern =</span> Stopwords, <span class="at">selection =</span> <span class="st">"remove"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in tokens_select(oh_tokens, pattern = Stopwords, selection = "remove"): object 'oh_tokens' not found</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>oh_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_tolower</span>(oh_tokens)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in tokens_tolower(oh_tokens): object 'oh_tokens' not found</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># remove tokens that appeared in previous wordcloud that are not too meaningful.</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>oh_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_remove</span>(oh_tokens, <span class="fu">c</span>(<span class="st">"know"</span>, <span class="st">"even"</span>, <span class="st">"used"</span>, <span class="st">"thing"</span>, <span class="st">"lot"</span>, <span class="st">"yes"</span>, <span class="st">"say"</span>, <span class="st">"going"</span>, <span class="st">"went"</span>, <span class="st">"yeah"</span>, <span class="st">"come"</span>, <span class="st">"actually"</span>, <span class="st">"mean"</span>, <span class="st">"like"</span>, <span class="st">"think"</span>, <span class="st">"get"</span>, <span class="st">"go"</span>, <span class="st">"said"</span>, <span class="st">"see"</span>, <span class="st">"things"</span>, <span class="st">"really"</span>, <span class="st">"well"</span>, <span class="st">"still"</span>, <span class="st">"little"</span>, <span class="st">"got"</span>, <span class="st">"right"</span>, <span class="st">"can"</span>, <span class="st">"came"</span>, <span class="st">"um"</span>, <span class="st">"quite"</span>, <span class="st">"bit"</span>, <span class="st">"every"</span>, <span class="st">"oh"</span>, <span class="st">"many"</span>, <span class="st">"always"</span>, <span class="st">"one"</span>, <span class="st">"two"</span>, <span class="st">"just"</span>, <span class="st">"much"</span>, <span class="st">"want"</span>, <span class="st">"wanted"</span>, <span class="st">"okay"</span>, <span class="st">"part"</span>, <span class="st">"also"</span>, <span class="st">"just"</span>, <span class="st">"us"</span>, <span class="st">"never"</span>, <span class="st">"many"</span>, <span class="st">"something"</span>, <span class="st">"want"</span>, <span class="st">"wanted"</span>, <span class="st">"uh"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in tokens_select(x, ..., selection = "remove"): object 'oh_tokens' not found</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># look at kwic for oral histories.</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">kwic</span>(oh_tokens, <span class="at">pattern =</span> <span class="fu">c</span>(<span class="st">"[cC]ultur"</span>), <span class="at">window=</span><span class="dv">15</span>, <span class="at">valuetype =</span> <span class="st">"regex"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in kwic(oh_tokens, pattern = c("[cC]ultur"), window = 15, valuetype = "regex"): object 'oh_tokens' not found</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">textplot_xray</span>(data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as.vector(x, mode): cannot coerce type 'closure' to vector of type 'any'</code></pre>
 </div>
 </div>
 <p>I am not too sure how to interpret this plot and might need some help with this.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># load saved R object with reddit data and create corpus. remove punctuation/symbols, lowercase.</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># reddit_comments_final &lt;- read_rds("reddit_comments_final.rds")</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>reddit_corpus <span class="ot">&lt;-</span> <span class="fu">corpus</span>(reddit_comments_final<span class="sc">$</span>comment)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># use same list of stopwords as oral histories.</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>to_keep <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"do"</span>, <span class="st">"does"</span>, <span class="st">"did"</span>, <span class="st">"would"</span>, <span class="st">"should"</span>, <span class="st">"could"</span>, <span class="st">"ought"</span>, <span class="st">"isn't"</span>, <span class="st">"aren't"</span>, <span class="st">"wasn't"</span>, <span class="st">"weren't"</span>, <span class="st">"hasn't"</span>, <span class="st">"haven't"</span>, <span class="st">"hadn't"</span>, <span class="st">"doesn't"</span>, <span class="st">"don't"</span>, <span class="st">"didn't"</span>, <span class="st">"won't"</span>, <span class="st">"wouldn't"</span>, <span class="st">"shan't"</span>, <span class="st">"shouldn't"</span>, <span class="st">"can't"</span>, <span class="st">"cannot"</span>, <span class="st">"couldn't"</span>, <span class="st">"mustn't"</span>, <span class="st">"because"</span>, <span class="st">"against"</span>, <span class="st">"between"</span>, <span class="st">"into"</span>, <span class="st">"through"</span>, <span class="st">"during"</span>, <span class="st">"before"</span>, <span class="st">"after"</span>, <span class="st">"above"</span>, <span class="st">"below"</span>, <span class="st">"over"</span>, <span class="st">"under"</span>, <span class="st">"no"</span>, <span class="st">"nor"</span>, <span class="st">"not"</span>)</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>Stopwords <span class="ot">&lt;-</span> <span class="fu">stopwords</span>(<span class="st">"en"</span>)</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>Stopwords <span class="ot">&lt;-</span> Stopwords[<span class="sc">!</span>(Stopwords <span class="sc">%in%</span> to_keep)]</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># create tokens, remove punctuation, numbers, symbols and stopwords, then convert to lowercase.</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>reddit_tokens <span class="ot">&lt;-</span> <span class="fu">tokens</span>(reddit_corpus, <span class="at">remove_punct =</span> T, <span class="at">remove_numbers =</span> T, <span class="at">remove_symbols =</span> T)</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>reddit_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_select</span>(reddit_tokens, <span class="at">pattern =</span> Stopwords, <span class="at">selection =</span> <span class="st">"remove"</span>)</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>reddit_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_tolower</span>(reddit_tokens)</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co"># remove tokens that appear in wordcloud that are not too meaningful.</span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>reddit_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_remove</span>(reddit_tokens, <span class="fu">c</span>(<span class="st">"m"</span>, <span class="st">"s"</span>, <span class="st">"say"</span>, <span class="st">"see"</span>, <span class="st">"make"</span>, <span class="st">"way"</span>, <span class="st">"well"</span>, <span class="st">"many"</span>, <span class="st">"someone"</span>, <span class="st">"never"</span>, <span class="st">"still"</span>, <span class="st">"now"</span>, <span class="st">"go"</span>, <span class="st">"thing"</span>, <span class="st">"things"</span>, <span class="st">"know"</span>, <span class="st">"think"</span>, <span class="st">"also"</span>, <span class="st">"said"</span>, <span class="st">"going"</span>, <span class="st">"want"</span>, <span class="st">"t"</span>, <span class="st">"one"</span>, <span class="st">"lot"</span>, <span class="st">"much"</span>, <span class="st">"even"</span>, <span class="st">"really"</span>, <span class="st">"sure"</span>, <span class="st">"yeah"</span>, <span class="st">"look"</span>, <span class="st">"always"</span>, <span class="st">"something"</span>, <span class="st">"re"</span>, <span class="st">"actually"</span>, <span class="st">"get"</span>, <span class="st">"got"</span>, <span class="st">"though"</span>, <span class="st">"take"</span>, <span class="st">"etc"</span>, <span class="st">"can"</span>, <span class="st">"like"</span>, <span class="st">"don"</span>, <span class="st">"saying"</span>))</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co"># look at kwic for reddit data.</span></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>data2 <span class="ot">&lt;-</span> <span class="fu">kwic</span>(reddit_tokens, <span class="at">pattern =</span> <span class="fu">c</span>(<span class="st">"[cC]ultur"</span>), <span class="at">window=</span><span class="dv">15</span>, <span class="at">valuetype =</span> <span class="st">"regex"</span>)</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co"># textplot_xray(data2)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># load saved R object with reddit data and create corpus. remove punctuation/symbols, lowercase.</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="co"># reddit_comments_final &lt;- read_rds("reddit_comments_final.rds")</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>reddit_corpus <span class="ot">&lt;-</span> <span class="fu">corpus</span>(reddit_comments_final<span class="sc">$</span>comment)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in corpus(reddit_comments_final$comment): object 'reddit_comments_final' not found</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># use same list of stopwords as oral histories.</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>to_keep <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"do"</span>, <span class="st">"does"</span>, <span class="st">"did"</span>, <span class="st">"would"</span>, <span class="st">"should"</span>, <span class="st">"could"</span>, <span class="st">"ought"</span>, <span class="st">"isn't"</span>, <span class="st">"aren't"</span>, <span class="st">"wasn't"</span>, <span class="st">"weren't"</span>, <span class="st">"hasn't"</span>, <span class="st">"haven't"</span>, <span class="st">"hadn't"</span>, <span class="st">"doesn't"</span>, <span class="st">"don't"</span>, <span class="st">"didn't"</span>, <span class="st">"won't"</span>, <span class="st">"wouldn't"</span>, <span class="st">"shan't"</span>, <span class="st">"shouldn't"</span>, <span class="st">"can't"</span>, <span class="st">"cannot"</span>, <span class="st">"couldn't"</span>, <span class="st">"mustn't"</span>, <span class="st">"because"</span>, <span class="st">"against"</span>, <span class="st">"between"</span>, <span class="st">"into"</span>, <span class="st">"through"</span>, <span class="st">"during"</span>, <span class="st">"before"</span>, <span class="st">"after"</span>, <span class="st">"above"</span>, <span class="st">"below"</span>, <span class="st">"over"</span>, <span class="st">"under"</span>, <span class="st">"no"</span>, <span class="st">"nor"</span>, <span class="st">"not"</span>)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>Stopwords <span class="ot">&lt;-</span> <span class="fu">stopwords</span>(<span class="st">"en"</span>)</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>Stopwords <span class="ot">&lt;-</span> Stopwords[<span class="sc">!</span>(Stopwords <span class="sc">%in%</span> to_keep)]</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="co"># create tokens, remove punctuation, numbers, symbols and stopwords, then convert to lowercase.</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>reddit_tokens <span class="ot">&lt;-</span> <span class="fu">tokens</span>(reddit_corpus, <span class="at">remove_punct =</span> T, <span class="at">remove_numbers =</span> T, <span class="at">remove_symbols =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in tokens(reddit_corpus, remove_punct = T, remove_numbers = T, remove_symbols = T): object 'reddit_corpus' not found</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>reddit_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_select</span>(reddit_tokens, <span class="at">pattern =</span> Stopwords, <span class="at">selection =</span> <span class="st">"remove"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in tokens_select(reddit_tokens, pattern = Stopwords, selection = "remove"): object 'reddit_tokens' not found</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>reddit_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_tolower</span>(reddit_tokens)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in tokens_tolower(reddit_tokens): object 'reddit_tokens' not found</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># remove tokens that appear in wordcloud that are not too meaningful.</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>reddit_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_remove</span>(reddit_tokens, <span class="fu">c</span>(<span class="st">"m"</span>, <span class="st">"s"</span>, <span class="st">"say"</span>, <span class="st">"see"</span>, <span class="st">"make"</span>, <span class="st">"way"</span>, <span class="st">"well"</span>, <span class="st">"many"</span>, <span class="st">"someone"</span>, <span class="st">"never"</span>, <span class="st">"still"</span>, <span class="st">"now"</span>, <span class="st">"go"</span>, <span class="st">"thing"</span>, <span class="st">"things"</span>, <span class="st">"know"</span>, <span class="st">"think"</span>, <span class="st">"also"</span>, <span class="st">"said"</span>, <span class="st">"going"</span>, <span class="st">"want"</span>, <span class="st">"t"</span>, <span class="st">"one"</span>, <span class="st">"lot"</span>, <span class="st">"much"</span>, <span class="st">"even"</span>, <span class="st">"really"</span>, <span class="st">"sure"</span>, <span class="st">"yeah"</span>, <span class="st">"look"</span>, <span class="st">"always"</span>, <span class="st">"something"</span>, <span class="st">"re"</span>, <span class="st">"actually"</span>, <span class="st">"get"</span>, <span class="st">"got"</span>, <span class="st">"though"</span>, <span class="st">"take"</span>, <span class="st">"etc"</span>, <span class="st">"can"</span>, <span class="st">"like"</span>, <span class="st">"don"</span>, <span class="st">"saying"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in tokens_select(x, ..., selection = "remove"): object 'reddit_tokens' not found</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># look at kwic for reddit data.</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>data2 <span class="ot">&lt;-</span> <span class="fu">kwic</span>(reddit_tokens, <span class="at">pattern =</span> <span class="fu">c</span>(<span class="st">"[cC]ultur"</span>), <span class="at">window=</span><span class="dv">15</span>, <span class="at">valuetype =</span> <span class="st">"regex"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in kwic(reddit_tokens, pattern = c("[cC]ultur"), window = 15, valuetype = "regex"): object 'reddit_tokens' not found</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># textplot_xray(data2)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Unfortunately, RStudio crashes/hangs when I try to load the plot for the Reddit comments, as there are too many matches for the pattern (<em>N</em> = 8,047). How can I fix this?</p>
 </section>
@@ -301,7 +350,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>The main part of this post focuses on implementing the Personal Values Dictionary (PVD) on the oral histories and Reddit data. This dictionary was created by Ponizovskiy et al.&nbsp;(2020), based on the 10 fundamental values theorized by Schwartz (1992). These are shown in the figure below, which was taken from their paper:</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="images/Screenshot%202022-11-09%20at%202.07.12%20PM.png" class="img-fluid figure-img" width="366"></p>
+<p><img src="images/Screenshot 2022-11-09 at 2.07.12 PM.png" class="img-fluid figure-img" width="366"></p>
 <p></p><figcaption class="figure-caption"><em>Figure Credit: Ponizovskiy et al.&nbsp;(2020)</em></figcaption><p></p>
 </figure>
 </div>
@@ -361,38 +410,50 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <section id="analyse-oral-histories" class="level1">
 <h1>Analyse Oral Histories</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># load dictionary.</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>dic <span class="ot">&lt;-</span> <span class="fu">read.delim</span>(<span class="st">"Refined_dictionary.txt"</span>, <span class="at">col.names=</span><span class="fu">c</span>(<span class="st">"word"</span>,<span class="st">"sentiment"</span>))</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># remove legend.</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>dic <span class="ot">&lt;-</span> dic[<span class="dv">12</span><span class="sc">:</span><span class="dv">1079</span>, ]</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># recode values for 'sentiment' column.</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>dic<span class="sc">$</span>sentiment <span class="ot">&lt;-</span> <span class="fu">recode</span>(dic<span class="sc">$</span>sentiment, <span class="st">"1"</span> <span class="ot">=</span> <span class="st">"SE"</span>, <span class="st">"2"</span> <span class="ot">=</span> <span class="st">"CO"</span>, <span class="st">"3"</span> <span class="ot">=</span> <span class="st">"TR"</span>, <span class="st">"4"</span> <span class="ot">=</span> <span class="st">"BE"</span>, <span class="st">"5"</span> <span class="ot">=</span> <span class="st">"UN"</span>, <span class="st">"6"</span> <span class="ot">=</span> <span class="st">"SD"</span>, <span class="st">"7"</span> <span class="ot">=</span> <span class="st">"ST"</span>, <span class="st">"8"</span> <span class="ot">=</span> <span class="st">"HE"</span>, <span class="st">"9"</span> <span class="ot">=</span> <span class="st">"AC"</span>, <span class="st">"10"</span> <span class="ot">=</span> <span class="st">"PO"</span>)</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># change to dictionary format.</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>dic <span class="ot">&lt;-</span> <span class="fu">as.dictionary</span>(dic)</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co"># run analysis.</span></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>oh_values <span class="ot">&lt;-</span> <span class="fu">liwcalike</span>(oh_corpus, dic)</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co"># remove 'segment', which is redundant since 'docname' supplies the same info.</span></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>oh_values <span class="ot">&lt;-</span> oh_values[,<span class="sc">-</span><span class="dv">2</span>]</span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="co"># obtain mean values across texts.</span></span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>graph_values <span class="ot">&lt;-</span> oh_values <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="dv">6</span><span class="sc">:</span><span class="dv">15</span>) <span class="sc">%&gt;%</span> <span class="fu">colMeans</span>()</span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>graph_values <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(graph_values)</span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>graph_values<span class="sc">$</span>label <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"ac"</span>, <span class="st">"be"</span>, <span class="st">"co"</span>, <span class="st">"he"</span>, <span class="st">"po"</span>, <span class="st">"sd"</span>, <span class="st">"se"</span>, <span class="st">"st"</span>, <span class="st">"tr"</span>, <span class="st">"un"</span>)</span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="co"># plot graph.</span></span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(graph_values, <span class="fu">aes</span>(<span class="at">x=</span> <span class="fu">reorder</span>(label,value), <span class="at">y=</span> value)) <span class="sc">+</span></span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">1.5</span>, <span class="at">color =</span> <span class="st">"purple"</span>, <span class="at">fill =</span> <span class="fu">alpha</span>(<span class="st">"pink"</span>, <span class="fl">0.4</span>), <span class="at">alpha =</span> <span class="fl">0.8</span>, <span class="at">shape =</span> <span class="dv">21</span>, <span class="at">stroke =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">x =</span> label, <span class="at">xend =</span> label, <span class="at">y =</span> <span class="dv">0</span>, <span class="at">yend =</span> value)) <span class="sc">+</span> </span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>   <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Personal Values Extracted From Oral Histories"</span>, <span class="at">x =</span> <span class="st">"Value"</span>, <span class="at">y =</span> <span class="st">"Mean Percentage"</span>) <span class="sc">+</span></span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label=</span><span class="fu">sprintf</span>(<span class="st">"%0.2f"</span>, ..y..)), <span class="at">position=</span><span class="fu">position_dodge</span>(<span class="at">width=</span><span class="fl">0.9</span>), <span class="at">vjust=</span><span class="sc">-</span><span class="fl">0.93</span>, <span class="at">size=</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="Post5_Saaradhaa_files/figure-html/dic%20OH-1.png" class="img-fluid" width="672"></p>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># load dictionary.</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>dic <span class="ot">&lt;-</span> <span class="fu">read.delim</span>(<span class="st">"Refined_dictionary.txt"</span>, <span class="at">col.names=</span><span class="fu">c</span>(<span class="st">"word"</span>,<span class="st">"sentiment"</span>))</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="co"># remove legend.</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>dic <span class="ot">&lt;-</span> dic[<span class="dv">12</span><span class="sc">:</span><span class="dv">1079</span>, ]</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="co"># recode values for 'sentiment' column.</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>dic<span class="sc">$</span>sentiment <span class="ot">&lt;-</span> <span class="fu">recode</span>(dic<span class="sc">$</span>sentiment, <span class="st">"1"</span> <span class="ot">=</span> <span class="st">"SE"</span>, <span class="st">"2"</span> <span class="ot">=</span> <span class="st">"CO"</span>, <span class="st">"3"</span> <span class="ot">=</span> <span class="st">"TR"</span>, <span class="st">"4"</span> <span class="ot">=</span> <span class="st">"BE"</span>, <span class="st">"5"</span> <span class="ot">=</span> <span class="st">"UN"</span>, <span class="st">"6"</span> <span class="ot">=</span> <span class="st">"SD"</span>, <span class="st">"7"</span> <span class="ot">=</span> <span class="st">"ST"</span>, <span class="st">"8"</span> <span class="ot">=</span> <span class="st">"HE"</span>, <span class="st">"9"</span> <span class="ot">=</span> <span class="st">"AC"</span>, <span class="st">"10"</span> <span class="ot">=</span> <span class="st">"PO"</span>)</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a><span class="co"># change to dictionary format.</span></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>dic <span class="ot">&lt;-</span> <span class="fu">as.dictionary</span>(dic)</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a><span class="co"># run analysis.</span></span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>oh_values <span class="ot">&lt;-</span> <span class="fu">liwcalike</span>(oh_corpus, dic)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in liwcalike(oh_corpus, dic): could not find function "liwcalike"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># remove 'segment', which is redundant since 'docname' supplies the same info.</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>oh_values <span class="ot">&lt;-</span> oh_values[,<span class="sc">-</span><span class="dv">2</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'oh_values' not found</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># obtain mean values across texts.</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>graph_values <span class="ot">&lt;-</span> oh_values <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="dv">6</span><span class="sc">:</span><span class="dv">15</span>) <span class="sc">%&gt;%</span> <span class="fu">colMeans</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'colMeans': object 'oh_values' not found</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>graph_values <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(graph_values)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as_tibble(graph_values): object 'graph_values' not found</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>graph_values<span class="sc">$</span>label <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"ac"</span>, <span class="st">"be"</span>, <span class="st">"co"</span>, <span class="st">"he"</span>, <span class="st">"po"</span>, <span class="st">"sd"</span>, <span class="st">"se"</span>, <span class="st">"st"</span>, <span class="st">"tr"</span>, <span class="st">"un"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in graph_values$label &lt;- c("ac", "be", "co", "he", "po", "sd", "se", : object 'graph_values' not found</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot graph.</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(graph_values, <span class="fu">aes</span>(<span class="at">x=</span> <span class="fu">reorder</span>(label,value), <span class="at">y=</span> value)) <span class="sc">+</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">1.5</span>, <span class="at">color =</span> <span class="st">"purple"</span>, <span class="at">fill =</span> <span class="fu">alpha</span>(<span class="st">"pink"</span>, <span class="fl">0.4</span>), <span class="at">alpha =</span> <span class="fl">0.8</span>, <span class="at">shape =</span> <span class="dv">21</span>, <span class="at">stroke =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">x =</span> label, <span class="at">xend =</span> label, <span class="at">y =</span> <span class="dv">0</span>, <span class="at">yend =</span> value)) <span class="sc">+</span> </span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>   <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Personal Values Extracted From Oral Histories"</span>, <span class="at">x =</span> <span class="st">"Value"</span>, <span class="at">y =</span> <span class="st">"Mean Percentage"</span>) <span class="sc">+</span></span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label=</span><span class="fu">sprintf</span>(<span class="st">"%0.2f"</span>, ..y..)), <span class="at">position=</span><span class="fu">position_dodge</span>(<span class="at">width=</span><span class="fl">0.9</span>), <span class="at">vjust=</span><span class="sc">-</span><span class="fl">0.93</span>, <span class="at">size=</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in ggplot(graph_values, aes(x = reorder(label, value), y = value)): object 'graph_values' not found</code></pre>
 </div>
 </div>
 <p>The top 3 values observed were <strong>self-direction</strong>, <strong>benevolence</strong> and <strong>achievement</strong>.</p>
@@ -400,26 +461,38 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <section id="analyse-reddit-comments" class="level1">
 <h1>Analyse Reddit Comments</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># run analysis.</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>reddit_values <span class="ot">&lt;-</span> <span class="fu">liwcalike</span>(reddit_corpus, dic)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># remove 'segment', which is redundant since 'docname' supplies the same info.</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>reddit_values <span class="ot">&lt;-</span> reddit_values[,<span class="sc">-</span><span class="dv">2</span>]</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># obtain mean values across texts.</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>values2 <span class="ot">&lt;-</span> reddit_values <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="dv">6</span><span class="sc">:</span><span class="dv">15</span>) <span class="sc">%&gt;%</span> <span class="fu">colMeans</span>()</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>values2 <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(values2)</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>values2<span class="sc">$</span>label <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"ac"</span>, <span class="st">"be"</span>, <span class="st">"co"</span>, <span class="st">"he"</span>, <span class="st">"po"</span>, <span class="st">"sd"</span>, <span class="st">"se"</span>, <span class="st">"st"</span>, <span class="st">"tr"</span>, <span class="st">"un"</span>)</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co"># plot graph.</span></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(values2, <span class="fu">aes</span>(<span class="at">x=</span> <span class="fu">reorder</span>(label,value), <span class="at">y=</span> value)) <span class="sc">+</span></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">1.5</span>, <span class="at">color =</span> <span class="st">"purple"</span>, <span class="at">fill =</span> <span class="fu">alpha</span>(<span class="st">"pink"</span>, <span class="fl">0.4</span>), <span class="at">alpha =</span> <span class="fl">0.8</span>, <span class="at">shape =</span> <span class="dv">21</span>, <span class="at">stroke =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">x =</span> label, <span class="at">xend =</span> label, <span class="at">y =</span> <span class="dv">0</span>, <span class="at">yend =</span> value)) <span class="sc">+</span> </span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>   <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Personal Values Extracted From Reddit"</span>, <span class="at">x =</span> <span class="st">"Value"</span>, <span class="at">y =</span> <span class="st">"Mean Percentage"</span>) <span class="sc">+</span></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label=</span><span class="fu">sprintf</span>(<span class="st">"%0.2f"</span>, ..y..)), <span class="at">position=</span><span class="fu">position_dodge</span>(<span class="at">width=</span><span class="fl">0.9</span>), <span class="at">vjust=</span><span class="sc">-</span><span class="fl">0.93</span>, <span class="at">size=</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="Post5_Saaradhaa_files/figure-html/dic%20reddit-1.png" class="img-fluid" width="672"></p>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co"># run analysis.</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>reddit_values <span class="ot">&lt;-</span> <span class="fu">liwcalike</span>(reddit_corpus, dic)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in liwcalike(reddit_corpus, dic): could not find function "liwcalike"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co"># remove 'segment', which is redundant since 'docname' supplies the same info.</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>reddit_values <span class="ot">&lt;-</span> reddit_values[,<span class="sc">-</span><span class="dv">2</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in eval(expr, envir, enclos): object 'reddit_values' not found</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="co"># obtain mean values across texts.</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>values2 <span class="ot">&lt;-</span> reddit_values <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="dv">6</span><span class="sc">:</span><span class="dv">15</span>) <span class="sc">%&gt;%</span> <span class="fu">colMeans</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'colMeans': object 'reddit_values' not found</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>values2 <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(values2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as_tibble(values2): object 'values2' not found</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>values2<span class="sc">$</span>label <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"ac"</span>, <span class="st">"be"</span>, <span class="st">"co"</span>, <span class="st">"he"</span>, <span class="st">"po"</span>, <span class="st">"sd"</span>, <span class="st">"se"</span>, <span class="st">"st"</span>, <span class="st">"tr"</span>, <span class="st">"un"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in values2$label &lt;- c("ac", "be", "co", "he", "po", "sd", "se", : object 'values2' not found</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot graph.</span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(values2, <span class="fu">aes</span>(<span class="at">x=</span> <span class="fu">reorder</span>(label,value), <span class="at">y=</span> value)) <span class="sc">+</span></span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">1.5</span>, <span class="at">color =</span> <span class="st">"purple"</span>, <span class="at">fill =</span> <span class="fu">alpha</span>(<span class="st">"pink"</span>, <span class="fl">0.4</span>), <span class="at">alpha =</span> <span class="fl">0.8</span>, <span class="at">shape =</span> <span class="dv">21</span>, <span class="at">stroke =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">x =</span> label, <span class="at">xend =</span> label, <span class="at">y =</span> <span class="dv">0</span>, <span class="at">yend =</span> value)) <span class="sc">+</span> </span>
+<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a>   <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb55-6"><a href="#cb55-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Personal Values Extracted From Reddit"</span>, <span class="at">x =</span> <span class="st">"Value"</span>, <span class="at">y =</span> <span class="st">"Mean Percentage"</span>) <span class="sc">+</span></span>
+<span id="cb55-7"><a href="#cb55-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label=</span><span class="fu">sprintf</span>(<span class="st">"%0.2f"</span>, ..y..)), <span class="at">position=</span><span class="fu">position_dodge</span>(<span class="at">width=</span><span class="fl">0.9</span>), <span class="at">vjust=</span><span class="sc">-</span><span class="fl">0.93</span>, <span class="at">size=</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in ggplot(values2, aes(x = reorder(label, value), y = value)): object 'values2' not found</code></pre>
 </div>
 </div>
 <p>The top 3 values observed were <strong>benevolence</strong>, <strong>self-direction</strong> and <strong>universalism</strong>.</p>
@@ -447,16 +520,11 @@ Research Questions
 <p>However, older South Asian Americans valued <strong>achievement</strong> more. Quoting directly from Schwartz (2012), p.&nbsp;5: “personal success through demonstrating competence according to social standards…thereby obtaining social approval”. Assuming older South Asian Americans have largely been socialized to South Asian cultural values, we can interpret this as a need for success <em>according to the societies they came from</em>, so as to maintain their reputation. This is a key facet of honour cultures, as I described in Blog Post 1.</p>
 <p>We can qualitatively skim the interview with the highest achievement score:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>oh_values <span class="sc">%&gt;%</span> <span class="fu">select</span>(docname,ac) <span class="sc">%&gt;%</span> <span class="fu">arrange</span>(<span class="fu">desc</span>(ac)) <span class="sc">%&gt;%</span> <span class="fu">head</span>(<span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-
-<div data-pagedtable="false">
-  <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["docname"],"name":[1],"type":["chr"],"align":["left"]},{"label":["ac"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"text36","2":"0.85","_rn_":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
-  </script>
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>oh_values <span class="sc">%&gt;%</span> <span class="fu">select</span>(docname,ac) <span class="sc">%&gt;%</span> <span class="fu">arrange</span>(<span class="fu">desc</span>(ac)) <span class="sc">%&gt;%</span> <span class="fu">head</span>(<span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in select(., docname, ac): object 'oh_values' not found</code></pre>
 </div>
-</div>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># save.image("post5_saaradhaa.RData")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="co"># save.image("post5_saaradhaa.RData")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Opening Text 36 on my computer, the interviewee discusses her grueling training in classical dance, and how it was challenging to keep up with especially when she migrated to the US. This is a classic example of achievement.</p>
 <p>Meanwhile, younger South Asian Americans valued <strong>universalism</strong> more. This is interesting, as Schwartz describes this as <em>opposite</em> to benevolence, which focuses just on loved ones: “people do not recognize these needs until they encounter others beyond the extended primary group…two subtypes of concern…welfare of those in the larger society and world and for nature”. This could reflect several things:</p>
@@ -555,6 +623,16 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         }
       }
     }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
   }
   const isFileUrl = () => { 
     return window.location.protocol === 'file:';
@@ -606,7 +684,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   // Switch to dark mode if need be
   if (hasAlternateSentinel()) {
     toggleColorMode(true);
-  } 
+  } else {
+    toggleColorMode(false);
+  }
   const icon = "";
   const anchorJS = new window.AnchorJS();
   anchorJS.options = {
@@ -628,7 +708,24 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     button.classList.add('code-copy-button-checked');
     var currentTitle = button.getAttribute("title");
     button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
     setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
       button.setAttribute("title", currentTitle);
       button.classList.remove('code-copy-button-checked');
     }, 1000);
@@ -707,263 +804,282 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   for (var i=0; i<noterefs.length; i++) {
     const ref = noterefs[i];
     tippyHover(ref, function() {
-      let href = ref.getAttribute('href');
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
       return note.innerHTML;
     });
   }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
   var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
   for (var i=0; i<bibliorefs.length; i++) {
     const ref = bibliorefs[i];
-    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
-    tippyHover(ref, function() {
-      var popup = window.document.createElement('div');
-      cites.forEach(function(cite) {
-        var citeDiv = window.document.createElement('div');
-        citeDiv.classList.add('hanging-indent');
-        citeDiv.classList.add('csl-entry');
-        var biblioDiv = window.document.getElementById('ref-' + cite);
-        if (biblioDiv) {
-          citeDiv.innerHTML = biblioDiv.innerHTML;
-        }
-        popup.appendChild(citeDiv);
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
       });
-      return popup.innerHTML;
-    });
+    }
   }
 });
 </script>
 <script src="https://giscus.app/client.js" data-repo="DACSS/Text_as_Data_Fall_2022" data-repo-id="R_kgDOH5675w" data-category="Announcements" data-category-id="" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
 </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb8" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Post 5"</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Saaradhaa M"</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="an">description:</span><span class="co"> "KWIC and Dictionary Analysis"</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "11/13/2022"</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="an">editor:</span><span class="co"> visual</span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co">    html:</span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co">        df-print: paged</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co">        toc: true</span></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co">        code-copy: true</span></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co">        code-tools: true</span></span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co">        css: "styles.css"</span></span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span><span class="co"> </span></span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="co">  - post 5</span></span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="co">  - saaradhaa</span></span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: setup</span></span>
-<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
-<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
-<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda)</span>
-<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda.textplots)</span>
-<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda.dictionaries)</span>
-<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(utils)</span>
-<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"post5_saaradhaa.rdata"</span>)</span>
-<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">echo =</span> <span class="cn">TRUE</span>, <span class="at">warning =</span> <span class="cn">FALSE</span>, <span class="at">message =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a><span class="fu">## KWIC Analysis</span></span>
-<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>I will first work on the comments I received for Post 4. I compared the appearance of the term 'culture' in the oral histories vs. Reddit comments, but received feedback to try a kwic analysis instead (to check which terms are more likely to be used with 'culture').</span>
-<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: kwic OH</span></span>
-<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a><span class="co"># load saved R object with oral histories.</span></span>
-<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a><span class="co"># transcripts &lt;- read_rds("transcripts.rds")</span></span>
-<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a><span class="co"># create 'quanteda' corpus. </span></span>
-<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a>oh_corpus <span class="ot">&lt;-</span> <span class="fu">corpus</span>(transcripts<span class="sc">$</span>text)</span>
-<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a><span class="co"># create my own list of stopwords, based on qualitative reading of the first transcript.</span></span>
-<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>to_keep <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"do"</span>, <span class="st">"does"</span>, <span class="st">"did"</span>, <span class="st">"would"</span>, <span class="st">"should"</span>, <span class="st">"could"</span>, <span class="st">"ought"</span>, <span class="st">"isn't"</span>, <span class="st">"aren't"</span>, <span class="st">"wasn't"</span>, <span class="st">"weren't"</span>, <span class="st">"hasn't"</span>, <span class="st">"haven't"</span>, <span class="st">"hadn't"</span>, <span class="st">"doesn't"</span>, <span class="st">"don't"</span>, <span class="st">"didn't"</span>, <span class="st">"won't"</span>, <span class="st">"wouldn't"</span>, <span class="st">"shan't"</span>, <span class="st">"shouldn't"</span>, <span class="st">"can't"</span>, <span class="st">"cannot"</span>, <span class="st">"couldn't"</span>, <span class="st">"mustn't"</span>, <span class="st">"because"</span>, <span class="st">"against"</span>, <span class="st">"between"</span>, <span class="st">"into"</span>, <span class="st">"through"</span>, <span class="st">"during"</span>, <span class="st">"before"</span>, <span class="st">"after"</span>, <span class="st">"above"</span>, <span class="st">"below"</span>, <span class="st">"over"</span>, <span class="st">"under"</span>, <span class="st">"no"</span>, <span class="st">"nor"</span>, <span class="st">"not"</span>)</span>
-<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a>Stopwords <span class="ot">&lt;-</span> <span class="fu">stopwords</span>(<span class="st">"en"</span>)</span>
-<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a>Stopwords <span class="ot">&lt;-</span> Stopwords[<span class="sc">!</span>(Stopwords <span class="sc">%in%</span> to_keep)]</span>
-<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a><span class="co"># create tokens, remove punctuation, numbers, symbols and stopwords, then convert to lowercase.</span></span>
-<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a>oh_tokens <span class="ot">&lt;-</span> <span class="fu">tokens</span>(oh_corpus, <span class="at">remove_punct =</span> T, <span class="at">remove_numbers =</span> T, <span class="at">remove_symbols =</span> T)</span>
-<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a>oh_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_select</span>(oh_tokens, <span class="at">pattern =</span> Stopwords, <span class="at">selection =</span> <span class="st">"remove"</span>)</span>
-<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a>oh_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_tolower</span>(oh_tokens)</span>
-<span id="cb8-60"><a href="#cb8-60" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-61"><a href="#cb8-61" aria-hidden="true" tabindex="-1"></a><span class="co"># remove tokens that appeared in previous wordcloud that are not too meaningful.</span></span>
-<span id="cb8-62"><a href="#cb8-62" aria-hidden="true" tabindex="-1"></a>oh_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_remove</span>(oh_tokens, <span class="fu">c</span>(<span class="st">"know"</span>, <span class="st">"even"</span>, <span class="st">"used"</span>, <span class="st">"thing"</span>, <span class="st">"lot"</span>, <span class="st">"yes"</span>, <span class="st">"say"</span>, <span class="st">"going"</span>, <span class="st">"went"</span>, <span class="st">"yeah"</span>, <span class="st">"come"</span>, <span class="st">"actually"</span>, <span class="st">"mean"</span>, <span class="st">"like"</span>, <span class="st">"think"</span>, <span class="st">"get"</span>, <span class="st">"go"</span>, <span class="st">"said"</span>, <span class="st">"see"</span>, <span class="st">"things"</span>, <span class="st">"really"</span>, <span class="st">"well"</span>, <span class="st">"still"</span>, <span class="st">"little"</span>, <span class="st">"got"</span>, <span class="st">"right"</span>, <span class="st">"can"</span>, <span class="st">"came"</span>, <span class="st">"um"</span>, <span class="st">"quite"</span>, <span class="st">"bit"</span>, <span class="st">"every"</span>, <span class="st">"oh"</span>, <span class="st">"many"</span>, <span class="st">"always"</span>, <span class="st">"one"</span>, <span class="st">"two"</span>, <span class="st">"just"</span>, <span class="st">"much"</span>, <span class="st">"want"</span>, <span class="st">"wanted"</span>, <span class="st">"okay"</span>, <span class="st">"part"</span>, <span class="st">"also"</span>, <span class="st">"just"</span>, <span class="st">"us"</span>, <span class="st">"never"</span>, <span class="st">"many"</span>, <span class="st">"something"</span>, <span class="st">"want"</span>, <span class="st">"wanted"</span>, <span class="st">"uh"</span>))</span>
-<span id="cb8-63"><a href="#cb8-63" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-64"><a href="#cb8-64" aria-hidden="true" tabindex="-1"></a><span class="co"># look at kwic for oral histories.</span></span>
-<span id="cb8-65"><a href="#cb8-65" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">kwic</span>(oh_tokens, <span class="at">pattern =</span> <span class="fu">c</span>(<span class="st">"[cC]ultur"</span>), <span class="at">window=</span><span class="dv">15</span>, <span class="at">valuetype =</span> <span class="st">"regex"</span>)</span>
-<span id="cb8-66"><a href="#cb8-66" aria-hidden="true" tabindex="-1"></a><span class="fu">textplot_xray</span>(data)</span>
-<span id="cb8-67"><a href="#cb8-67" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb8-68"><a href="#cb8-68" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-69"><a href="#cb8-69" aria-hidden="true" tabindex="-1"></a>I am not too sure how to interpret this plot and might need some help with this.</span>
-<span id="cb8-70"><a href="#cb8-70" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-73"><a href="#cb8-73" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb8-74"><a href="#cb8-74" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: kwic reddit</span></span>
-<span id="cb8-75"><a href="#cb8-75" aria-hidden="true" tabindex="-1"></a><span class="co"># load saved R object with reddit data and create corpus. remove punctuation/symbols, lowercase.</span></span>
-<span id="cb8-76"><a href="#cb8-76" aria-hidden="true" tabindex="-1"></a><span class="co"># reddit_comments_final &lt;- read_rds("reddit_comments_final.rds")</span></span>
-<span id="cb8-77"><a href="#cb8-77" aria-hidden="true" tabindex="-1"></a>reddit_corpus <span class="ot">&lt;-</span> <span class="fu">corpus</span>(reddit_comments_final<span class="sc">$</span>comment)</span>
-<span id="cb8-78"><a href="#cb8-78" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-79"><a href="#cb8-79" aria-hidden="true" tabindex="-1"></a><span class="co"># use same list of stopwords as oral histories.</span></span>
-<span id="cb8-80"><a href="#cb8-80" aria-hidden="true" tabindex="-1"></a>to_keep <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"do"</span>, <span class="st">"does"</span>, <span class="st">"did"</span>, <span class="st">"would"</span>, <span class="st">"should"</span>, <span class="st">"could"</span>, <span class="st">"ought"</span>, <span class="st">"isn't"</span>, <span class="st">"aren't"</span>, <span class="st">"wasn't"</span>, <span class="st">"weren't"</span>, <span class="st">"hasn't"</span>, <span class="st">"haven't"</span>, <span class="st">"hadn't"</span>, <span class="st">"doesn't"</span>, <span class="st">"don't"</span>, <span class="st">"didn't"</span>, <span class="st">"won't"</span>, <span class="st">"wouldn't"</span>, <span class="st">"shan't"</span>, <span class="st">"shouldn't"</span>, <span class="st">"can't"</span>, <span class="st">"cannot"</span>, <span class="st">"couldn't"</span>, <span class="st">"mustn't"</span>, <span class="st">"because"</span>, <span class="st">"against"</span>, <span class="st">"between"</span>, <span class="st">"into"</span>, <span class="st">"through"</span>, <span class="st">"during"</span>, <span class="st">"before"</span>, <span class="st">"after"</span>, <span class="st">"above"</span>, <span class="st">"below"</span>, <span class="st">"over"</span>, <span class="st">"under"</span>, <span class="st">"no"</span>, <span class="st">"nor"</span>, <span class="st">"not"</span>)</span>
-<span id="cb8-81"><a href="#cb8-81" aria-hidden="true" tabindex="-1"></a>Stopwords <span class="ot">&lt;-</span> <span class="fu">stopwords</span>(<span class="st">"en"</span>)</span>
-<span id="cb8-82"><a href="#cb8-82" aria-hidden="true" tabindex="-1"></a>Stopwords <span class="ot">&lt;-</span> Stopwords[<span class="sc">!</span>(Stopwords <span class="sc">%in%</span> to_keep)]</span>
-<span id="cb8-83"><a href="#cb8-83" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-84"><a href="#cb8-84" aria-hidden="true" tabindex="-1"></a><span class="co"># create tokens, remove punctuation, numbers, symbols and stopwords, then convert to lowercase.</span></span>
-<span id="cb8-85"><a href="#cb8-85" aria-hidden="true" tabindex="-1"></a>reddit_tokens <span class="ot">&lt;-</span> <span class="fu">tokens</span>(reddit_corpus, <span class="at">remove_punct =</span> T, <span class="at">remove_numbers =</span> T, <span class="at">remove_symbols =</span> T)</span>
-<span id="cb8-86"><a href="#cb8-86" aria-hidden="true" tabindex="-1"></a>reddit_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_select</span>(reddit_tokens, <span class="at">pattern =</span> Stopwords, <span class="at">selection =</span> <span class="st">"remove"</span>)</span>
-<span id="cb8-87"><a href="#cb8-87" aria-hidden="true" tabindex="-1"></a>reddit_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_tolower</span>(reddit_tokens)</span>
-<span id="cb8-88"><a href="#cb8-88" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-89"><a href="#cb8-89" aria-hidden="true" tabindex="-1"></a><span class="co"># remove tokens that appear in wordcloud that are not too meaningful.</span></span>
-<span id="cb8-90"><a href="#cb8-90" aria-hidden="true" tabindex="-1"></a>reddit_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_remove</span>(reddit_tokens, <span class="fu">c</span>(<span class="st">"m"</span>, <span class="st">"s"</span>, <span class="st">"say"</span>, <span class="st">"see"</span>, <span class="st">"make"</span>, <span class="st">"way"</span>, <span class="st">"well"</span>, <span class="st">"many"</span>, <span class="st">"someone"</span>, <span class="st">"never"</span>, <span class="st">"still"</span>, <span class="st">"now"</span>, <span class="st">"go"</span>, <span class="st">"thing"</span>, <span class="st">"things"</span>, <span class="st">"know"</span>, <span class="st">"think"</span>, <span class="st">"also"</span>, <span class="st">"said"</span>, <span class="st">"going"</span>, <span class="st">"want"</span>, <span class="st">"t"</span>, <span class="st">"one"</span>, <span class="st">"lot"</span>, <span class="st">"much"</span>, <span class="st">"even"</span>, <span class="st">"really"</span>, <span class="st">"sure"</span>, <span class="st">"yeah"</span>, <span class="st">"look"</span>, <span class="st">"always"</span>, <span class="st">"something"</span>, <span class="st">"re"</span>, <span class="st">"actually"</span>, <span class="st">"get"</span>, <span class="st">"got"</span>, <span class="st">"though"</span>, <span class="st">"take"</span>, <span class="st">"etc"</span>, <span class="st">"can"</span>, <span class="st">"like"</span>, <span class="st">"don"</span>, <span class="st">"saying"</span>))</span>
-<span id="cb8-91"><a href="#cb8-91" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-92"><a href="#cb8-92" aria-hidden="true" tabindex="-1"></a><span class="co"># look at kwic for reddit data.</span></span>
-<span id="cb8-93"><a href="#cb8-93" aria-hidden="true" tabindex="-1"></a>data2 <span class="ot">&lt;-</span> <span class="fu">kwic</span>(reddit_tokens, <span class="at">pattern =</span> <span class="fu">c</span>(<span class="st">"[cC]ultur"</span>), <span class="at">window=</span><span class="dv">15</span>, <span class="at">valuetype =</span> <span class="st">"regex"</span>)</span>
-<span id="cb8-94"><a href="#cb8-94" aria-hidden="true" tabindex="-1"></a><span class="co"># textplot_xray(data2)</span></span>
-<span id="cb8-95"><a href="#cb8-95" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb8-96"><a href="#cb8-96" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-97"><a href="#cb8-97" aria-hidden="true" tabindex="-1"></a>Unfortunately, RStudio crashes/hangs when I try to load the plot for the Reddit comments, as there are too many matches for the pattern (*N* = 8,047). How can I fix this?</span>
-<span id="cb8-98"><a href="#cb8-98" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-99"><a href="#cb8-99" aria-hidden="true" tabindex="-1"></a><span class="fu">## Personal Values Dictionary</span></span>
-<span id="cb8-100"><a href="#cb8-100" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-101"><a href="#cb8-101" aria-hidden="true" tabindex="-1"></a>The main part of this post focuses on implementing the Personal Values Dictionary (PVD) on the oral histories and Reddit data. This dictionary was created by Ponizovskiy et al. (2020), based on the 10 fundamental values theorized by Schwartz (1992). These are shown in the figure below, which was taken from their paper:</span>
-<span id="cb8-102"><a href="#cb8-102" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-103"><a href="#cb8-103" aria-hidden="true" tabindex="-1"></a><span class="al">![*Figure Credit: Ponizovskiy et al. (2020)*](images/Screenshot%202022-11-09%20at%202.07.12%20PM.png)</span>{fig-align="center" width="366"}</span>
-<span id="cb8-104"><a href="#cb8-104" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-105"><a href="#cb8-105" aria-hidden="true" tabindex="-1"></a>I created the table below to briefly summarize what each value means, adapting the descriptions from Schwartz (2012):</span>
-<span id="cb8-106"><a href="#cb8-106" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-107"><a href="#cb8-107" aria-hidden="true" tabindex="-1"></a>| Value          | Need For? (adapted from Schwartz, 2012) |</span>
-<span id="cb8-108"><a href="#cb8-108" aria-hidden="true" tabindex="-1"></a>|----------------|-----------------------------------------|</span>
-<span id="cb8-109"><a href="#cb8-109" aria-hidden="true" tabindex="-1"></a>| Self-Direction | Independence                            |</span>
-<span id="cb8-110"><a href="#cb8-110" aria-hidden="true" tabindex="-1"></a>| Stimulation    | Excitement                              |</span>
-<span id="cb8-111"><a href="#cb8-111" aria-hidden="true" tabindex="-1"></a>| Hedonism       | Enjoyment                               |</span>
-<span id="cb8-112"><a href="#cb8-112" aria-hidden="true" tabindex="-1"></a>| Achievement    | Success                                 |</span>
-<span id="cb8-113"><a href="#cb8-113" aria-hidden="true" tabindex="-1"></a>| Power          | Authority                               |</span>
-<span id="cb8-114"><a href="#cb8-114" aria-hidden="true" tabindex="-1"></a>| Security       | Safety                                  |</span>
-<span id="cb8-115"><a href="#cb8-115" aria-hidden="true" tabindex="-1"></a>| Conformity     | Harmony                                 |</span>
-<span id="cb8-116"><a href="#cb8-116" aria-hidden="true" tabindex="-1"></a>| Tradition      | Maintaining customs                     |</span>
-<span id="cb8-117"><a href="#cb8-117" aria-hidden="true" tabindex="-1"></a>| Universalism   | Peace                                   |</span>
-<span id="cb8-118"><a href="#cb8-118" aria-hidden="true" tabindex="-1"></a>| Benevolence    | Group harmony                           |</span>
-<span id="cb8-119"><a href="#cb8-119" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-120"><a href="#cb8-120" aria-hidden="true" tabindex="-1"></a>The PVD was validated using both short-form text (e.g., social media status updates) and long-form text (e.g., essays), making it a good fit to extract values from both the oral histories and Reddit data. There were also consistent relationships between the personal values generated by the dictionary and those actually reported by participants.</span>
-<span id="cb8-121"><a href="#cb8-121" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-122"><a href="#cb8-122" aria-hidden="true" tabindex="-1"></a><span class="fu"># Analyse Oral Histories</span></span>
-<span id="cb8-123"><a href="#cb8-123" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-126"><a href="#cb8-126" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb8-127"><a href="#cb8-127" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: dic OH</span></span>
-<span id="cb8-128"><a href="#cb8-128" aria-hidden="true" tabindex="-1"></a><span class="co"># load dictionary.</span></span>
-<span id="cb8-129"><a href="#cb8-129" aria-hidden="true" tabindex="-1"></a>dic <span class="ot">&lt;-</span> <span class="fu">read.delim</span>(<span class="st">"Refined_dictionary.txt"</span>, <span class="at">col.names=</span><span class="fu">c</span>(<span class="st">"word"</span>,<span class="st">"sentiment"</span>))</span>
-<span id="cb8-130"><a href="#cb8-130" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-131"><a href="#cb8-131" aria-hidden="true" tabindex="-1"></a><span class="co"># remove legend.</span></span>
-<span id="cb8-132"><a href="#cb8-132" aria-hidden="true" tabindex="-1"></a>dic <span class="ot">&lt;-</span> dic[<span class="dv">12</span><span class="sc">:</span><span class="dv">1079</span>, ]</span>
-<span id="cb8-133"><a href="#cb8-133" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-134"><a href="#cb8-134" aria-hidden="true" tabindex="-1"></a><span class="co"># recode values for 'sentiment' column.</span></span>
-<span id="cb8-135"><a href="#cb8-135" aria-hidden="true" tabindex="-1"></a>dic<span class="sc">$</span>sentiment <span class="ot">&lt;-</span> <span class="fu">recode</span>(dic<span class="sc">$</span>sentiment, <span class="st">"1"</span> <span class="ot">=</span> <span class="st">"SE"</span>, <span class="st">"2"</span> <span class="ot">=</span> <span class="st">"CO"</span>, <span class="st">"3"</span> <span class="ot">=</span> <span class="st">"TR"</span>, <span class="st">"4"</span> <span class="ot">=</span> <span class="st">"BE"</span>, <span class="st">"5"</span> <span class="ot">=</span> <span class="st">"UN"</span>, <span class="st">"6"</span> <span class="ot">=</span> <span class="st">"SD"</span>, <span class="st">"7"</span> <span class="ot">=</span> <span class="st">"ST"</span>, <span class="st">"8"</span> <span class="ot">=</span> <span class="st">"HE"</span>, <span class="st">"9"</span> <span class="ot">=</span> <span class="st">"AC"</span>, <span class="st">"10"</span> <span class="ot">=</span> <span class="st">"PO"</span>)</span>
-<span id="cb8-136"><a href="#cb8-136" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-137"><a href="#cb8-137" aria-hidden="true" tabindex="-1"></a><span class="co"># change to dictionary format.</span></span>
-<span id="cb8-138"><a href="#cb8-138" aria-hidden="true" tabindex="-1"></a>dic <span class="ot">&lt;-</span> <span class="fu">as.dictionary</span>(dic)</span>
-<span id="cb8-139"><a href="#cb8-139" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-140"><a href="#cb8-140" aria-hidden="true" tabindex="-1"></a><span class="co"># run analysis.</span></span>
-<span id="cb8-141"><a href="#cb8-141" aria-hidden="true" tabindex="-1"></a>oh_values <span class="ot">&lt;-</span> <span class="fu">liwcalike</span>(oh_corpus, dic)</span>
-<span id="cb8-142"><a href="#cb8-142" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-143"><a href="#cb8-143" aria-hidden="true" tabindex="-1"></a><span class="co"># remove 'segment', which is redundant since 'docname' supplies the same info.</span></span>
-<span id="cb8-144"><a href="#cb8-144" aria-hidden="true" tabindex="-1"></a>oh_values <span class="ot">&lt;-</span> oh_values[,<span class="sc">-</span><span class="dv">2</span>]</span>
-<span id="cb8-145"><a href="#cb8-145" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-146"><a href="#cb8-146" aria-hidden="true" tabindex="-1"></a><span class="co"># obtain mean values across texts.</span></span>
-<span id="cb8-147"><a href="#cb8-147" aria-hidden="true" tabindex="-1"></a>graph_values <span class="ot">&lt;-</span> oh_values <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="dv">6</span><span class="sc">:</span><span class="dv">15</span>) <span class="sc">%&gt;%</span> <span class="fu">colMeans</span>()</span>
-<span id="cb8-148"><a href="#cb8-148" aria-hidden="true" tabindex="-1"></a>graph_values <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(graph_values)</span>
-<span id="cb8-149"><a href="#cb8-149" aria-hidden="true" tabindex="-1"></a>graph_values<span class="sc">$</span>label <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"ac"</span>, <span class="st">"be"</span>, <span class="st">"co"</span>, <span class="st">"he"</span>, <span class="st">"po"</span>, <span class="st">"sd"</span>, <span class="st">"se"</span>, <span class="st">"st"</span>, <span class="st">"tr"</span>, <span class="st">"un"</span>)</span>
-<span id="cb8-150"><a href="#cb8-150" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-151"><a href="#cb8-151" aria-hidden="true" tabindex="-1"></a><span class="co"># plot graph.</span></span>
-<span id="cb8-152"><a href="#cb8-152" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(graph_values, <span class="fu">aes</span>(<span class="at">x=</span> <span class="fu">reorder</span>(label,value), <span class="at">y=</span> value)) <span class="sc">+</span></span>
-<span id="cb8-153"><a href="#cb8-153" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">1.5</span>, <span class="at">color =</span> <span class="st">"purple"</span>, <span class="at">fill =</span> <span class="fu">alpha</span>(<span class="st">"pink"</span>, <span class="fl">0.4</span>), <span class="at">alpha =</span> <span class="fl">0.8</span>, <span class="at">shape =</span> <span class="dv">21</span>, <span class="at">stroke =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
-<span id="cb8-154"><a href="#cb8-154" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">x =</span> label, <span class="at">xend =</span> label, <span class="at">y =</span> <span class="dv">0</span>, <span class="at">yend =</span> value)) <span class="sc">+</span> </span>
-<span id="cb8-155"><a href="#cb8-155" aria-hidden="true" tabindex="-1"></a>   <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
-<span id="cb8-156"><a href="#cb8-156" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Personal Values Extracted From Oral Histories"</span>, <span class="at">x =</span> <span class="st">"Value"</span>, <span class="at">y =</span> <span class="st">"Mean Percentage"</span>) <span class="sc">+</span></span>
-<span id="cb8-157"><a href="#cb8-157" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label=</span><span class="fu">sprintf</span>(<span class="st">"%0.2f"</span>, ..y..)), <span class="at">position=</span><span class="fu">position_dodge</span>(<span class="at">width=</span><span class="fl">0.9</span>), <span class="at">vjust=</span><span class="sc">-</span><span class="fl">0.93</span>, <span class="at">size=</span><span class="dv">3</span>)</span>
-<span id="cb8-158"><a href="#cb8-158" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb8-159"><a href="#cb8-159" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-160"><a href="#cb8-160" aria-hidden="true" tabindex="-1"></a>The top 3 values observed were **self-direction**, **benevolence** and **achievement**.</span>
-<span id="cb8-161"><a href="#cb8-161" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-162"><a href="#cb8-162" aria-hidden="true" tabindex="-1"></a><span class="fu"># Analyse Reddit Comments</span></span>
-<span id="cb8-163"><a href="#cb8-163" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-166"><a href="#cb8-166" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb8-167"><a href="#cb8-167" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: dic reddit</span></span>
-<span id="cb8-168"><a href="#cb8-168" aria-hidden="true" tabindex="-1"></a><span class="co"># run analysis.</span></span>
-<span id="cb8-169"><a href="#cb8-169" aria-hidden="true" tabindex="-1"></a>reddit_values <span class="ot">&lt;-</span> <span class="fu">liwcalike</span>(reddit_corpus, dic)</span>
-<span id="cb8-170"><a href="#cb8-170" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-171"><a href="#cb8-171" aria-hidden="true" tabindex="-1"></a><span class="co"># remove 'segment', which is redundant since 'docname' supplies the same info.</span></span>
-<span id="cb8-172"><a href="#cb8-172" aria-hidden="true" tabindex="-1"></a>reddit_values <span class="ot">&lt;-</span> reddit_values[,<span class="sc">-</span><span class="dv">2</span>]</span>
-<span id="cb8-173"><a href="#cb8-173" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-174"><a href="#cb8-174" aria-hidden="true" tabindex="-1"></a><span class="co"># obtain mean values across texts.</span></span>
-<span id="cb8-175"><a href="#cb8-175" aria-hidden="true" tabindex="-1"></a>values2 <span class="ot">&lt;-</span> reddit_values <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="dv">6</span><span class="sc">:</span><span class="dv">15</span>) <span class="sc">%&gt;%</span> <span class="fu">colMeans</span>()</span>
-<span id="cb8-176"><a href="#cb8-176" aria-hidden="true" tabindex="-1"></a>values2 <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(values2)</span>
-<span id="cb8-177"><a href="#cb8-177" aria-hidden="true" tabindex="-1"></a>values2<span class="sc">$</span>label <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"ac"</span>, <span class="st">"be"</span>, <span class="st">"co"</span>, <span class="st">"he"</span>, <span class="st">"po"</span>, <span class="st">"sd"</span>, <span class="st">"se"</span>, <span class="st">"st"</span>, <span class="st">"tr"</span>, <span class="st">"un"</span>)</span>
-<span id="cb8-178"><a href="#cb8-178" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-179"><a href="#cb8-179" aria-hidden="true" tabindex="-1"></a><span class="co"># plot graph.</span></span>
-<span id="cb8-180"><a href="#cb8-180" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(values2, <span class="fu">aes</span>(<span class="at">x=</span> <span class="fu">reorder</span>(label,value), <span class="at">y=</span> value)) <span class="sc">+</span></span>
-<span id="cb8-181"><a href="#cb8-181" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">1.5</span>, <span class="at">color =</span> <span class="st">"purple"</span>, <span class="at">fill =</span> <span class="fu">alpha</span>(<span class="st">"pink"</span>, <span class="fl">0.4</span>), <span class="at">alpha =</span> <span class="fl">0.8</span>, <span class="at">shape =</span> <span class="dv">21</span>, <span class="at">stroke =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
-<span id="cb8-182"><a href="#cb8-182" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">x =</span> label, <span class="at">xend =</span> label, <span class="at">y =</span> <span class="dv">0</span>, <span class="at">yend =</span> value)) <span class="sc">+</span> </span>
-<span id="cb8-183"><a href="#cb8-183" aria-hidden="true" tabindex="-1"></a>   <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
-<span id="cb8-184"><a href="#cb8-184" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Personal Values Extracted From Reddit"</span>, <span class="at">x =</span> <span class="st">"Value"</span>, <span class="at">y =</span> <span class="st">"Mean Percentage"</span>) <span class="sc">+</span></span>
-<span id="cb8-185"><a href="#cb8-185" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label=</span><span class="fu">sprintf</span>(<span class="st">"%0.2f"</span>, ..y..)), <span class="at">position=</span><span class="fu">position_dodge</span>(<span class="at">width=</span><span class="fl">0.9</span>), <span class="at">vjust=</span><span class="sc">-</span><span class="fl">0.93</span>, <span class="at">size=</span><span class="dv">3</span>)</span>
-<span id="cb8-186"><a href="#cb8-186" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb8-187"><a href="#cb8-187" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-188"><a href="#cb8-188" aria-hidden="true" tabindex="-1"></a>The top 3 values observed were **benevolence**, **self-direction** and **universalism**.</span>
-<span id="cb8-189"><a href="#cb8-189" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-190"><a href="#cb8-190" aria-hidden="true" tabindex="-1"></a><span class="fu"># Impact on RQs</span></span>
-<span id="cb8-191"><a href="#cb8-191" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-192"><a href="#cb8-192" aria-hidden="true" tabindex="-1"></a>To recap, these are my RQs:</span>
-<span id="cb8-193"><a href="#cb8-193" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-194"><a href="#cb8-194" aria-hidden="true" tabindex="-1"></a>::: callout-tip</span>
-<span id="cb8-195"><a href="#cb8-195" aria-hidden="true" tabindex="-1"></a><span class="fu">## Research Questions</span></span>
-<span id="cb8-196"><a href="#cb8-196" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-197"><a href="#cb8-197" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>How have the values and concerns of South Asian Americans changed over time?</span>
-<span id="cb8-198"><a href="#cb8-198" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>Do older South Asian Americans align more with the honour culture prevalent in their home countries? Do younger South Asian Americans align more with the dignity culture prevalent in the USA?</span>
-<span id="cb8-199"><a href="#cb8-199" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb8-200"><a href="#cb8-200" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-201"><a href="#cb8-201" aria-hidden="true" tabindex="-1"></a>**Self-direction** and **benevolence** was common to both groups of South Asian Americans. This can be interpreted as representing dual needs for exploring the world independently, as well as protecting the well-being of close ones (Schwartz, 2012). These intuitively might not seem like they go together, but perhaps could be expected in migrants: leaving home to pursue new opportunities and adapt to a new culture, and caring for the small family unit brought over.</span>
-<span id="cb8-202"><a href="#cb8-202" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-203"><a href="#cb8-203" aria-hidden="true" tabindex="-1"></a>However, older South Asian Americans valued **achievement** more. Quoting directly from Schwartz (2012), p. 5: "personal success through demonstrating competence according to social standards...thereby obtaining social approval". Assuming older South Asian Americans have largely been socialized to South Asian cultural values, we can interpret this as a need for success *according to the societies they came from*, so as to maintain their reputation. This is a key facet of honour cultures, as I described in Blog Post 1.</span>
-<span id="cb8-204"><a href="#cb8-204" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-205"><a href="#cb8-205" aria-hidden="true" tabindex="-1"></a>We can qualitatively skim the interview with the highest achievement score:</span>
-<span id="cb8-206"><a href="#cb8-206" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-209"><a href="#cb8-209" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb8-210"><a href="#cb8-210" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: OH ac</span></span>
-<span id="cb8-211"><a href="#cb8-211" aria-hidden="true" tabindex="-1"></a>oh_values <span class="sc">%&gt;%</span> <span class="fu">select</span>(docname,ac) <span class="sc">%&gt;%</span> <span class="fu">arrange</span>(<span class="fu">desc</span>(ac)) <span class="sc">%&gt;%</span> <span class="fu">head</span>(<span class="dv">1</span>)</span>
-<span id="cb8-212"><a href="#cb8-212" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-213"><a href="#cb8-213" aria-hidden="true" tabindex="-1"></a><span class="co"># save.image("post5_saaradhaa.RData")</span></span>
-<span id="cb8-214"><a href="#cb8-214" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb8-215"><a href="#cb8-215" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-216"><a href="#cb8-216" aria-hidden="true" tabindex="-1"></a>Opening Text 36 on my computer, the interviewee discusses her grueling training in classical dance, and how it was challenging to keep up with especially when she migrated to the US. This is a classic example of achievement.</span>
-<span id="cb8-217"><a href="#cb8-217" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-218"><a href="#cb8-218" aria-hidden="true" tabindex="-1"></a>Meanwhile, younger South Asian Americans valued **universalism** more. This is interesting, as Schwartz describes this as *opposite* to benevolence, which focuses just on loved ones: "people do not recognize these needs until they encounter others beyond the extended primary group...two subtypes of concern...welfare of those in the larger society and world and for nature". This could reflect several things:</span>
-<span id="cb8-219"><a href="#cb8-219" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-220"><a href="#cb8-220" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Younger South Asian Americans' socialization to both South Asian and American cultures (regard for both the society at large <span class="co">[</span><span class="ot">and</span><span class="co">]</span>{.underline} their close loved ones, reflected in endorsing supposedly opposing values);</span>
-<span id="cb8-221"><a href="#cb8-221" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-222"><a href="#cb8-222" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Acknowledgment of growing social problems such as class inequality and global warming;</span>
-<span id="cb8-223"><a href="#cb8-223" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-224"><a href="#cb8-224" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Greater socialization to the dignity culture in the US than their elders, a key facet of which entails recognizing the worth of every individual.</span>
-<span id="cb8-225"><a href="#cb8-225" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-226"><a href="#cb8-226" aria-hidden="true" tabindex="-1"></a>To caution, the above is just one potential interpretation of the results that makes sense to me. However, it's important to note that honour and dignity are group-level values, while the PVD describes individual-level values. It is possible that there may be some disparities unaccounted for because of this.</span>
-<span id="cb8-227"><a href="#cb8-227" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-228"><a href="#cb8-228" aria-hidden="true" tabindex="-1"></a>Overall, the dictionary analysis allows us to partially answer the RQs:</span>
-<span id="cb8-229"><a href="#cb8-229" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-230"><a href="#cb8-230" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>Values of South Asian Americans that remain unchanged are **self-direction** and **benevolence**, although the older generation gives more importance to the former and the younger generation gives more importance to the latter. Values that have changed: older South Asian Americans value **achievement** more, while younger South Asian Americans value **universalism** more.</span>
-<span id="cb8-231"><a href="#cb8-231" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>There is some potential evidence that older South Asian Americans align more with South Asian honour cultures, given the importance of achievement as endorsed by society; and that younger South Asian Americans align more with the US' dignity culture, given the importance of universalism. The caveat is that both groups endorsed both values, but just at different degrees.</span>
-<span id="cb8-232"><a href="#cb8-232" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-233"><a href="#cb8-233" aria-hidden="true" tabindex="-1"></a><span class="fu"># Bibliography</span></span>
-<span id="cb8-234"><a href="#cb8-234" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-235"><a href="#cb8-235" aria-hidden="true" tabindex="-1"></a>Ponizovskiy, V., Ardag, M., Grigoryan, L., Boyd, R., Dobewall, H., &amp; Holtz, P. (2020). Development and Validation of the Personal Values Dictionary: A Theory--Driven Tool for Investigating References to Basic Human Values in Text. *European Journal of Personality*, *34*(5), 885--902.</span>
-<span id="cb8-236"><a href="#cb8-236" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-237"><a href="#cb8-237" aria-hidden="true" tabindex="-1"></a>Schwartz, S. H. (1992). Universals in the content and structure of values: Theoretical advances and empirical tests in 20 countries. *Advances in Experimental Social Psychology*, 1--65.</span>
-<span id="cb8-238"><a href="#cb8-238" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-239"><a href="#cb8-239" aria-hidden="true" tabindex="-1"></a>Schwartz, S. H. (2012). An Overview of the Schwartz Theory of Basic Values. *Online Readings in Psychology and Culture*, *2*(1).</span>
+<div class="sourceCode" id="cb60" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Post 5"</span></span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Saaradhaa M"</span></span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a><span class="an">description:</span><span class="co"> "KWIC and Dictionary Analysis"</span></span>
+<span id="cb60-5"><a href="#cb60-5" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "11/13/2022"</span></span>
+<span id="cb60-6"><a href="#cb60-6" aria-hidden="true" tabindex="-1"></a><span class="an">editor:</span><span class="co"> visual</span></span>
+<span id="cb60-7"><a href="#cb60-7" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb60-8"><a href="#cb60-8" aria-hidden="true" tabindex="-1"></a><span class="co">    html:</span></span>
+<span id="cb60-9"><a href="#cb60-9" aria-hidden="true" tabindex="-1"></a><span class="co">        df-print: paged</span></span>
+<span id="cb60-10"><a href="#cb60-10" aria-hidden="true" tabindex="-1"></a><span class="co">        toc: true</span></span>
+<span id="cb60-11"><a href="#cb60-11" aria-hidden="true" tabindex="-1"></a><span class="co">        code-copy: true</span></span>
+<span id="cb60-12"><a href="#cb60-12" aria-hidden="true" tabindex="-1"></a><span class="co">        code-tools: true</span></span>
+<span id="cb60-13"><a href="#cb60-13" aria-hidden="true" tabindex="-1"></a><span class="co">        css: "styles.css"</span></span>
+<span id="cb60-14"><a href="#cb60-14" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span><span class="co"> </span></span>
+<span id="cb60-15"><a href="#cb60-15" aria-hidden="true" tabindex="-1"></a><span class="co">  - post 5</span></span>
+<span id="cb60-16"><a href="#cb60-16" aria-hidden="true" tabindex="-1"></a><span class="co">  - saaradhaa</span></span>
+<span id="cb60-17"><a href="#cb60-17" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb60-18"><a href="#cb60-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-21"><a href="#cb60-21" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb60-22"><a href="#cb60-22" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: setup</span></span>
+<span id="cb60-23"><a href="#cb60-23" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb60-24"><a href="#cb60-24" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb60-25"><a href="#cb60-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-26"><a href="#cb60-26" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb60-27"><a href="#cb60-27" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda)</span>
+<span id="cb60-28"><a href="#cb60-28" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda.textplots)</span>
+<span id="cb60-29"><a href="#cb60-29" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quanteda.dictionaries)</span>
+<span id="cb60-30"><a href="#cb60-30" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(utils)</span>
+<span id="cb60-31"><a href="#cb60-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-32"><a href="#cb60-32" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"post5_saaradhaa.rdata"</span>)</span>
+<span id="cb60-33"><a href="#cb60-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-34"><a href="#cb60-34" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">echo =</span> <span class="cn">TRUE</span>, <span class="at">warning =</span> <span class="cn">FALSE</span>, <span class="at">message =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb60-35"><a href="#cb60-35" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb60-36"><a href="#cb60-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-37"><a href="#cb60-37" aria-hidden="true" tabindex="-1"></a><span class="fu">## KWIC Analysis</span></span>
+<span id="cb60-38"><a href="#cb60-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-39"><a href="#cb60-39" aria-hidden="true" tabindex="-1"></a>I will first work on the comments I received for Post 4. I compared the appearance of the term 'culture' in the oral histories vs. Reddit comments, but received feedback to try a kwic analysis instead (to check which terms are more likely to be used with 'culture').</span>
+<span id="cb60-40"><a href="#cb60-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-43"><a href="#cb60-43" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb60-44"><a href="#cb60-44" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: kwic OH</span></span>
+<span id="cb60-45"><a href="#cb60-45" aria-hidden="true" tabindex="-1"></a><span class="co"># load saved R object with oral histories.</span></span>
+<span id="cb60-46"><a href="#cb60-46" aria-hidden="true" tabindex="-1"></a><span class="co"># transcripts &lt;- read_rds("transcripts.rds")</span></span>
+<span id="cb60-47"><a href="#cb60-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-48"><a href="#cb60-48" aria-hidden="true" tabindex="-1"></a><span class="co"># create 'quanteda' corpus. </span></span>
+<span id="cb60-49"><a href="#cb60-49" aria-hidden="true" tabindex="-1"></a>oh_corpus <span class="ot">&lt;-</span> <span class="fu">corpus</span>(transcripts<span class="sc">$</span>text)</span>
+<span id="cb60-50"><a href="#cb60-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-51"><a href="#cb60-51" aria-hidden="true" tabindex="-1"></a><span class="co"># create my own list of stopwords, based on qualitative reading of the first transcript.</span></span>
+<span id="cb60-52"><a href="#cb60-52" aria-hidden="true" tabindex="-1"></a>to_keep <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"do"</span>, <span class="st">"does"</span>, <span class="st">"did"</span>, <span class="st">"would"</span>, <span class="st">"should"</span>, <span class="st">"could"</span>, <span class="st">"ought"</span>, <span class="st">"isn't"</span>, <span class="st">"aren't"</span>, <span class="st">"wasn't"</span>, <span class="st">"weren't"</span>, <span class="st">"hasn't"</span>, <span class="st">"haven't"</span>, <span class="st">"hadn't"</span>, <span class="st">"doesn't"</span>, <span class="st">"don't"</span>, <span class="st">"didn't"</span>, <span class="st">"won't"</span>, <span class="st">"wouldn't"</span>, <span class="st">"shan't"</span>, <span class="st">"shouldn't"</span>, <span class="st">"can't"</span>, <span class="st">"cannot"</span>, <span class="st">"couldn't"</span>, <span class="st">"mustn't"</span>, <span class="st">"because"</span>, <span class="st">"against"</span>, <span class="st">"between"</span>, <span class="st">"into"</span>, <span class="st">"through"</span>, <span class="st">"during"</span>, <span class="st">"before"</span>, <span class="st">"after"</span>, <span class="st">"above"</span>, <span class="st">"below"</span>, <span class="st">"over"</span>, <span class="st">"under"</span>, <span class="st">"no"</span>, <span class="st">"nor"</span>, <span class="st">"not"</span>)</span>
+<span id="cb60-53"><a href="#cb60-53" aria-hidden="true" tabindex="-1"></a>Stopwords <span class="ot">&lt;-</span> <span class="fu">stopwords</span>(<span class="st">"en"</span>)</span>
+<span id="cb60-54"><a href="#cb60-54" aria-hidden="true" tabindex="-1"></a>Stopwords <span class="ot">&lt;-</span> Stopwords[<span class="sc">!</span>(Stopwords <span class="sc">%in%</span> to_keep)]</span>
+<span id="cb60-55"><a href="#cb60-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-56"><a href="#cb60-56" aria-hidden="true" tabindex="-1"></a><span class="co"># create tokens, remove punctuation, numbers, symbols and stopwords, then convert to lowercase.</span></span>
+<span id="cb60-57"><a href="#cb60-57" aria-hidden="true" tabindex="-1"></a>oh_tokens <span class="ot">&lt;-</span> <span class="fu">tokens</span>(oh_corpus, <span class="at">remove_punct =</span> T, <span class="at">remove_numbers =</span> T, <span class="at">remove_symbols =</span> T)</span>
+<span id="cb60-58"><a href="#cb60-58" aria-hidden="true" tabindex="-1"></a>oh_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_select</span>(oh_tokens, <span class="at">pattern =</span> Stopwords, <span class="at">selection =</span> <span class="st">"remove"</span>)</span>
+<span id="cb60-59"><a href="#cb60-59" aria-hidden="true" tabindex="-1"></a>oh_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_tolower</span>(oh_tokens)</span>
+<span id="cb60-60"><a href="#cb60-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-61"><a href="#cb60-61" aria-hidden="true" tabindex="-1"></a><span class="co"># remove tokens that appeared in previous wordcloud that are not too meaningful.</span></span>
+<span id="cb60-62"><a href="#cb60-62" aria-hidden="true" tabindex="-1"></a>oh_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_remove</span>(oh_tokens, <span class="fu">c</span>(<span class="st">"know"</span>, <span class="st">"even"</span>, <span class="st">"used"</span>, <span class="st">"thing"</span>, <span class="st">"lot"</span>, <span class="st">"yes"</span>, <span class="st">"say"</span>, <span class="st">"going"</span>, <span class="st">"went"</span>, <span class="st">"yeah"</span>, <span class="st">"come"</span>, <span class="st">"actually"</span>, <span class="st">"mean"</span>, <span class="st">"like"</span>, <span class="st">"think"</span>, <span class="st">"get"</span>, <span class="st">"go"</span>, <span class="st">"said"</span>, <span class="st">"see"</span>, <span class="st">"things"</span>, <span class="st">"really"</span>, <span class="st">"well"</span>, <span class="st">"still"</span>, <span class="st">"little"</span>, <span class="st">"got"</span>, <span class="st">"right"</span>, <span class="st">"can"</span>, <span class="st">"came"</span>, <span class="st">"um"</span>, <span class="st">"quite"</span>, <span class="st">"bit"</span>, <span class="st">"every"</span>, <span class="st">"oh"</span>, <span class="st">"many"</span>, <span class="st">"always"</span>, <span class="st">"one"</span>, <span class="st">"two"</span>, <span class="st">"just"</span>, <span class="st">"much"</span>, <span class="st">"want"</span>, <span class="st">"wanted"</span>, <span class="st">"okay"</span>, <span class="st">"part"</span>, <span class="st">"also"</span>, <span class="st">"just"</span>, <span class="st">"us"</span>, <span class="st">"never"</span>, <span class="st">"many"</span>, <span class="st">"something"</span>, <span class="st">"want"</span>, <span class="st">"wanted"</span>, <span class="st">"uh"</span>))</span>
+<span id="cb60-63"><a href="#cb60-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-64"><a href="#cb60-64" aria-hidden="true" tabindex="-1"></a><span class="co"># look at kwic for oral histories.</span></span>
+<span id="cb60-65"><a href="#cb60-65" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">kwic</span>(oh_tokens, <span class="at">pattern =</span> <span class="fu">c</span>(<span class="st">"[cC]ultur"</span>), <span class="at">window=</span><span class="dv">15</span>, <span class="at">valuetype =</span> <span class="st">"regex"</span>)</span>
+<span id="cb60-66"><a href="#cb60-66" aria-hidden="true" tabindex="-1"></a><span class="fu">textplot_xray</span>(data)</span>
+<span id="cb60-67"><a href="#cb60-67" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb60-68"><a href="#cb60-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-69"><a href="#cb60-69" aria-hidden="true" tabindex="-1"></a>I am not too sure how to interpret this plot and might need some help with this.</span>
+<span id="cb60-70"><a href="#cb60-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-73"><a href="#cb60-73" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb60-74"><a href="#cb60-74" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: kwic reddit</span></span>
+<span id="cb60-75"><a href="#cb60-75" aria-hidden="true" tabindex="-1"></a><span class="co"># load saved R object with reddit data and create corpus. remove punctuation/symbols, lowercase.</span></span>
+<span id="cb60-76"><a href="#cb60-76" aria-hidden="true" tabindex="-1"></a><span class="co"># reddit_comments_final &lt;- read_rds("reddit_comments_final.rds")</span></span>
+<span id="cb60-77"><a href="#cb60-77" aria-hidden="true" tabindex="-1"></a>reddit_corpus <span class="ot">&lt;-</span> <span class="fu">corpus</span>(reddit_comments_final<span class="sc">$</span>comment)</span>
+<span id="cb60-78"><a href="#cb60-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-79"><a href="#cb60-79" aria-hidden="true" tabindex="-1"></a><span class="co"># use same list of stopwords as oral histories.</span></span>
+<span id="cb60-80"><a href="#cb60-80" aria-hidden="true" tabindex="-1"></a>to_keep <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"do"</span>, <span class="st">"does"</span>, <span class="st">"did"</span>, <span class="st">"would"</span>, <span class="st">"should"</span>, <span class="st">"could"</span>, <span class="st">"ought"</span>, <span class="st">"isn't"</span>, <span class="st">"aren't"</span>, <span class="st">"wasn't"</span>, <span class="st">"weren't"</span>, <span class="st">"hasn't"</span>, <span class="st">"haven't"</span>, <span class="st">"hadn't"</span>, <span class="st">"doesn't"</span>, <span class="st">"don't"</span>, <span class="st">"didn't"</span>, <span class="st">"won't"</span>, <span class="st">"wouldn't"</span>, <span class="st">"shan't"</span>, <span class="st">"shouldn't"</span>, <span class="st">"can't"</span>, <span class="st">"cannot"</span>, <span class="st">"couldn't"</span>, <span class="st">"mustn't"</span>, <span class="st">"because"</span>, <span class="st">"against"</span>, <span class="st">"between"</span>, <span class="st">"into"</span>, <span class="st">"through"</span>, <span class="st">"during"</span>, <span class="st">"before"</span>, <span class="st">"after"</span>, <span class="st">"above"</span>, <span class="st">"below"</span>, <span class="st">"over"</span>, <span class="st">"under"</span>, <span class="st">"no"</span>, <span class="st">"nor"</span>, <span class="st">"not"</span>)</span>
+<span id="cb60-81"><a href="#cb60-81" aria-hidden="true" tabindex="-1"></a>Stopwords <span class="ot">&lt;-</span> <span class="fu">stopwords</span>(<span class="st">"en"</span>)</span>
+<span id="cb60-82"><a href="#cb60-82" aria-hidden="true" tabindex="-1"></a>Stopwords <span class="ot">&lt;-</span> Stopwords[<span class="sc">!</span>(Stopwords <span class="sc">%in%</span> to_keep)]</span>
+<span id="cb60-83"><a href="#cb60-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-84"><a href="#cb60-84" aria-hidden="true" tabindex="-1"></a><span class="co"># create tokens, remove punctuation, numbers, symbols and stopwords, then convert to lowercase.</span></span>
+<span id="cb60-85"><a href="#cb60-85" aria-hidden="true" tabindex="-1"></a>reddit_tokens <span class="ot">&lt;-</span> <span class="fu">tokens</span>(reddit_corpus, <span class="at">remove_punct =</span> T, <span class="at">remove_numbers =</span> T, <span class="at">remove_symbols =</span> T)</span>
+<span id="cb60-86"><a href="#cb60-86" aria-hidden="true" tabindex="-1"></a>reddit_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_select</span>(reddit_tokens, <span class="at">pattern =</span> Stopwords, <span class="at">selection =</span> <span class="st">"remove"</span>)</span>
+<span id="cb60-87"><a href="#cb60-87" aria-hidden="true" tabindex="-1"></a>reddit_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_tolower</span>(reddit_tokens)</span>
+<span id="cb60-88"><a href="#cb60-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-89"><a href="#cb60-89" aria-hidden="true" tabindex="-1"></a><span class="co"># remove tokens that appear in wordcloud that are not too meaningful.</span></span>
+<span id="cb60-90"><a href="#cb60-90" aria-hidden="true" tabindex="-1"></a>reddit_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_remove</span>(reddit_tokens, <span class="fu">c</span>(<span class="st">"m"</span>, <span class="st">"s"</span>, <span class="st">"say"</span>, <span class="st">"see"</span>, <span class="st">"make"</span>, <span class="st">"way"</span>, <span class="st">"well"</span>, <span class="st">"many"</span>, <span class="st">"someone"</span>, <span class="st">"never"</span>, <span class="st">"still"</span>, <span class="st">"now"</span>, <span class="st">"go"</span>, <span class="st">"thing"</span>, <span class="st">"things"</span>, <span class="st">"know"</span>, <span class="st">"think"</span>, <span class="st">"also"</span>, <span class="st">"said"</span>, <span class="st">"going"</span>, <span class="st">"want"</span>, <span class="st">"t"</span>, <span class="st">"one"</span>, <span class="st">"lot"</span>, <span class="st">"much"</span>, <span class="st">"even"</span>, <span class="st">"really"</span>, <span class="st">"sure"</span>, <span class="st">"yeah"</span>, <span class="st">"look"</span>, <span class="st">"always"</span>, <span class="st">"something"</span>, <span class="st">"re"</span>, <span class="st">"actually"</span>, <span class="st">"get"</span>, <span class="st">"got"</span>, <span class="st">"though"</span>, <span class="st">"take"</span>, <span class="st">"etc"</span>, <span class="st">"can"</span>, <span class="st">"like"</span>, <span class="st">"don"</span>, <span class="st">"saying"</span>))</span>
+<span id="cb60-91"><a href="#cb60-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-92"><a href="#cb60-92" aria-hidden="true" tabindex="-1"></a><span class="co"># look at kwic for reddit data.</span></span>
+<span id="cb60-93"><a href="#cb60-93" aria-hidden="true" tabindex="-1"></a>data2 <span class="ot">&lt;-</span> <span class="fu">kwic</span>(reddit_tokens, <span class="at">pattern =</span> <span class="fu">c</span>(<span class="st">"[cC]ultur"</span>), <span class="at">window=</span><span class="dv">15</span>, <span class="at">valuetype =</span> <span class="st">"regex"</span>)</span>
+<span id="cb60-94"><a href="#cb60-94" aria-hidden="true" tabindex="-1"></a><span class="co"># textplot_xray(data2)</span></span>
+<span id="cb60-95"><a href="#cb60-95" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb60-96"><a href="#cb60-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-97"><a href="#cb60-97" aria-hidden="true" tabindex="-1"></a>Unfortunately, RStudio crashes/hangs when I try to load the plot for the Reddit comments, as there are too many matches for the pattern (*N* = 8,047). How can I fix this?</span>
+<span id="cb60-98"><a href="#cb60-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-99"><a href="#cb60-99" aria-hidden="true" tabindex="-1"></a><span class="fu">## Personal Values Dictionary</span></span>
+<span id="cb60-100"><a href="#cb60-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-101"><a href="#cb60-101" aria-hidden="true" tabindex="-1"></a>The main part of this post focuses on implementing the Personal Values Dictionary (PVD) on the oral histories and Reddit data. This dictionary was created by Ponizovskiy et al. (2020), based on the 10 fundamental values theorized by Schwartz (1992). These are shown in the figure below, which was taken from their paper:</span>
+<span id="cb60-102"><a href="#cb60-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-103"><a href="#cb60-103" aria-hidden="true" tabindex="-1"></a><span class="al">![*Figure Credit: Ponizovskiy et al. (2020)*](images/Screenshot%202022-11-09%20at%202.07.12%20PM.png)</span>{fig-align="center" width="366"}</span>
+<span id="cb60-104"><a href="#cb60-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-105"><a href="#cb60-105" aria-hidden="true" tabindex="-1"></a>I created the table below to briefly summarize what each value means, adapting the descriptions from Schwartz (2012):</span>
+<span id="cb60-106"><a href="#cb60-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-107"><a href="#cb60-107" aria-hidden="true" tabindex="-1"></a>| Value          | Need For? (adapted from Schwartz, 2012) |</span>
+<span id="cb60-108"><a href="#cb60-108" aria-hidden="true" tabindex="-1"></a>|----------------|-----------------------------------------|</span>
+<span id="cb60-109"><a href="#cb60-109" aria-hidden="true" tabindex="-1"></a>| Self-Direction | Independence                            |</span>
+<span id="cb60-110"><a href="#cb60-110" aria-hidden="true" tabindex="-1"></a>| Stimulation    | Excitement                              |</span>
+<span id="cb60-111"><a href="#cb60-111" aria-hidden="true" tabindex="-1"></a>| Hedonism       | Enjoyment                               |</span>
+<span id="cb60-112"><a href="#cb60-112" aria-hidden="true" tabindex="-1"></a>| Achievement    | Success                                 |</span>
+<span id="cb60-113"><a href="#cb60-113" aria-hidden="true" tabindex="-1"></a>| Power          | Authority                               |</span>
+<span id="cb60-114"><a href="#cb60-114" aria-hidden="true" tabindex="-1"></a>| Security       | Safety                                  |</span>
+<span id="cb60-115"><a href="#cb60-115" aria-hidden="true" tabindex="-1"></a>| Conformity     | Harmony                                 |</span>
+<span id="cb60-116"><a href="#cb60-116" aria-hidden="true" tabindex="-1"></a>| Tradition      | Maintaining customs                     |</span>
+<span id="cb60-117"><a href="#cb60-117" aria-hidden="true" tabindex="-1"></a>| Universalism   | Peace                                   |</span>
+<span id="cb60-118"><a href="#cb60-118" aria-hidden="true" tabindex="-1"></a>| Benevolence    | Group harmony                           |</span>
+<span id="cb60-119"><a href="#cb60-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-120"><a href="#cb60-120" aria-hidden="true" tabindex="-1"></a>The PVD was validated using both short-form text (e.g., social media status updates) and long-form text (e.g., essays), making it a good fit to extract values from both the oral histories and Reddit data. There were also consistent relationships between the personal values generated by the dictionary and those actually reported by participants.</span>
+<span id="cb60-121"><a href="#cb60-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-122"><a href="#cb60-122" aria-hidden="true" tabindex="-1"></a><span class="fu"># Analyse Oral Histories</span></span>
+<span id="cb60-123"><a href="#cb60-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-126"><a href="#cb60-126" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb60-127"><a href="#cb60-127" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: dic OH</span></span>
+<span id="cb60-128"><a href="#cb60-128" aria-hidden="true" tabindex="-1"></a><span class="co"># load dictionary.</span></span>
+<span id="cb60-129"><a href="#cb60-129" aria-hidden="true" tabindex="-1"></a>dic <span class="ot">&lt;-</span> <span class="fu">read.delim</span>(<span class="st">"Refined_dictionary.txt"</span>, <span class="at">col.names=</span><span class="fu">c</span>(<span class="st">"word"</span>,<span class="st">"sentiment"</span>))</span>
+<span id="cb60-130"><a href="#cb60-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-131"><a href="#cb60-131" aria-hidden="true" tabindex="-1"></a><span class="co"># remove legend.</span></span>
+<span id="cb60-132"><a href="#cb60-132" aria-hidden="true" tabindex="-1"></a>dic <span class="ot">&lt;-</span> dic[<span class="dv">12</span><span class="sc">:</span><span class="dv">1079</span>, ]</span>
+<span id="cb60-133"><a href="#cb60-133" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-134"><a href="#cb60-134" aria-hidden="true" tabindex="-1"></a><span class="co"># recode values for 'sentiment' column.</span></span>
+<span id="cb60-135"><a href="#cb60-135" aria-hidden="true" tabindex="-1"></a>dic<span class="sc">$</span>sentiment <span class="ot">&lt;-</span> <span class="fu">recode</span>(dic<span class="sc">$</span>sentiment, <span class="st">"1"</span> <span class="ot">=</span> <span class="st">"SE"</span>, <span class="st">"2"</span> <span class="ot">=</span> <span class="st">"CO"</span>, <span class="st">"3"</span> <span class="ot">=</span> <span class="st">"TR"</span>, <span class="st">"4"</span> <span class="ot">=</span> <span class="st">"BE"</span>, <span class="st">"5"</span> <span class="ot">=</span> <span class="st">"UN"</span>, <span class="st">"6"</span> <span class="ot">=</span> <span class="st">"SD"</span>, <span class="st">"7"</span> <span class="ot">=</span> <span class="st">"ST"</span>, <span class="st">"8"</span> <span class="ot">=</span> <span class="st">"HE"</span>, <span class="st">"9"</span> <span class="ot">=</span> <span class="st">"AC"</span>, <span class="st">"10"</span> <span class="ot">=</span> <span class="st">"PO"</span>)</span>
+<span id="cb60-136"><a href="#cb60-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-137"><a href="#cb60-137" aria-hidden="true" tabindex="-1"></a><span class="co"># change to dictionary format.</span></span>
+<span id="cb60-138"><a href="#cb60-138" aria-hidden="true" tabindex="-1"></a>dic <span class="ot">&lt;-</span> <span class="fu">as.dictionary</span>(dic)</span>
+<span id="cb60-139"><a href="#cb60-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-140"><a href="#cb60-140" aria-hidden="true" tabindex="-1"></a><span class="co"># run analysis.</span></span>
+<span id="cb60-141"><a href="#cb60-141" aria-hidden="true" tabindex="-1"></a>oh_values <span class="ot">&lt;-</span> <span class="fu">liwcalike</span>(oh_corpus, dic)</span>
+<span id="cb60-142"><a href="#cb60-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-143"><a href="#cb60-143" aria-hidden="true" tabindex="-1"></a><span class="co"># remove 'segment', which is redundant since 'docname' supplies the same info.</span></span>
+<span id="cb60-144"><a href="#cb60-144" aria-hidden="true" tabindex="-1"></a>oh_values <span class="ot">&lt;-</span> oh_values[,<span class="sc">-</span><span class="dv">2</span>]</span>
+<span id="cb60-145"><a href="#cb60-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-146"><a href="#cb60-146" aria-hidden="true" tabindex="-1"></a><span class="co"># obtain mean values across texts.</span></span>
+<span id="cb60-147"><a href="#cb60-147" aria-hidden="true" tabindex="-1"></a>graph_values <span class="ot">&lt;-</span> oh_values <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="dv">6</span><span class="sc">:</span><span class="dv">15</span>) <span class="sc">%&gt;%</span> <span class="fu">colMeans</span>()</span>
+<span id="cb60-148"><a href="#cb60-148" aria-hidden="true" tabindex="-1"></a>graph_values <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(graph_values)</span>
+<span id="cb60-149"><a href="#cb60-149" aria-hidden="true" tabindex="-1"></a>graph_values<span class="sc">$</span>label <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"ac"</span>, <span class="st">"be"</span>, <span class="st">"co"</span>, <span class="st">"he"</span>, <span class="st">"po"</span>, <span class="st">"sd"</span>, <span class="st">"se"</span>, <span class="st">"st"</span>, <span class="st">"tr"</span>, <span class="st">"un"</span>)</span>
+<span id="cb60-150"><a href="#cb60-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-151"><a href="#cb60-151" aria-hidden="true" tabindex="-1"></a><span class="co"># plot graph.</span></span>
+<span id="cb60-152"><a href="#cb60-152" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(graph_values, <span class="fu">aes</span>(<span class="at">x=</span> <span class="fu">reorder</span>(label,value), <span class="at">y=</span> value)) <span class="sc">+</span></span>
+<span id="cb60-153"><a href="#cb60-153" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">1.5</span>, <span class="at">color =</span> <span class="st">"purple"</span>, <span class="at">fill =</span> <span class="fu">alpha</span>(<span class="st">"pink"</span>, <span class="fl">0.4</span>), <span class="at">alpha =</span> <span class="fl">0.8</span>, <span class="at">shape =</span> <span class="dv">21</span>, <span class="at">stroke =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb60-154"><a href="#cb60-154" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">x =</span> label, <span class="at">xend =</span> label, <span class="at">y =</span> <span class="dv">0</span>, <span class="at">yend =</span> value)) <span class="sc">+</span> </span>
+<span id="cb60-155"><a href="#cb60-155" aria-hidden="true" tabindex="-1"></a>   <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb60-156"><a href="#cb60-156" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Personal Values Extracted From Oral Histories"</span>, <span class="at">x =</span> <span class="st">"Value"</span>, <span class="at">y =</span> <span class="st">"Mean Percentage"</span>) <span class="sc">+</span></span>
+<span id="cb60-157"><a href="#cb60-157" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label=</span><span class="fu">sprintf</span>(<span class="st">"%0.2f"</span>, ..y..)), <span class="at">position=</span><span class="fu">position_dodge</span>(<span class="at">width=</span><span class="fl">0.9</span>), <span class="at">vjust=</span><span class="sc">-</span><span class="fl">0.93</span>, <span class="at">size=</span><span class="dv">3</span>)</span>
+<span id="cb60-158"><a href="#cb60-158" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb60-159"><a href="#cb60-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-160"><a href="#cb60-160" aria-hidden="true" tabindex="-1"></a>The top 3 values observed were **self-direction**, **benevolence** and **achievement**.</span>
+<span id="cb60-161"><a href="#cb60-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-162"><a href="#cb60-162" aria-hidden="true" tabindex="-1"></a><span class="fu"># Analyse Reddit Comments</span></span>
+<span id="cb60-163"><a href="#cb60-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-166"><a href="#cb60-166" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb60-167"><a href="#cb60-167" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: dic reddit</span></span>
+<span id="cb60-168"><a href="#cb60-168" aria-hidden="true" tabindex="-1"></a><span class="co"># run analysis.</span></span>
+<span id="cb60-169"><a href="#cb60-169" aria-hidden="true" tabindex="-1"></a>reddit_values <span class="ot">&lt;-</span> <span class="fu">liwcalike</span>(reddit_corpus, dic)</span>
+<span id="cb60-170"><a href="#cb60-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-171"><a href="#cb60-171" aria-hidden="true" tabindex="-1"></a><span class="co"># remove 'segment', which is redundant since 'docname' supplies the same info.</span></span>
+<span id="cb60-172"><a href="#cb60-172" aria-hidden="true" tabindex="-1"></a>reddit_values <span class="ot">&lt;-</span> reddit_values[,<span class="sc">-</span><span class="dv">2</span>]</span>
+<span id="cb60-173"><a href="#cb60-173" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-174"><a href="#cb60-174" aria-hidden="true" tabindex="-1"></a><span class="co"># obtain mean values across texts.</span></span>
+<span id="cb60-175"><a href="#cb60-175" aria-hidden="true" tabindex="-1"></a>values2 <span class="ot">&lt;-</span> reddit_values <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="dv">6</span><span class="sc">:</span><span class="dv">15</span>) <span class="sc">%&gt;%</span> <span class="fu">colMeans</span>()</span>
+<span id="cb60-176"><a href="#cb60-176" aria-hidden="true" tabindex="-1"></a>values2 <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(values2)</span>
+<span id="cb60-177"><a href="#cb60-177" aria-hidden="true" tabindex="-1"></a>values2<span class="sc">$</span>label <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"ac"</span>, <span class="st">"be"</span>, <span class="st">"co"</span>, <span class="st">"he"</span>, <span class="st">"po"</span>, <span class="st">"sd"</span>, <span class="st">"se"</span>, <span class="st">"st"</span>, <span class="st">"tr"</span>, <span class="st">"un"</span>)</span>
+<span id="cb60-178"><a href="#cb60-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-179"><a href="#cb60-179" aria-hidden="true" tabindex="-1"></a><span class="co"># plot graph.</span></span>
+<span id="cb60-180"><a href="#cb60-180" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(values2, <span class="fu">aes</span>(<span class="at">x=</span> <span class="fu">reorder</span>(label,value), <span class="at">y=</span> value)) <span class="sc">+</span></span>
+<span id="cb60-181"><a href="#cb60-181" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">1.5</span>, <span class="at">color =</span> <span class="st">"purple"</span>, <span class="at">fill =</span> <span class="fu">alpha</span>(<span class="st">"pink"</span>, <span class="fl">0.4</span>), <span class="at">alpha =</span> <span class="fl">0.8</span>, <span class="at">shape =</span> <span class="dv">21</span>, <span class="at">stroke =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb60-182"><a href="#cb60-182" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">x =</span> label, <span class="at">xend =</span> label, <span class="at">y =</span> <span class="dv">0</span>, <span class="at">yend =</span> value)) <span class="sc">+</span> </span>
+<span id="cb60-183"><a href="#cb60-183" aria-hidden="true" tabindex="-1"></a>   <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb60-184"><a href="#cb60-184" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Personal Values Extracted From Reddit"</span>, <span class="at">x =</span> <span class="st">"Value"</span>, <span class="at">y =</span> <span class="st">"Mean Percentage"</span>) <span class="sc">+</span></span>
+<span id="cb60-185"><a href="#cb60-185" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label=</span><span class="fu">sprintf</span>(<span class="st">"%0.2f"</span>, ..y..)), <span class="at">position=</span><span class="fu">position_dodge</span>(<span class="at">width=</span><span class="fl">0.9</span>), <span class="at">vjust=</span><span class="sc">-</span><span class="fl">0.93</span>, <span class="at">size=</span><span class="dv">3</span>)</span>
+<span id="cb60-186"><a href="#cb60-186" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb60-187"><a href="#cb60-187" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-188"><a href="#cb60-188" aria-hidden="true" tabindex="-1"></a>The top 3 values observed were **benevolence**, **self-direction** and **universalism**.</span>
+<span id="cb60-189"><a href="#cb60-189" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-190"><a href="#cb60-190" aria-hidden="true" tabindex="-1"></a><span class="fu"># Impact on RQs</span></span>
+<span id="cb60-191"><a href="#cb60-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-192"><a href="#cb60-192" aria-hidden="true" tabindex="-1"></a>To recap, these are my RQs:</span>
+<span id="cb60-193"><a href="#cb60-193" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-194"><a href="#cb60-194" aria-hidden="true" tabindex="-1"></a>::: callout-tip</span>
+<span id="cb60-195"><a href="#cb60-195" aria-hidden="true" tabindex="-1"></a><span class="fu">## Research Questions</span></span>
+<span id="cb60-196"><a href="#cb60-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-197"><a href="#cb60-197" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>How have the values and concerns of South Asian Americans changed over time?</span>
+<span id="cb60-198"><a href="#cb60-198" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>Do older South Asian Americans align more with the honour culture prevalent in their home countries? Do younger South Asian Americans align more with the dignity culture prevalent in the USA?</span>
+<span id="cb60-199"><a href="#cb60-199" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb60-200"><a href="#cb60-200" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-201"><a href="#cb60-201" aria-hidden="true" tabindex="-1"></a>**Self-direction** and **benevolence** was common to both groups of South Asian Americans. This can be interpreted as representing dual needs for exploring the world independently, as well as protecting the well-being of close ones (Schwartz, 2012). These intuitively might not seem like they go together, but perhaps could be expected in migrants: leaving home to pursue new opportunities and adapt to a new culture, and caring for the small family unit brought over.</span>
+<span id="cb60-202"><a href="#cb60-202" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-203"><a href="#cb60-203" aria-hidden="true" tabindex="-1"></a>However, older South Asian Americans valued **achievement** more. Quoting directly from Schwartz (2012), p. 5: "personal success through demonstrating competence according to social standards...thereby obtaining social approval". Assuming older South Asian Americans have largely been socialized to South Asian cultural values, we can interpret this as a need for success *according to the societies they came from*, so as to maintain their reputation. This is a key facet of honour cultures, as I described in Blog Post 1.</span>
+<span id="cb60-204"><a href="#cb60-204" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-205"><a href="#cb60-205" aria-hidden="true" tabindex="-1"></a>We can qualitatively skim the interview with the highest achievement score:</span>
+<span id="cb60-206"><a href="#cb60-206" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-209"><a href="#cb60-209" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb60-210"><a href="#cb60-210" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: OH ac</span></span>
+<span id="cb60-211"><a href="#cb60-211" aria-hidden="true" tabindex="-1"></a>oh_values <span class="sc">%&gt;%</span> <span class="fu">select</span>(docname,ac) <span class="sc">%&gt;%</span> <span class="fu">arrange</span>(<span class="fu">desc</span>(ac)) <span class="sc">%&gt;%</span> <span class="fu">head</span>(<span class="dv">1</span>)</span>
+<span id="cb60-212"><a href="#cb60-212" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-213"><a href="#cb60-213" aria-hidden="true" tabindex="-1"></a><span class="co"># save.image("post5_saaradhaa.RData")</span></span>
+<span id="cb60-214"><a href="#cb60-214" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb60-215"><a href="#cb60-215" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-216"><a href="#cb60-216" aria-hidden="true" tabindex="-1"></a>Opening Text 36 on my computer, the interviewee discusses her grueling training in classical dance, and how it was challenging to keep up with especially when she migrated to the US. This is a classic example of achievement.</span>
+<span id="cb60-217"><a href="#cb60-217" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-218"><a href="#cb60-218" aria-hidden="true" tabindex="-1"></a>Meanwhile, younger South Asian Americans valued **universalism** more. This is interesting, as Schwartz describes this as *opposite* to benevolence, which focuses just on loved ones: "people do not recognize these needs until they encounter others beyond the extended primary group...two subtypes of concern...welfare of those in the larger society and world and for nature". This could reflect several things:</span>
+<span id="cb60-219"><a href="#cb60-219" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-220"><a href="#cb60-220" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Younger South Asian Americans' socialization to both South Asian and American cultures (regard for both the society at large <span class="co">[</span><span class="ot">and</span><span class="co">]</span>{.underline} their close loved ones, reflected in endorsing supposedly opposing values);</span>
+<span id="cb60-221"><a href="#cb60-221" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-222"><a href="#cb60-222" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Acknowledgment of growing social problems such as class inequality and global warming;</span>
+<span id="cb60-223"><a href="#cb60-223" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-224"><a href="#cb60-224" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Greater socialization to the dignity culture in the US than their elders, a key facet of which entails recognizing the worth of every individual.</span>
+<span id="cb60-225"><a href="#cb60-225" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-226"><a href="#cb60-226" aria-hidden="true" tabindex="-1"></a>To caution, the above is just one potential interpretation of the results that makes sense to me. However, it's important to note that honour and dignity are group-level values, while the PVD describes individual-level values. It is possible that there may be some disparities unaccounted for because of this.</span>
+<span id="cb60-227"><a href="#cb60-227" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-228"><a href="#cb60-228" aria-hidden="true" tabindex="-1"></a>Overall, the dictionary analysis allows us to partially answer the RQs:</span>
+<span id="cb60-229"><a href="#cb60-229" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-230"><a href="#cb60-230" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>Values of South Asian Americans that remain unchanged are **self-direction** and **benevolence**, although the older generation gives more importance to the former and the younger generation gives more importance to the latter. Values that have changed: older South Asian Americans value **achievement** more, while younger South Asian Americans value **universalism** more.</span>
+<span id="cb60-231"><a href="#cb60-231" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>There is some potential evidence that older South Asian Americans align more with South Asian honour cultures, given the importance of achievement as endorsed by society; and that younger South Asian Americans align more with the US' dignity culture, given the importance of universalism. The caveat is that both groups endorsed both values, but just at different degrees.</span>
+<span id="cb60-232"><a href="#cb60-232" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-233"><a href="#cb60-233" aria-hidden="true" tabindex="-1"></a><span class="fu"># Bibliography</span></span>
+<span id="cb60-234"><a href="#cb60-234" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-235"><a href="#cb60-235" aria-hidden="true" tabindex="-1"></a>Ponizovskiy, V., Ardag, M., Grigoryan, L., Boyd, R., Dobewall, H., &amp; Holtz, P. (2020). Development and Validation of the Personal Values Dictionary: A Theory--Driven Tool for Investigating References to Basic Human Values in Text. *European Journal of Personality*, *34*(5), 885--902.</span>
+<span id="cb60-236"><a href="#cb60-236" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-237"><a href="#cb60-237" aria-hidden="true" tabindex="-1"></a>Schwartz, S. H. (1992). Universals in the content and structure of values: Theoretical advances and empirical tests in 20 countries. *Advances in Experimental Social Psychology*, 1--65.</span>
+<span id="cb60-238"><a href="#cb60-238" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-239"><a href="#cb60-239" aria-hidden="true" tabindex="-1"></a>Schwartz, S. H. (2012). An Overview of the Schwartz Theory of Basic Values. *Online Readings in Psychology and Culture*, *2*(1).</span>
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
