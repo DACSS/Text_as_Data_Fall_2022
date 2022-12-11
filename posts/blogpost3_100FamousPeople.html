@@ -9,7 +9,7 @@
 <meta name="author" content="Adithya Parupudi">
 <meta name="dcterms.date" content="2022-10-11">
 
-<title>Text-as-Data Fall 2022 - Blog Post 3 - Data Cleaning and Word cloud</title>
+<title>Text-as-Data Fall 2022 - Blog Post 3 - Data Cleaning and Categorising</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -128,7 +128,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <script src="../site_libs/wordcloud2-binding-0.2.1/wordcloud2.js"></script>
 
 
-<meta name="twitter:title" content="Text-as-Data Fall 2022 - Blog Post 3 - Data Cleaning and Word cloud">
+<meta name="twitter:title" content="Text-as-Data Fall 2022 - Blog Post 3 - Data Cleaning and Categorising">
 <meta name="twitter:description" content="Reading in all the libraries :)">
 <meta name="twitter:creator" content="@UMassDACSS">
 <meta name="twitter:card" content="summary">
@@ -810,10 +810,10 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <script src="https://giscus.app/client.js" data-repo="DACSS/Text_as_Data_Fall_2022" data-repo-id="R_kgDOH5675w" data-category="Announcements" data-category-id="" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
 </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
 <div class="sourceCode" id="cb30" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Blog Post 3 - Data Cleaning and Word cloud"</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Blog Post 3 - Data Cleaning and Categorising"</span></span>
 <span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Adithya Parupudi"</span></span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="an">desription:</span><span class="co"> "Scraped biographies of 100+ famous people to perform text analysis"</span></span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "10/11/2022"</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="an">desription:</span><span class="co"> "Performed data cleaning and categorising."</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "30/10/2022"</span></span>
 <span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
 <span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
 <span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
@@ -851,179 +851,250 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb30-42"><a href="#cb30-42" aria-hidden="true" tabindex="-1"></a><span class="fu">### **From CSV**</span></span>
 <span id="cb30-43"><a href="#cb30-43" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb30-46"><a href="#cb30-46" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb30-47"><a href="#cb30-47" aria-hidden="true" tabindex="-1"></a>dataset2 <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"./100FamousPeople.csv"</span>)</span>
-<span id="cb30-48"><a href="#cb30-48" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(dataset2)</span>
+<span id="cb30-47"><a href="#cb30-47" aria-hidden="true" tabindex="-1"></a>dataset <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"./100FamousPeople_new.csv"</span>)</span>
+<span id="cb30-48"><a href="#cb30-48" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(dataset)</span>
 <span id="cb30-49"><a href="#cb30-49" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb30-50"><a href="#cb30-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-51"><a href="#cb30-51" aria-hidden="true" tabindex="-1"></a><span class="fu">### **Reading data from the website**.</span></span>
+<span id="cb30-51"><a href="#cb30-51" aria-hidden="true" tabindex="-1"></a><span class="fu"># Data Extraction</span></span>
 <span id="cb30-52"><a href="#cb30-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-55"><a href="#cb30-55" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb30-56"><a href="#cb30-56" aria-hidden="true" tabindex="-1"></a>all <span class="ot">=</span> <span class="fu">read_html</span>(<span class="st">"https://www.biographyonline.net/people/famous-100.html"</span>)</span>
-<span id="cb30-57"><a href="#cb30-57" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb30-58"><a href="#cb30-58" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-59"><a href="#cb30-59" aria-hidden="true" tabindex="-1"></a>I only want the year range to check their age/era in which they lived. Hence extracting their year only. Some of the famous people are still alive. Since there is no date of expiry for them, I have temporarily filled that value with 2000 as default.</span>
-<span id="cb30-60"><a href="#cb30-60" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-61"><a href="#cb30-61" aria-hidden="true" tabindex="-1"></a><span class="fu"># Data cleaning</span></span>
-<span id="cb30-62"><a href="#cb30-62" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-63"><a href="#cb30-63" aria-hidden="true" tabindex="-1"></a><span class="fu">### **Extract age ranges**</span></span>
-<span id="cb30-64"><a href="#cb30-64" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-65"><a href="#cb30-65" aria-hidden="true" tabindex="-1"></a>There are many people in the list who are still alive. Hence the age range(eg. 1900-2000) is not complete which is causing code issues. Hence currently filling those cases with a pre-decided value of 2000</span>
-<span id="cb30-66"><a href="#cb30-66" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-69"><a href="#cb30-69" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb30-70"><a href="#cb30-70" aria-hidden="true" tabindex="-1"></a><span class="co"># able to extract 1918 – 2013. and filling the unmatched pattern with 2000</span></span>
-<span id="cb30-71"><a href="#cb30-71" aria-hidden="true" tabindex="-1"></a>only_year <span class="ot">&lt;-</span>  all <span class="sc">%&gt;%</span> <span class="fu">html_nodes</span>(<span class="st">"ol li"</span>) <span class="sc">%&gt;%</span> <span class="fu">html_text</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb30-72"><a href="#cb30-72" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tolower</span>() <span class="sc">%&gt;%</span> <span class="fu">str_extract</span>(.,<span class="st">"[0-9]+</span><span class="sc">\\</span><span class="st">s.</span><span class="sc">\\</span><span class="st">s[0-9]+"</span>)<span class="sc">%&gt;%</span> <span class="fu">replace</span>(.,<span class="fu">is.na</span>(.),<span class="st">'2000'</span>)</span>
-<span id="cb30-73"><a href="#cb30-73" aria-hidden="true" tabindex="-1"></a>only_year <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(only_year)</span>
-<span id="cb30-74"><a href="#cb30-74" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(only_year)</span>
-<span id="cb30-75"><a href="#cb30-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-53"><a href="#cb30-53" aria-hidden="true" tabindex="-1"></a><span class="fu">## By Year</span></span>
+<span id="cb30-54"><a href="#cb30-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-55"><a href="#cb30-55" aria-hidden="true" tabindex="-1"></a>There are many people in the list who are still alive. Hence the age range(eg. 1900-2000) is not complete which is causing code issues. Hence currently filling those cases with a pre-decided value of 2022. I have created two column names - from, to; to capture the age ranges</span>
+<span id="cb30-56"><a href="#cb30-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-59"><a href="#cb30-59" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb30-60"><a href="#cb30-60" aria-hidden="true" tabindex="-1"></a><span class="co"># from</span></span>
+<span id="cb30-61"><a href="#cb30-61" aria-hidden="true" tabindex="-1"></a>from <span class="ot">&lt;-</span></span>
+<span id="cb30-62"><a href="#cb30-62" aria-hidden="true" tabindex="-1"></a>  dataset<span class="sc">$</span>peoples_title <span class="sc">%&gt;%</span> <span class="fu">tolower</span>() <span class="sc">%&gt;%</span> <span class="fu">str_extract</span>(., <span class="st">"[0-9]+</span><span class="sc">\\</span><span class="st">s"</span>)</span>
+<span id="cb30-63"><a href="#cb30-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-64"><a href="#cb30-64" aria-hidden="true" tabindex="-1"></a><span class="co"># to</span></span>
+<span id="cb30-65"><a href="#cb30-65" aria-hidden="true" tabindex="-1"></a>to <span class="ot">&lt;-</span></span>
+<span id="cb30-66"><a href="#cb30-66" aria-hidden="true" tabindex="-1"></a>  dataset<span class="sc">$</span>peoples_title <span class="sc">%&gt;%</span> <span class="fu">tolower</span>() <span class="sc">%&gt;%</span> <span class="fu">str_extract</span>(., <span class="st">"</span><span class="sc">\\</span><span class="st">s[0-9]+"</span>) <span class="sc">%&gt;%</span> <span class="fu">replace</span>(., <span class="fu">is.na</span>(.), <span class="st">'2022'</span>)</span>
+<span id="cb30-67"><a href="#cb30-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-68"><a href="#cb30-68" aria-hidden="true" tabindex="-1"></a>dataset<span class="sc">$</span>from <span class="ot">&lt;-</span> from</span>
+<span id="cb30-69"><a href="#cb30-69" aria-hidden="true" tabindex="-1"></a>dataset<span class="sc">$</span>to <span class="ot">&lt;-</span> to</span>
+<span id="cb30-70"><a href="#cb30-70" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(dataset)</span>
+<span id="cb30-71"><a href="#cb30-71" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb30-72"><a href="#cb30-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-73"><a href="#cb30-73" aria-hidden="true" tabindex="-1"></a><span class="fu">## By Profession</span></span>
+<span id="cb30-74"><a href="#cb30-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-75"><a href="#cb30-75" aria-hidden="true" tabindex="-1"></a>Removing unwanted terms using regex from peoples_title column, which provides a general summary of their title such as leader, founder, princess, actor etc</span>
 <span id="cb30-76"><a href="#cb30-76" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-77"><a href="#cb30-77" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-78"><a href="#cb30-78" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb30-79"><a href="#cb30-79" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-80"><a href="#cb30-80" aria-hidden="true" tabindex="-1"></a><span class="fu">### Occupations</span></span>
-<span id="cb30-81"><a href="#cb30-81" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-82"><a href="#cb30-82" aria-hidden="true" tabindex="-1"></a>Extracting their primary occupation as mentioned in the website, and converting it into a data frame for further visualizations. I have used stringr functions extensively in this case. Some popular titles include american president, actress, leader, singer, economist.</span>
-<span id="cb30-83"><a href="#cb30-83" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-84"><a href="#cb30-84" aria-hidden="true" tabindex="-1"></a>These titles directly imply their line of work, or where they have participated to earn that title. For example, an olympian, humanitarian etc</span>
-<span id="cb30-85"><a href="#cb30-85" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-88"><a href="#cb30-88" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb30-89"><a href="#cb30-89" aria-hidden="true" tabindex="-1"></a><span class="co"># printing the webpage and converting everything to lowercase</span></span>
-<span id="cb30-90"><a href="#cb30-90" aria-hidden="true" tabindex="-1"></a>temp3 <span class="ot">&lt;-</span> all <span class="sc">%&gt;%</span> </span>
-<span id="cb30-91"><a href="#cb30-91" aria-hidden="true" tabindex="-1"></a>  <span class="fu">html_nodes</span>(<span class="st">"ol li"</span>) <span class="sc">%&gt;%</span> <span class="fu">html_text</span>() <span class="sc">%&gt;%</span>  <span class="fu">tolower</span>() <span class="sc">%&gt;%</span>  <span class="co"># converting to lowercase</span></span>
-<span id="cb30-92"><a href="#cb30-92" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_sort</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb30-93"><a href="#cb30-93" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_extract</span>(.,<span class="st">"</span><span class="sc">\\</span><span class="st">).*"</span>) <span class="sc">%&gt;%</span> <span class="co"># extracting all text after ')'. Have to remove ')'</span></span>
-<span id="cb30-94"><a href="#cb30-94" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_replace</span>(.,<span class="st">"</span><span class="sc">\\</span><span class="st">) "</span>,<span class="st">""</span>) <span class="co">#replacing ) in all lines</span></span>
-<span id="cb30-95"><a href="#cb30-95" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-96"><a href="#cb30-96" aria-hidden="true" tabindex="-1"></a><span class="co"># observed that the str functions are not cleaning all outputs. Hence doing further data cleaning to get desired outputs</span></span>
-<span id="cb30-97"><a href="#cb30-97" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-98"><a href="#cb30-98" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-99"><a href="#cb30-99" aria-hidden="true" tabindex="-1"></a><span class="co"># extracting people designations. Doing further data cleaning</span></span>
-<span id="cb30-100"><a href="#cb30-100" aria-hidden="true" tabindex="-1"></a>peoples_title <span class="ot">&lt;-</span> temp3 <span class="sc">%&gt;%</span> <span class="fu">str_remove_all</span>(.,<span class="st">"</span><span class="sc">\\</span><span class="st">)[0-9]*"</span>) <span class="sc">%&gt;%</span> <span class="fu">str_trim</span>(.,<span class="st">"both"</span>)</span>
-<span id="cb30-101"><a href="#cb30-101" aria-hidden="true" tabindex="-1"></a>peoples_title <span class="ot">&lt;-</span> peoples_title <span class="sc">%&gt;%</span> <span class="fu">str_remove_all</span>(.,<span class="st">"[0-9]*"</span>) <span class="sc">%&gt;%</span> <span class="fu">str_trim</span>(.,<span class="st">"right"</span>) <span class="sc">%&gt;%</span> <span class="fu">str_replace_all</span>(<span class="st">"[–|-|-|(|.]"</span>,<span class="st">""</span>) <span class="sc">%&gt;%</span> <span class="fu">str_trim</span>(.,<span class="st">"both"</span>)</span>
-<span id="cb30-102"><a href="#cb30-102" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-103"><a href="#cb30-103" aria-hidden="true" tabindex="-1"></a>peoples_title <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(peoples_title)</span>
-<span id="cb30-104"><a href="#cb30-104" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(peoples_title)</span>
-<span id="cb30-105"><a href="#cb30-105" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-106"><a href="#cb30-106" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb30-79"><a href="#cb30-79" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb30-80"><a href="#cb30-80" aria-hidden="true" tabindex="-1"></a>dataset<span class="sc">$</span>peoples_title <span class="ot">&lt;-</span></span>
+<span id="cb30-81"><a href="#cb30-81" aria-hidden="true" tabindex="-1"></a>  dataset<span class="sc">$</span>peoples_title <span class="sc">%&gt;%</span>  <span class="fu">tolower</span>() <span class="sc">%&gt;%</span>  <span class="co"># converting to lowercase</span></span>
+<span id="cb30-82"><a href="#cb30-82" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_sort</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb30-83"><a href="#cb30-83" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_extract</span>(., <span class="st">"</span><span class="sc">\\</span><span class="st">).*"</span>) <span class="sc">%&gt;%</span> <span class="co"># extracting all text after ')'. Have to remove ')'</span></span>
+<span id="cb30-84"><a href="#cb30-84" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_replace</span>(., <span class="st">"</span><span class="sc">\\</span><span class="st">) "</span>, <span class="st">""</span>) <span class="sc">%&gt;%</span>  <span class="co">#replacing ) in all lines</span></span>
+<span id="cb30-85"><a href="#cb30-85" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_remove_all</span>(., <span class="st">"</span><span class="sc">\\</span><span class="st">)[0-9]*"</span>) <span class="sc">%&gt;%</span> <span class="fu">str_trim</span>(., <span class="st">"both"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb30-86"><a href="#cb30-86" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_remove_all</span>(., <span class="st">"[0-9]*"</span>) <span class="sc">%&gt;%</span> <span class="fu">str_trim</span>(., <span class="st">"right"</span>) <span class="sc">%&gt;%</span> <span class="fu">str_replace_all</span>(<span class="st">"[–|-|-|(|.]"</span>, <span class="st">""</span>) <span class="sc">%&gt;%</span> <span class="fu">str_trim</span>(., <span class="st">"both"</span>)</span>
+<span id="cb30-87"><a href="#cb30-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-88"><a href="#cb30-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-89"><a href="#cb30-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-90"><a href="#cb30-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-91"><a href="#cb30-91" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb30-92"><a href="#cb30-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-93"><a href="#cb30-93" aria-hidden="true" tabindex="-1"></a>I have created pre-defined occupations to group all people accordingly. They are **politician, royalty, spiritual, businessman, entertainment, humanitarian, academia, sports,** and **others.** After categorising thoroughly there were still some people who did not fall into these categories. I've assigned those people with a **others** tag.</span>
+<span id="cb30-94"><a href="#cb30-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-97"><a href="#cb30-97" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb30-98"><a href="#cb30-98" aria-hidden="true" tabindex="-1"></a><span class="co"># only profession</span></span>
+<span id="cb30-99"><a href="#cb30-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-100"><a href="#cb30-100" aria-hidden="true" tabindex="-1"></a>politician <span class="ot">&lt;-</span></span>
+<span id="cb30-101"><a href="#cb30-101" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">"president"</span>,</span>
+<span id="cb30-102"><a href="#cb30-102" aria-hidden="true" tabindex="-1"></a>    <span class="st">"leader"</span>,</span>
+<span id="cb30-103"><a href="#cb30-103" aria-hidden="true" tabindex="-1"></a>    <span class="st">"minister"</span>,</span>
+<span id="cb30-104"><a href="#cb30-104" aria-hidden="true" tabindex="-1"></a>    <span class="st">"first lady"</span>,</span>
+<span id="cb30-105"><a href="#cb30-105" aria-hidden="true" tabindex="-1"></a>    <span class="st">"wife"</span>,</span>
+<span id="cb30-106"><a href="#cb30-106" aria-hidden="true" tabindex="-1"></a>    <span class="st">"resistance"</span>)</span>
 <span id="cb30-107"><a href="#cb30-107" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-108"><a href="#cb30-108" aria-hidden="true" tabindex="-1"></a><span class="fu">### Removing jargon and fillers from all bio's</span></span>
+<span id="cb30-108"><a href="#cb30-108" aria-hidden="true" tabindex="-1"></a>royalty <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"heir"</span>, <span class="st">"throne"</span>, <span class="st">"monarch"</span>, <span class="st">"emperor"</span>, <span class="st">"princess"</span>)</span>
 <span id="cb30-109"><a href="#cb30-109" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-110"><a href="#cb30-110" aria-hidden="true" tabindex="-1"></a>I've used stringr package to remove text such as "adsbygoogle.com" which came along with the scraped content. Also removing the last paragraph of each page, which had the links to further pages in the website.</span>
+<span id="cb30-110"><a href="#cb30-110" aria-hidden="true" tabindex="-1"></a>spiritual <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"devotee"</span>, <span class="st">"pope"</span>)</span>
 <span id="cb30-111"><a href="#cb30-111" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-112"><a href="#cb30-112" aria-hidden="true" tabindex="-1"></a>This cleaning is done to all rows in the data set, but there are a few special characters that are still left to be cleaned. Writing regex had been difficult, but at least for the word cloud has a feature to ignore special characters :). I will have to find a way to generate dataset which is void of all special characters so that it doesn't effect the analysis in later stages.</span>
-<span id="cb30-113"><a href="#cb30-113" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-116"><a href="#cb30-116" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb30-117"><a href="#cb30-117" aria-hidden="true" tabindex="-1"></a>dataset2<span class="sc">$</span>content <span class="ot">&lt;-</span> dataset2<span class="sc">$</span>content <span class="sc">%&gt;%</span> <span class="fu">str_remove_all</span>(.,<span class="st">"adsbygoogle"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb30-118"><a href="#cb30-118" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_remove_all</span>(.,<span class="st">"www.biographyonline.net"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb30-119"><a href="#cb30-119" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_remove_all</span>(.,<span class="st">"window."</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb30-120"><a href="#cb30-120" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_remove_all</span>(.,<span class="st">".push"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb30-121"><a href="#cb30-121" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gsub</span>(<span class="st">"Citation.*"</span>,<span class="st">""</span>,.)</span>
-<span id="cb30-122"><a href="#cb30-122" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-123"><a href="#cb30-123" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb30-124"><a href="#cb30-124" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-125"><a href="#cb30-125" aria-hidden="true" tabindex="-1"></a><span class="fu"># Wordclouds!!!</span></span>
-<span id="cb30-126"><a href="#cb30-126" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-127"><a href="#cb30-127" aria-hidden="true" tabindex="-1"></a>Lets try to visualise everyone's occupation using word clouds. Here I am following these steps to generate a word clouds.</span>
+<span id="cb30-112"><a href="#cb30-112" aria-hidden="true" tabindex="-1"></a>businessman <span class="ot">&lt;-</span></span>
+<span id="cb30-113"><a href="#cb30-113" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">"founder"</span>,</span>
+<span id="cb30-114"><a href="#cb30-114" aria-hidden="true" tabindex="-1"></a>    <span class="st">"chairman"</span>,</span>
+<span id="cb30-115"><a href="#cb30-115" aria-hidden="true" tabindex="-1"></a>    <span class="st">"businessman"</span>,</span>
+<span id="cb30-116"><a href="#cb30-116" aria-hidden="true" tabindex="-1"></a>    <span class="st">"industrialist"</span>,</span>
+<span id="cb30-117"><a href="#cb30-117" aria-hidden="true" tabindex="-1"></a>    <span class="st">"entrepreneur"</span>,</span>
+<span id="cb30-118"><a href="#cb30-118" aria-hidden="true" tabindex="-1"></a>    <span class="st">"co-founder"</span>)</span>
+<span id="cb30-119"><a href="#cb30-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-120"><a href="#cb30-120" aria-hidden="true" tabindex="-1"></a>artist <span class="ot">&lt;-</span></span>
+<span id="cb30-121"><a href="#cb30-121" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">"musician"</span>,</span>
+<span id="cb30-122"><a href="#cb30-122" aria-hidden="true" tabindex="-1"></a>    <span class="st">"singer"</span>,</span>
+<span id="cb30-123"><a href="#cb30-123" aria-hidden="true" tabindex="-1"></a>    <span class="st">"dancer"</span>,</span>
+<span id="cb30-124"><a href="#cb30-124" aria-hidden="true" tabindex="-1"></a>    <span class="st">"designer"</span>,</span>
+<span id="cb30-125"><a href="#cb30-125" aria-hidden="true" tabindex="-1"></a>    <span class="st">"painter"</span>,</span>
+<span id="cb30-126"><a href="#cb30-126" aria-hidden="true" tabindex="-1"></a>    <span class="st">"composer"</span>,</span>
+<span id="cb30-127"><a href="#cb30-127" aria-hidden="true" tabindex="-1"></a>    <span class="st">"poet"</span>)</span>
 <span id="cb30-128"><a href="#cb30-128" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-129"><a href="#cb30-129" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>tokenizing</span>
-<span id="cb30-130"><a href="#cb30-130" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-131"><a href="#cb30-131" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>stop word removal - using *stopwords-iso* list ( consists of 1298 stopwords)</span>
-<span id="cb30-132"><a href="#cb30-132" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-133"><a href="#cb30-133" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>corpus creation</span>
-<span id="cb30-134"><a href="#cb30-134" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-135"><a href="#cb30-135" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>removing numbers, punctuation, white spaces.</span>
-<span id="cb30-136"><a href="#cb30-136" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-137"><a href="#cb30-137" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span>converting all text to lower case to maintain uniformity</span>
-<span id="cb30-138"><a href="#cb30-138" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-139"><a href="#cb30-139" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Creating Document-Term Matrix</span>
-<span id="cb30-140"><a href="#cb30-140" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-141"><a href="#cb30-141" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Finally generating word clouds!!!</span>
-<span id="cb30-142"><a href="#cb30-142" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-143"><a href="#cb30-143" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; **Important**. I faced issues generating word clouds, particularly at the matrix creation step. I've seen a lot of memory allocation issues, which I think is due to the RStudio update. Hence I am attaching the </span><span class="co">[</span><span class="ot">screenshots</span><span class="co">]</span><span class="at">{.underline} of the word cloud generated in one of the successful attempts.</span></span>
-<span id="cb30-144"><a href="#cb30-144" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;</span></span>
-<span id="cb30-145"><a href="#cb30-145" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; How I solved it temporarily?</span></span>
-<span id="cb30-146"><a href="#cb30-146" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;</span></span>
-<span id="cb30-147"><a href="#cb30-147" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; -   either using gc() command which frees up unused memory space.</span></span>
-<span id="cb30-148"><a href="#cb30-148" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;</span></span>
-<span id="cb30-149"><a href="#cb30-149" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; -   deleting the .rdata file from my project.</span></span>
-<span id="cb30-150"><a href="#cb30-150" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;</span></span>
-<span id="cb30-151"><a href="#cb30-151" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; -   waiting a long time for my RAM to free up before I run another code block :(</span></span>
-<span id="cb30-152"><a href="#cb30-152" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-153"><a href="#cb30-153" aria-hidden="true" tabindex="-1"></a><span class="fu">### Word Cloud on Occupations</span></span>
+<span id="cb30-129"><a href="#cb30-129" aria-hidden="true" tabindex="-1"></a>entertainment <span class="ot">&lt;-</span></span>
+<span id="cb30-130"><a href="#cb30-130" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">"actress"</span>, <span class="st">"director"</span>, <span class="st">"producer"</span>, <span class="st">"playwright"</span>, <span class="st">"comedian"</span>)</span>
+<span id="cb30-131"><a href="#cb30-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-132"><a href="#cb30-132" aria-hidden="true" tabindex="-1"></a>humanitarian <span class="ot">&lt;-</span></span>
+<span id="cb30-133"><a href="#cb30-133" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(</span>
+<span id="cb30-134"><a href="#cb30-134" aria-hidden="true" tabindex="-1"></a>    <span class="st">"humanitarian"</span>,</span>
+<span id="cb30-135"><a href="#cb30-135" aria-hidden="true" tabindex="-1"></a>    <span class="st">"rights"</span>,</span>
+<span id="cb30-136"><a href="#cb30-136" aria-hidden="true" tabindex="-1"></a>    <span class="st">"activist"</span>,</span>
+<span id="cb30-137"><a href="#cb30-137" aria-hidden="true" tabindex="-1"></a>    <span class="st">"independence"</span>,</span>
+<span id="cb30-138"><a href="#cb30-138" aria-hidden="true" tabindex="-1"></a>    <span class="st">"movement"</span>,</span>
+<span id="cb30-139"><a href="#cb30-139" aria-hidden="true" tabindex="-1"></a>    <span class="st">"nun"</span>,</span>
+<span id="cb30-140"><a href="#cb30-140" aria-hidden="true" tabindex="-1"></a>    <span class="st">"campaigner"</span>,</span>
+<span id="cb30-141"><a href="#cb30-141" aria-hidden="true" tabindex="-1"></a>    <span class="st">"charity"</span></span>
+<span id="cb30-142"><a href="#cb30-142" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb30-143"><a href="#cb30-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-144"><a href="#cb30-144" aria-hidden="true" tabindex="-1"></a>academia <span class="ot">&lt;-</span></span>
+<span id="cb30-145"><a href="#cb30-145" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(</span>
+<span id="cb30-146"><a href="#cb30-146" aria-hidden="true" tabindex="-1"></a>    <span class="st">"scientist"</span>,</span>
+<span id="cb30-147"><a href="#cb30-147" aria-hidden="true" tabindex="-1"></a>    <span class="st">"economist"</span>,</span>
+<span id="cb30-148"><a href="#cb30-148" aria-hidden="true" tabindex="-1"></a>    <span class="st">"author"</span>,</span>
+<span id="cb30-149"><a href="#cb30-149" aria-hidden="true" tabindex="-1"></a>    <span class="st">"economist"</span>,</span>
+<span id="cb30-150"><a href="#cb30-150" aria-hidden="true" tabindex="-1"></a>    <span class="st">"philosopher"</span>,</span>
+<span id="cb30-151"><a href="#cb30-151" aria-hidden="true" tabindex="-1"></a>    <span class="st">"inventor"</span>,</span>
+<span id="cb30-152"><a href="#cb30-152" aria-hidden="true" tabindex="-1"></a>    <span class="st">"microbiologist"</span></span>
+<span id="cb30-153"><a href="#cb30-153" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb30-154"><a href="#cb30-154" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-155"><a href="#cb30-155" aria-hidden="true" tabindex="-1"></a>Looks like it is evident that 1/3rd of people in the list are from the USA, and Britain and most of them could be leaders, actresses, author, musician etc. It would be interesting to see the correlation of the word and the people associated with it.</span>
-<span id="cb30-156"><a href="#cb30-156" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-159"><a href="#cb30-159" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb30-160"><a href="#cb30-160" aria-hidden="true" tabindex="-1"></a>for_occupation <span class="ot">=</span> peoples_title <span class="sc">%&gt;%</span></span>
-<span id="cb30-161"><a href="#cb30-161" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_tokens</span>(word, peoples_title, <span class="at">token =</span> <span class="st">"words"</span>, <span class="at">strip_punct =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb30-162"><a href="#cb30-162" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>(word <span class="sc">%in%</span> <span class="fu">stopwords</span>(<span class="at">source =</span> <span class="st">"stopwords-iso"</span>))) </span>
-<span id="cb30-163"><a href="#cb30-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-155"><a href="#cb30-155" aria-hidden="true" tabindex="-1"></a>sports <span class="ot">&lt;-</span></span>
+<span id="cb30-156"><a href="#cb30-156" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">"sport"</span>,</span>
+<span id="cb30-157"><a href="#cb30-157" aria-hidden="true" tabindex="-1"></a>    <span class="st">"football"</span>,</span>
+<span id="cb30-158"><a href="#cb30-158" aria-hidden="true" tabindex="-1"></a>    <span class="st">"baseball"</span>,</span>
+<span id="cb30-159"><a href="#cb30-159" aria-hidden="true" tabindex="-1"></a>    <span class="st">"golf"</span>,</span>
+<span id="cb30-160"><a href="#cb30-160" aria-hidden="true" tabindex="-1"></a>    <span class="st">"athlete"</span>,</span>
+<span id="cb30-161"><a href="#cb30-161" aria-hidden="true" tabindex="-1"></a>    <span class="st">"tennis"</span>,</span>
+<span id="cb30-162"><a href="#cb30-162" aria-hidden="true" tabindex="-1"></a>    <span class="st">"boxer"</span>,</span>
+<span id="cb30-163"><a href="#cb30-163" aria-hidden="true" tabindex="-1"></a>    <span class="st">"basketball"</span>)</span>
 <span id="cb30-164"><a href="#cb30-164" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-165"><a href="#cb30-165" aria-hidden="true" tabindex="-1"></a><span class="co"># corpus created</span></span>
-<span id="cb30-166"><a href="#cb30-166" aria-hidden="true" tabindex="-1"></a>create_corpus_occupation <span class="ot">&lt;-</span> <span class="fu">Corpus</span>(<span class="fu">VectorSource</span>(for_occupation))</span>
-<span id="cb30-167"><a href="#cb30-167" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-168"><a href="#cb30-168" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-169"><a href="#cb30-169" aria-hidden="true" tabindex="-1"></a><span class="co"># cleaning data using tm library</span></span>
-<span id="cb30-170"><a href="#cb30-170" aria-hidden="true" tabindex="-1"></a>create_corpus_occupation <span class="ot">&lt;-</span> create_corpus_occupation <span class="sc">%&gt;%</span></span>
-<span id="cb30-171"><a href="#cb30-171" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_map</span>(removeNumbers) <span class="sc">%&gt;%</span></span>
-<span id="cb30-172"><a href="#cb30-172" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_map</span>(removePunctuation) <span class="sc">%&gt;%</span></span>
-<span id="cb30-173"><a href="#cb30-173" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_map</span>(stripWhitespace)</span>
-<span id="cb30-174"><a href="#cb30-174" aria-hidden="true" tabindex="-1"></a>create_corpus_occupation <span class="ot">&lt;-</span> <span class="fu">tm_map</span>(create_corpus_occupation, <span class="fu">content_transformer</span>(tolower))</span>
-<span id="cb30-175"><a href="#cb30-175" aria-hidden="true" tabindex="-1"></a>create_corpus_occupation <span class="ot">&lt;-</span> <span class="fu">tm_map</span>(create_corpus_occupation, removeWords, <span class="fu">stopwords</span>(<span class="st">"english"</span>))</span>
-<span id="cb30-176"><a href="#cb30-176" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-177"><a href="#cb30-177" aria-hidden="true" tabindex="-1"></a><span class="co"># creating document term matrix</span></span>
-<span id="cb30-178"><a href="#cb30-178" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-179"><a href="#cb30-179" aria-hidden="true" tabindex="-1"></a>dtm_occupation <span class="ot">&lt;-</span> <span class="fu">TermDocumentMatrix</span>(create_corpus_occupation) </span>
-<span id="cb30-180"><a href="#cb30-180" aria-hidden="true" tabindex="-1"></a>matrix_occupation <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(dtm_occupation) </span>
-<span id="cb30-181"><a href="#cb30-181" aria-hidden="true" tabindex="-1"></a>words_occupation <span class="ot">&lt;-</span> <span class="fu">sort</span>(<span class="fu">rowSums</span>(matrix_occupation),<span class="at">decreasing=</span><span class="cn">TRUE</span>) </span>
-<span id="cb30-182"><a href="#cb30-182" aria-hidden="true" tabindex="-1"></a>df2 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">word =</span> <span class="fu">names</span>(words_occupation),<span class="at">freq=</span>words_occupation)</span>
-<span id="cb30-183"><a href="#cb30-183" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-184"><a href="#cb30-184" aria-hidden="true" tabindex="-1"></a><span class="fu">wordcloud2</span>(<span class="at">data=</span>df2, <span class="at">size =</span> <span class="fl">0.8</span>)</span>
-<span id="cb30-185"><a href="#cb30-185" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb30-186"><a href="#cb30-186" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-187"><a href="#cb30-187" aria-hidden="true" tabindex="-1"></a><span class="fu">### Word cloud on ALL biographies</span></span>
-<span id="cb30-188"><a href="#cb30-188" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-191"><a href="#cb30-191" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb30-192"><a href="#cb30-192" aria-hidden="true" tabindex="-1"></a>bio <span class="ot">&lt;-</span> dataset2 <span class="sc">%&gt;%</span> </span>
-<span id="cb30-193"><a href="#cb30-193" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_tokens</span>(word, content, <span class="at">token =</span> <span class="st">"words"</span>, <span class="at">strip_punct =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb30-194"><a href="#cb30-194" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>(word <span class="sc">%in%</span> <span class="fu">stopwords</span>(<span class="at">source =</span> <span class="st">"stopwords-iso"</span>))) </span>
-<span id="cb30-195"><a href="#cb30-195" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-165"><a href="#cb30-165" aria-hidden="true" tabindex="-1"></a>others <span class="ot">&lt;-</span></span>
+<span id="cb30-166"><a href="#cb30-166" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">"explorer"</span>,</span>
+<span id="cb30-167"><a href="#cb30-167" aria-hidden="true" tabindex="-1"></a>    <span class="st">"dancer"</span>,</span>
+<span id="cb30-168"><a href="#cb30-168" aria-hidden="true" tabindex="-1"></a>    <span class="st">"designer"</span>,</span>
+<span id="cb30-169"><a href="#cb30-169" aria-hidden="true" tabindex="-1"></a>    <span class="st">"socialite"</span>,</span>
+<span id="cb30-170"><a href="#cb30-170" aria-hidden="true" tabindex="-1"></a>    <span class="st">"spy"</span>,</span>
+<span id="cb30-171"><a href="#cb30-171" aria-hidden="true" tabindex="-1"></a>    <span class="st">"model"</span>,</span>
+<span id="cb30-172"><a href="#cb30-172" aria-hidden="true" tabindex="-1"></a>    <span class="st">"astronaut"</span>)</span>
+<span id="cb30-173"><a href="#cb30-173" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-174"><a href="#cb30-174" aria-hidden="true" tabindex="-1"></a>dataset<span class="sc">$</span>profession <span class="ot">&lt;-</span> <span class="fu">with</span>(</span>
+<span id="cb30-175"><a href="#cb30-175" aria-hidden="true" tabindex="-1"></a>  dataset,</span>
+<span id="cb30-176"><a href="#cb30-176" aria-hidden="true" tabindex="-1"></a>  <span class="fu">case_when</span>(</span>
+<span id="cb30-177"><a href="#cb30-177" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_detect</span>(dataset<span class="sc">$</span>peoples_title, <span class="fu">paste</span>(politician, <span class="at">collapse =</span> <span class="st">"|"</span>)) <span class="sc">~</span> <span class="st">"politician"</span>,</span>
+<span id="cb30-178"><a href="#cb30-178" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_detect</span>(dataset<span class="sc">$</span>peoples_title, <span class="fu">paste</span>(royalty, <span class="at">collapse =</span> <span class="st">"|"</span>)) <span class="sc">~</span> <span class="st">"royalty"</span>,</span>
+<span id="cb30-179"><a href="#cb30-179" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_detect</span>(dataset<span class="sc">$</span>peoples_title, <span class="fu">paste</span>(spiritual, <span class="at">collapse =</span> <span class="st">"|"</span>)) <span class="sc">~</span> <span class="st">"spiritual"</span>,</span>
+<span id="cb30-180"><a href="#cb30-180" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_detect</span>(dataset<span class="sc">$</span>peoples_title, <span class="fu">paste</span>(businessman, <span class="at">collapse =</span> <span class="st">"|"</span>)) <span class="sc">~</span> <span class="st">"businessman"</span>,</span>
+<span id="cb30-181"><a href="#cb30-181" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_detect</span>(dataset<span class="sc">$</span>peoples_title, <span class="fu">paste</span>(artist, <span class="at">collapse =</span> <span class="st">"|"</span>)) <span class="sc">~</span> <span class="st">"artist"</span>,</span>
+<span id="cb30-182"><a href="#cb30-182" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_detect</span>(dataset<span class="sc">$</span>peoples_title, <span class="fu">paste</span>(entertainment, <span class="at">collapse =</span> <span class="st">"|"</span>)) <span class="sc">~</span> <span class="st">"entertainment"</span>,</span>
+<span id="cb30-183"><a href="#cb30-183" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_detect</span>(dataset<span class="sc">$</span>peoples_title, <span class="fu">paste</span>(humanitarian, <span class="at">collapse =</span> <span class="st">"|"</span>)) <span class="sc">~</span> <span class="st">"humanitarian"</span>,</span>
+<span id="cb30-184"><a href="#cb30-184" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_detect</span>(dataset<span class="sc">$</span>peoples_title, <span class="fu">paste</span>(academia, <span class="at">collapse =</span> <span class="st">"|"</span>)) <span class="sc">~</span> <span class="st">"academia"</span>,</span>
+<span id="cb30-185"><a href="#cb30-185" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_detect</span>(dataset<span class="sc">$</span>peoples_title, <span class="fu">paste</span>(sports, <span class="at">collapse =</span> <span class="st">"|"</span>)) <span class="sc">~</span> <span class="st">"sports"</span>,</span>
+<span id="cb30-186"><a href="#cb30-186" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_detect</span>(dataset<span class="sc">$</span>peoples_title, <span class="fu">paste</span>(others, <span class="at">collapse =</span> <span class="st">"|"</span>)) <span class="sc">~</span> <span class="st">"others"</span></span>
+<span id="cb30-187"><a href="#cb30-187" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb30-188"><a href="#cb30-188" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb30-189"><a href="#cb30-189" aria-hidden="true" tabindex="-1"></a><span class="co"># head(dataset)</span></span>
+<span id="cb30-190"><a href="#cb30-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-191"><a href="#cb30-191" aria-hidden="true" tabindex="-1"></a>dataset<span class="sc">$</span>profession <span class="ot">&lt;-</span> dataset<span class="sc">$</span>profession <span class="sc">%&gt;%</span> <span class="fu">replace_na</span>(., <span class="st">"others"</span>)</span>
+<span id="cb30-192"><a href="#cb30-192" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-193"><a href="#cb30-193" aria-hidden="true" tabindex="-1"></a>dataset</span>
+<span id="cb30-194"><a href="#cb30-194" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-195"><a href="#cb30-195" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb30-196"><a href="#cb30-196" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-197"><a href="#cb30-197" aria-hidden="true" tabindex="-1"></a><span class="co"># tokenize_words(dataset$content)</span></span>
+<span id="cb30-197"><a href="#cb30-197" aria-hidden="true" tabindex="-1"></a><span class="fu">## By country</span></span>
 <span id="cb30-198"><a href="#cb30-198" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-199"><a href="#cb30-199" aria-hidden="true" tabindex="-1"></a><span class="co"># %&gt;% filter(!(word %in% stopwords(source = "stopwords-iso"))) </span></span>
-<span id="cb30-200"><a href="#cb30-200" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb30-201"><a href="#cb30-201" aria-hidden="true" tabindex="-1"></a>bio_vec <span class="ot">&lt;-</span> bio<span class="sc">$</span>word</span>
-<span id="cb30-202"><a href="#cb30-202" aria-hidden="true" tabindex="-1"></a>create_corpus <span class="ot">&lt;-</span> <span class="fu">Corpus</span>(<span class="fu">VectorSource</span>(bio_vec))</span>
-<span id="cb30-203"><a href="#cb30-203" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-204"><a href="#cb30-204" aria-hidden="true" tabindex="-1"></a><span class="co">#cleaning data using tm library</span></span>
-<span id="cb30-205"><a href="#cb30-205" aria-hidden="true" tabindex="-1"></a>create_corpus <span class="ot">&lt;-</span> create_corpus <span class="sc">%&gt;%</span></span>
-<span id="cb30-206"><a href="#cb30-206" aria-hidden="true" tabindex="-1"></a> <span class="fu">tm_map</span>(removeNumbers) <span class="sc">%&gt;%</span></span>
-<span id="cb30-207"><a href="#cb30-207" aria-hidden="true" tabindex="-1"></a> <span class="fu">tm_map</span>(removePunctuation) <span class="sc">%&gt;%</span></span>
-<span id="cb30-208"><a href="#cb30-208" aria-hidden="true" tabindex="-1"></a> <span class="fu">tm_map</span>(stripWhitespace)</span>
-<span id="cb30-209"><a href="#cb30-209" aria-hidden="true" tabindex="-1"></a>create_corpus <span class="ot">&lt;-</span> <span class="fu">tm_map</span>(create_corpus, <span class="fu">content_transformer</span>(tolower))</span>
-<span id="cb30-210"><a href="#cb30-210" aria-hidden="true" tabindex="-1"></a>create_corpus <span class="ot">&lt;-</span> <span class="fu">tm_map</span>(create_corpus, removeWords, <span class="fu">stopwords</span>(<span class="st">"english"</span>))</span>
-<span id="cb30-211"><a href="#cb30-211" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-212"><a href="#cb30-212" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-213"><a href="#cb30-213" aria-hidden="true" tabindex="-1"></a><span class="co">#creating document term matrix</span></span>
-<span id="cb30-214"><a href="#cb30-214" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-215"><a href="#cb30-215" aria-hidden="true" tabindex="-1"></a>dtm <span class="ot">&lt;-</span> <span class="fu">TermDocumentMatrix</span>(create_corpus)</span>
-<span id="cb30-216"><a href="#cb30-216" aria-hidden="true" tabindex="-1"></a>matrix <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(dtm)</span>
-<span id="cb30-217"><a href="#cb30-217" aria-hidden="true" tabindex="-1"></a>words <span class="ot">&lt;-</span> <span class="fu">sort</span>(<span class="fu">rowSums</span>(matrix),<span class="at">decreasing=</span><span class="cn">TRUE</span>)</span>
-<span id="cb30-218"><a href="#cb30-218" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">word =</span> <span class="fu">names</span>(words),<span class="at">freq=</span>words)</span>
-<span id="cb30-219"><a href="#cb30-219" aria-hidden="true" tabindex="-1"></a><span class="co">#word cloud</span></span>
-<span id="cb30-220"><a href="#cb30-220" aria-hidden="true" tabindex="-1"></a><span class="fu">wordcloud2</span>(<span class="at">data=</span>df, <span class="at">size =</span> <span class="fl">0.7</span>)</span>
-<span id="cb30-221"><a href="#cb30-221" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb30-222"><a href="#cb30-222" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-223"><a href="#cb30-223" aria-hidden="true" tabindex="-1"></a><span class="al">![Word cloud on all biographies](People_Bios.png)</span></span>
-<span id="cb30-224"><a href="#cb30-224" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-225"><a href="#cb30-225" aria-hidden="true" tabindex="-1"></a>The above word cloud provides really good insights about their biographies as a whole. It revolved mostly around war, people, government, politics and so on. Since this list is from the last century, the words like <span class="co">[</span><span class="ot">*war*</span><span class="co">]</span>{.underline} are highlighted. Since all of them are famous people, hence the word :).</span>
-<span id="cb30-226"><a href="#cb30-226" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-227"><a href="#cb30-227" aria-hidden="true" tabindex="-1"></a>Words like president, american, political, army, peace, king might have some interesting correlations which I should further explore. Its good that <span class="co">[</span><span class="ot">*women*</span><span class="co">]</span>{.underline} are getting highlighted, which hints that a majority of this list contains women as well!</span>
-<span id="cb30-228"><a href="#cb30-228" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-229"><a href="#cb30-229" aria-hidden="true" tabindex="-1"></a><span class="fu"># Future Analysis</span></span>
-<span id="cb30-230"><a href="#cb30-230" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-231"><a href="#cb30-231" aria-hidden="true" tabindex="-1"></a>I am expecting to deep dive further into visualizing word count using graphs in my next post. And maybe in later posts, I want to do sentiment analysis.</span>
+<span id="cb30-199"><a href="#cb30-199" aria-hidden="true" tabindex="-1"></a>Since this is a list of 100 people, there are people from all around the world. Hence I wanted to categorize them broadly in terms of their nationality. Hence I group them into the following variables - europe_countries, other_countries, south_america, Russia, America, British, India etc.</span>
+<span id="cb30-200"><a href="#cb30-200" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-201"><a href="#cb30-201" aria-hidden="true" tabindex="-1"></a>Some countries appeared only once, while some others ( like India) appeared more then twice. So I thought it would be better to explicitly mentioned countries which appeared more frequently.</span>
+<span id="cb30-202"><a href="#cb30-202" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-205"><a href="#cb30-205" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb30-206"><a href="#cb30-206" aria-hidden="true" tabindex="-1"></a>europe_countries <span class="ot">&lt;-</span></span>
+<span id="cb30-207"><a href="#cb30-207" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(</span>
+<span id="cb30-208"><a href="#cb30-208" aria-hidden="true" tabindex="-1"></a>    <span class="st">"italy"</span>,</span>
+<span id="cb30-209"><a href="#cb30-209" aria-hidden="true" tabindex="-1"></a>    <span class="st">"italian"</span>,</span>
+<span id="cb30-210"><a href="#cb30-210" aria-hidden="true" tabindex="-1"></a>    <span class="st">"swiss"</span>,</span>
+<span id="cb30-211"><a href="#cb30-211" aria-hidden="true" tabindex="-1"></a>    <span class="st">"polish"</span>,</span>
+<span id="cb30-212"><a href="#cb30-212" aria-hidden="true" tabindex="-1"></a>    <span class="st">"swedish"</span>,</span>
+<span id="cb30-213"><a href="#cb30-213" aria-hidden="true" tabindex="-1"></a>    <span class="st">"irish"</span>,</span>
+<span id="cb30-214"><a href="#cb30-214" aria-hidden="true" tabindex="-1"></a>    <span class="st">"macedonia"</span>,</span>
+<span id="cb30-215"><a href="#cb30-215" aria-hidden="true" tabindex="-1"></a>    <span class="st">"dutch"</span>,</span>
+<span id="cb30-216"><a href="#cb30-216" aria-hidden="true" tabindex="-1"></a>    <span class="st">"spanish"</span>,</span>
+<span id="cb30-217"><a href="#cb30-217" aria-hidden="true" tabindex="-1"></a>    <span class="st">"portugese"</span>,</span>
+<span id="cb30-218"><a href="#cb30-218" aria-hidden="true" tabindex="-1"></a>    <span class="st">"czech"</span>,</span>
+<span id="cb30-219"><a href="#cb30-219" aria-hidden="true" tabindex="-1"></a>    <span class="st">"greek"</span>,</span>
+<span id="cb30-220"><a href="#cb30-220" aria-hidden="true" tabindex="-1"></a>    <span class="st">"austria"</span></span>
+<span id="cb30-221"><a href="#cb30-221" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb30-222"><a href="#cb30-222" aria-hidden="true" tabindex="-1"></a>other_countries <span class="ot">&lt;-</span></span>
+<span id="cb30-223"><a href="#cb30-223" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">"tibetan"</span>,</span>
+<span id="cb30-224"><a href="#cb30-224" aria-hidden="true" tabindex="-1"></a>    <span class="st">"russian"</span>,</span>
+<span id="cb30-225"><a href="#cb30-225" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ethiopia"</span>,</span>
+<span id="cb30-226"><a href="#cb30-226" aria-hidden="true" tabindex="-1"></a>    <span class="st">"egypt"</span>,</span>
+<span id="cb30-227"><a href="#cb30-227" aria-hidden="true" tabindex="-1"></a>    <span class="st">"jamaica"</span>,</span>
+<span id="cb30-228"><a href="#cb30-228" aria-hidden="true" tabindex="-1"></a>    <span class="st">"burmese"</span>,</span>
+<span id="cb30-229"><a href="#cb30-229" aria-hidden="true" tabindex="-1"></a>    <span class="st">"africa"</span>)</span>
+<span id="cb30-230"><a href="#cb30-230" aria-hidden="true" tabindex="-1"></a>south_america <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"argentin"</span>, <span class="st">"cuba"</span>, <span class="st">"brazilian"</span>)</span>
+<span id="cb30-231"><a href="#cb30-231" aria-hidden="true" tabindex="-1"></a>pakistan <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"pakistan"</span>)</span>
+<span id="cb30-232"><a href="#cb30-232" aria-hidden="true" tabindex="-1"></a>dataset<span class="sc">$</span>country <span class="ot">&lt;-</span> <span class="fu">with</span>(</span>
+<span id="cb30-233"><a href="#cb30-233" aria-hidden="true" tabindex="-1"></a>  dataset,</span>
+<span id="cb30-234"><a href="#cb30-234" aria-hidden="true" tabindex="-1"></a>  <span class="fu">case_when</span>(</span>
+<span id="cb30-235"><a href="#cb30-235" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_detect</span>(dataset<span class="sc">$</span>peoples_title, <span class="st">"america|american|usa"</span>) <span class="sc">~</span> <span class="st">"america"</span>,</span>
+<span id="cb30-236"><a href="#cb30-236" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_detect</span>(dataset<span class="sc">$</span>peoples_title, <span class="st">"british|britain|english"</span>) <span class="sc">~</span> <span class="st">"british"</span>,</span>
+<span id="cb30-237"><a href="#cb30-237" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_detect</span>(dataset<span class="sc">$</span>peoples_title, <span class="fu">paste</span>(europe_countries, <span class="at">collapse =</span> <span class="st">"|"</span>)) <span class="sc">~</span> <span class="st">"europe"</span>,</span>
+<span id="cb30-238"><a href="#cb30-238" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_detect</span>(dataset<span class="sc">$</span>peoples_title, <span class="st">"russia|soviet|russian"</span>) <span class="sc">~</span> <span class="st">"russia"</span>,</span>
+<span id="cb30-239"><a href="#cb30-239" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_detect</span>(dataset<span class="sc">$</span>peoples_title, <span class="st">"india"</span>) <span class="sc">~</span> <span class="st">"india"</span>,</span>
+<span id="cb30-240"><a href="#cb30-240" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_detect</span>(dataset<span class="sc">$</span>peoples_title, <span class="st">"^us"</span>) <span class="sc">~</span> <span class="st">"america"</span>,</span>
+<span id="cb30-241"><a href="#cb30-241" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_detect</span>(dataset<span class="sc">$</span>peoples_title, <span class="st">"german"</span>) <span class="sc">~</span> <span class="st">"germany"</span>,</span>
+<span id="cb30-242"><a href="#cb30-242" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_detect</span>(dataset<span class="sc">$</span>peoples_title, <span class="st">"france|french"</span>) <span class="sc">~</span> <span class="st">"france"</span>,</span>
+<span id="cb30-243"><a href="#cb30-243" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_detect</span>(dataset<span class="sc">$</span>peoples_title, <span class="st">"polish"</span>) <span class="sc">~</span> <span class="st">"poland"</span>,</span>
+<span id="cb30-244"><a href="#cb30-244" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_detect</span>(dataset<span class="sc">$</span>peoples_title, <span class="fu">paste</span>(south_america, <span class="at">collapse =</span> <span class="st">"|"</span>)) <span class="sc">~</span> <span class="st">"south_america"</span>,</span>
+<span id="cb30-245"><a href="#cb30-245" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_detect</span>(dataset<span class="sc">$</span>peoples_title, <span class="fu">paste</span>(pakistan, <span class="at">collapse =</span> <span class="st">"|"</span>)) <span class="sc">~</span> <span class="st">"pakistan"</span>,</span>
+<span id="cb30-246"><a href="#cb30-246" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_detect</span>(dataset<span class="sc">$</span>peoples_title, <span class="fu">paste</span>(other_countries, <span class="at">collapse =</span> <span class="st">"|"</span>)) <span class="sc">~</span> <span class="st">"others"</span></span>
+<span id="cb30-247"><a href="#cb30-247" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb30-248"><a href="#cb30-248" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb30-249"><a href="#cb30-249" aria-hidden="true" tabindex="-1"></a><span class="co"># table(dataset$country, useNA = "always")</span></span>
+<span id="cb30-250"><a href="#cb30-250" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-251"><a href="#cb30-251" aria-hidden="true" tabindex="-1"></a><span class="co"># replacing NA with others</span></span>
+<span id="cb30-252"><a href="#cb30-252" aria-hidden="true" tabindex="-1"></a>dataset<span class="sc">$</span>country <span class="ot">&lt;-</span> dataset<span class="sc">$</span>country <span class="sc">%&gt;%</span> <span class="fu">replace_na</span>(., <span class="st">"others"</span>)</span>
+<span id="cb30-253"><a href="#cb30-253" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-254"><a href="#cb30-254" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(dataset)</span>
+<span id="cb30-255"><a href="#cb30-255" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-256"><a href="#cb30-256" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb30-257"><a href="#cb30-257" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-258"><a href="#cb30-258" aria-hidden="true" tabindex="-1"></a><span class="fu">## By Gender</span></span>
+<span id="cb30-259"><a href="#cb30-259" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-262"><a href="#cb30-262" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb30-263"><a href="#cb30-263" aria-hidden="true" tabindex="-1"></a>dataset<span class="sc">$</span>gender <span class="ot">&lt;-</span> <span class="fu">with</span>(</span>
+<span id="cb30-264"><a href="#cb30-264" aria-hidden="true" tabindex="-1"></a>  dataset,</span>
+<span id="cb30-265"><a href="#cb30-265" aria-hidden="true" tabindex="-1"></a>  <span class="fu">case_when</span>(</span>
+<span id="cb30-266"><a href="#cb30-266" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_detect</span>(dataset<span class="sc">$</span>content, <span class="st">"</span><span class="sc">\\</span><span class="st">bHis</span><span class="sc">\\</span><span class="st">b"</span>) <span class="sc">~</span> <span class="st">"male"</span>,</span>
+<span id="cb30-267"><a href="#cb30-267" aria-hidden="true" tabindex="-1"></a>    <span class="fu">str_detect</span>(dataset<span class="sc">$</span>content, <span class="st">"</span><span class="sc">\\</span><span class="st">bHer</span><span class="sc">\\</span><span class="st">b"</span>) <span class="sc">~</span> <span class="st">"female"</span>))</span>
+<span id="cb30-268"><a href="#cb30-268" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-269"><a href="#cb30-269" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-270"><a href="#cb30-270" aria-hidden="true" tabindex="-1"></a>dataset<span class="sc">$</span>gender[<span class="dv">13</span>] <span class="ot">=</span> <span class="st">"male"</span></span>
+<span id="cb30-271"><a href="#cb30-271" aria-hidden="true" tabindex="-1"></a>dataset<span class="sc">$</span>gender[<span class="dv">14</span>] <span class="ot">=</span> <span class="st">"male"</span></span>
+<span id="cb30-272"><a href="#cb30-272" aria-hidden="true" tabindex="-1"></a>dataset<span class="sc">$</span>gender[<span class="dv">55</span>] <span class="ot">=</span> <span class="st">"male"</span></span>
+<span id="cb30-273"><a href="#cb30-273" aria-hidden="true" tabindex="-1"></a>dataset<span class="sc">$</span>gender[<span class="dv">64</span>] <span class="ot">=</span> <span class="st">"female"</span></span>
+<span id="cb30-274"><a href="#cb30-274" aria-hidden="true" tabindex="-1"></a>dataset<span class="sc">$</span>gender[<span class="dv">86</span>] <span class="ot">=</span> <span class="st">"male"</span></span>
+<span id="cb30-275"><a href="#cb30-275" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb30-276"><a href="#cb30-276" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-277"><a href="#cb30-277" aria-hidden="true" tabindex="-1"></a><span class="fu"># Data Cleaning of Biographies</span></span>
+<span id="cb30-278"><a href="#cb30-278" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-279"><a href="#cb30-279" aria-hidden="true" tabindex="-1"></a>I've used stringr package to remove text such as "adsbygoogle.com" which came along with the scraped content. Also removing the last paragraph of each page, which had the links to further pages in the website.</span>
+<span id="cb30-280"><a href="#cb30-280" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-281"><a href="#cb30-281" aria-hidden="true" tabindex="-1"></a>This cleaning is done to all rows in the data set, but there are a few special characters that are still left to be cleaned. Writing regex had been difficult, but at least for the word cloud has a feature to ignore special characters :). I will have to find a way to generate dataset which is void of all special characters so that it doesn't effect the analysis in later stages.</span>
+<span id="cb30-282"><a href="#cb30-282" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-285"><a href="#cb30-285" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb30-286"><a href="#cb30-286" aria-hidden="true" tabindex="-1"></a>dataset<span class="sc">$</span>content <span class="ot">&lt;-</span> dataset<span class="sc">$</span>content <span class="sc">%&gt;%</span> <span class="fu">str_remove_all</span>(.,<span class="st">"adsbygoogle"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb30-287"><a href="#cb30-287" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_remove_all</span>(.,<span class="st">"www.biographyonline.net"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb30-288"><a href="#cb30-288" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_remove_all</span>(.,<span class="st">"window."</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb30-289"><a href="#cb30-289" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_remove_all</span>(.,<span class="st">".push"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb30-290"><a href="#cb30-290" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gsub</span>(<span class="st">"Citation.*"</span>,<span class="st">""</span>,.)</span>
+<span id="cb30-291"><a href="#cb30-291" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-292"><a href="#cb30-292" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb30-293"><a href="#cb30-293" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-294"><a href="#cb30-294" aria-hidden="true" tabindex="-1"></a><span class="fu">## Updating the csv file</span></span>
+<span id="cb30-295"><a href="#cb30-295" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-298"><a href="#cb30-298" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb30-299"><a href="#cb30-299" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(dataset,<span class="st">"100FamousPeople_new.csv"</span>)</span>
+<span id="cb30-300"><a href="#cb30-300" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb30-301"><a href="#cb30-301" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-302"><a href="#cb30-302" aria-hidden="true" tabindex="-1"></a><span class="fu"># Future Analysis</span></span>
+<span id="cb30-303"><a href="#cb30-303" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-304"><a href="#cb30-304" aria-hidden="true" tabindex="-1"></a>I will dive deeper into visualizing the latest dataset, and try to incorporate my findings with word clouds. I will also explore text-mining packages in the upcoming posts.</span>
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->

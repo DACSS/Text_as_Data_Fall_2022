@@ -1,0 +1,1843 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.0.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Yan Shi">
+
+<title>Text-as-Data Fall 2022 - Yan_Shi_blogpost5</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../images/DACSS_Round_Network.png" rel="icon" type="image/png">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+<meta name="twitter:title" content="Text-as-Data Fall 2022 - Yan_Shi_blogpost5">
+<meta name="twitter:description" content="I found a SVM emotion prediction model on Github, the model is trained on text data in 5 emotion labels: joy, sad, anger, fear, and neutral. Accuracy is 72.71%.">
+<meta name="twitter:creator" content="@UMassDACSS">
+<meta name="twitter:card" content="summary">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <a class="navbar-brand" href="../index.html">
+    <img src="../images/UMass White Wordmark Horiz.png" alt="">
+    <span class="navbar-title">Text-as-Data Fall 2022</span>
+  </a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="https://dacss.github.io/Text_as_Data_Fall_2022/">Fall 2022</a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html">Contributors</a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://umass.edu/sbs/dacss">DACSS</a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/DACSS/Text_as_Data_Fall_2022"><i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+ </a>
+  </li>  
+</ul>
+              <div class="quarto-toggle-container">
+                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+              </div>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Yan_Shi_blogpost5</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Yan Shi </p>
+          </div>
+  </div>
+    
+    
+  </div>
+  
+
+</header>
+
+<div class="cell" data-execution_count="3">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pickle</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># text preprocessing</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> nltk <span class="im">import</span> word_tokenize</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> nltk.stem <span class="im">import</span> PorterStemmer</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> nltk.corpus <span class="im">import</span> stopwords</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> re</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># plots and metrics</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> accuracy_score, f1_score, confusion_matrix</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># feature extraction / vectorization</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.feature_extraction.text <span class="im">import</span> CountVectorizer, TfidfVectorizer</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># classifiers</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.naive_bayes <span class="im">import</span> MultinomialNB</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LogisticRegression, SGDClassifier</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.ensemble <span class="im">import</span> RandomForestClassifier</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.svm <span class="im">import</span> LinearSVC</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.pipeline <span class="im">import</span> Pipeline</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>I found a SVM emotion prediction model on Github, the model is trained on text data in 5 emotion labels: joy, sad, anger, fear, and neutral. Accuracy is 72.71%.</p>
+<div class="cell" data-execution_count="4">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># def function for model</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> preprocess_and_tokenize(data):    </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">#remove html markup</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    data <span class="op">=</span> re.sub(<span class="st">"(&lt;.*?&gt;)"</span>, <span class="st">""</span>, data)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">#remove urls</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    data <span class="op">=</span> re.sub(<span class="vs">r'http\S+'</span>, <span class="st">''</span>, data)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">#remove hashtags and @names</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    data<span class="op">=</span> re.sub(<span class="vs">r"(#[\d\w\.]+)"</span>, <span class="st">''</span>, data)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    data<span class="op">=</span> re.sub(<span class="vs">r"(@[\d\w\.]+)"</span>, <span class="st">''</span>, data)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">#remove punctuation and non-ascii digits</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    data <span class="op">=</span> re.sub(<span class="st">"(</span><span class="ch">\\</span><span class="st">W|</span><span class="ch">\\</span><span class="st">d)"</span>, <span class="st">" "</span>, data)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="co">#remove whitespace</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    data <span class="op">=</span> data.strip()</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># tokenization with nltk</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    data <span class="op">=</span> word_tokenize(data)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># stemming with nltk</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    porter <span class="op">=</span> PorterStemmer()</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    stem_data <span class="op">=</span> [porter.stem(word) <span class="cf">for</span> word <span class="kw">in</span> data]</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> stem_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell" data-execution_count="5">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># load emotion prediction model</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> joblib</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>loaded_model <span class="op">=</span> joblib.load(<span class="st">'tfidf_svm.sav'</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>message <span class="op">=</span> <span class="st">'like real desk virtual desk hot mess cleaning bad boy today wish luck'</span> </span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>loaded_model.predict([message])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="5">
+<pre><code>array(['sadness'], dtype=object)</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="173">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># load data</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.read_csv(<span class="st">'cleaned_twitter_remotework.csv'</span>).drop(columns <span class="op">=</span> [<span class="st">'Unnamed: 0'</span>])</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>data.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="173">
+
+<div>
+
+<table class="dataframe table table-sm table-striped">
+  <thead>
+    <tr>
+      <th></th>
+      <th>author_id</th>
+      <th>username</th>
+      <th>author_followers</th>
+      <th>author_tweets</th>
+      <th>author_description</th>
+      <th>author_location</th>
+      <th>text</th>
+      <th>created_at</th>
+      <th>geo_id</th>
+      <th>retweets</th>
+      <th>...</th>
+      <th>no_stopwords_text</th>
+      <th>no_remotework_text</th>
+      <th>lematize_text</th>
+      <th>date</th>
+      <th>year</th>
+      <th>month</th>
+      <th>start</th>
+      <th>end</th>
+      <th>lockdown</th>
+      <th>enforced_order</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>389908361</td>
+      <td>JuanC611</td>
+      <td>214</td>
+      <td>12248</td>
+      <td>I'm a #BCB, craft beer drinkin #Kaskade listen...</td>
+      <td>Oxnard, CA</td>
+      <td>Step 2, in progress...\n#wfh #wfhlife @ Riverp...</td>
+      <td>2020-12-19 02:56:54+00:00</td>
+      <td>a3c0ae863771d69e</td>
+      <td>0</td>
+      <td>...</td>
+      <td>step progress wfh wfhlife riverpark</td>
+      <td>step progress wfhlife riverpark</td>
+      <td>step progress wfhlife riverpark</td>
+      <td>2020-12-19</td>
+      <td>2020</td>
+      <td>12</td>
+      <td>2020-03-19</td>
+      <td>2021-06-15</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>38107285</td>
+      <td>orphicrose823</td>
+      <td>92</td>
+      <td>4569</td>
+      <td>“I love myself too much to waste good years on...</td>
+      <td>San Jose, CA</td>
+      <td>Now I invest in cute onesies. #wfh https://t.c...</td>
+      <td>2020-12-18 16:42:55+00:00</td>
+      <td>a592bd6ceb1319f7</td>
+      <td>0</td>
+      <td>...</td>
+      <td>invest cute onesies wfh</td>
+      <td>invest cute onesies</td>
+      <td>invest cute onesies</td>
+      <td>2020-12-18</td>
+      <td>2020</td>
+      <td>12</td>
+      <td>2020-03-19</td>
+      <td>2021-06-15</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>214633378</td>
+      <td>alex_harmon</td>
+      <td>1097</td>
+      <td>8008</td>
+      <td>Adventures, radio, food and good vibes. ✌ - ♎🏳‍🌈</td>
+      <td>East Bay, CA</td>
+      <td>2020 has also brought us virtual holiday parti...</td>
+      <td>2020-12-18 04:31:50+00:00</td>
+      <td>003253f0107acd32</td>
+      <td>0</td>
+      <td>...</td>
+      <td>also brought us virtual holiday parties wfh</td>
+      <td>also brought us virtual holiday parties</td>
+      <td>also brought u virtual holiday party</td>
+      <td>2020-12-18</td>
+      <td>2020</td>
+      <td>12</td>
+      <td>2020-03-19</td>
+      <td>2021-06-15</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>524864096</td>
+      <td>LauraPallin</td>
+      <td>225</td>
+      <td>666</td>
+      <td>Art, music, city..urban beats &amp; streets..culin...</td>
+      <td>san francisco, ca</td>
+      <td>UNMUTE YOURSELf! \n😂\n🤩\n#2020 #zoommeeting #a...</td>
+      <td>2020-12-18 01:47:28+00:00</td>
+      <td>5a110d312052166f</td>
+      <td>0</td>
+      <td>...</td>
+      <td>unmute zoommeeting allhandsondeck quarantineli...</td>
+      <td>unmute zoommeeting allhandsondeck quarantineli...</td>
+      <td>unmute zoommeeting allhandsondeck quarantineli...</td>
+      <td>2020-12-18</td>
+      <td>2020</td>
+      <td>12</td>
+      <td>2020-03-19</td>
+      <td>2021-06-15</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1026310789068513281</td>
+      <td>MLN_Life</td>
+      <td>35</td>
+      <td>1624</td>
+      <td>Passion | Inspiration | Connection 🌻\nCo-host ...</td>
+      <td>California, USA</td>
+      <td>I was hired remotely in June. Today is my firs...</td>
+      <td>2020-12-16 19:49:41+00:00</td>
+      <td>80eb17ffe368fc9a</td>
+      <td>0</td>
+      <td>...</td>
+      <td>hired remotely june today first day working si...</td>
+      <td>hired remotely june today first day working si...</td>
+      <td>hired remotely june today first day working si...</td>
+      <td>2020-12-16</td>
+      <td>2020</td>
+      <td>12</td>
+      <td>2020-03-19</td>
+      <td>2021-06-15</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 26 columns</p>
+</div>
+</div>
+</div>
+<div class="cell" data-execution_count="174">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># labelling each tweet</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>data[<span class="st">'emotion'</span>] <span class="op">=</span> loaded_model.predict(data[<span class="st">'lematize_text'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell" data-execution_count="82">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.get_dummies(data, columns <span class="op">=</span> [<span class="st">'emotion'</span>])</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="82">
+
+<div>
+
+<table class="dataframe table table-sm table-striped">
+  <thead>
+    <tr>
+      <th></th>
+      <th>author_id</th>
+      <th>username</th>
+      <th>author_followers</th>
+      <th>author_tweets</th>
+      <th>author_description</th>
+      <th>author_location</th>
+      <th>text</th>
+      <th>created_at</th>
+      <th>geo_id</th>
+      <th>retweets</th>
+      <th>...</th>
+      <th>states_abbrev</th>
+      <th>clean_text</th>
+      <th>no_stopwords_text</th>
+      <th>no_remotework_text</th>
+      <th>lematize_text</th>
+      <th>emotion_anger</th>
+      <th>emotion_fear</th>
+      <th>emotion_joy</th>
+      <th>emotion_neutral</th>
+      <th>emotion_sadness</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2729932651</td>
+      <td>TwelveRivers12</td>
+      <td>367</td>
+      <td>1862</td>
+      <td>We strive to raise the bar of what it means to...</td>
+      <td>Austin, TX</td>
+      <td>#WFH but make it fashion (Twelve Rivers fashio...</td>
+      <td>2020-12-19 20:00:14+00:00</td>
+      <td>c3f37afa9efcf94b</td>
+      <td>1</td>
+      <td>...</td>
+      <td>TX</td>
+      <td>wfh but make it fashion twelve rivers fashion ...</td>
+      <td>wfh make fashion twelve rivers fashion office ...</td>
+      <td>make fashion twelve rivers fashion office big ...</td>
+      <td>make fashion twelve river fashion office big g...</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>389908361</td>
+      <td>JuanC611</td>
+      <td>214</td>
+      <td>12248</td>
+      <td>I'm a #BCB, craft beer drinkin #Kaskade listen...</td>
+      <td>Oxnard, CA</td>
+      <td>Step 2, in progress...\n#wfh #wfhlife @ Riverp...</td>
+      <td>2020-12-19 02:56:54+00:00</td>
+      <td>a3c0ae863771d69e</td>
+      <td>0</td>
+      <td>...</td>
+      <td>CA</td>
+      <td>step in progress wfh wfhlife riverpark</td>
+      <td>step progress wfh wfhlife riverpark</td>
+      <td>step progress wfhlife riverpark</td>
+      <td>step progress wfhlife riverpark</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>737763400118198277</td>
+      <td>MissionTXperts</td>
+      <td>828</td>
+      <td>1618</td>
+      <td>Follow us on IG! @missiontxperts #FamousForExp...</td>
+      <td>Mission, TX</td>
+      <td>Congratulations on your graduation!!! Welcome ...</td>
+      <td>2020-12-18 22:35:35+00:00</td>
+      <td>77633125ba089dcb</td>
+      <td>1</td>
+      <td>...</td>
+      <td>TX</td>
+      <td>congratulations on your graduation welcome to ...</td>
+      <td>congratulations graduation welcome missiontxpe...</td>
+      <td>congratulations graduation welcome missiontxpe...</td>
+      <td>congratulation graduation welcome missiontxper...</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>522212036</td>
+      <td>FitnessFoundry</td>
+      <td>2693</td>
+      <td>14002</td>
+      <td>Award Winning Personal Trainer| EMT-B 🚑 NSCA-R...</td>
+      <td>Boston and Malden, MA</td>
+      <td>Part 2 #HomeWorkout \n\n#OldSchool Jumping Jac...</td>
+      <td>2020-12-18 19:07:33+00:00</td>
+      <td>75f5a403163f6f95</td>
+      <td>1</td>
+      <td>...</td>
+      <td>MA</td>
+      <td>part homeworkout oldschool jumping jack variat...</td>
+      <td>part homeworkout oldschool jumping jack variat...</td>
+      <td>part homeworkout oldschool jumping jack variat...</td>
+      <td>part homeworkout oldschool jumping jack variat...</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1931184464</td>
+      <td>fixyourmattress</td>
+      <td>1236</td>
+      <td>17479</td>
+      <td>The only comfortable solution to SAGGING mattr...</td>
+      <td>USA</td>
+      <td>SAGGING bed❓ 🛏〰️🛏FIRM it up with MATTRESS HELP...</td>
+      <td>2020-12-18 18:46:21+00:00</td>
+      <td>7df9a00dcf914d5e</td>
+      <td>0</td>
+      <td>...</td>
+      <td>FL</td>
+      <td>sagging bed firm it up with mattress helper un...</td>
+      <td>sagging bed firm mattress helper mattress supp...</td>
+      <td>sagging bed firm mattress helper mattress supp...</td>
+      <td>sagging bed firm mattress helper mattress supp...</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 24 columns</p>
+</div>
+</div>
+</div>
+<div class="cell" data-execution_count="83">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> datetime</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'created_at'</span>]<span class="op">=</span> df[<span class="st">'created_at'</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: datetime.datetime.strptime(x,<span class="st">"%Y-%m-</span><span class="sc">%d</span><span class="st"> %H:%M:%S%z"</span>))</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'date'</span>] <span class="op">=</span> df[<span class="st">'created_at'</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: x.date())</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'year'</span>] <span class="op">=</span> df[<span class="st">'created_at'</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: x.year)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'month'</span>] <span class="op">=</span> df[<span class="st">'created_at'</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: x.month)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'tweet'</span>] <span class="op">=</span> <span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell" data-execution_count="128">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'date'</span>] <span class="op">=</span> pd.to_datetime(df[<span class="st">'date'</span>], errors<span class="op">=</span><span class="st">'coerce'</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>per <span class="op">=</span> df.date.dt.to_period(<span class="st">'M'</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>df_agg_m <span class="op">=</span> df.groupby(per).<span class="bu">sum</span>()</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>df_agg_m[<span class="st">'date'</span>] <span class="op">=</span> df_agg_m.index</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>df_agg_m <span class="op">=</span> df_agg_m.reset_index(drop <span class="op">=</span> <span class="va">True</span>).drop(columns <span class="op">=</span> [<span class="st">'year'</span>, <span class="st">'month'</span>, <span class="st">'author_id'</span>, <span class="st">'author_followers'</span>, <span class="st">'author_tweets'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell" data-execution_count="129">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>df_agg_m[<span class="st">'joy%'</span>] <span class="op">=</span> df_agg_m[<span class="st">'emotion_joy'</span>]<span class="op">/</span>df_agg_m[<span class="st">'tweet'</span>]</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>df_agg_m[<span class="st">'neutral%'</span>] <span class="op">=</span> df_agg_m[<span class="st">'emotion_neutral'</span>]<span class="op">/</span>df_agg_m[<span class="st">'tweet'</span>]</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>df_agg_m[<span class="st">'sadness%'</span>] <span class="op">=</span> df_agg_m[<span class="st">'emotion_sadness'</span>]<span class="op">/</span>df_agg_m[<span class="st">'tweet'</span>]</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>df_agg_m[<span class="st">'anger%'</span>] <span class="op">=</span> df_agg_m[<span class="st">'emotion_anger'</span>]<span class="op">/</span>df_agg_m[<span class="st">'tweet'</span>]</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>df_agg_m[<span class="st">'fear%'</span>] <span class="op">=</span> df_agg_m[<span class="st">'emotion_fear'</span>]<span class="op">/</span>df_agg_m[<span class="st">'tweet'</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell" data-execution_count="125">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>df_agg_m.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="125">
+
+<div>
+
+<table class="dataframe table table-sm table-striped">
+  <thead>
+    <tr>
+      <th></th>
+      <th>retweets</th>
+      <th>replies</th>
+      <th>likes</th>
+      <th>quote_count</th>
+      <th>emotion_anger</th>
+      <th>emotion_fear</th>
+      <th>emotion_joy</th>
+      <th>emotion_neutral</th>
+      <th>emotion_sadness</th>
+      <th>tweet</th>
+      <th>date</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>183</td>
+      <td>38</td>
+      <td>540</td>
+      <td>17</td>
+      <td>8.0</td>
+      <td>30.0</td>
+      <td>46.0</td>
+      <td>120.0</td>
+      <td>11.0</td>
+      <td>215</td>
+      <td>2019-03</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>83</td>
+      <td>37</td>
+      <td>366</td>
+      <td>17</td>
+      <td>10.0</td>
+      <td>25.0</td>
+      <td>35.0</td>
+      <td>130.0</td>
+      <td>11.0</td>
+      <td>211</td>
+      <td>2019-04</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>56</td>
+      <td>22</td>
+      <td>213</td>
+      <td>1</td>
+      <td>14.0</td>
+      <td>24.0</td>
+      <td>45.0</td>
+      <td>112.0</td>
+      <td>5.0</td>
+      <td>200</td>
+      <td>2019-05</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>76</td>
+      <td>29</td>
+      <td>385</td>
+      <td>3</td>
+      <td>6.0</td>
+      <td>25.0</td>
+      <td>45.0</td>
+      <td>154.0</td>
+      <td>8.0</td>
+      <td>238</td>
+      <td>2019-06</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>80</td>
+      <td>67</td>
+      <td>658</td>
+      <td>8</td>
+      <td>12.0</td>
+      <td>29.0</td>
+      <td>47.0</td>
+      <td>347.0</td>
+      <td>5.0</td>
+      <td>440</td>
+      <td>2019-07</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="cell" data-execution_count="122">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>df1 <span class="op">=</span> pd.melt(df_agg_m, id_vars <span class="op">=</span> [<span class="st">'date'</span>], value_vars <span class="op">=</span> [<span class="st">'joy%'</span>, <span class="st">'sadness%'</span>, <span class="st">'anger%'</span>, <span class="st">'fear%'</span>])</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>df1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="122">
+
+<div>
+
+<table class="dataframe table table-sm table-striped">
+  <thead>
+    <tr>
+      <th></th>
+      <th>date</th>
+      <th>variable</th>
+      <th>value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2019-03</td>
+      <td>joy%</td>
+      <td>0.213953</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2019-04</td>
+      <td>joy%</td>
+      <td>0.165877</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2019-05</td>
+      <td>joy%</td>
+      <td>0.225000</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2019-06</td>
+      <td>joy%</td>
+      <td>0.189076</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2019-07</td>
+      <td>joy%</td>
+      <td>0.106818</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>163</th>
+      <td>2022-06</td>
+      <td>fear%</td>
+      <td>0.137778</td>
+    </tr>
+    <tr>
+      <th>164</th>
+      <td>2022-07</td>
+      <td>fear%</td>
+      <td>0.109005</td>
+    </tr>
+    <tr>
+      <th>165</th>
+      <td>2022-08</td>
+      <td>fear%</td>
+      <td>0.071429</td>
+    </tr>
+    <tr>
+      <th>166</th>
+      <td>2022-09</td>
+      <td>fear%</td>
+      <td>0.118557</td>
+    </tr>
+    <tr>
+      <th>167</th>
+      <td>2022-10</td>
+      <td>fear%</td>
+      <td>0.139535</td>
+    </tr>
+  </tbody>
+</table>
+<p>168 rows × 3 columns</p>
+</div>
+</div>
+</div>
+<div class="cell" data-execution_count="123">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot monthly emotion%</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">20</span>,<span class="dv">5</span>))</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>sns.pointplot(x<span class="op">=</span><span class="st">'date'</span>,y<span class="op">=</span><span class="st">'value'</span>,data<span class="op">=</span>df1, hue<span class="op">=</span><span class="st">'variable'</span>)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>plt.tick_params(axis<span class="op">=</span><span class="st">'x'</span>, labelrotation <span class="op">=</span> <span class="dv">45</span>)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Monthly remote working emotion"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="123">
+<pre><code>Text(0.5, 1.0, 'Monthly remote working emotion')</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="Yan_Shi_blogpost5_files/figure-html/cell-13-output-2.png" class="img-fluid"></p>
+</div>
+</div>
+<p>Percentage of emotions are somewhat stable and did not varies a lot</p>
+<div class="cell" data-execution_count="126">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>df_agg_m <span class="op">=</span> df.groupby(per).<span class="bu">sum</span>()</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>df_agg_m[<span class="st">'date'</span>] <span class="op">=</span> df_agg_m.index</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>df_agg_m <span class="op">=</span> df_agg_m.reset_index(drop <span class="op">=</span> <span class="va">True</span>).drop(columns <span class="op">=</span> [<span class="st">'year'</span>, <span class="st">'month'</span>, <span class="st">'author_id'</span>, <span class="st">'author_followers'</span>, <span class="st">'author_tweets'</span>])</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>df2 <span class="op">=</span> pd.melt(df_agg_m, id_vars <span class="op">=</span> [<span class="st">'date'</span>], value_vars <span class="op">=</span> [<span class="st">'emotion_joy'</span>, <span class="st">'emotion_sadness'</span>, <span class="st">'emotion_anger'</span>, <span class="st">'emotion_fear'</span>])</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>df2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="126">
+
+<div>
+
+<table class="dataframe table table-sm table-striped">
+  <thead>
+    <tr>
+      <th></th>
+      <th>date</th>
+      <th>variable</th>
+      <th>value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2019-03</td>
+      <td>emotion_joy</td>
+      <td>46.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2019-04</td>
+      <td>emotion_joy</td>
+      <td>35.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2019-05</td>
+      <td>emotion_joy</td>
+      <td>45.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2019-06</td>
+      <td>emotion_joy</td>
+      <td>45.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2019-07</td>
+      <td>emotion_joy</td>
+      <td>47.0</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>163</th>
+      <td>2022-06</td>
+      <td>emotion_fear</td>
+      <td>31.0</td>
+    </tr>
+    <tr>
+      <th>164</th>
+      <td>2022-07</td>
+      <td>emotion_fear</td>
+      <td>23.0</td>
+    </tr>
+    <tr>
+      <th>165</th>
+      <td>2022-08</td>
+      <td>emotion_fear</td>
+      <td>15.0</td>
+    </tr>
+    <tr>
+      <th>166</th>
+      <td>2022-09</td>
+      <td>emotion_fear</td>
+      <td>23.0</td>
+    </tr>
+    <tr>
+      <th>167</th>
+      <td>2022-10</td>
+      <td>emotion_fear</td>
+      <td>6.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>168 rows × 3 columns</p>
+</div>
+</div>
+</div>
+<div class="cell" data-execution_count="127">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot monthly number of emotions</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">20</span>,<span class="dv">5</span>))</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>sns.pointplot(x<span class="op">=</span><span class="st">'date'</span>,y<span class="op">=</span><span class="st">'value'</span>,data<span class="op">=</span>df2, hue<span class="op">=</span><span class="st">'variable'</span>)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>plt.tick_params(axis<span class="op">=</span><span class="st">'x'</span>, labelrotation <span class="op">=</span> <span class="dv">45</span>)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Monthly remote working emotion"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="127">
+<pre><code>Text(0.5, 1.0, 'Monthly remote working emotion')</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="Yan_Shi_blogpost5_files/figure-html/cell-15-output-2.png" class="img-fluid"></p>
+</div>
+</div>
+<p>joy emotion slighly increased after lockdown, and it’s hard to tell from the graph.</p>
+<div class="cell" data-execution_count="148">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Let's conduct t test and compare before and after lockdown</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pandas <span class="im">import</span> Timestamp</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>df_agg_m[<span class="st">'timestamp'</span>] <span class="op">=</span> df_agg_m[<span class="st">'date'</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: x.to_timestamp().date())</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>group1 <span class="op">=</span> df_agg_m[df_agg_m[<span class="st">'timestamp'</span>]<span class="op">&lt;=</span>datetime.date(<span class="dv">2020</span>, <span class="dv">3</span>, <span class="dv">1</span>)]</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>group2 <span class="op">=</span> df_agg_m[df_agg_m[<span class="st">'timestamp'</span>]<span class="op">&gt;=</span>datetime.date(<span class="dv">2020</span>, <span class="dv">7</span>, <span class="dv">1</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell" data-execution_count="152">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> ttest_ind</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>ttest_ind(group1[<span class="st">'joy%'</span>], group2[<span class="st">'joy%'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="152">
+<pre><code>Ttest_indResult(statistic=-0.1000915902018718, pvalue=0.920811994033946)</code></pre>
+</div>
+</div>
+<p>Turns out there is no significant difference between joy% before and after lockdown for the whole country. Let’s compare emotions in two states.</p>
+<div class="cell" data-execution_count="7">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># filter two states</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>df3 <span class="op">=</span> pd.read_csv(<span class="st">'remote_work_lockdown.csv'</span>)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>df3 <span class="op">=</span> pd.get_dummies(df3, columns <span class="op">=</span> [<span class="st">'emotion'</span>])</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>df3[<span class="st">'tweets'</span>] <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>df_ca <span class="op">=</span> df3[df3[<span class="st">'states_abbrev'</span>] <span class="op">==</span> <span class="st">'CA'</span>]</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>df_tx <span class="op">=</span> df3[df3[<span class="st">'states_abbrev'</span>] <span class="op">==</span> <span class="st">'TX'</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell" data-execution_count="8">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># aggregate data in month</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>df_ca[<span class="st">'date'</span>] <span class="op">=</span> pd.to_datetime(df_ca[<span class="st">'date'</span>], errors<span class="op">=</span><span class="st">'coerce'</span>)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>per <span class="op">=</span> df_ca.date.dt.to_period(<span class="st">"M"</span>)</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>df_agg_ca <span class="op">=</span> df_ca.groupby(per).<span class="bu">sum</span>()</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>df_agg_ca[<span class="st">'date'</span>] <span class="op">=</span> df_agg_ca.index</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>df_agg_ca[<span class="st">'state'</span>] <span class="op">=</span> <span class="st">'CA'</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>df_agg_ca <span class="op">=</span> df_agg_ca.reset_index(drop <span class="op">=</span> <span class="va">True</span>).drop(columns <span class="op">=</span> [<span class="st">'year'</span>, <span class="st">'month'</span>, <span class="st">'author_id'</span>, <span class="st">'author_followers'</span>, <span class="st">'author_tweets'</span>])</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>df_tx[<span class="st">'date'</span>] <span class="op">=</span> pd.to_datetime(df_tx[<span class="st">'date'</span>], errors<span class="op">=</span><span class="st">'coerce'</span>)</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>per <span class="op">=</span> df_tx.date.dt.to_period(<span class="st">"M"</span>)</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>df_agg_tx <span class="op">=</span> df_tx.groupby(per).<span class="bu">sum</span>()</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>df_agg_tx[<span class="st">'date'</span>] <span class="op">=</span> df_agg_tx.index</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>df_agg_tx[<span class="st">'state'</span>] <span class="op">=</span> <span class="st">'TX'</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>df_agg_tx <span class="op">=</span> df_agg_tx.reset_index(drop <span class="op">=</span> <span class="va">True</span>).drop(columns <span class="op">=</span> [<span class="st">'year'</span>, <span class="st">'month'</span>, <span class="st">'author_id'</span>, <span class="st">'author_followers'</span>, <span class="st">'author_tweets'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>/var/folders/yn/83gzh79s0dv70yn_zgdzgg7m0000gn/T/ipykernel_62184/3391577175.py:2: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  df_ca['date'] = pd.to_datetime(df_ca['date'], errors='coerce')
+/var/folders/yn/83gzh79s0dv70yn_zgdzgg7m0000gn/T/ipykernel_62184/3391577175.py:8: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  df_tx['date'] = pd.to_datetime(df_tx['date'], errors='coerce')</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="9">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># concat aggregate data</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>frames <span class="op">=</span> [df_agg_ca, df_agg_tx]</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> pd.concat(frames).reset_index()</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>result[<span class="st">'lockdown'</span>] <span class="op">=</span> result[<span class="st">'lockdown'</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: <span class="st">'Y'</span> <span class="cf">if</span> x <span class="op">&gt;</span><span class="dv">0</span> <span class="cf">else</span> <span class="st">'N'</span>)</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>result[<span class="st">'enforced_order'</span>] <span class="op">=</span> result[<span class="st">'enforced_order'</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: <span class="st">'Y'</span> <span class="cf">if</span> x <span class="op">&gt;</span><span class="dv">0</span> <span class="cf">else</span> <span class="st">'N'</span>)</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>result</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="9">
+
+<div>
+
+<table class="dataframe table table-sm table-striped">
+  <thead>
+    <tr>
+      <th></th>
+      <th>index</th>
+      <th>Unnamed: 0</th>
+      <th>retweets</th>
+      <th>replies</th>
+      <th>likes</th>
+      <th>quote_count</th>
+      <th>lockdown</th>
+      <th>enforced_order</th>
+      <th>emotion_anger</th>
+      <th>emotion_fear</th>
+      <th>emotion_joy</th>
+      <th>emotion_neutral</th>
+      <th>emotion_sadness</th>
+      <th>tweets</th>
+      <th>date</th>
+      <th>state</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>67761.0</td>
+      <td>100.0</td>
+      <td>9.0</td>
+      <td>274.0</td>
+      <td>12.0</td>
+      <td>N</td>
+      <td>Y</td>
+      <td>0.0</td>
+      <td>5.0</td>
+      <td>9.0</td>
+      <td>13.0</td>
+      <td>0.0</td>
+      <td>27.0</td>
+      <td>2019-03</td>
+      <td>CA</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>80518.0</td>
+      <td>5.0</td>
+      <td>2.0</td>
+      <td>50.0</td>
+      <td>0.0</td>
+      <td>N</td>
+      <td>Y</td>
+      <td>0.0</td>
+      <td>3.0</td>
+      <td>4.0</td>
+      <td>20.0</td>
+      <td>2.0</td>
+      <td>29.0</td>
+      <td>2019-04</td>
+      <td>CA</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2</td>
+      <td>67938.0</td>
+      <td>4.0</td>
+      <td>2.0</td>
+      <td>27.0</td>
+      <td>0.0</td>
+      <td>N</td>
+      <td>Y</td>
+      <td>2.0</td>
+      <td>1.0</td>
+      <td>4.0</td>
+      <td>16.0</td>
+      <td>0.0</td>
+      <td>23.0</td>
+      <td>2019-05</td>
+      <td>CA</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3</td>
+      <td>34848.0</td>
+      <td>3.0</td>
+      <td>0.0</td>
+      <td>12.0</td>
+      <td>0.0</td>
+      <td>N</td>
+      <td>Y</td>
+      <td>2.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>9.0</td>
+      <td>0.0</td>
+      <td>13.0</td>
+      <td>2019-06</td>
+      <td>CA</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>4</td>
+      <td>83424.0</td>
+      <td>10.0</td>
+      <td>14.0</td>
+      <td>102.0</td>
+      <td>2.0</td>
+      <td>N</td>
+      <td>Y</td>
+      <td>2.0</td>
+      <td>4.0</td>
+      <td>6.0</td>
+      <td>16.0</td>
+      <td>1.0</td>
+      <td>29.0</td>
+      <td>2019-07</td>
+      <td>CA</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>79</th>
+      <td>37</td>
+      <td>192102.0</td>
+      <td>39.0</td>
+      <td>9.0</td>
+      <td>208.0</td>
+      <td>3.0</td>
+      <td>N</td>
+      <td>N</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>3.0</td>
+      <td>14.0</td>
+      <td>2.0</td>
+      <td>21.0</td>
+      <td>2022-06</td>
+      <td>TX</td>
+    </tr>
+    <tr>
+      <th>80</th>
+      <td>38</td>
+      <td>136152.0</td>
+      <td>27.0</td>
+      <td>2.0</td>
+      <td>49.0</td>
+      <td>0.0</td>
+      <td>N</td>
+      <td>N</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>5.0</td>
+      <td>9.0</td>
+      <td>0.0</td>
+      <td>15.0</td>
+      <td>2022-07</td>
+      <td>TX</td>
+    </tr>
+    <tr>
+      <th>81</th>
+      <td>39</td>
+      <td>164290.0</td>
+      <td>11.0</td>
+      <td>8.0</td>
+      <td>96.0</td>
+      <td>0.0</td>
+      <td>N</td>
+      <td>N</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>3.0</td>
+      <td>13.0</td>
+      <td>0.0</td>
+      <td>18.0</td>
+      <td>2022-08</td>
+      <td>TX</td>
+    </tr>
+    <tr>
+      <th>82</th>
+      <td>40</td>
+      <td>90990.0</td>
+      <td>7.0</td>
+      <td>4.0</td>
+      <td>59.0</td>
+      <td>0.0</td>
+      <td>N</td>
+      <td>N</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>3.0</td>
+      <td>6.0</td>
+      <td>0.0</td>
+      <td>10.0</td>
+      <td>2022-09</td>
+      <td>TX</td>
+    </tr>
+    <tr>
+      <th>83</th>
+      <td>41</td>
+      <td>18093.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>N</td>
+      <td>N</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>2022-10</td>
+      <td>TX</td>
+    </tr>
+  </tbody>
+</table>
+<p>84 rows × 16 columns</p>
+</div>
+</div>
+</div>
+<div class="cell" data-execution_count="11">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>df_ca_tx <span class="op">=</span> pd.melt(result, id_vars <span class="op">=</span> [<span class="st">'date'</span>, <span class="st">'tweets'</span>, <span class="st">'lockdown'</span>, <span class="st">'enforced_order'</span>, <span class="st">'state'</span>], value_vars <span class="op">=</span> [<span class="st">'emotion_joy'</span>, <span class="st">'emotion_sadness'</span>, <span class="st">'emotion_anger'</span>, <span class="st">'emotion_fear'</span>, <span class="st">'emotion_neutral'</span>])</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">20</span>,<span class="dv">5</span>))</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>sns.pointplot(x<span class="op">=</span><span class="st">'date'</span>,y<span class="op">=</span><span class="st">'emotion_joy'</span>,data<span class="op">=</span>result, hue<span class="op">=</span><span class="st">'state'</span>)</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>plt.tick_params(axis<span class="op">=</span><span class="st">'x'</span>, labelrotation <span class="op">=</span> <span class="dv">45</span>)</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Monthly remote working tweet by state"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="11">
+<pre><code>Text(0.5, 1.0, 'Monthly remote working tweet by state')</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="Yan_Shi_blogpost5_files/figure-html/cell-21-output-2.png" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell" data-execution_count="14">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">20</span>,<span class="dv">5</span>))</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>sns.pointplot(x<span class="op">=</span><span class="st">'date'</span>,y<span class="op">=</span><span class="st">'emotion_anger'</span>,data<span class="op">=</span>result, hue<span class="op">=</span><span class="st">'state'</span>)</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>plt.tick_params(axis<span class="op">=</span><span class="st">'x'</span>, labelrotation <span class="op">=</span> <span class="dv">45</span>)</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Monthly remote working tweet by state"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="14">
+<pre><code>Text(0.5, 1.0, 'Monthly remote working tweet by state')</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="Yan_Shi_blogpost5_files/figure-html/cell-22-output-2.png" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell" data-execution_count="17">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>df_ca <span class="op">=</span> df3[df3[<span class="st">'states_abbrev'</span>] <span class="op">==</span> <span class="st">'NY'</span>]</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>df_tx <span class="op">=</span> df3[df3[<span class="st">'states_abbrev'</span>] <span class="op">==</span> <span class="st">'FL'</span>]</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="co"># aggregate data in month</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>df_ca[<span class="st">'date'</span>] <span class="op">=</span> pd.to_datetime(df_ca[<span class="st">'date'</span>], errors<span class="op">=</span><span class="st">'coerce'</span>)</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>per <span class="op">=</span> df_ca.date.dt.to_period(<span class="st">"M"</span>)</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>df_agg_ca <span class="op">=</span> df_ca.groupby(per).<span class="bu">sum</span>()</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>df_agg_ca[<span class="st">'date'</span>] <span class="op">=</span> df_agg_ca.index</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>df_agg_ca[<span class="st">'state'</span>] <span class="op">=</span> <span class="st">'NY'</span></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>df_agg_ca <span class="op">=</span> df_agg_ca.reset_index(drop <span class="op">=</span> <span class="va">True</span>).drop(columns <span class="op">=</span> [<span class="st">'year'</span>, <span class="st">'month'</span>, <span class="st">'author_id'</span>, <span class="st">'author_followers'</span>, <span class="st">'author_tweets'</span>])</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>df_tx[<span class="st">'date'</span>] <span class="op">=</span> pd.to_datetime(df_tx[<span class="st">'date'</span>], errors<span class="op">=</span><span class="st">'coerce'</span>)</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>per <span class="op">=</span> df_tx.date.dt.to_period(<span class="st">"M"</span>)</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>df_agg_tx <span class="op">=</span> df_tx.groupby(per).<span class="bu">sum</span>()</span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>df_agg_tx[<span class="st">'date'</span>] <span class="op">=</span> df_agg_tx.index</span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>df_agg_tx[<span class="st">'state'</span>] <span class="op">=</span> <span class="st">'FL'</span></span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>df_agg_tx <span class="op">=</span> df_agg_tx.reset_index(drop <span class="op">=</span> <span class="va">True</span>).drop(columns <span class="op">=</span> [<span class="st">'year'</span>, <span class="st">'month'</span>, <span class="st">'author_id'</span>, <span class="st">'author_followers'</span>, <span class="st">'author_tweets'</span>])</span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a><span class="co"># concat aggregate data</span></span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>frames <span class="op">=</span> [df_agg_ca, df_agg_tx]</span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> pd.concat(frames).reset_index()</span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>result[<span class="st">'lockdown'</span>] <span class="op">=</span> result[<span class="st">'lockdown'</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: <span class="st">'Y'</span> <span class="cf">if</span> x <span class="op">&gt;</span><span class="dv">0</span> <span class="cf">else</span> <span class="st">'N'</span>)</span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>result[<span class="st">'enforced_order'</span>] <span class="op">=</span> result[<span class="st">'enforced_order'</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: <span class="st">'Y'</span> <span class="cf">if</span> x <span class="op">&gt;</span><span class="dv">0</span> <span class="cf">else</span> <span class="st">'N'</span>)</span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>result</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>/var/folders/yn/83gzh79s0dv70yn_zgdzgg7m0000gn/T/ipykernel_62184/1839167673.py:4: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  df_ca['date'] = pd.to_datetime(df_ca['date'], errors='coerce')
+/var/folders/yn/83gzh79s0dv70yn_zgdzgg7m0000gn/T/ipykernel_62184/1839167673.py:10: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  df_tx['date'] = pd.to_datetime(df_tx['date'], errors='coerce')</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="17">
+
+<div>
+
+<table class="dataframe table table-sm table-striped">
+  <thead>
+    <tr>
+      <th></th>
+      <th>index</th>
+      <th>Unnamed: 0</th>
+      <th>retweets</th>
+      <th>replies</th>
+      <th>likes</th>
+      <th>quote_count</th>
+      <th>lockdown</th>
+      <th>enforced_order</th>
+      <th>emotion_anger</th>
+      <th>emotion_fear</th>
+      <th>emotion_joy</th>
+      <th>emotion_neutral</th>
+      <th>emotion_sadness</th>
+      <th>tweets</th>
+      <th>date</th>
+      <th>state</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>92809.0</td>
+      <td>37.0</td>
+      <td>0.0</td>
+      <td>61.0</td>
+      <td>1.0</td>
+      <td>N</td>
+      <td>Y</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>3.0</td>
+      <td>10.0</td>
+      <td>0.0</td>
+      <td>15.0</td>
+      <td>2019-03</td>
+      <td>NY</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>99212.0</td>
+      <td>21.0</td>
+      <td>0.0</td>
+      <td>61.0</td>
+      <td>0.0</td>
+      <td>N</td>
+      <td>Y</td>
+      <td>1.0</td>
+      <td>2.0</td>
+      <td>1.0</td>
+      <td>11.0</td>
+      <td>1.0</td>
+      <td>16.0</td>
+      <td>2019-04</td>
+      <td>NY</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2</td>
+      <td>64179.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>5.0</td>
+      <td>0.0</td>
+      <td>N</td>
+      <td>Y</td>
+      <td>2.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>6.0</td>
+      <td>0.0</td>
+      <td>10.0</td>
+      <td>2019-05</td>
+      <td>NY</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3</td>
+      <td>85479.0</td>
+      <td>14.0</td>
+      <td>4.0</td>
+      <td>45.0</td>
+      <td>0.0</td>
+      <td>N</td>
+      <td>Y</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>5.0</td>
+      <td>9.0</td>
+      <td>0.0</td>
+      <td>14.0</td>
+      <td>2019-06</td>
+      <td>NY</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>4</td>
+      <td>86098.0</td>
+      <td>5.0</td>
+      <td>11.0</td>
+      <td>53.0</td>
+      <td>2.0</td>
+      <td>N</td>
+      <td>Y</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>3.0</td>
+      <td>10.0</td>
+      <td>0.0</td>
+      <td>14.0</td>
+      <td>2019-07</td>
+      <td>NY</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>79</th>
+      <td>37</td>
+      <td>144717.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>36.0</td>
+      <td>0.0</td>
+      <td>N</td>
+      <td>N</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>5.0</td>
+      <td>6.0</td>
+      <td>0.0</td>
+      <td>13.0</td>
+      <td>2022-06</td>
+      <td>FL</td>
+    </tr>
+    <tr>
+      <th>80</th>
+      <td>38</td>
+      <td>266912.0</td>
+      <td>17.0</td>
+      <td>31.0</td>
+      <td>149.0</td>
+      <td>1.0</td>
+      <td>N</td>
+      <td>N</td>
+      <td>2.0</td>
+      <td>1.0</td>
+      <td>3.0</td>
+      <td>17.0</td>
+      <td>1.0</td>
+      <td>24.0</td>
+      <td>2022-07</td>
+      <td>FL</td>
+    </tr>
+    <tr>
+      <th>81</th>
+      <td>39</td>
+      <td>110891.0</td>
+      <td>2.0</td>
+      <td>1.0</td>
+      <td>25.0</td>
+      <td>1.0</td>
+      <td>N</td>
+      <td>N</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>7.0</td>
+      <td>0.0</td>
+      <td>10.0</td>
+      <td>2022-08</td>
+      <td>FL</td>
+    </tr>
+    <tr>
+      <th>82</th>
+      <td>40</td>
+      <td>144279.0</td>
+      <td>10.0</td>
+      <td>6.0</td>
+      <td>70.0</td>
+      <td>0.0</td>
+      <td>N</td>
+      <td>N</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>2.0</td>
+      <td>9.0</td>
+      <td>1.0</td>
+      <td>13.0</td>
+      <td>2022-09</td>
+      <td>FL</td>
+    </tr>
+    <tr>
+      <th>83</th>
+      <td>41</td>
+      <td>22074.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>N</td>
+      <td>N</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>2022-10</td>
+      <td>FL</td>
+    </tr>
+  </tbody>
+</table>
+<p>84 rows × 16 columns</p>
+</div>
+</div>
+</div>
+<div class="cell" data-execution_count="18">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>df_ca_tx <span class="op">=</span> pd.melt(result, id_vars <span class="op">=</span> [<span class="st">'date'</span>, <span class="st">'tweets'</span>, <span class="st">'lockdown'</span>, <span class="st">'enforced_order'</span>, <span class="st">'state'</span>], value_vars <span class="op">=</span> [<span class="st">'emotion_joy'</span>, <span class="st">'emotion_sadness'</span>, <span class="st">'emotion_anger'</span>, <span class="st">'emotion_fear'</span>, <span class="st">'emotion_neutral'</span>])</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">20</span>,<span class="dv">5</span>))</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>sns.pointplot(x<span class="op">=</span><span class="st">'date'</span>,y<span class="op">=</span><span class="st">'emotion_joy'</span>,data<span class="op">=</span>result, hue<span class="op">=</span><span class="st">'state'</span>)</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>plt.tick_params(axis<span class="op">=</span><span class="st">'x'</span>, labelrotation <span class="op">=</span> <span class="dv">45</span>)</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Monthly remote working tweet by state"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="18">
+<pre><code>Text(0.5, 1.0, 'Monthly remote working tweet by state')</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="Yan_Shi_blogpost5_files/figure-html/cell-24-output-2.png" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell" data-execution_count="19">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">20</span>,<span class="dv">5</span>))</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>sns.pointplot(x<span class="op">=</span><span class="st">'date'</span>,y<span class="op">=</span><span class="st">'emotion_anger'</span>,data<span class="op">=</span>result, hue<span class="op">=</span><span class="st">'state'</span>)</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>plt.tick_params(axis<span class="op">=</span><span class="st">'x'</span>, labelrotation <span class="op">=</span> <span class="dv">45</span>)</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Monthly remote working tweet by state"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="19">
+<pre><code>Text(0.5, 1.0, 'Monthly remote working tweet by state')</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="Yan_Shi_blogpost5_files/figure-html/cell-25-output-2.png" class="img-fluid"></p>
+</div>
+</div>
+
+
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } 
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+<script src="https://giscus.app/client.js" data-repo="DACSS/Text_as_Data_Fall_2022" data-repo-id="R_kgDOH5675w" data-category="Announcements" data-category-id="" data-mapping="title" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="en" crossorigin="anonymous" async="">
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
