@@ -355,7 +355,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     reset_c_local: function () 
     run_iter_doc: function (update_topics = TRUE, ptr = private$ptr) 
     run_iter_word: function (update_topics = TRUE, ptr = private$ptr) 
-    seeds: 83786754.4219675 63025640.9413028
+    seeds: 65428905.9390646 36536657.9659726
     set_c_all: function (x) 
     set_internal_matrix_formats: function (sparse = NULL, dense = NULL) 
     topic_word_distribution_with_prior: function () 
@@ -371,8 +371,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>                          <span class="at">progressbar =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>INFO  [22:24:15.981] early stopping at 125 iteration
-INFO  [22:24:16.777] early stopping at 50 iteration</code></pre>
+<pre><code>INFO  [17:22:09.116] early stopping at 100 iteration
+INFO  [17:22:10.090] early stopping at 50 iteration</code></pre>
 </div>
 <details>
 <summary>Code</summary>
@@ -392,18 +392,18 @@ INFO  [22:24:16.777] early stopping at 50 iteration</code></pre>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>lda_model<span class="sc">$</span><span class="fu">get_top_words</span>(<span class="at">n =</span> <span class="dv">5</span>, <span class="at">lambda =</span> <span class="fl">0.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>     [,1]           [,2]         [,3]        [,4]      [,5]      [,6]       
-[1,] "arts"         "hospital"   "contact"   "law"     "project" "vaccine"  
-[2,] "event"        "u.s"        "order"     "outdoor" "street"  "vaccines" 
-[3,] "housing"      "point"      "employee"  "court"   "parking" "booster"  
-[4,] "neighborhood" "surge"      "employees" "nature"  "bus"     "locations"
-[5,] "life"         "relatively" "wear"      "mental"  "opened"  "older"    
-     [,7]       [,8]       [,9]       [,10]     
-[1,] "million"  "police"   "cases"    "school"  
-[2,] "business" "centers"  "reported" "students"
-[3,] "market"   "ballston" "testing"  "aps"     
-[4,] "budget"   "fully"    "rate"     "schools" 
-[5,] "small"    "near"     "test"     "parents" </code></pre>
+<pre><code>     [,1]       [,2]       [,3]         [,4]       [,5]       [,6]      
+[1,] "order"    "cases"    "restaurant" "care"     "law"      "market"  
+[2,] "snow"     "reported" "event"      "vaccines" "police"   "business"
+[3,] "video"    "testing"  "really"     "level"    "employee" "demand"  
+[4,] "parks"    "rate"     "blvd"       "vaccine"  "general"  "price"   
+[5,] "ballston" "covid"    "pike"       "total"    "legal"    "owners"  
+     [,7]          [,8]       [,9]      [,10]     
+[1,] "arts"        "school"   "run"     "million" 
+[2,] "office"      "students" "grant"   "budget"  
+[3,] "companies"   "aps"      "needed"  "project" 
+[4,] "berry"       "schools"  "road"    "property"
+[5,] "immigration" "parents"  "quickly" "parking" </code></pre>
 </div>
 <details>
 <summary>Code</summary>
@@ -3319,7 +3319,7 @@ Completed E-Step (0 seconds).
 Completed M-Step. 
 Completing Iteration 4 (approx. per word bound = -7.116, relative change = 2.624e-03) 
 ..................................................................................................................
-Completed E-Step (0 seconds). 
+Completed E-Step (1 seconds). 
 Completed M-Step. 
 Completing Iteration 5 (approx. per word bound = -7.109, relative change = 1.097e-03) 
 Topic 1: week, weekend, feel, past, discuss 
