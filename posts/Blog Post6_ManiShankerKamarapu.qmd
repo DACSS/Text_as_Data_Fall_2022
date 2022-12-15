@@ -1,0 +1,524 @@
+---
+title: "Blog Post 6"
+author: "Mani Shanker Kamarapu"
+desription: "Sentimental analysis"
+date: "11/27/2022"
+format:
+  html:
+    df-print: paged
+    css: styles.css
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - Post6
+  - ManiShankerKamarapu
+  - Amazon Review analysis
+---
+## Introduction
+
+In the last post, I have done sentimental analysis. In this blog I plan to do topic modelling of data.
+
+## Loading the libraries
+
+```{r}
+library(polite)
+library(rvest)
+library(ggplot2)
+library(plotly)
+library(tidyverse)
+library(SnowballC)
+library(stringr)
+library(ldatuning)
+library(quanteda)
+library(tidyr)
+library(reshape2)
+library(RColorBrewer)
+library(tidytext)
+library(quanteda.textplots)
+library(wordcloud)
+library(textdata)
+library(gridExtra)
+library(stm)
+library(wordcloud2)
+library(devtools)
+library(quanteda.dictionaries)
+library(quanteda.sentiment)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Reading the data
+
+```{r}
+reviews <- read_csv("amazonreview.csv")
+reviews
+```
+
+## Pre-processing function
+
+```{r}
+clean_text <- function (text) {
+  str_remove_all(text," ?(f|ht)(tp)(s?)(://)(.*)[.|/](.*)") %>% 
+    # Remove mentions
+    str_remove_all("@[[:alnum:]_]*") %>% 
+    # Replace "&" character reference with "and"
+    str_replace_all("&amp;", "and") %>%
+    # Remove punctuation
+    str_remove_all("[[:punct:]]") %>%
+    # remove digits
+    str_remove_all("[[:digit:]]") %>%
+    # Replace any newline characters with a space
+    str_replace_all("\\\n|\\\r", " ") %>%
+    # remove strings like "<U+0001F9F5>"
+    str_remove_all("<.*?>") %>% 
+    # Make everything lowercase
+    str_to_lower() %>%
+    # Remove any trailing white space around the text and inside a string
+    str_squish()
+}
+```
+
+## Tidying the data
+
+```{r}
+reviews$clean_text <- clean_text(reviews$review_text) 
+reviews <- reviews %>%
+  drop_na(clean_text)
+reviews
+```
+
+Removing unnecessary columns
+
+```{r}
+reviews <- reviews %>%
+  select(-c(...1, page, review_text))
+reviews
+```
+
+Pre-processing the title variable
+
+```{r}
+reviews$review_title <- reviews$review_title %>%
+  str_remove_all("\n")
+reviews
+```
+
+Converting star of reviews from character to numeric 
+
+```{r}
+reviews$review_star <- substr(reviews$review_star, 1, 3) %>%
+  as.numeric()
+  reviews
+```
+
+## Adding new variable book title to the reviews
+
+```{r}
+reviews <- reviews %>%
+  mutate(book_title = case_when(ASIN == "B0001DBI1Q" ~ "A Game of Thrones: A Song of Ice and Fire, Book 1", 
+                                ASIN == "B0001MC01Y" ~ "A Clash of Kings: A Song of Ice and Fire, Book 2", 
+                                ASIN == "B00026WUZU" ~ "A Storm of Swords: A Song of Ice and Fire, Book 3", 
+                                ASIN == "B07ZN4WM13" ~ "A Feast for Crows: A Song of Ice and Fire, Book 4", 
+                                ASIN == "B005C7QVUE" ~ "A Dance with Dragons: A Song of Ice and Fire, Book 5", 
+                                ASIN == "B000BO2D64" ~ "Twilight: The Twilight Saga, Book 1", 
+                                ASIN == "B000I2JFQU" ~ "New Moon: The Twilight Saga, Book 2", 
+                                ASIN == "B000UW50LW" ~ "Eclipse: The Twilight Saga, Book 3", 
+                                ASIN == "B001FD6RLM" ~ "Breaking Dawn: The Twilight Saga, Book 4 ", 
+                                ASIN == "B07HHJ7669" ~ "The Hunger Games", 
+                                ASIN == "B07T6BQV2L" ~ "Catching Fire: The Hunger Games", 
+                                ASIN == "B07T43YYRY" ~ "Mockingjay: The Hunger Games, Book 3"))
+reviews
+```
+
+Adding new variable series title to the reviews
+
+```{r}
+reviews <- reviews %>%
+  mutate(series_title = case_when(ASIN == "B0001DBI1Q" ~ "A Song of Ice and Fire", 
+                                ASIN == "B0001MC01Y" ~ "A Song of Ice and Fire", 
+                                ASIN == "B00026WUZU" ~ "A Song of Ice and Fire", 
+                                ASIN == "B07ZN4WM13" ~ "A Song of Ice and Fire", 
+                                ASIN == "B005C7QVUE" ~ "A Song of Ice and Fire", 
+                                ASIN == "B000BO2D64" ~ "The Twilight Saga", 
+                                ASIN == "B000I2JFQU" ~ "The Twilight Saga", 
+                                ASIN == "B000UW50LW" ~ "The Twilight Saga", 
+                                ASIN == "B001FD6RLM" ~ "The Twilight Saga", 
+                                ASIN == "B07HHJ7669" ~ "The Hunger Games", 
+                                ASIN == "B07T6BQV2L" ~ "The Hunger Games", 
+                                ASIN == "B07T43YYRY" ~ "The Hunger Games"))
+reviews
+```
+
+## Tokenization of data
+
+```{r}
+reviews1 <- reviews %>%
+  filter(series_title == "A Song of Ice and Fire")
+reviews2 <- reviews %>%
+  filter(series_title == "The Twilight Saga")
+reviews3 <- reviews %>%
+  filter(series_title == "The Hunger Games")
+```
+
+```{r}
+# Converting the text into corpus
+text_corpus1 <- corpus(c(reviews1$clean_text))
+# Converting the text into tokens
+text_token1 <- tokens(text_corpus1, remove_punct=TRUE, remove_numbers = TRUE, remove_separators = TRUE, remove_symbols = TRUE) %>% 
+  tokens_select(pattern=c(stopwords("en"), "im", "didnt", "couldnt","wasnt", "id", "ive", "isnt", "dont", "wont", "shes", "doesnt"), selection="remove") %>%
+  tokens_select(pattern=stopwords("SMART"), 
+                selection="remove") 
+# Converting tokens into Document feature matrix
+text_dfm1 <- dfm(text_token1) %>%
+  dfm_trim(min_docfreq = 10, min_termfreq = 10) %>%
+  dfm_subset(ntoken(.) > 0)
+text_dfm1
+```
+
+```{r}
+# Converting the text into corpus
+text_corpus2 <- corpus(c(reviews2$clean_text))
+# Converting the text into tokens
+text_token2 <- tokens(text_corpus2, remove_punct=TRUE, remove_numbers = TRUE, remove_separators = TRUE, remove_symbols = TRUE) %>% 
+  tokens_select(pattern=c(stopwords("en"), "im", "didnt", "couldnt","wasnt", "id", "ive", "isnt", "dont", "wont", "shes", "doesnt"), selection="remove") %>%
+  tokens_select(pattern=stopwords("SMART"), 
+                selection="remove") 
+# Converting tokens into Document feature matrix
+text_dfm2 <- dfm(text_token2) %>%
+  dfm_trim(min_docfreq = 10, min_termfreq = 10) %>%
+  dfm_subset(ntoken(.) > 0)
+text_dfm2
+```
+
+```{r}
+# Converting the text into corpus
+text_corpus3 <- corpus(c(reviews3$clean_text))
+# Converting the text into tokens
+text_token3 <- tokens(text_corpus3, remove_punct=TRUE, remove_numbers = TRUE, remove_separators = TRUE, remove_symbols = TRUE) %>% 
+  tokens_select(pattern=c(stopwords("en"), "im", "didnt", "couldnt","wasnt", "id", "ive", "isnt", "dont", "wont", "shes", "doesnt"), selection="remove") %>%
+  tokens_select(pattern=stopwords("SMART"), 
+                selection="remove") 
+# Converting tokens into Document feature matrix
+text_dfm3 <- dfm(text_token3) %>%
+  dfm_trim(min_docfreq = 10, min_termfreq = 10) %>%
+  dfm_subset(ntoken(.) > 0)
+text_dfm3
+```
+
+## Topic modelling
+
+```{r}
+model1 <- convert(text_dfm1, to = "stm")
+model1 <- stm(model1$documents, model1$vocab, K = 15, verbose = FALSE, max.em.its = 100, seed = 1357, init.type = "Spectral")
+```
+
+```{r}
+summary(model1)
+```
+
+```{r}
+plot(model1)
+```
+
+```{r}
+topic_model1 <- stm(text_dfm1, K = 5, init.type = 'Spectral')
+```
+
+```{r}
+summary(topic_model1)
+```
+
+```{r}
+plot(topic_model1, type = "summary")
+```
+
+```{r}
+mod.out.corr <- topicCorr(topic_model1)
+plot(mod.out.corr)
+```
+
+```{r}
+tidy_beta <- tidy(topic_model1)
+tidy_beta %>% group_by(topic) %>% 
+  top_n(10) %>% 
+  ungroup() %>% 
+  mutate(term = reorder(term, beta)) %>% 
+  ggplot(aes(term, beta, fill=topic)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~topic, scales="free") +
+  coord_flip() 
+```
+
+```{r}
+topicQuality(topic_model1, text_dfm1)
+```
+
+```{r}
+topic_model2 <- stm(text_dfm1, K = 10, init.type = 'Spectral')
+```
+
+```{r}
+summary(topic_model2)
+```
+
+```{r}
+plot(topic_model2, type = "summary")
+```
+
+```{r}
+mod.out.corr <- topicCorr(topic_model2)
+plot(mod.out.corr)
+```
+
+```{r}
+tidy_beta <- tidy(topic_model2)
+tidy_beta %>% group_by(topic) %>% 
+  top_n(10) %>% 
+  ungroup() %>% 
+  mutate(term = reorder(term, beta)) %>% 
+  ggplot(aes(term, beta, fill=topic)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~topic, scales="free") +
+  coord_flip() 
+```
+
+```{r}
+topicQuality(topic_model2, text_dfm1)
+```
+
+```{r}
+topic_model3 <- stm(text_dfm1, K = 15, init.type = 'Spectral')
+```
+
+```{r}
+summary(topic_model3)
+```
+
+```{r}
+plot(topic_model3, type = "summary")
+```
+
+```{r}
+mod.out.corr <- topicCorr(topic_model3)
+plot(mod.out.corr)
+```
+
+```{r}
+tidy_beta <- tidy(topic_model3)
+tidy_beta %>% group_by(topic) %>% 
+  top_n(10) %>% 
+  ungroup() %>% 
+  mutate(term = reorder(term, beta)) %>% 
+  ggplot(aes(term, beta, fill=topic)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~topic, scales="free") +
+  coord_flip() 
+```
+
+```{r}
+topicQuality(topic_model3, text_dfm1)
+```
+
+```{r}
+topic_model4 <- stm(text_dfm2, K = 5, init.type = 'Spectral')
+```
+
+```{r}
+summary(topic_model4)
+```
+
+```{r}
+plot(topic_model4, type = "summary")
+```
+
+```{r}
+mod.out.corr <- topicCorr(topic_model4)
+plot(mod.out.corr)
+```
+
+```{r}
+tidy_beta <- tidy(topic_model4)
+tidy_beta %>% group_by(topic) %>% 
+  top_n(10) %>% 
+  ungroup() %>% 
+  mutate(term = reorder(term, beta)) %>% 
+  ggplot(aes(term, beta, fill=topic)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~topic, scales="free") +
+  coord_flip() 
+```
+
+```{r}
+topicQuality(topic_model4, text_dfm2)
+```
+
+```{r}
+topic_model5 <- stm(text_dfm2, K = 10, init.type = 'Spectral')
+```
+
+```{r}
+summary(topic_model5)
+```
+
+```{r}
+plot(topic_model5, type = "summary")
+```
+
+```{r}
+mod.out.corr <- topicCorr(topic_model5)
+plot(mod.out.corr)
+```
+
+```{r}
+tidy_beta <- tidy(topic_model5)
+tidy_beta %>% group_by(topic) %>% 
+  top_n(10) %>% 
+  ungroup() %>% 
+  mutate(term = reorder(term, beta)) %>% 
+  ggplot(aes(term, beta, fill=topic)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~topic, scales="free") +
+  coord_flip() 
+```
+
+```{r}
+topicQuality(topic_model5, text_dfm2)
+```
+
+```{r}
+topic_model6 <- stm(text_dfm2, K = 15, init.type = 'Spectral')
+```
+
+```{r}
+summary(topic_model6)
+```
+
+```{r}
+plot(topic_model6, type = "summary")
+```
+
+```{r}
+mod.out.corr <- topicCorr(topic_model6)
+plot(mod.out.corr)
+```
+
+```{r}
+tidy_beta <- tidy(topic_model6)
+tidy_beta %>% group_by(topic) %>% 
+  top_n(10) %>% 
+  ungroup() %>% 
+  mutate(term = reorder(term, beta)) %>% 
+  ggplot(aes(term, beta, fill=topic)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~topic, scales="free") +
+  coord_flip() 
+```
+
+```{r}
+topicQuality(topic_model6, text_dfm2)
+```
+
+```{r}
+topic_model7 <- stm(text_dfm3, K = 5, init.type = 'Spectral')
+```
+
+```{r}
+summary(topic_model7)
+```
+
+```{r}
+plot(topic_model7, type = "summary")
+```
+
+```{r}
+mod.out.corr <- topicCorr(topic_model7)
+plot(mod.out.corr)
+```
+
+```{r}
+tidy_beta <- tidy(topic_model7)
+tidy_beta %>% group_by(topic) %>% 
+  top_n(10) %>% 
+  ungroup() %>% 
+  mutate(term = reorder(term, beta)) %>% 
+  ggplot(aes(term, beta, fill=topic)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~topic, scales="free") +
+  coord_flip() 
+```
+
+```{r}
+topicQuality(topic_model7, text_dfm3)
+```
+
+```{r}
+topic_model8 <- stm(text_dfm3, K = 10, init.type = 'Spectral')
+```
+
+```{r}
+summary(topic_model8)
+```
+
+```{r}
+plot(topic_model8, type = "summary")
+```
+
+```{r}
+mod.out.corr <- topicCorr(topic_model8)
+plot(mod.out.corr)
+```
+
+```{r}
+tidy_beta <- tidy(topic_model8)
+tidy_beta %>% group_by(topic) %>% 
+  top_n(10) %>% 
+  ungroup() %>% 
+  mutate(term = reorder(term, beta)) %>% 
+  ggplot(aes(term, beta, fill=topic)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~topic, scales="free") +
+  coord_flip() 
+```
+
+```{r}
+topicQuality(topic_model8, text_dfm3)
+```
+
+```{r}
+topic_model9 <- stm(text_dfm3, K = 15, init.type = 'Spectral')
+```
+
+```{r}
+summary(topic_model9)
+```
+
+```{r}
+plot(topic_model9, type = "summary")
+```
+
+```{r}
+mod.out.corr <- topicCorr(topic_model9)
+plot(mod.out.corr)
+```
+
+```{r}
+tidy_beta <- tidy(topic_model9)
+tidy_beta %>% group_by(topic) %>% 
+  top_n(10) %>% 
+  ungroup() %>% 
+  mutate(term = reorder(term, beta)) %>% 
+  ggplot(aes(term, beta, fill=topic)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~topic, scales="free") +
+  coord_flip() 
+```
+
+```{r}
+topicQuality(topic_model3, text_dfm3)
+```
+
+## Further study
+
+I will do evaluate the blogs and try to conclude the blog.
