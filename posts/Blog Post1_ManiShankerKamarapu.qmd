@@ -6,76 +6,101 @@ date: "09/23/2022"
 format:
   html:
     toc: true
-    code-fold: true
+    code-fold: false
     code-copy: true
     code-tools: true
 categories:
   - Post1
   - Movie reviews
   - Fake News
+  - ManiShankerKamarapu
+  - Amazon Review analysis
 ---
 
-## Literature Review
-
 ## Article 1
+
 *Aspect-based sentiment analysis of movie reviews on discussion boards*
 
 ### Research questions and/or hypothesis
+
 The goal of this study is to perform fine-grained analysis to determine both the sentiment orientation and sentiment strength of the reviewer towards various aspects of a movie.
 
 ### Data used and how are the data collected
-- The movie review sentences were manually collected from the discussion board of a movie review site (WWW.IMDb.com). For the experiments, own data set was used because aspect level sentiment labels are required to verify the effectiveness of aspect-based sentiment analysis approach. Most of the publicly available movie review data sets contain only document level or sentence level sentiment labels.
-- For the data set collection, firstly, 34 movies were selected: 17 positive and 17 negative movies based on the user ratings at the website. Then discussion threads in the selected movies were chosen randomly, and positive or negative sentences in the posts were selected manually, while posts with irrelevant and spam contents were ignored. When selecting sentences, they tried to collect a reason-able number of sentences (or clauses) for each aspect. The numbers of clauses for the review aspects are 583 for overall, 87 for director, 225 for cast, 127 for story, 104 for scene, and 27 for music.
 
-### Methods 
--  Automatic sentiment analysis of movie reviews is proposed. 
-- Sentences in review documents contain independent clauses that express different sentiments toward different aspects of a movie. 
-- The method adopts a linguistic approach of computing the sentiment of a clause from the prior sentiment scores assigned to individual words, taking into consideration the grammatical dependency structure of the clause. 
-- The prior sentiment scores of about 32,000 individual words are derived from SentiWordNet with the help of a subjectivity lexicon. Negation is delicately handled. 
-- Opinion mining and Error analysis
+-   The movie review sentences were manually collected from the discussion board of a movie review site (WWW.IMDb.com). For the experiments, own data set was used because aspect level sentiment labels are required to verify the effectiveness of aspect-based sentiment analysis approach. Most of the publicly available movie review data sets contain only document level or sentence level sentiment labels.
+-   For the data set collection, firstly, 34 movies were selected: 17 positive and 17 negative movies based on the user ratings at the website. Then discussion threads in the selected movies were chosen randomly, and positive or negative sentences in the posts were selected manually, while posts with irrelevant and spam contents were ignored. When selecting sentences, they tried to collect a reason-able number of sentences (or clauses) for each aspect. The numbers of clauses for the review aspects are 583 for overall, 87 for director, 225 for cast, 127 for story, 104 for scene, and 27 for music.
+
+### Methods
+
+-   Automatic sentiment analysis of movie reviews is proposed.
+-   Sentences in review documents contain independent clauses that express different sentiments toward different aspects of a movie.
+-   The method adopts a linguistic approach of computing the sentiment of a clause from the prior sentiment scores assigned to individual words, taking into consideration the grammatical dependency structure of the clause.
+-   The prior sentiment scores of about 32,000 individual words are derived from SentiWordNet with the help of a subjectivity lexicon. Negation is delicately handled.
+-   Opinion mining and Error analysis
 
 ### Findings of the study
-- The experimental results show that the proposed approach is effective for aspect-based sentiment analysis of short documents such as message posts on discussion boards. The accuracies of clause level sentiment classification for overall movie, director, cast, story, scene and music aspects are 75%, 86%, 83%, 80%, 90% and 81% respectively.
-- The sentiment scores provided by the proposed approach can be used for highlighting the most positive and negative clauses or sentences associated with particular aspects.
+
+-   The experimental results show that the proposed approach is effective for aspect-based sentiment analysis of short documents such as message posts on discussion boards. The accuracies of clause level sentiment classification for overall movie, director, cast, story, scene and music aspects are 75%, 86%, 83%, 80%, 90% and 81% respectively.
+-   The sentiment scores provided by the proposed approach can be used for highlighting the most positive and negative clauses or sentences associated with particular aspects.
 
 ### My opinion
+
 I thought this study was really interesting to read. There was a lot of analyses for things I was surprised. I thought the sentimental scores and annotation and using clauses in a new approach and how it is used and how primary data is collected manually is good. The experimental analysis and future work is also interesting. Overall, I think this is a very good article.
 
 ## Article 2
+
 *Fake News Detection on Social Media: A Data Mining Perspective*
 
 ### Research questions and/or hypothesis
+
 The goal of the study is to identify the fake news in social media and discuss research initiatives.
 
 ### Data used and how are the data collected
-- BuzzFeedNews15: This dataset comprises a complete sample of news published in Facebook from 9 news agencies over a week close to the 2016 U.S. election from September 19 to 23 and September 26 and 27. Every post and the linked article were fact-checked claim-by-claim by 5 BuzzFeed journalists. This dataset is further enriched in by adding the linked articles, attached media, and relevant metadata. It contains 1,627 articles–826 mainstream, 356 left-wing, and 545 right-wing articles.
-- LIAR16: This dataset is collected from fact-checking website PolitiFact through its API [90]. It includes 12,836 human-labeled short statements, which are sampled from various contexts, such as news releases, TV or radio interviews, campaign speeches, etc. The labels for news truthfulness are fine-grained multiple classes: pants-fire, false, barely-true, half-true, mostly true, and true.
-- BS Detector 17: This dataset is collected from a browser extension called BS detector developed for checking news veracity18. It searches all links on a given webpage for references to unreliable sources by checking against a manually complied list of domains. The labels are the outputs of BS detector, rather than human annotators.
-- CREDBANK19: This is a large scale crowdsourced dataset of approximately 60 million tweets that cover 96 days starting from October 2015. All the tweets are broken down to be related to over 1,000 news events, with each event assessed for credibilities by 30 annotators from Amazon Mechanical Turk.
+
+-   BuzzFeedNews15: This dataset comprises a complete sample of news published in Facebook from 9 news agencies over a week close to the 2016 U.S. election from September 19 to 23 and September 26 and 27. Every post and the linked article were fact-checked claim-by-claim by 5 BuzzFeed journalists. This dataset is further enriched in by adding the linked articles, attached media, and relevant metadata. It contains 1,627 articles--826 mainstream, 356 left-wing, and 545 right-wing articles.
+-   LIAR16: This dataset is collected from fact-checking website PolitiFact through its API \[90\]. It includes 12,836 human-labeled short statements, which are sampled from various contexts, such as news releases, TV or radio interviews, campaign speeches, etc. The labels for news truthfulness are fine-grained multiple classes: pants-fire, false, barely-true, half-true, mostly true, and true.
+-   BS Detector 17: This dataset is collected from a browser extension called BS detector developed for checking news veracity18. It searches all links on a given webpage for references to unreliable sources by checking against a manually complied list of domains. The labels are the outputs of BS detector, rather than human annotators.
+-   CREDBANK19: This is a large scale crowdsourced dataset of approximately 60 million tweets that cover 96 days starting from October 2015. All the tweets are broken down to be related to over 1,000 news events, with each event assessed for credibilities by 30 annotators from Amazon Mechanical Turk.
 
 ### Methods
-- Feature Extraction: Fake news detection on traditional news media mainly relies on news content, while in social media, extra social context auxiliary information can be used to as additional information to help detect fake news. Thus, will present the details of how to extract and represent useful features from news content and social context.
-- Model Construction: Categorize existing methods based on their main input sources as News Content Models and Social Context Models.
-- Detection Efficacy: Assess the performance of algorithms for fake news detection and focus on the available datasets and evaluation metrics for this task.
+
+-   Feature Extraction: Fake news detection on traditional news media mainly relies on news content, while in social media, extra social context auxiliary information can be used to as additional information to help detect fake news. Thus, will present the details of how to extract and represent useful features from news content and social context.
+-   Model Construction: Categorize existing methods based on their main input sources as News Content Models and Social Context Models.
+-   Detection Efficacy: Assess the performance of algorithms for fake news detection and focus on the available datasets and evaluation metrics for this task.
 
 ### Findings of the study
-- Explored the fake news problem by reviewing existing literature in two phases: characterization and detection. 
-- In the characterization phase, Introduced the basic concepts and principles of fake news in both traditional media and social media. 
-- In the detection phase, Reviewed existing fake news detection approaches from a data mining perspective, including feature extraction and model construction. 
-- Further discussed the datasets, evaluation metrics, and promising future directions in fake news detection research and expand the field to other applications.
+
+-   Explored the fake news problem by reviewing existing literature in two phases: characterization and detection.
+-   In the characterization phase, Introduced the basic concepts and principles of fake news in both traditional media and social media.
+-   In the detection phase, Reviewed existing fake news detection approaches from a data mining perspective, including feature extraction and model construction.
+-   Further discussed the datasets, evaluation metrics, and promising future directions in fake news detection research and expand the field to other applications.
 
 ### My opinion
+
 I thought this paper had a extensive analysis. This article gives me a lot to think about data collection and analysis methods. Overall, I thought focused more on methods and review and can get back for more research on different methods of fake detection.
 
 ### Bibliography
-- https://doi.org/10.1177/0165551510388123 
-- https://doi.org/10.1145/3137597.3137600
 
-## Research questions and potential data sources.
-- I have some ideas about my own, however I am still not sure. 
-- I think about getting data from twitter may be my best option, but I will sill be looking for the other options to use. I would also like to use APIs.
-- Analyzing movie scripts and comparing regional wise and sentiments. 
-- Fake news analysis in social media.
-- I also thought of working on demographic and biological factors effecting students.
-- Suicide rates based on countries and reasons.
-- I am not sure if I will get the right data. So will try to conclude based on the data available and further more analysis.
+-   https://doi.org/10.1177/0165551510388123
+-   https://doi.org/10.1145/3137597.3137600
+
+## My Project
+
+Analysis of Amazon Reviews
+
+### Research Questions
+
+- What sentiments emerges from the reviews and can it be used to determine the sentiments involved the book? 
+- Which topics are discussed on Amazon in relation to Book series and can we use that as a recommendation?
+
+### Potential Data Sources
+
+- Amazon can be a good data source
+- I can also use twitter 
+- There are other platforms where we find the product reviews like Angie’s List, Reditt, Trustpilot.
+
+### References
+
+-   https://books.psychstat.org/textmining/topic-models.html#topic-modeling-for-ratings
+-   https://smltar.com/mlclassification.html#classfirstattemptlookatdata
+-   Haque, T. U., Saber, N. N., & Shah, F. M. (2018). Sentiment analysis on large scale Amazon product reviews. In IEEE international conference on innovative research and development (ICIRD). 11--12 May, Bangkok, Thailand.
