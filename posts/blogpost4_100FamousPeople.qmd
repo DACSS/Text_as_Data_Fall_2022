@@ -1,8 +1,8 @@
 ---
 title: "Blog Post 4 - Data Visualizations"
 author: "Adithya Parupudi"
-desription: "Data Visualizations - Word cloud etc"
-date: "10/11/2022"
+desription: "Some General Observations and Visualizations"
+date: "11/15/2022"
 format:
   html:
     toc: true
@@ -18,99 +18,253 @@ categories:
 #| warning: false
 library(quanteda)
 library(tidyverse)
-library(rvest)
-library(stringr)
 library(tidytext)
-library(tm) # for stop words removal
 library(ggplot2) # for graphs
-library(tokenizers)
+library(stm)
+library(lessR)
+library(treemap)
+library(RColorBrewer)
 ```
 
 Reading data from CSV file
 
 ```{r}
 
-people_titles <- read_csv("PeopleTitles.csv")
-all_data <- read_csv("100FamousPeople.csv")
+dataset <- read.csv('./100FamousPeople_new.csv')
+
 ```
 
-Removed all stop words using the SnowBallC package.
+Let us try to visualize a few things from the dataset we have collected so far. What I am interested to see are:
+
+-   What is the most common profession? Which areas of work do most of them fall into?
+-   How are they distributed demographically?
+-   What is the male vs female percentage in this list?
+-   Which time period did most of them existed?
+
+# Pie chart for country distribution
+
+In my previous blog post, I have categorized the data into many ways where one of them is by nationality. I have studied the dataset, and defined a logic that will help me sort the data set.
+
+Below is the code for a pie-chart for country distribution, where its evident that more than one-third of the list are from America primarily, followed by Britain at 19, and Europe with 13. One thing to note is, the 'Others list' consists of countries that have appeared only once. I've decided to group them together under a single identifier as it would be difficult to represent this in a pie chart.
 
 ```{r}
-xyz <- all_data %>% unnest_tokens(words, content, token="words", strip_punct = TRUE)
+myPalette <- brewer.pal(5, "Set2")
+pie(table(dataset$country), border="white", col=myPalette,cex=0.9)
 
-# removed stop words using filter() function
-xyz <- xyz %>% filter(!(words %in% stopwords(source = "smart")))
+country_data <- data.frame(country = dataset$country)
 
-# for stemmimg
-library(SnowballC)
-new_xyz <- xyz %>%
-  mutate(stem = wordStem(words)) %>%
-  count(stem, sort = TRUE)
+PieChart(
+  country,
+  hole = 0,
+  values = "input",
+  data = country_data,
+  main = ""
+)
 
+plot(country_data)
 ```
 
-Attempts to remove stop words. DIfferent chunks of code. 
-```{r}
-# tokenised_data <- all_data %>%
-#   unnest_tokens(tokens,content)
-# # arg 1 -> output columns
-# # arg 2 - column from dataset which is going to be tokenized
-# length(tokenised_data$tokens)
-# 
-# data("stop_words")
-# 
-# removed_stop_words <- tokenised_data %>%
-#   anti_join(stop_words, by=character())
-# 
-# 
-# 155144
-# summary(removed_stop_words)
+# Tree Map for Profession distribution
 
+To have a variety of visualization, I have decided to use a tree-map to display the percentage of profession distribution. A large portion of the treemap is occupied by politicians. It is interesting to see the variety of backgrounds people have, specially the royalty and spiritual ones.
 
-
-
-removed_stop_words <- removeWords(all_data$content %>% tolower(), stopwords())
-```
-
-
-Created a corpus, removed stop words, punctuation, numbers, whitespaces, converted to lowercase.
-Then created document term matrix and generated a word cloud
+The second highest was occupied by 'Artists', followed by 'Academia' and 'Sports'
 
 ```{r}
-# only content picked
-only_content <- all_data$content
-# corpus created
-create_corpus <- Corpus(VectorSource(only_content))
-
-library(tm)
-# cleaning data using tm library
-create_corpus <- create_corpus %>%
-  tm_map(removeNumbers) %>%
-  tm_map(removePunctuation) %>%
-  tm_map(stripWhitespace)
-create_corpus <- tm_map(create_corpus, content_transformer(tolower))
-create_corpus <- tm_map(create_corpus, removeWords, stopwords("english"))
-
-# creating document term matrix
-
-dtm <- TermDocumentMatrix(create_corpus) 
-matrix <- as.matrix(dtm) 
-words <- sort(rowSums(matrix),decreasing=TRUE) 
-df <- data.frame(word = names(words),freq=words)
-
-# generate word cloud
-library(wordcloud)
-set.seed(1234) # for reproducibility 
-wordcloud(words = df$word, freq = df$freq, min.freq = 1,           max.words=200, random.order=FALSE, rot.per=0.35,            colors=brewer.pal(8, "Dark2"))
-
-create_corpus <- corpus(dataset$content)
-corpus_summary <- summary(create_corpus)
-corpus_summary
-
-docvars(create_corpus)
-
-# # get a list of years from each name
-# all %>% html_nodes("ol li") %>% html_text2() %>% 
-#   str_detect(.,"\\(.*>\)")
+# Create data
+tree_map_data <- data.frame(table(dataset$profession))
+ 
+colnames(tree_map_data)
+# treemap
+treemap(tree_map_data,
+            index="Var1",
+            vSize="Freq",
+            type="index",
+        border.col=c("black","white"),
+        border.lwds=c(2,2),
+        title="Profession distribution",
+        palette = "Set2"
+            )
 ```
+
+## 
+
+# People's birth w.r.t to World Wars
+
+Since there were two world wars in the last century and most of the people listed here are born during that time, I thought it was interesting to see when were most of the people born. I divided that data into three straight-forward categories - Before WW1, Between world wars and After WW2 (where WW = World War).
+
+It can be inferred from the graph that 41 people were born before World War 1 and 29 people after the second war, with 23 people being born between the wars.
+
+```{r}
+before_ww1 <- dataset %>% select(from) %>% filter(from < 1913) %>% nrow()
+
+between_wars <- dataset %>% select(from) %>% filter(from > 1913 & from < 1939) %>% nrow()
+after_ww2 <- dataset %>% select(from) %>% filter(from > 1945) %>% nrow()
+
+# new graph =======================================
+
+era_df <- data.frame(
+  era=c("Before WW1(< 1914)","Between Wars","After WW2(>1945)") ,  
+  value=c("41","23","29")
+  )
+
+
+ggplot(era_df, aes(x = era, y = value, fill = era)) +  
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = value), vjust = 0) +
+  xlab("Era --->")+
+  ylab("Number of people --->")
+```
+
+# Male Female Ratio
+
+Another important metric to find out is the gender demographic. This categorization needed a lot of effort to perform, as there was a lot of trouble using regex to sort a person into male or female, depending on the pronouns used in their biography.
+
+Finally the his/her combination performed well to sort the data w.r.t gender. And it looks like 73 people were male while 23 of them were female.
+
+```{r}
+table(dataset$gender)
+```
+
+```{r}
+# taking values from the above result, creating a bar graph
+
+gender_df <- data.frame(
+  gender=c("Female","Male") ,  
+  value=c("27","73")
+  )
+
+
+ggplot(gender_df, aes(x = gender, y = value, fill = gender)) +  
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = value), vjust = 0) +
+  xlab("Gender")+
+  ylab("Count")
+
+```
+
+# Topic Modeling
+
+The Structural Topic Model allows researchers to flexibly estimate a topic model that includes document-level metadata. Estimation is accomplished through a fast variational approximation. The stm package provides many useful features, including rich ways to explore topics, estimate uncertainty, and visualize quantities of interest.
+
+## Why STM?
+
+The data here is a collection of people's biographies. In other words, it is a collection of documents which when categorized, provides topic prevalence between the content come from document metadata. The outputs gives a bag of words related to that topic, and thee number of topics in related to that document.
+
+# Academicians of Britain
+
+To begin with, I want to see the similarities between Acadamicians of Britain. They are filtered through the 'country' and 'profession' column, stored in a data frame for further processing.
+
+Some names I am familiar with are Charles Darwin, J.K Rowling, C.S Lewis
+
+```{r}
+
+
+academia_df <- dataset %>%  filter(`profession` == 'academia' & `country` == 'british')
+
+academia_df
+
+```
+
+## Topic Modeling
+
+Here, using the stm package, I am pre-processing the text by removing stopwords, punctuation, converting the words to lowercase and stemming them. Then prepping the document and running a stm() function with K=8 topics generated a stm model which we will explore
+
+Point to note : I have chosen k=8 (which gives me 8 topics). Here, I have verified this model with other values of K and decided that k=8 gave me the best topics.
+
+```{r}
+academia_processed <- textProcessor(documents = academia_df$content, 
+                           metadata = academia_df,
+                           lowercase = T,
+                           removestopwords = T,
+                           removenumbers = T,
+                           removepunctuation = T,
+                           stem=T,
+                           wordLengths = c(3,Inf),
+                           language = "en",
+                           onlycharacter = T)
+
+academia_prepped <- prepDocuments(documents = academia_processed$documents,
+                         vocab = academia_processed$vocab,
+                         meta = academia_processed$meta,
+                         lower.thresh = 2,
+                         upper.thresh = Inf)
+
+academia_basicmodel <- stm(documents = academia_prepped$documents,
+                         vocab = academia_prepped$vocab,
+                         data = academia_prepped$meta,
+                         K=8,
+                         verbose = F,
+                         seed = 1234
+                         )
+```
+
+# Plot topic models
+
+A stm model is generated using the above code. Now lets see the topics that are generated with respect to their relevance to the document.
+
+```{r}
+plot.STM(academia_basicmodel)
+```
+
+# Plot topic correlations
+
+Looks like topics 2,4,6,7,8 are correlated. Lets dive deeper to understand what is their connection
+
+```{r}
+plot(topicCorr(academia_basicmodel))
+
+
+```
+
+# Most frequent words in each topic
+
+Below is the list of most frequently appearing words in each topic
+
+```{r}
+plot(academia_basicmodel, type="labels", topics=c(2,4,6,7,8))
+
+```
+
+# Plot histogram
+
+```{r}
+
+plot(academia_basicmodel, type="hist")
+
+```
+
+# Comparing two topics
+
+I felt topic 6,7 are very interesting. Both talk about struggles with publishing, its success, and general aspects towards life.
+
+```{r}
+
+plot(academia_basicmodel, type="perspectives", topics=c(6,7))
+```
+
+## searchK() to find the optimal K
+
+I am unable to make the searchK() function work here. No matter how I tweak this, it is throwing an "out of bounds" error. So, after experimenting with different K values, I've decided to go with k=8, using which I could interpret better.
+
+```{r}
+findingK <- searchK(academia_prepped$documents,
+                    academia_prepped$vocab,
+                    K=2,
+                    data=academia_prepped$meta,
+                    verbose=FALSE)
+plot(findingK)
+
+
+```
+
+# Interpretation
+
+I am able to see the correlation between topics 2,4,6,7,8 for those categorized as academicians from Britain. Stories and struggles of people like J.K Rowling, Charles Darwin, C.S Lewis are shown in these results. Their life stories show passion, setbacks and growth on their literary works. Though they faced a lot of criticism, their works were became popular after some of the people passed away.
+
+There is one big influencing factor in their works. For JK Rowling, it was the train journey and the past events. For George Orwell, it was the oppression and current political situation, and for Charles Darwin it was his overseas voyage and innate sense of curiosity. None of them were primarily focused on traditional forms of learning, and each were going through a rough phase of life. Topics 6 and 7 about success with their books and tough times in their relationships. Topic 2, 8 talks about how their social life was a big influence in shaping their ideas and how they became renowned as the most influential people of all time.
+
+
+# Future Steps
+
+I want to perform topic modeling on politicians and artists of USA, India, and Russia to see similarities between them. It would be interesting to see what I can be interpreted with these countries. 
