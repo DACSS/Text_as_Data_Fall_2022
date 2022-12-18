@@ -1,14 +1,14 @@
 ---
 title: "Blog Post 3"
 author: "Mani Shanker Kamarapu"
-desription: "Acquiring Data and Tidying data"
-date: "11/5/2022"
+desription: "Categorizing and Visualizing data"
+date: "10/16/2022"
 format:
   html:
     df-print: paged
     css: styles.css
     toc: true
-    code-fold: true
+    code-fold: false
     code-copy: true
     code-tools: true
 categories:
@@ -18,13 +18,15 @@ categories:
 ---
 ## Introduction
 
-In the last post, I have acquired the data for one product in Amazon and did the analysis and converted into corpus and done a wordcloud. In this blog I plan to scrape more reviews on different products and do preprocessing of data.
+In the last post, I have acquired the data from Amazon and done pre-processing and converted into corpus and done a word cloud. In this blog I plan to tidy data more and analysis data using visualizations.
 
 ## Loading the libraries
 
 ```{r}
 library(polite)
 library(rvest)
+library(ggplot2)
+library(plotly)
 library(tidyverse)
 library(stringr)
 library(quanteda)
@@ -40,154 +42,45 @@ library(quanteda.sentiment)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
-scrape_amazon <- function(ASIN, page_num){
-  
-  url_reviews <- paste0("https://www.amazon.com/product-reviews/",ASIN,"/?pageNumber=",page_num)
-  
-  doc <- read_html(url_reviews) # Assign results to `doc`
-  
-  # Review Title
-  doc %>% 
-    html_nodes("[class='a-size-base a-link-normal review-title a-color-base review-title-content a-text-bold']") %>%
-    html_text() -> review_title
-  
-  # Review Text
-  doc %>% 
-    html_nodes("[class='a-size-base review-text review-text-content']") %>%
-    html_text() -> review_text
-  
-  # Number of stars in review
-  doc %>%
-    html_nodes("[data-hook='review-star-rating']") %>%
-    html_text() -> review_star
-  
-  # Return a tibble
-  tibble(review_title,
-         review_text,
-         review_star,
-         page = page_num,
-         ASIN) %>% return()
-}
-```
-
-<!-- ```{r} -->
-<!-- out <- scrape_amazon("B0001DBI1Q", 1) -->
-<!-- for (i in 2:400) { -->
-<!--   out <- bind_rows(out, scrape_amazon("B0001DBI1Q", i)) -->
-<!--   if((i %% 3) == 0){ -->
-<!--     Sys.sleep(2) # Take an additional two second break -->
-<!--   } -->
-<!-- } -->
-<!-- ``` -->
-
-<!-- ```{r} -->
-<!-- for (i in 1:400) { -->
-<!--   out <- bind_rows(out, scrape_amazon("B0001MC01Y", i)) -->
-<!--   if((i %% 3) == 0){ -->
-<!--     Sys.sleep(2) # Take an additional two second break -->
-<!--   } -->
-<!-- } -->
-<!-- ``` -->
-
-<!-- ```{r} -->
-<!-- for (i in 1:400) { -->
-<!--   out <- bind_rows(out, scrape_amazon("B00026WUZU", i)) -->
-<!--   if((i %% 3) == 0){ -->
-<!--     Sys.sleep(2) # Take an additional two second break -->
-<!--   } -->
-<!-- } -->
-<!-- ``` -->
-
-<!-- ```{r} -->
-<!-- for (i in 1:400) { -->
-<!--   out <- bind_rows(out, scrape_amazon("B07ZN4WM13", i)) -->
-<!--   if((i %% 3) == 0){ -->
-<!--     Sys.sleep(2) # Take an additional two second break -->
-<!--   } -->
-<!-- } -->
-<!-- ``` -->
-
-<!-- ```{r} -->
-<!-- for (i in 1:400) { -->
-<!--   out <- bind_rows(out, scrape_amazon("B005C7QVUE", i)) -->
-<!--   if((i %% 3) == 0){ -->
-<!--     Sys.sleep(2) # Take an additional two second break -->
-<!--   } -->
-<!-- } -->
-<!-- ``` -->
-
-<!-- ```{r} -->
-<!-- for (i in 1:400) { -->
-<!--   out <- bind_rows(out, scrape_amazon("B000BO2D64", i)) -->
-<!--   if((i %% 3) == 0){ -->
-<!--     Sys.sleep(2) # Take an additional two second break -->
-<!--   } -->
-<!-- } -->
-<!-- ``` -->
-
-<!-- ```{r} -->
-<!-- for (i in 336:400) { -->
-<!--   out <- bind_rows(out, scrape_amazon("B000I2JFQU", i)) -->
-<!--   if((i %% 3) == 0){ -->
-<!--     Sys.sleep(2) # Take an additional two second break -->
-<!--   } -->
-<!-- } -->
-<!-- ``` -->
-
-<!-- ```{r} -->
-<!-- for (i in 311:400) { -->
-<!--   out <- bind_rows(out, scrape_amazon("B000UW50LW", i)) -->
-<!--   if((i %% 3) == 0){ -->
-<!--     Sys.sleep(2) # Take an additional two second break -->
-<!--   } -->
-<!-- } -->
-<!-- ``` -->
-
-<!-- ```{r} -->
-<!-- for (i in 1:400) { -->
-<!--   out <- bind_rows(out, scrape_amazon("B001FD6RLM", i)) -->
-<!--   if((i %% 3) == 0){ -->
-<!--     Sys.sleep(2) # Take an additional two second break -->
-<!--   } -->
-<!-- } -->
-<!-- ``` -->
-
-<!-- ```{r} -->
-<!-- for (i in 1:400) { -->
-<!--   out <- bind_rows(out, scrape_amazon("B07HHJ7669", i)) -->
-<!--   if((i %% 3) == 0){ -->
-<!--     Sys.sleep(2) # Take an additional two second break -->
-<!--   } -->
-<!-- } -->
-<!-- ``` -->
-
-<!-- ```{r} -->
-<!-- for (i in 1:400) { -->
-<!--   out <- bind_rows(out, scrape_amazon("B07T6BQV2L", i)) -->
-<!--   if((i %% 3) == 0){ -->
-<!--     Sys.sleep(2) # Take an additional two second break -->
-<!--   } -->
-<!-- } -->
-<!-- ``` -->
-
-<!-- ```{r} -->
-<!-- for (i in 1:400) { -->
-<!--   out <- bind_rows(out, scrape_amazon("B07T43YYRY", i)) -->
-<!--   if((i %% 3) == 0){ -->
-<!--     Sys.sleep(2) # Take an additional two second break -->
-<!--   } -->
-<!-- } -->
-<!-- ``` -->
-
-<!-- ```{r} -->
-<!-- write.csv(out, "amazonreview.csv") -->
-<!-- ``` -->
+## Reading the data
 
 ```{r}
 reviews <- read_csv("amazonreview.csv")
 reviews
 ```
+
+## Descriptive Statistics
+
+Summary of the data
+
+```{r}
+summary(reviews)
+```
+
+Variable description of the data
+
+```{r}
+str(reviews)
+```
+
+The data contains 5 variables:
+1. Review_title: It represents the title of the review
+2. Review_text: Contains the main review text which I use for analysis
+3. Review_star: Represents number of stars given by each reviewer
+4. Page: It is the page no of review as each page contains 10 reviews.
+5. ASIN: ASIN is the key component for scraping the data and also it can be used further to insert book title.
+
+A little glimpse of the individual variable data.
+
+```{r}
+glimpse(reviews)
+```
+
+From the above data, I can see that there are lot of unwanted data that can be removed by pre-processing the data.
+
+## Pre-processing function
+
+I have cleaned the text of the reviews by removing punctuations, numbers, UTF symbols, &amp, digits, new line characters, single length words, Pascal case words were removed from the tweets text using the `stringr` library departments communicate information to alleviate specific public functions. Stopwords are removed. The stopwords collection is taken from `stopwords-iso` and `SMART`. Stemming is not preferred here as the meaning of the word is important for analysis. And then categorized the data based on the book title and series title. The analysis done in the project is based on the categorized series titles to compare sentiments and topics on basis of series.
 
 ```{r}
 clean_text <- function (text) {
@@ -196,7 +89,7 @@ clean_text <- function (text) {
     str_remove_all("@[[:alnum:]_]*") %>% 
     # Replace "&" character reference with "and"
     str_replace_all("&amp;", "and") %>%
-    # Remove punctuation, using a standard character class
+    # Remove punctuation
     str_remove_all("[[:punct:]]") %>%
     # remove digits
     str_remove_all("[[:digit:]]") %>%
@@ -211,6 +104,10 @@ clean_text <- function (text) {
 }
 ```
 
+## Tidying the data
+
+Dropping the NA in the cleaned text.
+
 ```{r}
 reviews$clean_text <- clean_text(reviews$review_text) 
 reviews <- reviews %>%
@@ -218,55 +115,293 @@ reviews <- reviews %>%
 reviews
 ```
 
+Removing unnecessary columns
+
 ```{r}
-text <- corpus(c(reviews$clean_text))
-text <- dfm(tokens(text, remove_punct=TRUE, remove_numbers = TRUE) %>%
-             tokens_select(pattern=stopwords("en"),
-                            selection="remove"))
-text
+reviews <- reviews %>%
+  select(-c(...1, page, review_text))
+reviews
+```
+
+Pre-processing the title variable
+
+```{r}
+reviews$review_title <- reviews$review_title %>%
+  str_remove_all("\n")
+reviews
+```
+
+Re-coding star of reviews from character to numeric 
+
+```{r}
+reviews$review_star <- substr(reviews$review_star, 1, 3) %>%
+  as.numeric()
+  reviews
+```
+
+In the above chunk, I have re-coded the stars of the reviewers to single digit characters and then converted them to numeric to do further analysis on them.
+
+Frequency of stars
+
+```{r}
+reviews %>%
+  group_by(review_star) %>%
+  count()
+```
+
+From the above data, I can see that there is large difference in the 5-star and other star reviews. There is a gradual increase in the frequency of stars from one to five stars.
+
+```{r}
+p <- reviews %>%
+  group_by(review_star) %>%
+  ggplot(aes(review_star)) +
+  geom_bar() +
+  ggtitle("Frequency per star")
+ggplotly(p)
+```
+
+Unique set of ASIN numbers
+
+```{r}
+reviews %>%
+  select(ASIN) %>%
+  unique()
+```
+
+## Adding new variable book title to the reviews
+
+```{r}
+reviews <- reviews %>%
+  mutate(book_title = case_when(ASIN == "B0001DBI1Q" ~ "A Game of Thrones: A Song of Ice and Fire, Book 1", 
+                                ASIN == "B0001MC01Y" ~ "A Clash of Kings: A Song of Ice and Fire, Book 2", 
+                                ASIN == "B00026WUZU" ~ "A Storm of Swords: A Song of Ice and Fire, Book 3", 
+                                ASIN == "B07ZN4WM13" ~ "A Feast for Crows: A Song of Ice and Fire, Book 4", 
+                                ASIN == "B005C7QVUE" ~ "A Dance with Dragons: A Song of Ice and Fire, Book 5", 
+                                ASIN == "B000BO2D64" ~ "Twilight: The Twilight Saga, Book 1", 
+                                ASIN == "B000I2JFQU" ~ "New Moon: The Twilight Saga, Book 2", 
+                                ASIN == "B000UW50LW" ~ "Eclipse: The Twilight Saga, Book 3", 
+                                ASIN == "B001FD6RLM" ~ "Breaking Dawn: The Twilight Saga, Book 4 ", 
+                                ASIN == "B07HHJ7669" ~ "The Hunger Games", 
+                                ASIN == "B07T6BQV2L" ~ "Catching Fire: The Hunger Games", 
+                                ASIN == "B07T43YYRY" ~ "Mockingjay: The Hunger Games, Book 3"))
+reviews
+```
+
+Using the ASIN given to each product by amazon converted the ASIN into the book titles and then I will further add the series titles to categorize them into three series.
+
+Frequency of each book title
+
+```{r}
+reviews %>%
+  group_by(book_title) %>%
+  count()
+```
+
+Frequency of stars for each book title
+
+```{r}
+reviews %>%
+  group_by(book_title) %>%
+  summarise(star = sum(review_star)) %>%
+  arrange(desc(star))
+```
+
+From the above plot, A Song of Ice and Fire, Book 3 have the highest number of stars followed by Catching Fire: The Hunger Games. If you observe there isn't much difference between them. The least number of stars are for the Eclipse: The Twilight Saga, Book 3.
+
+```{r}
+reviews %>% 
+  group_by(book_title) %>%
+  summarise(star = sum(review_star)) %>%
+  ggplot(aes(book_title, star)) +
+  geom_boxplot() +
+  theme(axis.text.x = element_text(angle = 30, vjust = 1, hjust=1)) +
+  ggtitle("No of stars per book")
+```
+
+Frequency of each type of star per book title
+
+```{r}
+reviews %>%
+  group_by(book_title,review_star) %>%
+  count() %>%
+  arrange(review_star, desc(n))
+```
+
+From the above data, We can observe the following:
+
+- Breaking Dawn: The Twilight Saga, Book 4 has the highest number of 1-star reviews and Catching Fire: The Hunger Games have the least number of 1-star reviews.
+- A Dance with Dragons: A Song of Ice and Fire, Book 5 has the highest number of 2-star reviews and Catching Fire: The Hunger Games have the least number of 2-star reviews.
+- A Dance with Dragons: A Song of Ice and Fire, Book 5 has the highest number of 3-star reviews and Catching Fire: The Hunger Games have the least number of 3-star reviews.
+- Mockingjay: The Hunger Games, Book 3 has the highest number of 4-star reviews and Eclipse: The Twilight Saga, Book 3 have the least number of 4-star reviews.
+- A Storm of Swords: A Song of Ice and Fire, Book 3 has the highest number of 5-star reviews and A Dance with Dragons: A Song of Ice and Fire, Book 5 have the least number of 5-star reviews.
+
+```{r}
+p <- reviews %>%
+  group_by(book_title,review_star) %>%
+  count() %>%
+  ggplot(aes(review_star, n, color = book_title)) +
+  geom_line() +
+  ggtitle("Book vs Freq of each star") +
+  xlab("Type of star") +
+  ylab("Frequency")
+ggplotly(p)
+```
+
+The plot is not much clear, let's plot it individually to be more clear
+
+```{r}
+p <- reviews %>%
+  group_by(book_title,review_star) %>%
+  count() %>%
+  ggplot(aes(review_star, n)) +
+  geom_line() +
+  facet_wrap(vars(book_title), ncol = 2) +
+  ggtitle("Book vs Freq of each star") +
+  xlab("Type of star") +
+  ylab("Frequency")
+ggplotly(p)
+```
+
+Adding new variable series title to the reviews
+
+```{r}
+reviews <- reviews %>%
+  mutate(series_title = case_when(ASIN == "B0001DBI1Q" ~ "A Song of Ice and Fire", 
+                                ASIN == "B0001MC01Y" ~ "A Song of Ice and Fire", 
+                                ASIN == "B00026WUZU" ~ "A Song of Ice and Fire", 
+                                ASIN == "B07ZN4WM13" ~ "A Song of Ice and Fire", 
+                                ASIN == "B005C7QVUE" ~ "A Song of Ice and Fire", 
+                                ASIN == "B000BO2D64" ~ "The Twilight Saga", 
+                                ASIN == "B000I2JFQU" ~ "The Twilight Saga", 
+                                ASIN == "B000UW50LW" ~ "The Twilight Saga", 
+                                ASIN == "B001FD6RLM" ~ "The Twilight Saga", 
+                                ASIN == "B07HHJ7669" ~ "The Hunger Games", 
+                                ASIN == "B07T6BQV2L" ~ "The Hunger Games", 
+                                ASIN == "B07T43YYRY" ~ "The Hunger Games"))
+reviews
+```
+
+Frequency of each series title
+
+```{r}
+reviews %>%
+  group_by(series_title) %>%
+  count()
+```
+
+Frequency of stars by series
+
+```{r}
+reviews %>%
+  group_by(series_title) %>%
+  summarise(star = sum(review_star))
+```
+
+From the above plot, A Song of Ice and Fire have the highest number of stars. If you observe there isn't much difference between them. The least number of stars are for The Hunger Games.
+
+```{r}
+reviews %>% 
+  group_by(series_title) %>%
+  summarise(star = sum(review_star)) %>%
+  ggplot(aes(series_title, star)) +
+  geom_boxplot() +
+  theme(axis.text.x = element_text(angle = 30, vjust = 1, hjust=1)) +
+  ggtitle("No of stars per series")
+```
+
+Frequency of each type of star per series title
+
+```{r}
+reviews %>%
+  group_by(series_title,review_star) %>%
+  count() %>%
+  arrange(review_star, desc(n))
+```
+
+From the above data, We can observe the following:
+
+- The Twilight Saga has the highest number of 1-star reviews and The Hunger Games have the least number of 1-star reviews.
+- A Song of Ice and Fire has the highest number of 2-star reviews and The Hunger Games have the least number of 2-star reviews.
+- A Song of Ice and Fire has the highest number of 3-star reviews and The Hunger Gamess have the least number of 3-star reviews.
+- A Song of Ice and Fire has the highest number of 4-star reviews and The Twilight Saga have the least number of 4-star reviews.
+- A Song of Ice and Fire has the highest number of 5-star reviews and The Hunger Games have the least number of 5-star reviews.
+
+```{r}
+p <- reviews %>%
+  group_by(series_title,review_star) %>%
+  count() %>%
+  ggplot(aes(review_star, n, color = series_title)) +
+  geom_line() +
+  ggtitle("Series vs Freq of each star") +
+  xlab("Type of star") +
+  ylab("Frequency")
+ggplotly(p)
+```
+
+## Tokenization of data
+
+```{r}
+# Conerting the text into corpus
+text_corpus <- corpus(c(reviews$clean_text)) 
+# Converting the text into tokens
+text_token <- tokens(text_corpus, remove_punct=TRUE, remove_numbers = TRUE) %>% 
+  tokens_select(pattern=stopwords("en"), 
+                selection="remove")
+text_token
 ```
 
 ```{r}
-sum(ntoken(text))
+# Converting tokens into Document feature matrix
+text_dfm <- dfm(text_token)
+text_dfm
 ```
 
 ```{r}
-summary(corpus(c(reviews$clean_text)))
-```
-
-```{r}
-word_counts <- as.data.frame(sort(colSums(text),dec=T))
+# Finding the frequency of each word
+word_counts <- as.data.frame(sort(colSums(text_dfm),dec=T))
 colnames(word_counts) <- c("Frequency")
 word_counts$word <- row.names(word_counts)
-word_counts$Rank <- c(1:ncol(text))
-word_counts
+word_counts$Rank <- c(1:ncol(text_dfm))
+word_counts 
 ```
 
 ```{r}
-text_dfm <- dfm_trim(text, min_termfreq = 50, docfreq_type = "prop")
+word_counts %>%
+  head(40) %>%
+  mutate(word = reorder(word, Frequency)) %>%
+  ggplot(aes(word, Frequency)) +
+  geom_bar(stat = "identity") +
+  ylab("Occurrences") +
+  coord_flip()
+```
+
+```{r}
+# Trimming the dfm 
+text_df <- dfm_trim(text_dfm, min_termfreq = 50, docfreq_type = "prop")
 # create fcm from dfm
-text_fcm <- fcm(text_dfm)
+text_fcm <- fcm(text_df)
 text_fcm
 ```
+
+## Network plot
 
 ```{r}
 # pull the top features
 top_features <- names(topfeatures(text_fcm, 50))
 # retain only those top features as part of our matrix
 even_text_fcm <- fcm_select(text_fcm, pattern = top_features, selection = "keep")
-# check dimensions
-dim(even_text_fcm)
 # compute size weight for vertices in network
 size <- log(colSums(even_text_fcm))
 # create plot
 textplot_network(even_text_fcm, vertex_size = size / max(size) * 2)
 ```
 
-```{r}
-textplot_wordcloud(text, min_count = 100, max_words = 200, random_order = TRUE)
+## Wordcloud
 
+```{r}
+textplot_wordcloud(text_dfm, min_size = 1.5, max_size = 4, random_order = TRUE, max_words = 150, min_count = 50, color = brewer.pal(8, "Dark2") )
 ```
 
 ## Further study
 
-I will be adding more reviews and doing pre-processing and also plot some analysis plots and if possible also do some sentiment analysis.
+I will try sentimental analysis using multiple lexicons and compare which is more suitable.
