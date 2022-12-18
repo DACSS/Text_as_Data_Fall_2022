@@ -1,14 +1,14 @@
 ---
 title: "Blog Post 6"
 author: "Mani Shanker Kamarapu"
-desription: "Sentimental analysis"
-date: "11/27/2022"
+desription: "Final Project"
+date: "12/4/2022"
 format:
   html:
     df-print: paged
     css: styles.css
     toc: true
-    code-fold: true
+    code-fold: false
     code-copy: true
     code-tools: true
 categories:
@@ -18,7 +18,7 @@ categories:
 ---
 ## Introduction
 
-In the last post, I have done sentimental analysis. In this blog I plan to do topic modelling of data.
+In the last post, I have done topic modelling of data. In this I will conclude the whole project.
 
 ## Loading the libraries
 
@@ -29,6 +29,7 @@ library(ggplot2)
 library(plotly)
 library(tidyverse)
 library(SnowballC)
+library(radarchart)
 library(stringr)
 library(ldatuning)
 library(quanteda)
@@ -58,6 +59,8 @@ reviews
 
 ## Pre-processing function
 
+I have cleaned the text of the reviews by removing punctuations, numbers, UTF symbols, &amp, digits, new line characters, single length words, Pascal case words were removed from the tweets text using the `stringr` library departments communicate information to alleviate specific public functions. Stopwords are removed. The stopwords collection is taken from `stopwords-iso` and `SMART`. Stemming is not preferred here as the meaning of the word is important for analysis. And then categorized the data based on the book title and series title. The analysis done in the project is based on the categorized series titles to compare sentiments and topics on basis of series.
+
 ```{r}
 clean_text <- function (text) {
   str_remove_all(text," ?(f|ht)(tp)(s?)(://)(.*)[.|/](.*)") %>% 
@@ -82,6 +85,8 @@ clean_text <- function (text) {
 
 ## Tidying the data
 
+Dropping the NA in the cleaned text.
+
 ```{r}
 reviews$clean_text <- clean_text(reviews$review_text) 
 reviews <- reviews %>%
@@ -105,7 +110,7 @@ reviews$review_title <- reviews$review_title %>%
 reviews
 ```
 
-Converting star of reviews from character to numeric 
+Re-coding star of reviews from character to numeric 
 
 ```{r}
 reviews$review_star <- substr(reviews$review_star, 1, 3) %>%
@@ -113,7 +118,7 @@ reviews$review_star <- substr(reviews$review_star, 1, 3) %>%
   reviews
 ```
 
-## Adding new variable book title to the reviews
+Adding new variable book title to the reviews
 
 ```{r}
 reviews <- reviews %>%
@@ -131,6 +136,8 @@ reviews <- reviews %>%
                                 ASIN == "B07T43YYRY" ~ "Mockingjay: The Hunger Games, Book 3"))
 reviews
 ```
+
+Using the ASIN given to each product by amazon converted the ASIN into the book titles and then I will further add the series titles to categorize them into three series.
 
 Adding new variable series title to the reviews
 
@@ -151,7 +158,14 @@ reviews <- reviews %>%
 reviews
 ```
 
-## Tokenization of data
+## Sentimental analysis
+
+There are a variety of dictionaries that exist for evaluating the opinion or emotion in text. In this project we focus and compare between two types of lexicons in the sentiments data set. The two lexicons are
+
+- bing
+- nrc
+
+All two of these lexicons are based on unigrams (or single words). These lexicons contain many English words and the words are assigned scores for positive/negative sentiment, and also possibly emotions like joy, anger, sadness, and so forth. The nrc lexicon categorizes words in a binary fashion (“yes”/“no”) into categories of positive, negative, anger, anticipation, disgust, fear, joy, sadness, surprise, and trust. The bing lexicon categorizes words in a binary fashion into positive and negative categories. All of this information is tabulated in the sentiments dataset, and tidytext provides a function get_sentiments() to get specific sentiment lexicons without the columns that are not used in that lexicon.
 
 ```{r}
 reviews1 <- reviews %>%
@@ -162,6 +176,12 @@ reviews3 <- reviews %>%
   filter(series_title == "The Hunger Games")
 ```
 
+I have split the data set into 3 parts based on the series title to do sentiment analysis on each series separately.
+
+## Tokenization of data
+
+Converting the 3 spliced data into corpus and then tokenizing them and creating a document feature matrix.
+
 ```{r}
 # Converting the text into corpus
 text_corpus1 <- corpus(c(reviews1$clean_text))
@@ -171,9 +191,7 @@ text_token1 <- tokens(text_corpus1, remove_punct=TRUE, remove_numbers = TRUE, re
   tokens_select(pattern=stopwords("SMART"), 
                 selection="remove") 
 # Converting tokens into Document feature matrix
-text_dfm1 <- dfm(text_token1) %>%
-  dfm_trim(min_docfreq = 10, min_termfreq = 10) %>%
-  dfm_subset(ntoken(.) > 0)
+text_dfm1 <- dfm(text_token1)
 text_dfm1
 ```
 
@@ -186,9 +204,7 @@ text_token2 <- tokens(text_corpus2, remove_punct=TRUE, remove_numbers = TRUE, re
   tokens_select(pattern=stopwords("SMART"), 
                 selection="remove") 
 # Converting tokens into Document feature matrix
-text_dfm2 <- dfm(text_token2) %>%
-  dfm_trim(min_docfreq = 10, min_termfreq = 10) %>%
-  dfm_subset(ntoken(.) > 0)
+text_dfm2 <- dfm(text_token2)
 text_dfm2
 ```
 
@@ -201,13 +217,137 @@ text_token3 <- tokens(text_corpus3, remove_punct=TRUE, remove_numbers = TRUE, re
   tokens_select(pattern=stopwords("SMART"), 
                 selection="remove") 
 # Converting tokens into Document feature matrix
-text_dfm3 <- dfm(text_token3) %>%
-  dfm_trim(min_docfreq = 10, min_termfreq = 10) %>%
-  dfm_subset(ntoken(.) > 0)
+text_dfm3 <- dfm(text_token3)
 text_dfm3
 ```
 
-## Topic modelling
+## Wordcloud
+
+```{r}
+textplot_wordcloud(text_dfm1, min_size = 1.5, max_size = 4, random_order = TRUE, max_words = 150, min_count = 50, color = brewer.pal(8, "Dark2") )
+```
+
+From the above word cloud of Song and Ice series, I can observe that there are words like martin, stark which represent the characters. There are also words like love, good, great, excellent, disappointed which represents different sentiments.
+
+```{r}
+textplot_wordcloud(text_dfm2, min_size = 1.2, max_size = 3.5, random_order = TRUE, max_words = 150, min_count = 50, color = brewer.pal(8, "Dark2") )
+```
+
+From the above word cloud of Twilight Saga series, I can observe that there are words like edward, bella which represent the characters. There are also words like romance, beautiful, enjoyed, hate which represents different sentiments.
+
+```{r}
+textplot_wordcloud(text_dfm3, min_size = 1.5, max_size = 4, random_order = TRUE, max_words = 150, min_count = 50, color = brewer.pal(8, "Dark2") )
+```
+
+From the above word cloud of Hunger Games series, I can observe that there are words like war, violence, arena which represent the story. There are also words like sad, loved, enjoyed, good, great which represents different sentiments.
+
+Frequency of each word on basis of each series
+
+```{r}
+word_counts1 <- as.data.frame(sort(colSums(text_dfm1),dec=T))
+colnames(word_counts1) <- c("Frequency")
+word_counts1$word <- row.names(word_counts1)
+word_counts1$Rank <- c(1:ncol(text_dfm1))
+word_counts2 <- as.data.frame(sort(colSums(text_dfm2),dec=T))
+colnames(word_counts2) <- c("Frequency")
+word_counts2$word <- row.names(word_counts2)
+word_counts2$Rank <- c(1:ncol(text_dfm2))
+word_counts3 <- as.data.frame(sort(colSums(text_dfm3),dec=T))
+colnames(word_counts3) <- c("Frequency")
+word_counts3$word <- row.names(word_counts3)
+word_counts3$Rank <- c(1:ncol(text_dfm3))
+```
+
+## Joining the sentiments of bing and NRC lexicons in the data
+
+```{r}
+Sentiment1_bing <- word_counts1 %>%
+ inner_join(get_sentiments("bing"), by = "word")
+Sentiment1_nrc <- word_counts1 %>%
+  inner_join(get_sentiments("nrc"), by = "word")
+Sentiment2_bing <- word_counts2 %>%
+ inner_join(get_sentiments("bing"), by = "word")
+Sentiment2_nrc <- word_counts2 %>%
+  inner_join(get_sentiments("nrc"), by = "word")
+Sentiment3_bing <- word_counts3 %>%
+ inner_join(get_sentiments("bing"), by = "word")
+Sentiment3_nrc <- word_counts3 %>%
+  inner_join(get_sentiments("nrc"), by = "word")
+```
+
+## Visualizing the sentiments
+
+### Bing lexicon
+
+```{r}
+Sentiment1_bing %>%
+acast(word ~ sentiment, value.var = "Frequency", fill = 0) %>%
+ comparison.cloud(colors = c("red", "dark green"),
+          max.words = 100)
+```
+
+```{r}
+Sentiment2_bing %>%
+acast(word ~ sentiment, value.var = "Frequency", fill = 0) %>%
+ comparison.cloud(colors = c("red", "dark green"),
+          max.words = 150)
+```
+
+```{r}
+Sentiment3_bing %>%
+acast(word ~ sentiment, value.var = "Frequency", fill = 0) %>%
+ comparison.cloud(colors = c("red", "dark green"),
+          max.words = 100)
+```
+
+Sentimental analysis of the reviews is done by categorizing the data as three series. From the above plots, we can get the following observations: (1) Negativity is more than the positivity, which is common for all the series. (2) There are words like “great”, “plot” in 1st series representing about the plot of the story, there are words like “love”, “breaking” in 2nd series showing the genre as love. And last in 3rd series, there are words like “enjoyed”,”amazing”,”disappointed” showing the reason for less 5-star rating in this series.
+
+### NRC lexicon
+
+```{r}
+Sentiment1_nrc %>%
+  # remove "positive/negative" sentiments
+  filter(!sentiment %in% c("positive", "negative")) %>%
+  #get the frequencies of sentiments
+  count(sentiment,sort = T) %>% 
+  #calculate the proportion
+  mutate(percent=100*n/sum(n)) %>%
+  select(sentiment, percent) %>%
+  #plot the result
+  chartJSRadar(showToolTipLabel = TRUE, main = "Emotion_NRC")
+```
+
+```{r}
+Sentiment2_nrc %>%
+  # remove "positive/negative" sentiments
+  filter(!sentiment %in% c("positive", "negative")) %>%
+  #get the frequencies of sentiments
+  count(sentiment,sort = T) %>% 
+  #calculate the proportion
+  mutate(percent=100*n/sum(n)) %>%
+  select(sentiment, percent) %>%
+  #plot the result
+  chartJSRadar(showToolTipLabel = TRUE, main = "Emotion_NRC")
+```
+
+```{r}
+Sentiment3_nrc %>%
+  # remove "positive/negative" sentiments
+  filter(!sentiment %in% c("positive", "negative")) %>%
+  #get the frequencies of sentiments
+  count(sentiment,sort = T) %>% 
+  #calculate the proportion
+  mutate(percent=100*n/sum(n)) %>%
+  select(sentiment, percent) %>%
+  #plot the result
+  chartJSRadar(showToolTipLabel = TRUE, main = "Emotion_NRC")
+```
+
+From the NRC lexicon, it shows that the common sentiments in the reviews are fear followed by anger, trust and sadness. When I dig a little deep, the sentiments can be due storytelling in the reviews and also due to the disappointment in the books as shown in the bing lexicon and there are sentiments like breaking, death which explain the reason for the highest percentage of fear in NRC lexicon.
+
+## Topic Modelling
+
+### Correlated Topic Modelling: The Song of Ice and Fire
 
 ```{r}
 model1 <- convert(text_dfm1, to = "stm")
@@ -218,307 +358,63 @@ model1 <- stm(model1$documents, model1$vocab, K = 15, verbose = FALSE, max.em.it
 summary(model1)
 ```
 
+The model have 4757 word dictionaries. There are many interesting words in different topics which will help to understand different emotions we saw in sentimental analysis. Topics 1-4 and 15 discuss on different characters and there roles and how are they. Topic 5 discuss about types of books in amazon. Topic 6 has words like supernatural, fanatsy and political which discuss different genres of the series. Topic9, 10 and 14 discuss about emotions in the series.
+
 ```{r}
 plot(model1)
 ```
 
+The above plot shows the top topics with their expected topic proportions. Topic 3, topic 9 and topic 1 have the highest proportion and Topic 11 has the least proportion.
+
+### Correlated Topic Modelling: The Twilight Saga
+
 ```{r}
-topic_model1 <- stm(text_dfm1, K = 5, init.type = 'Spectral')
+model2 <- convert(text_dfm2, to = "stm")
+model2 <- stm(model2$documents, model2$vocab, K = 15, verbose = FALSE, max.em.its = 100, seed = 1357, init.type = "Spectral")
 ```
 
 ```{r}
-summary(topic_model1)
+summary(model2)
+```
+
+The model have 5030 word dictionaries. There are many interesting words in different topics which will help to understand different emotions we saw in sentimental analysis. Topics 1, 5, 11 and 13 discuss on different characters and there roles and how are they. Topic 3, 8 and 10 have words like fantastic, amazing, excitement, enjoyed, happy which discuss different sentiments of the series. Topic 8 also have words like thriller, action and suspense which represent the genre of the series.
+
+```{r}
+plot(model2)
+```
+
+The above plot shows the top topics with their expected topic proportions. Topic 12, 14 and 6 have the highest proportion and Topic 13 has the least proportion.
+
+### Correlated Topic Modelling: The Hunger Games
+
+```{r}
+model3 <- convert(text_dfm3, to = "stm")
+model3 <- stm(model3$documents, model3$vocab, K = 15, verbose = FALSE, max.em.its = 100, seed = 1357, init.type = "Spectral")
 ```
 
 ```{r}
-plot(topic_model1, type = "summary")
+summary(model3)
 ```
+
+The model have 3953 word dictionaries. There are many interesting words in different topics which will help to understand different emotions we saw in sentimental analysis. Topics 1 and 2 discuss on different characters and there roles and how are they. Topic 14 discuss about types of books in amazon. Topic 2 and 4 has words like fiction, scifi and violence which discuss different genres of the series. Topics 5 and 8 amazing, love, interesting discuss about emotions in the series.
 
 ```{r}
-mod.out.corr <- topicCorr(topic_model1)
-plot(mod.out.corr)
+plot(model3)
 ```
 
-```{r}
-tidy_beta <- tidy(topic_model1)
-tidy_beta %>% group_by(topic) %>% 
-  top_n(10) %>% 
-  ungroup() %>% 
-  mutate(term = reorder(term, beta)) %>% 
-  ggplot(aes(term, beta, fill=topic)) +
-  geom_col(show.legend = FALSE) +
-  facet_wrap(~topic, scales="free") +
-  coord_flip() 
-```
+## Limitations
 
-```{r}
-topicQuality(topic_model1, text_dfm1)
-```
+The data is not same and has difference in bag of words because of the varying lengths of the reviews and also the collection of more data at the same time leading to detection as bot and stopping the scraping. Variety of words used to describe the feelings towards series is less in positive sentiments even though frequency of positive sentiments is more. And topics discussed are also not evenly distributed as expected.
 
-```{r}
-topic_model2 <- stm(text_dfm1, K = 10, init.type = 'Spectral')
-```
+## Conclusion and Future Scope
 
-```{r}
-summary(topic_model2)
-```
+Sentiment analysis and topic modeling can produce useful information about the trends in the discussion of the customer reviews on Amazon as well as alternative perspectives to investigate the different genre and restrictions of books, which has created considerable public demand. This study shows that Amazon is a good communication channel for understanding the quality and to know more about the product we seek. The results of the sentiment analysis using dictionary bing showed that 67% negative and 33% positive outlook toward reviews. People display anger, fear, surprise and sadness toward the books showing more negativity than positiveness. Based on the structural topic model we discovered the major discussions were around the genre, age group, sentiments, characters which can be used to give product recommendation.  
 
-```{r}
-plot(topic_model2, type = "summary")
-```
+*Future work:* More data need to be collected using other review sites and supervised topic modelling can be explored and also different classification types.
 
-```{r}
-mod.out.corr <- topicCorr(topic_model2)
-plot(mod.out.corr)
-```
+## References
 
-```{r}
-tidy_beta <- tidy(topic_model2)
-tidy_beta %>% group_by(topic) %>% 
-  top_n(10) %>% 
-  ungroup() %>% 
-  mutate(term = reorder(term, beta)) %>% 
-  ggplot(aes(term, beta, fill=topic)) +
-  geom_col(show.legend = FALSE) +
-  facet_wrap(~topic, scales="free") +
-  coord_flip() 
-```
+- https://books.psychstat.org/textmining/topic-models.html#topic-modeling-for-ratings
+- https://smltar.com/mlclassification.html#classfirstattemptlookatdata
+- Haque, T. U., Saber, N. N., & Shah, F. M. (2018). Sentiment analysis on large scale Amazon product reviews. In IEEE international conference on innovative research and development (ICIRD). 11–12 May, Bangkok, Thailand.
 
-```{r}
-topicQuality(topic_model2, text_dfm1)
-```
-
-```{r}
-topic_model3 <- stm(text_dfm1, K = 15, init.type = 'Spectral')
-```
-
-```{r}
-summary(topic_model3)
-```
-
-```{r}
-plot(topic_model3, type = "summary")
-```
-
-```{r}
-mod.out.corr <- topicCorr(topic_model3)
-plot(mod.out.corr)
-```
-
-```{r}
-tidy_beta <- tidy(topic_model3)
-tidy_beta %>% group_by(topic) %>% 
-  top_n(10) %>% 
-  ungroup() %>% 
-  mutate(term = reorder(term, beta)) %>% 
-  ggplot(aes(term, beta, fill=topic)) +
-  geom_col(show.legend = FALSE) +
-  facet_wrap(~topic, scales="free") +
-  coord_flip() 
-```
-
-```{r}
-topicQuality(topic_model3, text_dfm1)
-```
-
-```{r}
-topic_model4 <- stm(text_dfm2, K = 5, init.type = 'Spectral')
-```
-
-```{r}
-summary(topic_model4)
-```
-
-```{r}
-plot(topic_model4, type = "summary")
-```
-
-```{r}
-mod.out.corr <- topicCorr(topic_model4)
-plot(mod.out.corr)
-```
-
-```{r}
-tidy_beta <- tidy(topic_model4)
-tidy_beta %>% group_by(topic) %>% 
-  top_n(10) %>% 
-  ungroup() %>% 
-  mutate(term = reorder(term, beta)) %>% 
-  ggplot(aes(term, beta, fill=topic)) +
-  geom_col(show.legend = FALSE) +
-  facet_wrap(~topic, scales="free") +
-  coord_flip() 
-```
-
-```{r}
-topicQuality(topic_model4, text_dfm2)
-```
-
-```{r}
-topic_model5 <- stm(text_dfm2, K = 10, init.type = 'Spectral')
-```
-
-```{r}
-summary(topic_model5)
-```
-
-```{r}
-plot(topic_model5, type = "summary")
-```
-
-```{r}
-mod.out.corr <- topicCorr(topic_model5)
-plot(mod.out.corr)
-```
-
-```{r}
-tidy_beta <- tidy(topic_model5)
-tidy_beta %>% group_by(topic) %>% 
-  top_n(10) %>% 
-  ungroup() %>% 
-  mutate(term = reorder(term, beta)) %>% 
-  ggplot(aes(term, beta, fill=topic)) +
-  geom_col(show.legend = FALSE) +
-  facet_wrap(~topic, scales="free") +
-  coord_flip() 
-```
-
-```{r}
-topicQuality(topic_model5, text_dfm2)
-```
-
-```{r}
-topic_model6 <- stm(text_dfm2, K = 15, init.type = 'Spectral')
-```
-
-```{r}
-summary(topic_model6)
-```
-
-```{r}
-plot(topic_model6, type = "summary")
-```
-
-```{r}
-mod.out.corr <- topicCorr(topic_model6)
-plot(mod.out.corr)
-```
-
-```{r}
-tidy_beta <- tidy(topic_model6)
-tidy_beta %>% group_by(topic) %>% 
-  top_n(10) %>% 
-  ungroup() %>% 
-  mutate(term = reorder(term, beta)) %>% 
-  ggplot(aes(term, beta, fill=topic)) +
-  geom_col(show.legend = FALSE) +
-  facet_wrap(~topic, scales="free") +
-  coord_flip() 
-```
-
-```{r}
-topicQuality(topic_model6, text_dfm2)
-```
-
-```{r}
-topic_model7 <- stm(text_dfm3, K = 5, init.type = 'Spectral')
-```
-
-```{r}
-summary(topic_model7)
-```
-
-```{r}
-plot(topic_model7, type = "summary")
-```
-
-```{r}
-mod.out.corr <- topicCorr(topic_model7)
-plot(mod.out.corr)
-```
-
-```{r}
-tidy_beta <- tidy(topic_model7)
-tidy_beta %>% group_by(topic) %>% 
-  top_n(10) %>% 
-  ungroup() %>% 
-  mutate(term = reorder(term, beta)) %>% 
-  ggplot(aes(term, beta, fill=topic)) +
-  geom_col(show.legend = FALSE) +
-  facet_wrap(~topic, scales="free") +
-  coord_flip() 
-```
-
-```{r}
-topicQuality(topic_model7, text_dfm3)
-```
-
-```{r}
-topic_model8 <- stm(text_dfm3, K = 10, init.type = 'Spectral')
-```
-
-```{r}
-summary(topic_model8)
-```
-
-```{r}
-plot(topic_model8, type = "summary")
-```
-
-```{r}
-mod.out.corr <- topicCorr(topic_model8)
-plot(mod.out.corr)
-```
-
-```{r}
-tidy_beta <- tidy(topic_model8)
-tidy_beta %>% group_by(topic) %>% 
-  top_n(10) %>% 
-  ungroup() %>% 
-  mutate(term = reorder(term, beta)) %>% 
-  ggplot(aes(term, beta, fill=topic)) +
-  geom_col(show.legend = FALSE) +
-  facet_wrap(~topic, scales="free") +
-  coord_flip() 
-```
-
-```{r}
-topicQuality(topic_model8, text_dfm3)
-```
-
-```{r}
-topic_model9 <- stm(text_dfm3, K = 15, init.type = 'Spectral')
-```
-
-```{r}
-summary(topic_model9)
-```
-
-```{r}
-plot(topic_model9, type = "summary")
-```
-
-```{r}
-mod.out.corr <- topicCorr(topic_model9)
-plot(mod.out.corr)
-```
-
-```{r}
-tidy_beta <- tidy(topic_model9)
-tidy_beta %>% group_by(topic) %>% 
-  top_n(10) %>% 
-  ungroup() %>% 
-  mutate(term = reorder(term, beta)) %>% 
-  ggplot(aes(term, beta, fill=topic)) +
-  geom_col(show.legend = FALSE) +
-  facet_wrap(~topic, scales="free") +
-  coord_flip() 
-```
-
-```{r}
-topicQuality(topic_model3, text_dfm3)
-```
-
-## Further study
-
-I will do evaluate the blogs and try to conclude the blog.
