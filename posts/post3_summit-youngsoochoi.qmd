@@ -1,0 +1,312 @@
+---
+title: "Blog 3"
+desription: "NLP and Frequency Analysis"
+author: "Young Soo Choi"
+date: "11/4/2022"
+format:
+  html:
+    toc: true
+    code-copy: true
+    code-tools: true
+categories:
+  - NLP
+  - Frequency Analysis
+---
+
+# Importing data
+
+I'll bring data first data to practice nlp, frequency analysis, frequency analysis.
+
+As last time, it is aimed at Pohang earthquake in November 2017.
+
+
+```{r}
+library(tidyverse)
+library(rvest)
+
+b_n_url<-"https://search.naver.com/search.naver?where=news&sm=tab_pge&query=%ED%8F%AC%ED%95%AD%20%EC%A7%80%EC%A7%84&sort=0&photo=3&field=0&pd=3&ds=2017.11.15&de=2017.11.25&cluster_rank=10&mynews=1&office_type=1&office_section_code=1&news_office_checked=1081&nso=so:r,p:from20171115to20171125,a:all&start="
+
+n_d_urls <- NULL
+for (x in 0:7) {
+  n_d_urls <- c(n_d_urls, paste(b_n_url, x*10+1, sep=""))
+}
+
+n_d_news_links <- NULL
+for (url in n_d_urls) {
+  html <- read_html(url)
+  n_d_news_links <- c(n_d_news_links, html %>%
+                    html_nodes('a.info')%>%
+                    html_attr('href'))
+}
+
+n_d_news_links = n_d_news_links[n_d_news_links!="https://www.seoul.co.kr"]
+
+titles<-NULL
+contents <- NULL
+
+for (link in n_d_news_links) {
+  html <- read_html(link)
+  titles <- c(titles, html %>%
+                html_nodes("h2.media_end_head_headline") %>%
+                html_text())
+  contents <- c(contents, html %>% 
+                  html_nodes("div#dic_area.go_trans._article_content") %>%
+                  html_text())
+}
+```
+
+## Create a imported data as csv file
+
+In order to use later, it was made into a tibble structure and made it to add csv file.
+
+```{r}
+#s_e_art<-cbind(titles, contents)
+#s_e_art<-s_e_art %>%
+#  as_tibble() %>%
+#  mutate(type="earthquake") %>%
+#  mutate(news="seoul")
+
+#write_csv(s_e_art, "s_e_art.csv")
+```
+
+# Preprocessing
+
+I will remove special characters and others, leaving only Korean.
+
+```{r}
+library("stringr")
+
+s_e_con<-contents %>%
+  str_replace_all("[^가-힣]", " ") %>%
+  str_squish()
+```
+
+
+# Tokenization
+
+Here, concerns begin, and if I approach it in a way that deals with English in class, I could not know how to do NLP for Korean later. So I studied Korean NLP separately, and from here on, I will proceed in a different way from what I covered in class. (I went through a lot of trials and errors doing this and it took a lot of time.)
+
+Text analysis is conducted in other languages besides English, and most people will not need this part, so I would appreciate it if you could watch it for fun or interest.
+
+The necessary package was loaded, the text data was changed to a tablet structure, and tokenization was performed based on words using the unnest_tokenens function.
+
+
+```{r}
+library("tidytext")
+
+# Tokenization
+s_e_con <- s_e_con %>%
+  as_tibble()
+
+s_e_tok <- s_e_con %>%
+  unnest_tokens(input=value,
+                output=word,
+                token="words")
+
+# View the top 20 of tokenization results
+
+s_e_tok%>%
+  count(word, sort=T) %>% 
+  head(20)
+```
+
+If you look at the top few, the number one is 일(pronunciation il). This work may be a dependent noun that is difficult to explain in a single word in English, or it may simply be a work(일). Second place is the earthquake(지진), and third place is Pohang(포항), where the earthquake occurred. Next, be(있다)  isfourth place. The fifth place is 고(pronunciation go), which is also a dependent noun, and it is difficult to match with English words.
+
+As I saw in the last blog, there are many dependent nouns such as meaningless one-character Korean words, so I will remove them first.
+
+```{r}
+# Remove single-letter words
+
+s_e_tok<-s_e_tok%>%
+  filter(str_count(word) >1)
+```
+
+Next, I will remove meaningless words such as Seoul Newspaper(서울신문), Journalist(기자), unique(단독), Unauthorized(무단), Redistribution(재배포), Facebook(페이스북), Click(클릭), and Reproduction(전재). First, these words are set as disused words and removed through a filter function. These terms can be added further in the future analysis process.
+
+```{r}
+# Setting Stopwords
+ko_stopword<-tibble(word=c("서울신문","기자","단독","무단","재배포","페이스북","당신","클릭","전재", "나우뉴스", "재배포금지", "무료만화", "무료", "인기", "나우", "만화", "뉴스","나우"))
+
+s_e_tok<-s_e_tok %>%
+  filter(!word %in% ko_stopword$word)
+```
+
+```{r}
+# View frequently used words after preprocessing
+
+s_e_tok%>%
+  count(word, sort=T) %>% 
+  print(20)
+```
+
+After removing these unnecessary words, I looked at the top 20 words, and there are words with Korean-language dependent nouns such as 'earthquake is' [지진이; 지진(earthquake, noun) + 이(is, be)] so I will organize and analyze them more strictly through NLP.
+
+# Korean NLP
+It was difficult because it was a part where I had to look up and study separately. There are still many things I don't know, and in the case of English speakers, you can just watch this part for fun.
+
+First of all, the Korean nlp package has been developed by Korean researchers. I'll install this first.
+
+```{r}
+# Installing Korean NLP package
+
+## r Java package install
+
+install.packages("multilinguer")
+library(multilinguer)
+install_jdk()
+
+## Installing the KoNLP dependency package
+
+install.packages(c("stringr", "hash", "tau", "Sejong", "RSQLite", "devtools"), type="binary")
+
+# Installing KoNLP package
+install.packages("remotes")
+remotes::install_github("haven-jeon/KoNLP",
+                        upgrade="never",
+                        INSTALL_opts = c("--no=multiarch"),
+                        force=T)
+
+```
+
+It was a bit difficult to install it by myself. I'm glad it worked well though.
+
+## Analysis of articles about earthquakes
+
+The Korean nlp is conducted with natural disaster (earthquake) contents that were initially brought.
+
+```{r}
+library(multilinguer)
+library(KoNLP)
+library(dplyr)
+
+# Preprocessing
+s_e_pre<-contents %>%
+  str_replace_all("[^가-힣]", " ") %>%
+  str_squish() %>%
+  as_tibble()
+```
+
+After tokenizing with the preprocessed result, I will remove the single-letter words and the stopwords set above.
+
+```{r}
+# noun based tokenization
+
+s_e_tok_nlp<-s_e_pre%>%
+  unnest_tokens(input=value,
+                output=word,
+                token=extractNoun)
+
+# Remove single-letter words
+s_e_tok_nlp<-s_e_tok_nlp%>%
+  filter(str_count(word) >1)
+
+# Remove stopwords
+s_e_tok_nlp<-s_e_tok_nlp %>%
+  filter(!word %in% ko_stopword$word)
+
+# View the top nouns
+
+s_e_tok_nlp%>%
+  count(word, sort=T) %>% 
+  head(20)
+```
+
+Like an "earthquake is"(지진이), the tokens with nouns and be verb were eliminated and organized into nouns. It seems that words that convey objective facts such as earthquake(지진), Pohang(포항), occurrence(발생), scale(규모), safety(안전), etc. were mainly used
+
+Now, let's look at and compare how the same media reported on the fire, which is a human disaster.
+
+## Text Analysis for Fire Incident
+
+A large fire broke out in Jecheon on December 21, 2017, similar to the above earthquake. In order to prevent distortion caused by the time of occurrence, this fire event that occurred at a time similar to the earthquake was set as an analysis target. 
+
+As in the case of an earthquake, the contents of the Seoul Newspaper's newspaper report for a week after the incident occurred were brought. 
+
+For ease of preprocessing, change to the tablet structure and attach the order. Now, with this, I will analyze the frequency of frequently projected noun words using Korean nlp.
+
+
+```{r}
+# Importing data
+
+setwd("~/R/Text_as_Data_Fall_2022/posts")
+
+s_f_art<-read.csv("s_f_art.csv") %>%
+  mutate(id = row_number()) %>%
+  as_tibble()
+```
+
+
+Since the imported data has a tibble structure, preprocessing is performed in a different way from the chr data.
+
+```{r}
+# Preprocessing
+
+s_f_pre<-s_f_art %>%
+  mutate(contents = str_replace_all(contents, "[^가-힣]", " "),
+         contents = str_squish(contents))
+```
+
+Word-based tokenization was carried out in the same way as the earthquake.
+
+```{r}
+# noun based tokenization
+s_f_tok_nlp<-s_f_pre%>%
+  unnest_tokens(input=contents,
+                output=word,
+                token=extractNoun)
+
+# Remove single-letter words
+s_f_tok_nlp<-s_f_tok_nlp%>%
+  filter(str_count(word) >1)
+
+# Remove stopwords
+s_f_tok_nlp<-s_f_tok_nlp %>%
+  filter(!word %in% ko_stopword$word)
+
+# View the top 20 nouns
+s_f_tok_nlp%>%
+  count(word, sort=T) %>% 
+  head(20)
+```
+
+Similar to the earthquake, words for conveying facts such as fire(화재), Jecheon(제천), the place of occurrence, building(건물), and sports centers(스포츠센터), which are damaged, seem to have been mainly used. However, it seems that the names of government agencies to respond to fire fighting(소방), police(경찰), the president(대통령), and the Blue House(청와대, Meaning of president office) appeared more frequently than natural disasters. However, it is not clear whether the tone of the article is clearly different between the two only by analyzing the individual word frequency.
+
+# Graphing and visualizing
+
+Finally, I will draw a bar graph using the top 10 nouns that are often used in articles dealing with two types of disasters. First, make the data needed to make the graph.
+
+```{r}
+# Making Graph Data
+e_top10<-s_e_tok_nlp%>%
+  count(word, sort=T) %>% 
+  head(10) %>%
+  mutate(type="earthquake")
+
+f_top10<-s_f_tok_nlp%>%
+  count(word, sort=T) %>% 
+  head(10) %>%
+  mutate(type="fire")
+
+top10 <- rbind(e_top10, f_top10)
+```
+
+Load the gplot 2 and draw two graph functions used by type of nouns frequently used by type.
+
+```{r}
+library(ggplot2)
+
+ggplot(top10, aes(x=reorder_within(word, n, type),
+                  y=n,
+                  fill=type)) + 
+  geom_col() +
+  coord_flip() +
+  facet_wrap(~type, scales = "free_y") +
+  scale_x_reordered()
+```
+
+# conclusion
+
+After NLP for Korean, I analyzed the frequency between words.Compared to the efforts put in, there was no good conclusion. 
+
+Unlike what I initially thought, the tone of the newspaper report does not seem to change significantly depending on the type of disaster. 
+
+In the next blog, I will not analyze such simple frequency analysis, but analyze to find words that appear relatively often according to the type of disaster.

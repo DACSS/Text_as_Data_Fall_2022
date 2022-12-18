@@ -1,0 +1,219 @@
+---
+title: "Blog 4"
+desription: "TF-IDF"
+author: "Young Soo Choi"
+date: "11/17/2022"
+format:
+  html:
+    toc: true
+    code-copy: true
+    code-tools: true
+categories:
+  - TF-IDF
+---
+
+After processing Korean natural language for earthquakes and fires last time, word frequency analysis was performed. However, it did not appear that the nouns used were clearly distinguished according to the type of disaster. 
+
+This time, I will use TF-IDF to find out which words are frequently used in specific text and check whether the words frequently used in newspaper articles differ depending on the type of disaster.
+
+# Importing Data
+
+I will still use the data from the Seoul newspaper that I used last time. I made a csv file of text data collected through webscrap, so I will use these files.
+
+
+```{r}
+library(tidyverse)
+library(readr)
+
+setwd("~/R/Text_as_Data_Fall_2022/posts")
+
+e_art<-read_csv("s_e_art.csv")
+f_art<-read_csv("s_f_art.csv")
+
+art<-rbind(e_art, f_art)
+
+art
+```
+
+A total of 123 articles were loaded, including 79 earthquakes and 44 fires.
+
+# Preprocessing
+Tokenization proceeds because it is noun middleing after preprocessing to remove unnecessary words in the previous way.
+
+```{r}
+library(stringr)
+library(multilinguer)
+library(KoNLP)
+library(tidytext)
+library(dplyr)
+
+# preprocessing
+art_pre <- art %>%
+  mutate(contents = str_replace_all(contents, "[^가-힣]", " " ),
+         contents = str_squish(contents))
+
+# tokenization
+art_tok <- art_pre %>%
+  unnest_tokens(input = contents,
+                output= word,
+                token= extractNoun)
+
+# remove stopwords
+ko_stopword<-tibble(word=c("서울신문","기자","단독","무단","재배포","페이스북","당신","클릭","전재", "나우뉴스", "재배포금지", "무료만화", "무료", "인기", "나우", "만화", "뉴스","나우"))
+
+art_tok<-art_tok %>%
+  filter(!word %in% ko_stopword$word)
+
+# remove single-letter words
+art_tok<-art_tok %>%
+  filter(str_count(word) >1)
+
+# find out frequency of words
+art_fre<-art_tok %>%
+  count(type, word)
+
+art_fre
+```
+
+# Get TF-IDF
+
+Let's find the TF-IDF value using the bind_tf_idf() function of the tidytext package.
+
+```{r}
+art_fre_tfidf <- art_fre %>%
+  bind_tf_idf(term = word,
+              document = type,
+              n=n) %>%
+  arrange(-tf_idf)
+
+art_fre_tfidf
+```
+
+It is difficult to see because of the mixed types of disasters. (From the top, fire types 1, 2, and 3rd are JecheonO제천, name of city), Sports Center(스포츠센터), and Chungbuk(충북, province of jecheon located), respectively, and earthquake types 4th, 5th, and 6th are aftershocks(여진), test takers(수험생), and Gyeongju(경주, name of city.)
+
+For ease of viewing, I will look at words with high TF-IDF for each disaster type.
+
+```{r}
+# TF-IDF of earthquake
+art_fre_tfidf %>% filter(type=="earthquake")
+```
+
+These are words that are often used in earthquake articles. It is in the order of aftershocks(여진), test takers(수험생), Gyeongju(경주), Pohang City(포항시, name of city), and students(학생), and it seems that they were often used because the postponement of the test was an important issue because the earthquake was just three days before the important test related to college entrance in Korea. Words related to earthquakes such as the remaining aftershocks and seismic design(내진설계) often appear.
+
+```{r}
+# TF-IDF of fire
+art_fre_tfidf %>% filter(type=="fire")
+```
+
+In the case of fire articles, they appear in the order of Jecheon(제천), Sports Center(스포츠센터), Chungbuk(충북), Bathhouse(목욕탕), and Sauna(사우나), which are the places where the incident occurred and the type of accident.
+
+Soon after, words that did not appear in the earthquake appear, which is illegal(불법). Second, the word "building owner"(건물주) appears. It is a word that does not appear often in earthquake-related articles, but it is thought that there was an issue related to the illegal activities of building owners related to the occurrence.
+
+Next, I will look at each word that appears frequently in both types.
+
+```{r}
+# Low TF-IDF of earthquake
+
+art_fre_tfidf %>% filter(type=="earthquake") %>%
+  arrange(tf_idf)
+```
+
+
+```{r}
+# Low TF-IDF of fire
+art_fre_tfidf %>% filter(type=="fire") %>%
+  arrange(tf_idf)
+```
+
+It can be seen that the TF-IDF of general-purpose words such as possibility(가능성) and fullness(가득) is 0.
+
+# Drawing a graph
+
+I will extract words with high TF-IDF from each article and draw a bar graph.
+
+```{r}
+library(ggplot2)
+
+top10 <- art_fre_tfidf %>%
+  group_by(type) %>%
+  slice_max(tf_idf, n=10, with_ties = F)
+
+top10$type <- factor(top10$type,
+                     levels = c("earthquake", "fire"))
+
+ggplot(top10, aes(x=reorder_within(word, tf_idf, type),
+                  y=tf_idf,
+                  fill=type)) +
+  geom_col(show.legend = F) +
+  coord_flip() +
+  facet_wrap(~ type, scales="free") +
+  scale_x_reordered() +
+  labs(x=NULL)
+```
+
+# Remove regional names and disaster types then analyze 
+
+Since the location and type of accident each occupy a too large proportion, it is thought that there is no noticeable difference in the analysis of both. I will remove these words and analyze them again.
+
+Words such as Jecheon(제천), Chungbuk(충북), Pohang(포항), Gyeongju(경주), Gyeongbuk(경북), fire(화재), and earthquake(지진) are removed additionally.
+
+```{r}
+# adding stopwords
+ko_stopword<-tibble(word=c("서울신문","기자","단독","무단","재배포","페이스북","당신","클릭","전재", "나우뉴스", "재배포금지", "무료만화", "무료", "인기", "나우", "만화", "뉴스","나우","지진","포항","경북","경주", "포항시", "경주시", "경상북도", "화재", "제천", "제천시", "충북", "충청북도", "스포츠센터", "목욕탕", "사우나"))
+```
+
+I will tokenize it again using the object(art_pre) that has undergone basic preprocessing and apply the disused terms added above.
+
+```{r}
+# Tokenization
+
+re_art_tok <- art_pre %>%
+  unnest_tokens(input = contents,
+                output= word,
+                token= extractNoun)
+
+re_art_tok<-re_art_tok %>%
+  filter(!word %in% ko_stopword$word)
+
+# Remove single-letter words
+re_art_tok<-re_art_tok %>%
+  filter(str_count(word) >1)
+
+# Find the frequency of words
+
+re_art_fre<-re_art_tok %>%
+  count(type, word)
+```
+
+Let's use this object to obtain a new TF-IDF value
+
+```{r}
+re_art_fre_tfidf <- re_art_fre %>%
+  bind_tf_idf(term = word,
+              document = type,
+              n=n) %>%
+  arrange(-tf_idf)
+
+re_art_fre_tfidf
+```
+
+The first, second, and third places are aftershocks(여진), examinees(수험생), and students(학생) of the earthquake type, while the fourth and fifth places are illegal(불법), reply comments(댓글) of the fire type. The place name and type of accident were excluded, but the order below it did not change.
+
+```{r}
+# TF-IDF of earthquake
+re_art_fre_tfidf %>% filter(type=="earthquake")
+```
+
+
+```{r}
+# TF-IDF of Fire
+re_art_fre_tfidf %>% filter(type=="fire")
+```
+
+It is not much different from the initial results. However, it is noteworthy that the word illegal stands out in articles dealing with fires, which are human disasters. It is expected that a clearer analysis will be possible if the analysis targets are selected more precisely and the processing of disused and natural languages for Korean is improved.
+
+It should also be kept in mind that even if a specific word used in both types by TF-IDF itself is exceptionally used in only one type, the TF-IDF value appears to be zero, so there is a limitation that such words cannot be found.
+
+# conclusion
+
+As the last blog, the discussion content according to the past blog, it seems that the controversy is not visible difference.
