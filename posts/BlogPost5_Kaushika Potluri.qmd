@@ -1,0 +1,415 @@
+---
+title: "Sentiment Analysis on Covid-19 Vaccine"
+editor: visual
+desription: "Sentiment Analysis and Topic Modeling on Covid-19 Vaccine"
+date: "10/30/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - Final Project 
+  - Kaushika Potluri
+---
+
+# Introduction
+Over just the past two years, the COVID-19 outbreak has quickly become a global emergency. While the coronavirus is severely contagious and deadly, people respond to the Covid-19 vaccine with mixed feelings on social media.
+This project is interested in whether and how people change their attitudes towards the COVID-19 vaccine. Specifically, the project would like to answer the following research questions:
+In this project, I am going to predict the Sentiments of COVID-19 Vaccination tweets. The data I have used is collecting tweets on the topic "Covid-19 Vaccination" (web scraping) and preparing the data. The data was gathered from Twitter and I'm going to use the R environment to implement this project. During the pandemic, lots of studies carried out analyses using Twitter data.
+
+## Loading Libraries :
+
+```{r}
+library(twitteR) #R package which provides access to the Twitter API
+library(tm) #Text mining in R
+library(lubridate) #Lubridate is an R package that makes it easier to work with dates and times.
+library(quanteda) #Makes it easy to manage texts in the form of a corpus.
+library(wordcloud) #Visualize differences and similarity between documents
+library(wordcloud2)
+library(ggplot2) #For creating Graphics 
+library(reshape2) # Transform data between wide and long formats.
+library(dplyr) #Provides a grammar of data manipulation
+library(tidyverse) #Helps to transform and tidy data
+library(tidytext) #Applies the principles of the tidyverse to analyzing text.
+library(tidyr) #Helps to get tidy data
+library(gridExtra) #Arrange multiple grid-based plots on a page, and draw tables
+library(grid) #Produce graphical output
+library(rtweet) #Collecting Twitter Data
+library(syuzhet) #For sentiment scores and emotion classification
+library(corpus)
+library("igraph")
+library("knitr")
+library("slam")
+library(NLP)
+library(cleanNLP)
+library(corpus)
+library(SnowballC)
+library(topicmodels)
+library(stringr)
+library(stringi)
+library(sentimentr)
+library(dplyr)
+library(plotrix)
+library(radarchart)
+library(textdata)
+library(ggeasy)
+library(glue)
+library(networkD3)
+library(magrittr)
+```
+
+## Scraping Data from Twitter
+After getting access to the Twitter API I can run the following (replacing \###### by my specific credentials) and search for tweets. ("\######" used for protection)
+```{r}
+# twitter keys and tokens
+api_key <- "######"
+api_secret <- "######"
+access_token <- "######"
+access_token_secret <- "######"
+
+# create token for rtweet
+token <- create_token(
+  app = "######",
+  api_key,
+  api_secret,
+  access_token,
+  access_token_secret,
+  set_renv = TRUE)
+
+setup_twitter_oauth(api_key, api_secret, access_token, access_token_secret)
+#what to search
+
+#Searching for tweets using terms covid + 19 + vaccine and filtering out the retweets to avoid repetitions. After that I converted the list of tweets into a data frame.
+
+tweets_covid = searchTwitter("covid+19+vaccine -filter:retweets", n = 20000, lang = "en")
+tweets.df = twListToDF(tweets_covid)
+
+for (i in 1:nrow(tweets.df)) {
+    if (tweets.df$truncated[i] == TRUE) {
+        tweets.df$text[i] <- gsub("[[:space:]]*$","...",tweets.df$text[i])
+    }
+}
+
+#Saving the collected tweets into a csv file.
+write.csv(tweets.df, file = "covidtweets.csv", row.names = FALSE)
+```
+
+Reading in the data we scraped :
+The csv file has approximately 15,000 tweets on the topic "Covid 19 Vaccination".
+```{r}
+covid_19_vaccination <- read.csv("covidtweets.csv", header = T)
+str(covid_19_vaccination)
+```
+#Tidying Data :
+```{r}
+#Suppress warnings in the global setting.
+options(warn=-1)
+```
+# Pre-Processing
+
+## Text Mining Functions
+```{r}
+# clean text
+removeUsername <- function(x) gsub('@[^[:space:]]*', '', x) #Removes usernames
+removeURL <- function(x) gsub('http[[:alnum:]]*', '', x) #Removes URLs attached to tweets
+removeNumPunct<- function(x) gsub("[^[:alpha:][:space:]]*","",x) #Remove Punctuations
+
+#Text Mining Functions
+cleandata <- tm_map(corpus, PlainTextDocument) #Function to create plain text documents.
+cleandata <- tm_map(cleandata, content_transformer(removeUsername)) #Function to remove Usernames attached to the text.
+cleandata <- tm_map(cleandata, content_transformer(removeURL)) #Function to remove URLs attached to the text.
+cleandata <- tm_map(cleandata, content_transformer(tolower)) #Function to convert text into lowercase.
+cleandata <- tm_map(cleandata, content_transformer(removeNumPunct)) #Function to remove Punctuations attached to text.
+cleandata <- tm_map(cleandata, content_transformer(removeNumbers)) # #Function to remove Numbers attached to texts.
+cleandata <- tm_map(cleandata, removeWords, stopwords("english"))
+
+#Removing meaningless words like "covid," "vaccination," "corona," etc
+cleandata <- tm_map(cleandata, removeWords, c('covid','vaccination', 
+                                            'vaccinations','vaccine','vaccines',
+                                            'vaccinated', "corona", 
+                                            "coronavirus"))
+
+cleandata <- tm_map(cleandata, stripWhitespace) #Function to strip extra whitespace from a text document.
+
+```
+## Corpus
+```{r}
+corpus <- Corpus(VectorSource(cleandata))
+```
+
+```{r}
+corpus <- tm_map(corpus, removeWords, stopwords("en"))  
+
+# Remove numbers. This could have been done earlier, of course.
+corpus <- tm_map(corpus, removeNumbers)
+
+# Stem the words. Google if you don't understand
+corpus <- tm_map(corpus, stemDocument)
+
+# Remove the stems associated with our search terms!
+corpus <- tm_map(corpus, removeWords, c("covid", "vaccine", "get", "can"))
+```
+
+```{r}
+new_tweetsdf <- data.frame(text = sapply(corpus, as.character), stringsAsFactors = FALSE)
+#unlist list column 
+new_tweetsdf <- unlist(new_tweetsdf)
+```
+
+
+## Document Term Matrix
+```{r}
+# Now for Topic Modeling
+
+# Get the lengths and make sure we only create a DTM for tweets with
+# some actual content
+doc.lengths <- rowSums(as.matrix(DocumentTermMatrix(corpus)))
+dtm <- DocumentTermMatrix(corpus[doc.lengths > 0])
+
+
+
+```
+
+
+```{r}
+dtm <- TermDocumentMatrix(corpus)
+dtm <- as.matrix(dtm)
+set.seed(123)
+```
+## Wordlcoud
+```{r}
+options(repr.plot.width=15, repr.plot.height=15)
+pal <- brewer.pal(8, "Dark2")
+wordcloud(corpus, min.freq=50, max.words = 150, random.order = TRUE, col = pal)
+```
+
+```{r}
+# row sums
+w <- rowSums(dtm) # how often appears each word?
+w <- subset(w, w>=3000)
+w <- sort(rowSums(dtm))
+
+# wordcloud
+options(repr.plot.width=14, repr.plot.height=15)
+wordcloud(words = names(w),
+          freq = w,
+          colors=brewer.pal(8, "Dark2"),
+          random.color = TRUE,
+          max.words = 100,
+          scale = c(4, 0.04))
+```
+```{r}
+w <- sort(rowSums(dtm), decreasing = TRUE)
+w <- data.frame(names(w), w)
+colnames(w) <- c('word', 'freq')
+wordcloud2(w,
+           size = 0.7,
+           shape = 'triangle',
+           rotateRatio = 0.5,
+           minSize = 1)
+```
+```{r}
+sents = levels(factor(covid_19_vaccination$sentiment))
+```
+
+## Word Frequency 
+```{r}
+dtm <- sort(rowSums(dtm), decreasing = TRUE)
+dtm <- data.frame(word = names(dtm), freq = dtm)
+
+ggplot(dtm[1:20,], aes(x=reorder(word, freq), y=freq)) + 
+  geom_bar(stat="identity") +
+  xlab("Terms") + 
+  ylab("Count") + 
+  coord_flip() +
+  theme(axis.text=element_text(size=7)) +
+  ggtitle('Most common word frequency plot') +
+  ggeasy::easy_center_title()
+```
+Bigram analysis and Network definition
+
+```{r}
+bi.gram.words <- covid_19_vaccination %>% 
+  unnest_tokens(
+    input = text, 
+    output = bigram, 
+    token = 'ngrams', 
+    n = 2
+  ) %>% 
+  filter(! is.na(bigram))
+
+bi.gram.words %>% 
+  select(bigram) %>% 
+  head(10)
+```
+```{r}
+extra.stop.words <- c('https', 'covid', '19', 'vaccine')
+stopwords.df <- tibble(
+  word = c(stopwords(kind = 'es'),
+           stopwords(kind = 'en'),
+           extra.stop.words)
+)
+```
+
+Next, we filter for stop words and remove white spaces.
+```{r}
+bi.gram.words %<>% 
+  separate(col = bigram, into = c('word1', 'word2'), sep = ' ') %>% 
+  filter(! word1 %in% stopwords.df$word) %>% 
+  filter(! word2 %in% stopwords.df$word) %>% 
+  filter(! is.na(word1)) %>% 
+  filter(! is.na(word2))
+```
+
+Finally, we group and count by bigram.
+```{r}
+bi.gram.count <- bi.gram.words %>% 
+  dplyr::count(word1, word2, sort = TRUE) %>% 
+  dplyr::rename(weight = n)
+
+bi.gram.count %>% head()
+```
+Let us plot the distribution of the weightvalues:
+```{r}
+bi.gram.count %>% 
+  ggplot(mapping = aes(x = weight)) +
+  theme_light() +
+  geom_histogram() +
+  labs(title = "Bigram Weight Distribution")
+```
+Note that it is very skewed, for visualization purposes it might be a good idea to perform a transformation, eg log transform:
+
+```{r}
+bi.gram.count %>% 
+  mutate(weight = log(weight + 1)) %>% 
+  ggplot(mapping = aes(x = weight)) +
+  theme_light() +
+  geom_histogram() +
+  labs(title = "Bigram log-Weight Distribution")
+```
+## Network Analysis
+```{r}
+threshold <- 50
+
+# For visualization purposes we scale by a global factor. 
+ScaleWeight <- function(x, lambda) {
+  x / lambda
+}
+
+network <-  bi.gram.count %>%
+  filter(weight > threshold) %>%
+  mutate(weight = ScaleWeight(x = weight, lambda = 2E3)) %>% 
+  graph_from_data_frame(directed = FALSE)
+
+plot(
+  network, 
+  vertex.size = 1,
+  vertex.label.color = 'black', 
+  vertex.label.cex = 0.7, 
+  vertex.label.dist = 1,
+  edge.color = 'gray', 
+  main = 'Bigram Count Network', 
+  sub = glue('Weight Threshold: {threshold}'), 
+  alpha = 50
+)
+```
+We can even improvise the representation by setting the sizes of the nodes and the edges by the degree and weight respectively.
+
+```{r}
+V(network)$degree <- strength(graph = network)
+
+# Compute the weight shares.
+E(network)$width <- E(network)$weight/max(E(network)$weight)
+
+plot(
+  network, 
+  vertex.color = 'lightblue',
+  # Scale node size by degree.
+  vertex.size = 2*V(network)$degree,
+  vertex.label.color = 'black', 
+  vertex.label.cex = 0.6, 
+  vertex.label.dist = 1.6,
+  edge.color = 'gray', 
+  # Set edge width proportional to the weight relative value.
+  edge.width = 3*E(network)$width ,
+  main = 'Bigram Count Network', 
+  sub = glue('Weight Threshold: {threshold}'), 
+  alpha = 50
+)
+```
+
+```{r}
+threshold <- 50
+
+network <-  bi.gram.count %>%
+  filter(weight > threshold) %>%
+  graph_from_data_frame(directed = FALSE)
+
+# Store the degree.
+V(network)$degree <- strength(graph = network)
+# Compute the weight shares.
+E(network)$width <- E(network)$weight/max(E(network)$weight)
+
+# Create networkD3 object.
+network.D3 <- igraph_to_networkD3(g = network)
+# Define node size.
+network.D3$nodes %<>% mutate(Degree = (1E-2)*V(network)$degree)
+# Define color group
+network.D3$nodes %<>% mutate(Group = 1)
+# Define edges width. 
+network.D3$links$Width <- 10*E(network)$width
+
+forceNetwork(
+  Links = network.D3$links, 
+  Nodes = network.D3$nodes, 
+  Source = 'source', 
+  Target = 'target',
+  NodeID = 'name',
+  Group = 'Group', 
+  opacity = 0.9,
+  Value = 'Width',
+  Nodesize = 'Degree', 
+  # We input a JavaScript function.
+  linkWidth = JS("function(d) { return Math.sqrt(d.value); }"), 
+  fontSize = 12,
+  zoom = TRUE, 
+  opacityNoHover = 1
+)
+```
+
+#Sentimental Analysis :
+Sentiment analysis, also known as opinion mining or emotion AI, is the process of analyzing pieces of writing to determine the emotional tone they carry, whether their sentiment is positive or negative or even if their primary emotion is angry, sad, surprised etc. Sentiment analysis helps to find the author’s attitude towards a topic.
+
+Import Sentiment Lexicons
+To be able to categorize the words in our data (wether they are positive, negative, etc.), we need a dictionary resp. a sentiment lexicon that computes the sentiment of a word by analyzing the "semantic orientation" of that word in a text. These codings are made by people, through crowdsorcing, etc. For English pieces of writing we can use the following dictionaries:
+
+Afinn: Gives each word a number between [-5, 5], where -5 means that the words is very negative and 5 means that the words is very positive
+Bing: Gives each word an assignment of positive/negative sentiment
+NRC: Assigns the words one of the eight primary emotions (anger, fear, anticipation, trust, surprise, sadness, joy, and disgust) and two sentiments (positive and negative)
+
+```{r}
+afinn <- read_csv("Afinn.csv")
+bing <- read_csv("Bing.csv")
+nrc <- read_csv("NRC.csv")
+```
+
+```{r}
+# positive-negative-word cloud
+unnest_tweets <- covid_19_vaccination %>% 
+  mutate(text = as.character(covid_19_vaccination$text)) %>% 
+  unnest_tokens(word, text)
+
+options(repr.plot.width=4, repr.plot.height=2)
+unnest_tweets %>% 
+  inner_join(bing, by="word") %>%
+  count(word, sentiment, sort=T) %>% 
+  acast(word ~ sentiment, value.var = "n", fill=0) %>% 
+  
+  # wordcloud
+  comparison.cloud(colors=c("#DB5656","#DBA656"), 
+                   max.words = 100, 
+                   title.size = 2.5,
+                   scale = c(2,0.9))
+```
