@@ -1,0 +1,243 @@
+##Loading important libraries
+
+```{r}
+library(twitteR) #R package which provides access to the Twitter API
+library(tm) #Text mining in R
+library(lubridate) #Lubridate is an R package that makes it easier to work with dates and times.
+library(quanteda) #Makes it easy to manage texts in the form of a corpus.
+library(wordcloud) #Visualize differences and similarity between documents
+library(wordcloud2)
+library(ggplot2) #For creating Graphics 
+library(reshape2) # Transform data between wide and long formats.
+library(dplyr) #Provides a grammar of data manipulation
+library(tidyverse) #Helps to transform and tidy data
+library(tidytext) #Applies the principles of the tidyverse to analyzing text.
+library(tidyr) #Helps to get tidy data
+library(gridExtra) #Arrange multiple grid-based plots on a page, and draw tables
+library(grid) #Produce graphical output
+library(rtweet) #Collecting Twitter Data
+library(syuzhet) #Returns a data frame in which each row represents a sentence from the original file
+library(topicmodels)
+```
+
+## Scraping Data from Twitter
+
+After getting access to the Twitter API I can run the following (replacing \###### by my specific credentials) and search for tweets. ("\######" used for protection)
+
+```{r}
+# twitter keys and tokens
+api_key <- "cHsX0LBreWzbkShT6BugSaKu4"
+api_secret <- "CjzTxvRQkoKasibIZge92oqlwLTjWAWqLSKnH6NTZEg7xuURpQ"
+access_token <- "1574938226623651842-pzGlR6Tr5lH3OkSeFsBERQkqTqxv2E"
+access_token_secret <- "cpVs1xq4NibJ2usnYUCaxcpRI9kfDSSA92tXCCZKd8NJQ"
+
+# create token for rtweet
+token <- create_token(
+  app = "25576157",
+  api_key,
+  api_secret,
+  access_token,
+  access_token_secret,
+  set_renv = TRUE)
+
+setup_twitter_oauth(api_key, api_secret, access_token, access_token_secret)
+#what to search
+
+#Searching for tweets using terms covid + 19 + vaccine and filtering out the retweets to avoid repetitions. After that I converted the list of tweets into a data frame.
+
+tweets_covid = searchTwitter("covid+19+vaccine -filter:retweets", n = 20000, lang = "en")
+tweets.df = twListToDF(tweets_covid)
+
+for (i in 1:nrow(tweets.df)) {
+    if (tweets.df$truncated[i] == TRUE) {
+        tweets.df$text[i] <- gsub("[[:space:]]*$","...",tweets.df$text[i])
+    }
+}
+
+#Saving the collected tweets into a csv file.
+write.csv(tweets.df, file = "covidtweetsbro.csv", row.names = FALSE)
+```
+
+## Reading the csv file
+
+The csv file has approximately 15,000 tweets on the topic "Covid 19 Vaccination".
+
+
+```{r}
+covid_19_vaccination <- read.csv("covidtweets.csv", header = T)
+str(covid_19_vaccination)
+```
+
+```{r}
+#Suppress warnings in the global setting.
+options(warn=-1)
+```
+
+
+```{r}
+# clean text
+removeUsername <- function(x) gsub('@[^[:space:]]*', '', x) #Removes usernames
+removeURL <- function(x) gsub('http[[:alnum:]]*', '', x) #Removes URLs attached to tweets
+removeNumPunct<- function(x) gsub("[^[:alpha:][:space:]]*","",x) #Remove Punctuations
+
+#Text Mining Functions
+cleandata <- tm_map(corpus, PlainTextDocument) #Function to create plain text documents.
+cleandata <- tm_map(cleandata, content_transformer(removeUsername)) #Function to remove Usernames attached to the text.
+cleandata <- tm_map(cleandata, content_transformer(removeURL)) #Function to remove URLs attached to the text.
+cleandata <- tm_map(cleandata, content_transformer(tolower)) #Function to convert text into lowercase.
+cleandata <- tm_map(cleandata, content_transformer(removeNumPunct)) #Function to remove Punctuations attached to text.
+cleandata <- tm_map(cleandata, content_transformer(removeNumbers)) # #Function to remove Numbers attached to texts.
+cleandata <- tm_map(cleandata, removeWords, stopwords("english"))
+
+#Removing meaningless words like "covid," "vaccination," "corona," etc
+cleandata <- tm_map(cleandata, removeWords, c('covid','vaccination', 
+                                            'vaccinations','vaccine','vaccines',
+                                            'vaccinated', "corona", 
+                                            "coronavirus"))
+
+cleandata <- tm_map(cleandata, stripWhitespace) #Function to strip extra whitespace from a text document.
+
+
+```
+
+
+
+```{r}
+corpus <- Corpus(VectorSource(cleandata))  # Create corpus object
+```
+
+```{r}
+
+corpus <- tm_map(corpus, removeWords, stopwords("en"))  
+
+# Remove numbers. This could have been done earlier, of course.
+corpus <- tm_map(corpus, removeNumbers)
+
+# Stem the words. Google if you don't understand
+corpus <- tm_map(corpus, stemDocument)
+
+# Remove the stems associated with our search terms!
+corpus <- tm_map(corpus, removeWords, c("covid", "vaccine"))
+
+```
+
+```{r}
+par(mar = c(11,11,11,11))
+
+
+pal <- brewer.pal(8, "Dark2")
+wordcloud(corpus, min.freq=50, max.words = 100, random.order = TRUE, col = pal)
+```
+
+```{r}
+# Now for Topic Modeling
+
+# Get the lengths and make sure we only create a DTM for tweets with
+# some actual content
+doc.lengths <- rowSums(as.matrix(DocumentTermMatrix(corpus)))
+dtm <- DocumentTermMatrix(corpus[doc.lengths > 0])
+# model <- LDA(dtm, 10)  # Go ahead and test a simple model if you want
+dtm
+
+```
+```{r}
+inspect(dtm[1:2,10:15])
+
+```
+
+```{r}
+freq = colSums(as.matrix(dtm))
+length(freq)
+```
+
+```{r}
+ord = order(freq, decreasing = TRUE)
+freq[head(ord, n = 20)]
+```
+
+```{r}
+findAssocs(dtm, "health",0.2)
+
+```
+
+```{r}
+findAssocs(dtm, "pfizer",0.2)
+
+```
+
+```{r}
+plot = data.frame(words = names(freq), count = freq)
+library(ggplot2)
+plot = subset(plot, plot$count > 150) #creating a subset of words having more than 100 frequency
+str(plot)
+ggplot(data = plot, aes(words, count)) + geom_bar(stat = 'identity') + ggtitle('Words used more than 150 times')+coord_flip()
+```
+
+```{r}
+library(topicmodels)
+#LDA model with 5 topics selected
+lda_5 = LDA(dtm, k = 5, method = 'Gibbs', 
+          control = list(nstart = 5, seed = list(1505,99,36,56,88), best = TRUE, 
+                         thin = 500, burnin = 4000, iter = 2000))
+
+#LDA model with 2 topics selected
+lda_2 = LDA(dtm, k = 2, method = 'Gibbs', 
+          control = list(nstart = 5, seed = list(1505,99,36,56,88), best = TRUE, 
+                         thin = 500, burnin = 4000, iter = 2000))
+
+#LDA model with 10 topics selected
+lda_10 = LDA(dtm, k = 10, method = 'Gibbs', 
+          control = list(nstart = 5, seed = list(1505,99,36,56,88), best = TRUE, 
+                         thin = 500, burnin = 4000, iter = 2000))
+
+```
+
+```{r}
+#Top 10 terms or words under each topic
+top10terms_5 = as.matrix(terms(lda_5,10))
+top10terms_2 = as.matrix(terms(lda_2,10))
+top10terms_10 = as.matrix(terms(lda_10,10))
+
+top10terms_5
+
+```
+
+```{r}
+top10terms_2
+```
+
+```{r}
+top10terms_10
+
+```
+
+```{r}
+lda.topics_5 = as.matrix(topics(lda_5))
+lda.topics_2 = as.matrix(topics(lda_2))
+lda.topics_10 = as.matrix(topics(lda_10))
+#write.csv(lda.topics_5,file = paste('LDAGibbs',5,'DocsToTopics.csv'))
+#write.csv(lda.topics_2,file = paste('LDAGibbs',2,'DocsToTopics.csv'))
+#write.csv(lda.topics_10,file = paste('LDAGibbs',10,'DocsToTopics.csv'))
+
+summary(as.factor(lda.topics_5[,1]))
+```
+
+```{r}
+topicprob_5 = as.matrix(lda_5@gamma)
+topicprob_2 = as.matrix(lda_2@gamma)
+topicprob_10 = as.matrix(lda_10@gamma)
+
+#write.csv(topicprob_5, file = paste('LDAGibbs', 5, 'DoctToTopicProb.csv'))
+#write.csv(topicprob_2, file = paste('LDAGibbs', 2, 'DoctToTopicProb.csv'))
+#write.csv(topicprob_10, file = paste('LDAGibbs', 10, 'DoctToTopicProb.csv'))
+
+head(topicprob_2,1)
+```
+
+
+
+
+
+
+
+
