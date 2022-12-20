@@ -1,0 +1,40 @@
+---
+title: "Blog Post 2"
+author: "Niyati Sharma"
+desription: "Analyzing Customer Reviews for improvement of Uber experience"
+date: "11/22/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - blogpost2
+  - Niyati Sharma
+---
+
+## **Introduction**
+
+Nowadays, most organizations and businesses develop online services, which add value to their business and even increase their customer base. Surveys and reviews have changed the dynamics of digital marketing. The feedback platform gave the power to customers to post, share, and review content. Customers can directly interact with other customers and companies.There are many companies that use public opinion to be able to achieve the goals of the company. 20-30 companies in the United States of America offer sentiment analysis as one of the tools to help corporate decision-making. Therefore, we use dynamic sentiment to discover additional information. This research uses dynamic sentiment because it can gather more precise and detailed result. 
+
+Along with the increasing number of internet, social media users and mobile devices will certainly impact on the increasing amount of data or user-generated content. The simple forms to collect opinions are application review and rating people give for their experience. With a massive information flows from social media, a highly effective approach is needed to summarize and retrieve information in a real-time situation. Several classification methods are suitable to analyze the data, such as Support Vector Machine (SVM), Naïve Bayes (NB), Nearest Neighbors (NN), Logistic Regression and Decision Tree. The model used to summarize is Naïve Bayes classification method.
+
+We use topic modeling to determine topics that contained
+in the data. Numerous way of topic distribution is applicable such as Clustering, Feature Generation, and Dimensionality Reduction. Dimensionality reduction has an advantage compared to the other because each document’s distribution over topics gives a summary of the document. Compare them in this reduce feature space can be more meaningful than comparing in the original feature space.
+
+Uber is one of the largest and greatest innovation in transport with its fast development, the interaction among user in the platform is high.In this research, we aim to dig further information from the dataset. We see the topics from the public opinion perspective in application reviews and ratings, especially their opinion regarding Uber, the sentiment is surely changing every day then which topic has positive or negative sentiment. This is useful for data processing to be more effective and fast. 
+
+
+## **What are research questions?**
+
+In this research, we will analyze huge user-generated content which can be used by organizations for their customer engagement strategies.The purpose of this study is to to map the public opinion towards certain topic by analyzing the sentiment of the text and create a topic model. The reviews feedback provide a lot of information about the product experience, any technical or operational gaps, and even their general sentiment towards the product company. The analysis will help in identifying the gaps in the priorities of the stakeholders. With the right customer engagement strategies, companies can make benefit.
+ 
+We pick Uber as the case study, viewed as one of the most favored transportation methods in most part of the world to do the following search question. 
+
+1.Analyse the user's sentiments with Uber cabs.
+2.Problems faced by customers.
+
+## **How are the data collected?**
+
+Collect the data from In-app surfaces across different apps (Eater app, Rider app etc.), across mobile and web, and other external sources such as mobile app store reviews, social media channels etc. where customers reach out for support feedback. Ex. The collection of tweets from Twitter was done using R programming and using TwitteR package.
