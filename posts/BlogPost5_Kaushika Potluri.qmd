@@ -1,5 +1,5 @@
 ---
-title: "Sentiment Analysis on Covid-19 Vaccine"
+title: "Blog Post 5"
 editor: visual
 desription: "Sentiment Analysis and Topic Modeling on Covid-19 Vaccine"
 date: "10/30/2022"
@@ -15,9 +15,8 @@ categories:
 ---
 
 # Introduction
-Over just the past two years, the COVID-19 outbreak has quickly become a global emergency. While the coronavirus is severely contagious and deadly, people respond to the Covid-19 vaccine with mixed feelings on social media.
-This project is interested in whether and how people change their attitudes towards the COVID-19 vaccine. Specifically, the project would like to answer the following research questions:
-In this project, I am going to predict the Sentiments of COVID-19 Vaccination tweets. The data I have used is collecting tweets on the topic "Covid-19 Vaccination" (web scraping) and preparing the data. The data was gathered from Twitter and I'm going to use the R environment to implement this project. During the pandemic, lots of studies carried out analyses using Twitter data.
+
+Over just the past two years, the COVID-19 outbreak has quickly become a global emergency. While the coronavirus is severely contagious and deadly, people respond to the Covid-19 vaccine with mixed feelings on social media. This project is interested in whether and how people change their attitudes towards the COVID-19 vaccine. Specifically, the project would like to answer the following research questions: In this project, I am going to predict the Sentiments of COVID-19 Vaccination tweets. The data I have used is collecting tweets on the topic "Covid-19 Vaccination" (web scraping) and preparing the data. The data was gathered from Twitter and I'm going to use the R environment to implement this project. During the pandemic, lots of studies carried out analyses using Twitter data.
 
 ## Loading Libraries :
 
@@ -61,7 +60,9 @@ library(magrittr)
 ```
 
 ## Scraping Data from Twitter
+
 After getting access to the Twitter API I can run the following (replacing \###### by my specific credentials) and search for tweets. ("\######" used for protection)
+
 ```{r}
 # twitter keys and tokens
 api_key <- "######"
@@ -96,20 +97,24 @@ for (i in 1:nrow(tweets.df)) {
 write.csv(tweets.df, file = "covidtweets.csv", row.names = FALSE)
 ```
 
-Reading in the data we scraped :
-The csv file has approximately 15,000 tweets on the topic "Covid 19 Vaccination".
+Reading in the data we scraped : The csv file has approximately 15,000 tweets on the topic "Covid 19 Vaccination".
+
 ```{r}
 covid_19_vaccination <- read.csv("covidtweets.csv", header = T)
 str(covid_19_vaccination)
 ```
+
 #Tidying Data :
+
 ```{r}
 #Suppress warnings in the global setting.
 options(warn=-1)
 ```
+
 # Pre-Processing
 
 ## Text Mining Functions
+
 ```{r}
 # clean text
 removeUsername <- function(x) gsub('@[^[:space:]]*', '', x) #Removes usernames
@@ -134,7 +139,9 @@ cleandata <- tm_map(cleandata, removeWords, c('covid','vaccination',
 cleandata <- tm_map(cleandata, stripWhitespace) #Function to strip extra whitespace from a text document.
 
 ```
+
 ## Corpus
+
 ```{r}
 corpus <- Corpus(VectorSource(cleandata))
 ```
@@ -158,8 +165,8 @@ new_tweetsdf <- data.frame(text = sapply(corpus, as.character), stringsAsFactors
 new_tweetsdf <- unlist(new_tweetsdf)
 ```
 
-
 ## Document Term Matrix
+
 ```{r}
 # Now for Topic Modeling
 
@@ -172,13 +179,14 @@ dtm <- DocumentTermMatrix(corpus[doc.lengths > 0])
 
 ```
 
-
 ```{r}
 dtm <- TermDocumentMatrix(corpus)
 dtm <- as.matrix(dtm)
 set.seed(123)
 ```
+
 ## Wordlcoud
+
 ```{r}
 options(repr.plot.width=15, repr.plot.height=15)
 pal <- brewer.pal(8, "Dark2")
@@ -200,6 +208,7 @@ wordcloud(words = names(w),
           max.words = 100,
           scale = c(4, 0.04))
 ```
+
 ```{r}
 w <- sort(rowSums(dtm), decreasing = TRUE)
 w <- data.frame(names(w), w)
@@ -210,11 +219,13 @@ wordcloud2(w,
            rotateRatio = 0.5,
            minSize = 1)
 ```
+
 ```{r}
 sents = levels(factor(covid_19_vaccination$sentiment))
 ```
 
-## Word Frequency 
+## Word Frequency
+
 ```{r}
 dtm <- sort(rowSums(dtm), decreasing = TRUE)
 dtm <- data.frame(word = names(dtm), freq = dtm)
@@ -228,6 +239,7 @@ ggplot(dtm[1:20,], aes(x=reorder(word, freq), y=freq)) +
   ggtitle('Most common word frequency plot') +
   ggeasy::easy_center_title()
 ```
+
 Bigram analysis and Network definition
 
 ```{r}
@@ -244,6 +256,7 @@ bi.gram.words %>%
   select(bigram) %>% 
   head(10)
 ```
+
 ```{r}
 extra.stop.words <- c('https', 'covid', '19', 'vaccine')
 stopwords.df <- tibble(
@@ -254,6 +267,7 @@ stopwords.df <- tibble(
 ```
 
 Next, we filter for stop words and remove white spaces.
+
 ```{r}
 bi.gram.words %<>% 
   separate(col = bigram, into = c('word1', 'word2'), sep = ' ') %>% 
@@ -264,6 +278,7 @@ bi.gram.words %<>%
 ```
 
 Finally, we group and count by bigram.
+
 ```{r}
 bi.gram.count <- bi.gram.words %>% 
   dplyr::count(word1, word2, sort = TRUE) %>% 
@@ -271,7 +286,9 @@ bi.gram.count <- bi.gram.words %>%
 
 bi.gram.count %>% head()
 ```
+
 Let us plot the distribution of the weightvalues:
+
 ```{r}
 bi.gram.count %>% 
   ggplot(mapping = aes(x = weight)) +
@@ -279,6 +296,7 @@ bi.gram.count %>%
   geom_histogram() +
   labs(title = "Bigram Weight Distribution")
 ```
+
 Note that it is very skewed, for visualization purposes it might be a good idea to perform a transformation, eg log transform:
 
 ```{r}
@@ -289,7 +307,9 @@ bi.gram.count %>%
   geom_histogram() +
   labs(title = "Bigram log-Weight Distribution")
 ```
+
 ## Network Analysis
+
 ```{r}
 threshold <- 50
 
@@ -315,6 +335,7 @@ plot(
   alpha = 50
 )
 ```
+
 We can even improvise the representation by setting the sizes of the nodes and the edges by the degree and weight respectively.
 
 ```{r}
@@ -379,15 +400,11 @@ forceNetwork(
 )
 ```
 
-#Sentimental Analysis :
-Sentiment analysis, also known as opinion mining or emotion AI, is the process of analyzing pieces of writing to determine the emotional tone they carry, whether their sentiment is positive or negative or even if their primary emotion is angry, sad, surprised etc. Sentiment analysis helps to find the author’s attitude towards a topic.
+#Sentimental Analysis : Sentiment analysis, also known as opinion mining or emotion AI, is the process of analyzing pieces of writing to determine the emotional tone they carry, whether their sentiment is positive or negative or even if their primary emotion is angry, sad, surprised etc. Sentiment analysis helps to find the author's attitude towards a topic.
 
-Import Sentiment Lexicons
-To be able to categorize the words in our data (wether they are positive, negative, etc.), we need a dictionary resp. a sentiment lexicon that computes the sentiment of a word by analyzing the "semantic orientation" of that word in a text. These codings are made by people, through crowdsorcing, etc. For English pieces of writing we can use the following dictionaries:
+Import Sentiment Lexicons To be able to categorize the words in our data (wether they are positive, negative, etc.), we need a dictionary resp. a sentiment lexicon that computes the sentiment of a word by analyzing the "semantic orientation" of that word in a text. These codings are made by people, through crowdsorcing, etc. For English pieces of writing we can use the following dictionaries:
 
-Afinn: Gives each word a number between [-5, 5], where -5 means that the words is very negative and 5 means that the words is very positive
-Bing: Gives each word an assignment of positive/negative sentiment
-NRC: Assigns the words one of the eight primary emotions (anger, fear, anticipation, trust, surprise, sadness, joy, and disgust) and two sentiments (positive and negative)
+Afinn: Gives each word a number between \[-5, 5\], where -5 means that the words is very negative and 5 means that the words is very positive Bing: Gives each word an assignment of positive/negative sentiment NRC: Assigns the words one of the eight primary emotions (anger, fear, anticipation, trust, surprise, sadness, joy, and disgust) and two sentiments (positive and negative)
 
 ```{r}
 afinn <- read_csv("Afinn.csv")
