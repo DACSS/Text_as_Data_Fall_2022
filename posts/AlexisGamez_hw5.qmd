@@ -1,0 +1,591 @@
+---
+title: "Blog Post #5: Supervised Learning & Topic Models"
+author: "Alexis Gamez"
+desription: "Studying text-as-data as it relates to eating bugs"
+date: "11/27/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - Alexis Gamez 
+  - blogpost5
+  - Supervised Learning
+  - Topic Models
+---
+# Setup
+
+```{r setup, warning=FALSE, message=FALSE, include=TRUE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = TRUE)
+library(tidytext)
+library(plyr)
+library(tidyverse)
+library(quanteda)
+library(quanteda.textplots)
+library(quanteda.textstats)
+library(quanteda.textmodels)
+library(devtools)
+library(quanteda.dictionaries)
+library(quanteda.sentiment)
+library(caret)
+library(e1071)
+library(randomForest)
+library(text2vec)
+library(LDAvis)
+library(stm)
+```
+
+# **Data Source**
+
+I will be continuing to use the corpus I've built from pulling tweets from the social media platform Twitter. All tweets have been pulled with relevance to the key words and phrases of `eating bugs` and `eating insects`. The CSV file we will eventually read in is a compilation of such tweets extracted between the dates of November 3rd and November 13th. 
+
+# **Goals**
+
+In this post, I will be exploring the use of supervised learning methods along with topic model analysis within my corpus. I will exclusively be utilizing the techniques found within tutorials 9 & 10. As to whether each technique is effective during our analysis is to be determined throughout this post. 
+
+# **Supervised Learning**
+
+In this section, we will be utilizing the `quanteda.textmodels` & `caret` packages. Thus, both were loaded in in the `Setup` section above. The textmodels packages will simply ensure that the data and models we decide to pull will be placed nicely within our document. Technically, it isn't necessary, but is great with organizing information. `Caret` on the other hand, is a library for supervised learning models and will be heavily used in this section. Some of its functions include creating, fitting & debugging supervised learning models.
+
+## *Reading in & Formatting our Data*
+
+We're going to begin by reading in our tweet corpus and coercing it into a corpus object. In this case, the corpus we are creating is simply going to help us setup the functions that follow. The corpus we will utilize in this section will come after we regenerate the results we obtained last post.
+
+```{r, echo=TRUE}
+bug_tweets <- read.csv("eating_bugs_tweets_11_13_22.csv")
+
+# Coercing our `bug_tweets` object into a corpus
+bug_corpus <- corpus(bug_tweets$x)
+```
+
+We then follow by organizing our data to incorporate the polarity scores we generated in the last post. In this case, we will be utilizing the scores generated when we used the Lexicoder Sentiment Dictionary or `LSD`. The following code was pulled directly from the previous blog post. Minor edits were made to improve efficiency and readability.
+
+```{r, echo=TRUE}
+# Tokenizing corpus
+
+bug_tokens <- tokens(bug_corpus, 
+                     remove_punct = TRUE,
+                     remove_numbers = TRUE,
+                     remove_url = TRUE,
+                     split_tags = TRUE,
+                     remove_separators = TRUE,
+                     remove_symbols = TRUE) %>%
+                     tokens_tolower(keep_acronyms = TRUE) %>%
+  tokens_select(stopwords('english'), selection = "remove")
+
+# Vectorizing the context (target) words or phrases
+bug_words <- c("eating bugs", "eating insects", "bug", "bugs", "insect", "insects")
+
+# Retain only our tokens and their context
+tokens_bug <- tokens_keep(bug_tokens, pattern = phrase(bug_words), window = 40)
+
+data_dictionary_LSD2015_pos_neg <- data_dictionary_LSD2015[1:2]
+
+tokens_bug_lsd <- tokens_lookup(tokens_bug,
+                                dictionary = data_dictionary_LSD2015_pos_neg)
+
+dfm_bug <- dfm(tokens_bug_lsd)
+
+bug_df <- convert(dfm_bug, to = "data.frame")
+
+bug_df$polarity <- (bug_df$positive - bug_df$negative)/(bug_df$positive + bug_df$negative)
+```
+
+Now that we've recreated our data frame, we are going to write our corpus text to a new column in our data frame. This will make it so our polarity metadata will be saved when we convert the `bug.df` object to a new corpus.
+
+```{r, echo=TRUE}
+# Writing the text from our `bug_tweets` object to our `bug_df` (dataframe)
+bug_df$text <- bug_tweets$x
+
+# Dropping entries where both features are 0
+bug_df <- bug_df[-which((bug_df$negative + bug_df$positive)==0),]
+
+# Converting our data frame to a corpus object
+bug_corpus_sl <- corpus(bug_df)
+```
+
+Now we have our new and improved corpus for the sake of testing out supervised learning. Let's confirm that the metadata has been retained.
+
+```{r, echo=TRUE}
+summary(docvars(bug_corpus_sl))
+```
+
+Success, it looks like our metadata was retained! 
+
+## *Creating Training & Testing Data*
+
+The first step for setting up our supervised learning model is to split our data into testing & training data sets. Additionally, we are going to create an extra data set outside the bounds of our experiment. This data set will serve as a control, so we can make a comparison at the end of our analysis. This strategy is identical to that presented in the tutorials.
+
+```{r, echo=TRUE}
+# Setting seed. This ensures that we are able to replicate the splits and results we get.
+set.seed(12345)
+
+# create id variable in corpus metadata
+docvars(bug_corpus_sl, "id") <- 1:ndoc(bug_corpus_sl)
+
+# create training set (60% of data) and initial test set
+N <- ndoc(bug_corpus_sl)
+trainIndex <- sample(1:N, .6 * N)
+testIndex <- c(1:N)[-trainIndex]
+
+# split test set in half (so 20% of data are test, 20% of data are held-out)
+N <- length(testIndex)
+heldOutIndex <- sample(1:N, .5 * N)
+testIndex <- testIndex[-heldOutIndex]
+
+# now apply indices to create subsets and dfms
+dfmTrain <- corpus_subset(bug_corpus_sl, id %in% trainIndex) %>%
+  tokens() %>%
+  dfm()
+
+dfmTest <- corpus_subset(bug_corpus_sl, id %in% testIndex) %>%
+  tokens() %>% dfm()
+
+dfmHeldOut <- corpus_subset(bug_corpus_sl, id %in% heldOutIndex) %>% tokens() %>% dfm()
+```
+
+## *Naïve Bayes*
+
+Using `quanteda` and it's pre-packaged models, we begin by creating a Naïve Bayes Model (NBM) in an attempt to reformat our data into something that will cooperate with supervised learning models.
+
+```{r}
+bug_polarity_NaiveBayes <- textmodel_nb(dfmTrain, docvars(dfmTrain, "polarity"), distribution = "Bernoulli")
+summary(bug_polarity_NaiveBayes)
+```
+
+With that chunk, we created a trained classifier and ran it! Now that it's operational, we want to test and see how well it performed by only retaining words that appear both in our testing and training data. The function `dfm_match()` can do just that. 
+
+```{r}
+dfmTestMatched <- dfm_match(dfmTest, features = featnames(dfmTrain))
+```
+
+Retaining those duplicate tokens, we make the moves to apply the model and test it out.
+
+```{r}
+# create a confusion matrix
+actual <- docvars(dfmTestMatched, "polarity")
+predicted <- predict(bug_polarity_NaiveBayes, newdata = dfmTestMatched)
+u <- union(predicted, actual)
+confusion <- table(factor(predicted,u), factor(actual,u))
+
+
+
+# now calculate a number of statistics related to the confusion matrix
+confusionMatrix(confusion, mode = "everything")
+```
+
+Not a great start. Our confusion matrix provides an accuracy score of ~38% with a 95% Confidence Interval of 33.5 to 42.2. So far, it doesn't seem as if our data will function well with supervised learning methods. We'll continue and see if the issues can be attributed to any 1 specific factor.
+
+```{r}
+predicted_prob <- predict(bug_polarity_NaiveBayes, newdata = dfmTestMatched,
+                         type = "probability")
+head(predicted_prob)
+summary(predicted_prob)
+```
+
+Now, we can see immediately that a majority of polarity classes are unused. This could be skewing the confidence of our model. It reads the -1 class extremely well, but the lack of other class values might be making it doubt itself. Let's tale a look at some other examples.
+
+```{r}
+# The most positive review
+mostPos <- sort.list(predicted_prob[,1], dec = F)[1]
+texts(corpus_subset(bug_corpus_sl, id %in% testIndex))[mostPos]
+```
+
+That is definitely not positive! While there are the means to consider this a positive tweet, the intent behind it is clearly negative once read through.  This only serves to fortify the observation that our confusion matrix isn't confident in it's analysis and that supervised learning may not work with our data.
+
+```{r}
+# the most negative review
+mostNeg <- sort.list(predicted_prob[,1], dec = T)[1]
+texts(corpus_subset(bug_corpus_sl, id %in% testIndex))[mostNeg]
+```
+
+Once again, it seems as though our confusion matrix is indeed confused. Our model can't seem to discern negative from positive and text. Next, we're going to investigate to see what's making the model so confused.
+
+```{r}
+# mixed in tone
+mixed <- sort.list(abs(predicted_prob[,1] - .5), dec = F)[1]
+predicted_prob[mixed,]
+texts(corpus_subset(bug_corpus_sl, id %in% testIndex))[mixed]
+```
+
+It's clear here that the example text, while aired in positivity, in fact contains very sarcastic undertones and would as a whole be considered negative. In one of the earlier blog posts, we had a suspicion that backhanded language would be an obstacle for analysis and this confirms our suspicions. Let's try and look at the most positive review the classifier will give us.
+
+```{r}
+# find a review with high confidence
+veryPos <- sort.list(predicted_prob[1:500, 1], dec = F)[1]
+predicted_prob[veryPos,]
+texts(corpus_subset(bug_corpus_sl, id %in% testIndex))[veryPos]
+```
+
+We've seen this tweet before and it's definitely not positive. Again, it seems as though our matrix here isn't able to delineate positive from negative tweets.
+
+## *Support Vector Machines*
+
+Next, we're going to test out Support Vector Machines (SVM). I'm a bit skeptical of SVMs under these conditions. They are definitely more robust in their analysis, but from my interpretation they work better with larger corpuses and are computationally expensive. Either way, let's give it a shot.  
+
+```{r}
+# set seed
+set.seed(919919)
+
+# sample smaller set of training data
+# We actually don't need this function since our corpus isn't massive as it is
+#newTrainIndex <- trainIndex[sample(1:length(trainIndex), 2000)]
+
+# create small DFM
+dfmTrainSmall <- corpus_subset(bug_corpus_sl, id %in% trainIndex) %>%
+  tokens(remove_punct = TRUE) %>%
+  tokens_select(pattern = stopwords("en"), selection = "remove") %>%
+  dfm()
+
+# trim the dfm down to frequent terms
+dfmTrainSmall <- dfm_trim(dfmTrainSmall, min_docfreq = 20, min_termfreq = 20)
+
+dim(dfmTrainSmall)
+
+# run model
+polarity_SVM <- textmodel_svm(dfmTrainSmall, docvars(dfmTrainSmall, "polarity"))
+```
+
+In the way we shrunk our training set just now, we need to do the same for test set. 
+
+```{r}
+# update test set
+dfmTestMatchedSmall <- dfm_match(dfmTest, features = featnames(dfmTrainSmall))
+
+# create a confusion matrix
+svm_actual <- docvars(dfmTestMatchedSmall, "polarity")
+svm_predicted <- predict(polarity_SVM, newdata = dfmTestMatchedSmall)
+u <- union(predicted, actual)
+svm_confusion <- table(factor(predicted,u), factor(actual,u))
+
+# now calculate a number of statistics related to the confusion matrix
+confusionMatrix(svm_confusion, mode = "everything")
+```
+
+As expected, our results here are much worse than the previous supervised learning model. We're using less data than we began with and due to that, the accuracy of our model plummeted. Either way, lets compare what our most positive and negative tweets are.
+
+```{r}
+svmCoefs <- as.data.frame(t(coefficients(polarity_SVM)))
+#svmCoefs <- svmCoefs %>% arrange(V1)
+#head(svmCoefs, 20)
+#tail(svmCoefs, 20)
+```
+
+It looks like we're getting an error due to the sheer amount of duplicate values and column names we're getting from the resulting data frames. Those duplicates occur because we have such a high quantity of repeat values and unfortunately, I'm not sure if there's an efficient way around it.
+
+We already know that Support Vector Machines aren't going to cut it for our analysis, so for now, we'll move onto Random Forests.
+
+## *Random Forests*
+
+Random Forest classifiers are more computationally intensive than SVMs and require a package separate from `quanteda`. Considering how SVMs went for us, I'm left to speculate that these supervised learning models aren't going to work well for us.
+
+```{r}
+#dfmTrainSmallRf <- convert(dfmTrainSmall, to = "matrix")
+#dfmTestMatchedSmallRf <- convert(dfmTestMatchedSmall, to = "matrix")
+
+
+#set.seed(444)
+#polarity_RF <- randomForest(dfmTrainSmallRf,
+                            #y = as.factor(docvars(dfmTrainSmall)$polarity),
+                            #xtest = dfmTestMatchedSmallRf,
+                            #ytest = as.factor(docvars(dfmTestMatchedSmall)$polarity),
+                            #importance = TRUE,
+                            #mtry = 20,
+                            #ntree = 100)
+```
+
+Here we continue to run into problems relating to corpus size. Because our corpus isn't very big as it is, argument dimensions are preventing our code from running effectively.
+
+Because we've run into nothing but failure using supervised learning methods, I don't believe there's much sense in continuing work surrounding the practice as it relates to my project. We'll leave supervised learning models behind us and move toward topic modeling in the next half of this post. 
+
+# **Topic Modeling**
+
+Starting now with topic modeling, we will be reusing our earlier data set `bug_df` and renaming it.
+
+```{r, echo=TRUE}
+bug_corpus_tm <- bug_df
+
+head(bug_corpus_tm)
+
+dim(bug_corpus_tm)
+```
+
+The corpus consists of 2,500 text entries each representing an individual tweet. According to the `bug_df` object we used to create our topic modeling object, all polarity is currently stored as metadata within our new `bug_corpus_tm` object.
+
+## *Vectorization*
+
+Our next objective is to transform our data set in a way that'll support representing our text in vector space. This alleviates the memory consumed by the quantity of text we have. To start off, we tokenize and lowercase all tokens.
+
+```{r, echo=TRUE}
+# creates string of combined lowercased words
+tokens <- tolower(bug_corpus_tm$text[1:3000])
+
+# performs tokenization
+tokens <- word_tokenizer(tokens)
+
+# prints first two tokenized rows
+head(tokens, 2)
+```
+
+Next, we'll create an iterator that will review each token for each row and make this model less memory intensive.
+
+```{r, echo=TRUE}
+# iterates over each token
+it <- itoken(tokens, ids = bug_corpus_tm$id[1:2500], progressbar = FALSE)
+
+# prints iterator
+it
+```
+
+## *Vocabulary-Based Vectorization*
+
+While this new model we created is faster and less memory intensive, it's a bit more obtuse than the models we've previously worked with. Regardless, our next step is going to be creating our vocabulary that will collaborate with our DFM. 
+
+```{r, echo=TRUE}
+# built the vocabulary
+v <- create_vocabulary(it)
+
+# print vocabulary
+v
+
+# checking dimensions
+dim(v)
+```
+
+With the vocabulary created we're now going to prune our vocabulary so that the only terms that are retained are those that occur at a minimum 10 times.
+
+```{r, echo=TRUE}
+# prunes vocabulary
+v <- prune_vocabulary(v, term_count_min = 10, doc_proportion_max = 0.2)
+
+# check dimensions
+dim(v)
+```
+
+The `dim` function solely serves to visualize our reduction of terms in our corpus.
+
+In preparation for creating our DFM, we are going to vectorize the vocabulary object we created.
+
+```{r, echo=TRUE}
+# creates a closure that helps transform list of tokens into vector space
+vectorizer <- vocab_vectorizer(v)
+```
+
+With that done, we have all the ingredients to create a DFM. We do that by mixing in our iterator, vectorized vocab and a type of matrix.
+
+```{r, echo=TRUE}
+# creates document term matrix
+dtm <- create_dtm(it, vectorizer, type = "dgTMatrix")
+```
+
+With the DTM created, we can make our Latent Dirichlet Allocation model.
+
+```{r, echo=TRUE}
+# create new LDA model
+lda_model <- LDA$new(n_topics = 10, doc_topic_prior = 0.1,
+                     topic_word_prior = 0.01)
+
+# print other methods for LDA
+lda_model
+```
+
+## *Fitting*
+
+We can fit our model now that it's been created.
+
+```{r, echo=TRUE}
+# fitting model
+doc_topic_distr <- 
+  lda_model$fit_transform(x = dtm, n_iter = 1000,
+                          convergence_tol = 0.001, n_check_convergence = 25,
+                          progressbar = FALSE)
+```
+
+With our distribution created, we can effectively calculate what percentage of a certain document within our corpus pertains to the topic at hand. We'll test it on the first doc in our corpus.
+
+```{r, echo=TRUE}
+barplot(doc_topic_distr[1, ], xlab = "topic",
+        ylab = "proportion", ylim = c(0,1),
+        names.arg = 1:ncol(doc_topic_distr))
+```
+
+## *Describing Topics: Top Words*
+
+This next chunk will tell us the top occurring words for each topic.
+
+```{r, echo=TRUE}
+# get top n words for topics 1, 5, and 10
+lda_model$get_top_words(n = 10, topic_number = c(1L, 2L, 8L),
+                        lambda = 1)
+```
+
+This is a bit interesting, but it is better recommended that we use a lamda value larger than 0 but less than 1. Let's see what our results will look like with a lamda value of 0.2. 
+
+```{r, echo=TRUE}
+lda_model$get_top_words(n = 10, topic_number = c(1L, 2L, 8L),
+                        lambda = 0.2)
+```
+
+Some interesting results here! Let's create a web page visualization to better see the results we want to pull
+
+```{r, echo=TRUE}
+# creating plot
+lda_model$plot()
+```
+
+It seems like with this visual, our lambda sweet spot values lies between 0.2 - 0.4. We seem some interesting results between topics 2 & 8 with one seemingly very political while the other thematically holds potential for control/power.
+
+## *Structural Topic Models*
+
+Now, we want to begin estimating the prevalence of topics within our corpus using Structural Topic Models (STM). 
+
+Our first step in doing so will be to recreate our DFM with our polarity meta data. In this case, we are using the Lexicoder Sentiment Dictionary which conveniently labels text with values between 1 & -1.
+
+```{r, echo=TRUE}
+bug_corpus_tm <- bug_df
+
+table(bug_corpus_tm$polarity)
+```
+
+With our data pulled, we need to now reformat it so that it fits our STM. 
+
+```{r, echo=TRUE}
+myDfm <- dfm(tokens(bug_corpus_tm$text),
+             tolower = TRUE, 
+             remove = stopwords("en"),
+             remove_punct = TRUE)
+
+dim(myDfm)
+```
+
+# **Correlated Topic Model**
+
+With our corpus all worked out, we want to prepare an STM that will include multiple covariates. This does significantly slow down our model execution, but could provide some very insightful data.
+
+```{r, echo=TRUE}
+cor_topic_model <- stm(myDfm, K = 8,
+                       verbose = FALSE, init.type = "Spectral")
+cor_topic_model
+summary(cor_topic_model)
+```
+
+Now that we've estimated the model, we want to take a look at the topics which, in this case, aren't exactly neat. We'll use the `labelTopics` function to extract the most frequent terms at topic labels.
+
+```{r, echo=TRUE}
+labelTopics(cor_topic_model)
+```
+
+Unfortunately, we didn't get anything super insightful. Let's try and look at the top documents for each topic to see if we learn anything new.
+
+```{r, echo=TRUE}
+findThoughts(cor_topic_model,
+             texts = bug_corpus_tm$text,
+             topics = c(1:8),
+             n = 1)
+```
+
+It's interesting to see the distribution of our texts to each topic. We can definitely see a theme with each, but I'm not sure if any are particularly useful.
+
+Now, however, we are going to be estimating our STM. We want to utilize our `polarity` variable here as a prevalence predictor.
+
+```{r, echo=TRUE}
+# choose our number of topics 
+k <- 8
+
+# specify model
+myModel <- stm(myDfm,
+               K = k,
+               prevalence = ~ polarity,
+               data = bug_corpus_tm,
+               max.em.its = 1000,
+               seed = 1234,
+               init.type = "Spectral")
+```
+
+This is very different from what we were looking at before. Let's get our topic labels.
+
+```{r, echo=TRUE}
+labelTopics(myModel)
+```
+
+I think this is about what I expected for our topic labels, insightful to our previous data.
+
+Now let's try plotting our top topics and their frequency in the corpus.
+
+```{r, echo=TRUE}
+plot(myModel, type = "summary")
+```
+
+One thing we may have to do in the future it seems is filter out certain key words that appear too frequently. While it's accurate, it doesn't necessarily contribute to the analysis. 
+
+For now, we'll continue by extracting those topics and assigning them to the vector of documents.
+
+```{r, echo=TRUE}
+# get the words
+myTopicNames <- labelTopics(myModel, n=4)$frex
+
+# set up an empty vector
+myTopicLabels <- rep(NA, k)
+
+# set up a loop to go through the topics and collapse the words to a single name
+for (i in 1:k){
+  myTopicLabels[i] <- paste(myTopicNames[i,], collapse = "_")
+}
+
+# print the names
+myTopicLabels
+```
+
+## *Estimate Effect*
+
+With our topics extracted, we finally want to extract the effect of the predictor we created now that all pieces are in place.
+
+```{r, echo=TRUE}
+# estimate effects
+modelEffects <- estimateEffect(formula = 1:k ~ polarity,
+                               stmobj = myModel,
+                               metadata = bug_corpus_tm)
+
+# plot effects
+myRows <- 2
+par(mfrow = c(myRows, 3), bty = "n", lwd = 2)
+for (i in 1:k){
+  plot.estimateEffect(modelEffects,
+                      covariate = "polarity",
+                      xlim = c(-.25, .25),
+                      model = myModel,
+                      topics = modelEffects$topics[i],
+                      method = "difference",
+                      cov.value1 = 1,
+                      cov.value2 = 0, 
+                      main = myTopicLabels[i],
+                      printlegend = F,
+                      linecol = "grey26",
+                      labeltype = "custom",
+                      verbose.labels = F,
+                      custom.labels = c(""))
+  par(new = F)
+}
+```
+
+## *Choosing K*
+
+Choosing K is somewhat of a guess and check process. The experimentation allows us to pull different data, topics and themes from the corpus we provide it. Here we can experiment a bit, but these values and their results aren't entirely necessary.
+
+```{r, echo=TRUE}
+#differentKs <- searchK(myDfm,
+                       #K = c(5, 25, 50),
+                       #prevalence = ~ polarity,
+                       #N = 250,
+                       #data = bug_corpus_tm,
+                       #max.em.its = 1000,
+                       #init.type = "Spectral")
+
+#plot(differentKs)
+```
+
+In the scenario provided by the tutorial, the margins were too large for us to effectively run the function, but, considering the results we've received already, we can call it a day and leave it at that.
+
+Thank you for reading! :)

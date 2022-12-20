@@ -1,0 +1,399 @@
+---
+title: "Blog Post #6: Compiling my Results"
+author: "Alexis Gamez"
+desription: "Studying Text-as-Data as it relates to climate change polarization"
+date: "12/5/2022"
+format:
+  html:
+    toc: true
+    code-fold: true
+    code-copy: true
+    code-tools: true
+categories:
+  - Alexis Gamez
+  - blogpost6
+  - academic articles
+---
+# Setup
+
+```{r setup, warning=FALSE, message=FALSE, include=TRUE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = TRUE)
+library(plyr)
+library(tidyverse)
+library(tidytext)
+library(kableExtra)
+library(rmarkdown)
+library(readr)
+library(devtools)
+library(knitr)
+library(data.table)
+library(rvest)
+library(rtweet)
+library(twitteR)
+library(tm)
+library(lubridate)
+library(quanteda)
+library(quanteda.textplots)
+library(quanteda.textstats)
+library(wordcloud)
+library(text2vec)
+library(ggplot2)
+library(devtools)
+library(quanteda.dictionaries)
+library(quanteda.sentiment)
+library(caret)
+library(e1071)
+library(randomForest)
+library(text2vec)
+library(LDAvis)
+library(stm)
+```
+
+# **Goals**
+The goal of this final blog post is to compile the work and analysis I've done thus far into a form that reflects the efforts behind my project. This blog post includes materials extracted from blog posts 2-5, but the material has been re-ordered and does not necessarily occur chronologically.
+
+# **Data Source**
+As you can imagine by now, gathering data is pivotal toward any analysis! I gathered mine using the packages `rtweet` and `twitteR`. Using the `search_tweets()` function, I pulled 2,640 tweets from the Twitter social media platform to use as the foundation of my corpus. An example of the use of the `search_tweets()` can be found in the code chunk immediately below.
+
+```{r, echo=TRUE}
+#Pull together tweets containing keywords 'eating` and `bugs/insects`.
+#tweet_bugs <- search_tweets("eating bugs OR insects", n = 10000,
+                            #type = "mixed",
+                            #include_rts = FALSE,
+                            #lang = "en")
+
+#Separate out the text from tweet_bugs and build the corpus.
+#tweet_text <- as.vector.data.frame(tweet_bugs$full_text, mode = "any")
+#tweet_corpus <- corpus(tweet_text)
+#tweet_summary <- summary(tweet_corpus)
+```
+
+Considering how far along I am at this point, I've already gathered my corpus  and saved it to a csv file per blog post 3. So to start, we'll just read in the csv data and begin our final analysis.
+
+```{r, echo=TRUE}
+bug_tweets <- read.csv("eating_bugs_tweets_11_13_22.csv")
+head(bug_tweets$x)
+dim(bug_tweets)
+```
+
+# **Pre-Analysis**
+The next logical step would be conduct some pre-analysis on my corpus. Relatively speaking, this is a pretty straightforward process. I've already conducted a majority of the pre-analysis work in previous blog posts, but to summarize, I converted my `bug_tweets` object into a corpus object, created a list object that contains all the words previously deemed to be useless to my analysis, then tokenized my corpus and removed punctuation, numbers, urls, separators, symbols, English stop words and my custom stop words list. Additionally, I split tags in order to remove all symbols within the corpus since tags are abundant. Finally, all tokens were lower-cased and at last my tokens object is ready for use in further analysis.
+
+```{r, echo=TRUE}
+bug_corpus <- corpus(bug_tweets$x)
+
+myStopWords <- c("eat", "bug", "insect", "eating", "bugs", "insects", "like", "xx17965797n", "because", "fuck", "shit", "yeah", "you", "catturd2", "matthancock", "berniespofforf", "klaus", "hancock", "u", "ze", "elonmusk", "wef")
+
+bug_tokens <- tokens(bug_corpus, 
+                     remove_punct = TRUE,
+                     remove_numbers = TRUE,
+                     remove_url = TRUE,
+                     split_tags = TRUE,
+                     remove_separators = TRUE,
+                     remove_symbols = TRUE) %>%
+                     tokens_tolower(keep_acronyms = TRUE) %>%
+  tokens_select(stopwords('english'), selection = "remove") %>%
+  tokens_select(myStopWords, selection = "remove")
+```
+
+With my token object set for use, my first objective was to generate a wordcloud to confirm that our pre-analysis process was effective. In this case, we've reduced max term frequency to 200 with a max document frequency of 0.5. Lastly, in the process of plotting our wordcloud, we formatted it so that the only tokens that are included are those with a minimum count of 30.
+
+```{r, echo=TRUE}
+set.seed(1234)
+
+token_dfm <- dfm(bug_tokens) %>%
+      dfm_trim(max_termfreq = 200) %>%
+      dfm_trim(max_docfreq = .5, docfreq_type = "prop")
+
+textplot_wordcloud(token_dfm, min_count = 30, random_order = FALSE)
+```
+
+The wordcloud on it's own won't tell me much, but it gives a good gauge of what to lookout for throughout the analysis. Here we see words like meat, food, climate, living and more. While I can't make any conclusions right out the gate, I can see a few themes that seem to ride in tandem with key phrases "eating insects" and "eating bugs". Particularly, that of climate change sparks my interest, but I'd like to also plot a co-occurrence network and see what associations are made and how frequently in order to solidify any suspicions. The next code chunk does just that.
+
+```{r, echo=TRUE}
+# let's create a nicer dfm by limiting to words that appear frequently.
+smaller_dfm <- dfm_trim(token_dfm, min_termfreq = 20)
+
+# create fcm from dfm
+token_fcm <- fcm(token_dfm)
+
+# pull the top features
+myFeatures <- names(topfeatures(token_fcm, 35))
+
+# retain only those top features as part of our matrix
+smaller_fcm <- fcm_select(token_fcm, pattern = myFeatures, selection = "keep")
+
+# compute size weight for vertices in network
+size <- log(colSums(smaller_fcm))
+
+# create plot
+textplot_network(smaller_fcm, vertex_size = size / max(size) * 3)
+```
+
+From the network we can see an assortment of different words co-occurring with one another represented by a single blue line between the words. Words like "climate" & "change" co-occurring many times followed by "principal", "student", "america", "future" and "gates". It's interesting to see the re-emergence of a climate change theme, but once again, alone this network tells us nothing, just that certain words show up together more often than others. With that said, there may be more than enough information to take away with this corpus. We're going to prod further and run a readability test to see what kind of corpus we're working with. We're going to test our corpus against the Flesch Kincaid, FOG, and Coleman Liau scales to see where it stands in terms of readability.  
+
+```{r, echo=TRUE}
+# calculate readability
+readability <- textstat_readability(bug_corpus, measure = c("Flesch.Kincaid", "FOG", "Coleman.Liau.grade"))
+
+# add in a tweet count indicator
+readability$tweet <- c(1:nrow(readability))
+
+# Plot readability graph
+ggplot(readability, aes(x = tweet, y = readability)) +
+          geom_line(aes(y = Flesch.Kincaid), color = "black") + 
+          geom_line(aes(y = FOG), color = "red") + 
+          geom_line(aes(y = Coleman.Liau.grade), color = "blue") + 
+          theme_bw()
+```
+
+Now, readability scoring as a concept is not standardized. In fact, the way I want to utilize this graph would be more as a descriptive technique rather than an analytical one. I want to visualize the kind of language I'll be working with and what techniques would be required to pull definitive conclusions. With the average score reading approximately between 10-13 for all 3 scales, I know I'll be working with some less than formal writing. Most formal pieces may sit around the 80-90 range, so to have an average so low means my techniques are going to require more active participation. 
+
+# **Dictionaries**
+Knowing that, I'd like to use dictionaries in my approach of a sentiment analysis. With the knowledge that my corpus uses difficult language, I want to simplify the outputs for my model in order to limit confusion during interpretation of the results. For that reason, I want to compare and contrast the General Inquirer and Lexicoder Sentiment Dictionaries to see which one will be more efficient in my analysis. 
+
+```{r, echo=TRUE}
+# what are the context (target) words or phrases
+bug_words <- c("eating bugs", "eating insects", "bug", "bugs", "insect", "insects")
+
+# retain only our tokens and their context
+tokens_bugs <- tokens(bug_corpus, 
+                     remove_punct = TRUE,
+                     remove_numbers = TRUE,
+                     remove_url = TRUE,
+                     split_tags = TRUE,
+                     remove_separators = TRUE,
+                     remove_symbols = TRUE) %>%
+                     tokens_tolower(keep_acronyms = TRUE) %>%
+  tokens_select(stopwords('english'), selection = "remove") %>%
+tokens_keep(pattern = phrase(bug_words), window = 40)
+
+data_dictionary_LSD2015_pos_neg <- data_dictionary_LSD2015[1:2]
+
+tokens_bugs_lsd <- tokens_lookup(tokens_bugs,
+                                dictionary = data_dictionary_LSD2015_pos_neg)
+
+dfm_bugs <- dfm(tokens_bugs_lsd)
+
+# convert to data frame
+mat_bugs <- convert(dfm_bugs, to = "data.frame")
+
+# drop if both features are 0
+mat_bugs <- mat_bugs[-which((mat_bugs$negative + mat_bugs$positive)==0),]
+
+# print a little summary info
+paste("We have ", nrow(mat_bugs), " tweets that mention positive or negative words in the context of eating bugs or insects.", sep="")
+
+# create polarity scores
+mat_bugs$polarity <- (mat_bugs$positive - mat_bugs$negative)/(mat_bugs$positive + mat_bugs$negative)
+
+# Here we are coercing our corpus into a dfm without using the LSD. 
+bug_dfm <- dfm(bug_tokens)
+
+# Here we're re-converting our corpus to a dfm using the general inquirer dictionary
+bug_dfm_geninq <- bug_dfm %>%
+  dfm_lookup(data_dictionary_geninqposneg)
+
+bug_df_geninq <- convert(bug_dfm_geninq, to = "data.frame")
+
+bug_df_geninq$polarity <- (bug_df_geninq$positive - bug_df_geninq$negative)/(bug_df_geninq$positive + bug_df_geninq$negative)
+
+bug_df_geninq$polarity[which((bug_df_geninq$positive + bug_df_geninq$negative) == 0)] <- 0
+
+colnames(bug_df_geninq) <- paste("geninq", colnames(bug_df_geninq), sep = "_")
+
+mat_sent_df <- merge(mat_bugs, bug_df_geninq, bug_df_nrc, by.x = "doc_id", by.y = "geninq_doc_id")
+
+mat_sent_df <- rename(mat_sent_df, "lsd_polarity" = "polarity")
+
+ggplot(mat_sent_df, mapping = aes(x = geninq_polarity,
+                              y = lsd_polarity)) +
+  geom_point(alpha = 0.1) +
+  geom_smooth() +
+  geom_abline(intercept = 0, slope = 1, color = "red") +
+  theme_bw()
+```
+
+We can see from the printed text that after pre-processing, our corpus was reduced from 
+2,640 to 2,500 texts. That 2,500 is the corpus that we'll be utilizing for the rest of our analysis. Along with our printed message, we plotted a line graph that compares the polarity ratings between the General Inquirer and LS Dictionaries. Using the GI dictionary as the linear baseline, we can see that provided with context, the LS dictionary is much less forgiving with positive polarity ratings than the GI dictionary. Let's get an example of the most positively rated text within the LS dictionary.
+
+## *Dictionaries within Contexts*
+```{r, echo=TRUE}
+writeLines(head(bug_corpus[which(mat_bugs$polarity == 1)]))
+```
+
+An interesting result. I wouldn't inherently assume that these texts are positive, but when compared to the efficiency of the other dictionaries from previous blog posts, this doesn't look bad! They definitely aren't the most negative texts we've seen in the corpus. Next, let's take a look at the most negative texts.
+
+```{r, echo=TRUE}
+writeLines(head(bug_corpus[which(mat_bugs$polarity == -1)]))
+```
+
+Once again, some interesting results here. A majority of the most negative tweets seem to address a recent publicity stunt led by Matt Hancock, a British politician that participated in a show called "I'm a Celebrity". In said show, Matt Hancock is seen eating insects, among other things. This stunt led to some outrage within British twitter communities and it's apparent in our corpus as we can see. While interesting, this doesn't information doesn't immediately serve much use. Let's plot a histogram as a visualization of our polarity spread.  
+
+```{r, echo=TRUE}
+# plot
+ggplot(mat_bugs) + 
+     geom_histogram(aes(x=polarity), binwidth = .25, fill = 'firebrick4')
+```
+
+
+Very interesting stuff here! We can see that according to the LS dictionary, nearly 1,000 text out of our 2,500 text corpus are concentration  at a polarity value of -1. According to the LS dictionary, texts containing majority negative tokens are valued at -1, texts containing majority positive tokens are valued at 1 and those with equal parts negative to positive tokens are rated at 0. As with any model, I can't expect perfection and there is bound to be errors, which is why I suspect many of the neutral texts are simply inconclusive computationally. Still, this histogram confirms my suspicions that the connotation behind eating bugs is generally negative.
+
+To finalize my analysis, I'd like to pinpoint the topics in which those negative texts are concentrated. By incorporating some sort of topic model, I can effectively see where user thoughts are when tandemly considering eating bugs/insects in their lives.
+
+# **Topic Modeling**
+To create my topic model, I am going to reuse the functions I used to create the LSD data frame from earlier and assign it to the new TM object. However, before pruning the data frame down to 2,500 texts, I'm going to write in all the text from our corpus so that it can be tokenized during the TM process. From there, I can utilize the `head()` function and see the spread of negative, positive and polarity values within the corpus along with their corresponding text.
+
+```{r, echo=TRUE}
+# Tokenizing corpus
+
+bug_tokens <- tokens(bug_corpus, 
+                     remove_punct = TRUE,
+                     remove_numbers = TRUE,
+                     remove_url = TRUE,
+                     split_tags = TRUE,
+                     remove_separators = TRUE,
+                     remove_symbols = TRUE) %>%
+                     tokens_tolower(keep_acronyms = TRUE) %>%
+  tokens_select(stopwords('english'), selection = "remove")
+
+# Vectorizing the context (target) words or phrases
+bug_words <- c("eating bugs", "eating insects", "bug", "bugs", "insect", "insects")
+
+# Retain only our tokens and their context
+tokens_bug <- tokens_keep(bug_tokens, pattern = phrase(bug_words), window = 40)
+
+data_dictionary_LSD2015_pos_neg <- data_dictionary_LSD2015[1:2]
+
+tokens_bug_lsd <- tokens_lookup(tokens_bug,
+                                dictionary = data_dictionary_LSD2015_pos_neg) %>%
+  tokens_select(myStopWords, selection = "remove")
+
+dfm_bug <- dfm(tokens_bug_lsd)
+
+bug_df <- convert(dfm_bug, to = "data.frame")
+
+bug_df$polarity <- (bug_df$positive - bug_df$negative)/(bug_df$positive + bug_df$negative)
+
+# Writing the text from our `bug_tweets` object to our `bug_df` (dataframe)
+bug_df$text <- bug_tweets$x
+
+# Dropping entries where both features are 0
+bug_df <- bug_df[-which((bug_df$negative + bug_df$positive)==0),]
+
+bug_corpus_tm <- bug_df
+
+head(bug_corpus_tm)
+
+dim(bug_corpus_tm)
+```
+
+Success! The corpus, again, consists of 2,500 text entries each representing an individual tweet each with their corresponding polarity ratings.
+
+## *Vectorization*
+Now I want to transform the data set into something that can represent my text in vector space. This alleviates the memory consumed by the quantity of text available. This should already be done, but I am going to tokenize and lowercase all tokens again just in case.
+
+```{r, echo=TRUE}
+# creates string of combined lowercased words
+tokens <- tolower(bug_corpus_tm$text[1:3000])
+
+# performs tokenization
+tokens <- word_tokenizer(tokens)
+
+# prints first two tokenized rows
+head(tokens, 2)
+```
+
+Next, I'll create an iterator that reviews each token in each row and makes this model less memory intensive.
+
+```{r, echo=TRUE}
+# iterates over each token
+it <- itoken(tokens, ids = bug_corpus_tm$id[1:2500], progressbar = FALSE)
+```
+
+## *Vocabulary-Based Vectorization*
+While this new model is faster and less memory intensive, it's a bit more obtuse than I'd like. Regardless, the next step is to create the vocabulary. 
+
+```{r, echo=TRUE}
+# built the vocabulary
+v <- create_vocabulary(it)
+```
+
+With the vocabulary created, I'll prune the vocabulary so that the only terms that are retained are those that occur at a minimum 10 times.
+
+```{r, echo=TRUE}
+# prunes vocabulary
+v <- prune_vocabulary(v, term_count_min = 10, doc_proportion_max = 0.2)
+```
+
+I'm also going to vectorize the vocabulary object in preparation for creating the DFM.
+
+```{r, echo=TRUE}
+# creates a closure that helps transform list of tokens into vector space
+vectorizer <- vocab_vectorizer(v)
+```
+
+With that done, I should be able to create the DFM. That's by mixing in the iterator, vectorized vocab and a type of matrix.
+
+```{r, echo=TRUE}
+# creates document term matrix
+dtm <- create_dtm(it, vectorizer, type = "dgTMatrix")
+```
+
+With the DTM created, it's time to create the Latent Dirichlet Allocation model.
+
+```{r, echo=TRUE}
+# create new LDA model
+lda_model <- LDA$new(n_topics = 10, doc_topic_prior = 0.1,
+                     topic_word_prior = 0.01)
+```
+
+## *Fitting*
+Now it's time to fit the created model.
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+# fitting model
+doc_topic_distr <- 
+  lda_model$fit_transform(x = dtm, n_iter = 1000,
+                          convergence_tol = 0.001, n_check_convergence = 25,
+                          progressbar = FALSE)
+```
+
+With the distribution created, I want to calculate what percentage of a certain document within our corpus pertains to the topics we're trying to visualize. I'll test it on the first doc in our corpus.
+
+```{r, echo=TRUE}
+set.seed(1234)
+
+barplot(doc_topic_distr[1, ], xlab = "topic",
+        ylab = "proportion", ylim = c(0,1),
+        names.arg = 1:ncol(doc_topic_distr))
+```
+
+Interestingly enough, it's apparent that topics 7, 9 and 10 are the most prevalent in the first tweet. I wonder what they might represent?
+
+## *Describing Topics: Top Words*
+Using this chunk below will tell me what the top occurring words for each topic are. Maybe now, I can get some insight into what the first tweet references the most.
+
+```{r, echo=TRUE}
+lda_model$get_top_words(n = 10, topic_number = c(7L, 9L, 10L),
+                        lambda = 0.2)
+```
+
+Some interesting results here! Let's create a web page visualization to better see the results we want to pull
+
+```{r, echo=TRUE}
+# creating plot
+lda_model$plot()
+```
+
+According to the result, topic 7 seems to be a mix of political and control tokens, 9 seems to thematically pertain more to scholastic and electoral tokens and topic 10 heavily references British politician Matt Hancock and tokens associated with his appearance on "I'm a Celeb".
+
+# **Conclusions**
+Unfortunately, the analysis didn't provide any definitive conclusions but there are a few things I can take away from the experience. It's easy to tell, using LS dictionary, that a majority of our documents within the corpus are negative in reference to key phrases "eating bugs" and "eating insects". With that, I get the impression that said key phrases hold negative connotation in English speaking countries, although, nothing is concrete.
+
+Additionally, using the data that shows high co-occurrence frequency with words "climate" and "change" as a sort of context indicator within the corpus. Paired with the information we received concerning a majority of the texts in the corpus being negative, I speculate that a majority of the "climate change" occurrences occur along with negative sentiments. If prodded further, I suspect that further research would reveal that in the context of eating bugs, climate change is a bit of a sore topic. Further research could prove or disprove that climate change as an incentive in insect farming marketing is high effective/ineffective.
+
+While unfortunate, a lack of definitive conclusions isn't all bad. Were I to move forward in my research, I would love the ability to expand my corpus and retain metadata from the beginning of my analysis. Both would contribute greatly to the quality of my results and being able to visualize sentiments and topics according to regions and coordinates could be interesting and reveal further marketing potential for a rising insect farming industry.
+
+Thank you for reading! :)
+
