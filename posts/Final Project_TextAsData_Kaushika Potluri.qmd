@@ -1,14 +1,13 @@
 ---
-title: "Sentiment Analysis on Covid-19 Vaccine"
+title: "Final Project"
 editor: visual
 desription: "Sentiment Analysis and Topic Modeling on Covid-19 Vaccine"
-date: "10/30/2022"
+date: "12/20/2022"
 format:
-  html:
+  pdf:
     toc: true
-    code-fold: true
-    code-copy: true
-    code-tools: true
+    number-sections: true
+    colorlinks: true
 categories:
   - Final Project 
   - Kaushika Potluri
