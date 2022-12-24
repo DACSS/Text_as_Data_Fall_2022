@@ -1,6 +1,7 @@
 ---
 title: "CaitlinRowley - Blog Post 2"
 author: "Caitlin Rowley"
+date: 10/06/2022
 description: "In my second blog post, I will be running some analyses on my selected data set, Dobbs v. Jackson Women's Health Organization."
 format: html
 editor: visual

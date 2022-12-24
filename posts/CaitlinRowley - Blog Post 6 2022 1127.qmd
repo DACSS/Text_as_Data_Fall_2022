@@ -1,9 +1,10 @@
 ---
-title: "CaitlinRowley - Blog Post 5"
+title: "CaitlinRowley - Blog Post 6"
 author: "Caitlin Rowley"
-date: 11/13/2022
 editor: visual
 ---
+
+## Data Summary:
 
 I have switched data sets for future blog posts. I will be using open-ended survey responses from a 1996 study titled *Survey of Gun Owners in the United States*.
 
@@ -56,7 +57,9 @@ Survey_unique %>%
 
 There are 812 rows in this data frame and 4 columns. The four columns represent the following variables: survey respondent ID ('Respondent_ID), survey question ('Survey_Question'), response code ('Code'), and verbatim open-ended responses ('Open_Ended_Responses'). Each of the 812 rows now represents a unique observation. Additionally, there are 8134 unique words across all open-ended responses.
 
-I will next create a corpus and remove both capitalization and punctuation from all open-ended responses.
+## Pre-Processing:
+
+I will next create a corpus and remove both capitalization, punctuation, and stopwords from all open-ended responses.
 
 ```{r}
 # create a corpus:
@@ -76,10 +79,13 @@ head(Survey_tokens)
 Survey_tokens_stopwords <- tokens_select(Survey_tokens,
                                        pattern = stopwords("en"),
                                        selection = "remove")
-
 ```
 
+## Data Visualization:
+
 I will next extract features from my corpus by creating a document feature matrix. From there, I will be able to generate data visualizations.
+
+For my first data visualization, I will generate a word cloud that focuses on the 50 most frequently-occurring words that appear a minimum of five times.
 
 ```{r}
 # create document feature matrix:
@@ -95,13 +101,15 @@ topfeatures(Survey_dfm, 10)
 textplot_wordcloud(Survey_dfm, min_count = 5, max_words = 50, random_order = FALSE)
 ```
 
-Next, I will generate a feature co-occurrence matrix:
+## Co-Occurrence Matrix:
+
+Next, I will generate a feature co-occurrence matrix to determine which terms, if any, are more likely to occur more frequently together than would be expected by chance.
 
 ```{r}
-# create a dfm that is limited to words that appear frequently (more than 30% of responses).
+# create a document-feature matrix that is limited to words that appear frequently (more than 5% of responses).
 
-Survey_dfm_freq <- dfm_trim(Survey_dfm, min_termfreq = 10)
-Survey_dfm_freq <- dfm_trim(Survey_dfm_freq, min_docfreq = .1, docfreq_type = "prop")
+Survey_dfm_freq <- dfm_trim(Survey_dfm, min_termfreq = 5)
+Survey_dfm_freq <- dfm_trim(Survey_dfm_freq, min_docfreq = .05, docfreq_type = "prop")
 
 # use dfm to create a feature co-occurring matrix:
 
@@ -111,11 +119,34 @@ Survey_fcm <- fcm(Survey_dfm_freq)
 
 dim(Survey_fcm)
 
+# check features:
+
+Survey_fcm@Dimnames[["features"]]
+
+# view co-occurrence matrix:
+
+print(Survey_fcm)
 ```
 
-QUESTION: The first time I ran this chunk of code, the dimensions of the feature co-occurring matrix were shown to be 395 rows by 395 columns. After re-running the codes after reopening R, the dimensions are now showing as 0 rows by 0 columns.
+We can see from selecting the co-occurrence matrix, whose dimensions are 7x7, that the co-occurring features are "house," "gun," "street," "pulled," "outside," "home," and "car." This provides limited information, but it may be interesting when considered within the context of my research question.
 
-Next, I will apply the correlated topic modeling approach to my data set, since I do not have a covariate such as sentiment.
+I would like to revisit my minimum term frequency, as well, to determine whether I should adjust it based on varied outputs.
+
+In the interim, I will generate a word network that uses a feature co-occurrence matrix capturing terms occurring a minimum of 10 times.
+
+```{r}
+library(quanteda.textplots)
+
+Survey_fcm_small <- fcm(Survey_dfm_freq, min_count = 10, max_words = 10)
+
+# generate text plot:
+
+textplot_network(Survey_fcm_small)
+```
+
+## Correlated Topic Modeling:
+
+Next, I will apply the correlated topic modeling approach to my data set. I will also select a covariate based on closed-ended variables included in my data set.
 
 ```{r}
 # install packages:
@@ -131,8 +162,6 @@ Survey_dfm_clean <- dfm(Survey_dfm)
              remove_punct = TRUE
 dim(Survey_dfm_clean)
 ```
-
-The dimensions of my data frame are 812 rows and 1224 columns. Next, I will generate
 
 ```{r}
 # generate correlated topic model:
@@ -159,14 +188,11 @@ findThoughts(cor_topic_model,
              topics = c(1:5),
              n = 1)
 
-
 ```
 
 I am having a little trouble with this code; my understanding is that it's intended to yield the document most frequently associated with the five topics, but I am seeing a different, less informative output. I will work more on this.
 
-QUESTION: Do I need to identify question numbers associated with location/reason for drawing a weapon and apply this as a covariate? Do I need a covariate? If so, how do I identify one when all open-ended responses are aggregated? I.e., the 'Survey_Question' variable is the only indicator for response categories, so there isn't necessarily another variable to choose from in terms of identifying a predictor.
-
-\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+## Structure Topic Modeling:
 
 Try structural topic modeling (without predictor). My thought is that these results may look similar to the correlation topic model since I am not adding a predictor.
 
@@ -184,6 +210,7 @@ Survey_STM <- stm(Survey_dfm,
                seed = 1234,
                init.type = "Spectral")
 
+
 labelTopics(Survey_STM)
 ```
 
@@ -193,10 +220,10 @@ Try some visualization to capture the estimated frequency of words across topics
 plot(Survey_STM, type = "summary")
 ```
 
-Next, I want to try extracting topics and assigning them to the vector of document proportions. Extract the top words (as identified by 'frex'), collapse the strings, and separate the tokens:
+Next, I want to try extracting topics and assigning them to the vector of document proportions. I will extract the top words (as identified by 'frex'), collapse the strings, and separate the tokens:
 
 ```{r}
-# get the words:
+# extract the words:
 
 Survey_words <- labelTopics(Survey_STM, n=5)$frex
 
@@ -213,6 +240,87 @@ for(i in 1:k){Survey_topic_labels[i] <- paste(Survey_words[i,], collapse = "_")}
 Survey_topic_labels
 ```
 
+We now can see that the top words within each topic.
+
 Without a predictor or covariate, I am unable to measure the effect on topic distributions. Identifying a way to incorporate a covariate or predictor will be my next task.
 
-I may also try a K-Means analysis.
+## Next steps:
+
+## K-Means Cluster Analysis:
+
+I will next try a K-Means Cluster Analysis to see if any observations can be clustered into groups. I need to review this code chunk, as I am having trouble identifying clusters and generating visualizations. For future reference, I have left sample code in the code chunk.
+
+```{r}
+library(tidyverse)
+library(cluster)
+
+# start with k=10
+
+kmeans <- kmeans(Survey_dfm_clean, centers = 10, nstart = 1)
+kmeans
+
+# text mining and weight by term frequency (inverse document frequency):
+
+Survey_tm <- convert(Survey_dfm_clean, to = "tm")
+Survey_wtfidf <- tm::weightTfIdf(Survey_tm)
+
+# remove sparse terms:
+
+Survey_wtfidf_sparse <- tm::removeSparseTerms(Survey_wtfidf, 0.999)
+
+# create matrix:
+
+wrfidf_matrix <- as.matrix(Survey_wtfidf_sparse)
+
+# k-means cluster:
+
+Survey_kmeans <- kmeans(wrfidf_matrix, centers = 10)
+names(Survey_kmeans)
+
+# plot clusters:
+
+clusplot(wrfidf_matrix)
+
+# SAMPLE CODE: 
+
+# generate Confusion Matrix:
+
+Survey_vector <- as.vector(Survey_dfm_clean)
+
+Survey_CM <- table(Survey_vector, kmeans$cluster)
+Survey_CM
+  
+# Model Evaluation and visualization
+plot(iris_1[c("Sepal.Length", "Sepal.Width")])
+plot(iris_1[c("Sepal.Length", "Sepal.Width")], 
+     col = kmeans.re$cluster)
+plot(iris_1[c("Sepal.Length", "Sepal.Width")], 
+     col = kmeans.re$cluster, 
+     main = "K-means with 3 clusters")
+  
+## Plotting cluster centers
+kmeans.re$centers
+kmeans.re$centers[, c("Sepal.Length", "Sepal.Width")]
+  
+# cex is font size, pch is symbol
+points(kmeans.re$centers[, c("Sepal.Length", "Sepal.Width")], 
+       col = 1:3, pch = 8, cex = 3) 
+  
+## Visualizing clusters
+y_kmeans <- kmeans.re$cluster
+clusplot(iris_1[, c("Sepal.Length", "Sepal.Width")],
+         y_kmeans,
+         lines = 0,
+         shade = TRUE,
+         color = TRUE,
+         labels = 2,
+         plotchar = FALSE,
+         span = TRUE,
+         main = paste("Cluster iris"),
+         xlab = 'Sepal.Length',
+         ylab = 'Sepal.Width')
+```
+
+***QUESTION: I do not have access to the closed-ended questions in this survey; they are documented separately from the open-ended responses, and they require software that I do not have access to.***
+
+***I am unclear as to what the codes in the open-ended responses are referring. I tried to identify patterns based on survey questions, it seems that codes are applied across different branches of the survey (1 means x, y, or z depending on the respondents' previous answers). Do I need to pivot the data frame so that each code is its own variable? Would I then apply each code as its own covariate? To me, this seems very convoluted, and I anticipate there being a certain amount of speculation involved.***

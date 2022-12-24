@@ -1,6 +1,7 @@
 ---
 title: "CaitlinRowley - Blog Post 3"
 author: "Caitlin Rowley"
+date: 10/16/2022
 description: "In this blog post, I am continuing run analyses on my selected data set. I will specifically focus on pre-processing and data visualization."
 format: html
 editor: visual
